@@ -19,7 +19,7 @@ func New() *Basgo {
 }
 
 // REPL is read-evaluate-print-loop
-func REPL() {
+func (b *Basgo) REPL() {
 }
 
 func (b *Basgo) printf(format string, v ...interface{}) {

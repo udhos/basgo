@@ -13,7 +13,7 @@ func TestListRun(t *testing.T) {
 }
 
 func loadListRun(t *testing.T, source, expectedList, expectedOutput string) {
-	b := basgo.NewBasgo()
+	b := basgo.New()
 
 	b.ExecuteString(source) // Load
 

@@ -1,13 +1,13 @@
 package main
 
 import (
-	"fmt"
-	"io"
+	//"fmt"
+	//"io"
 	"log"
-	"os"
+	//"os"
 	"runtime"
 
-	"github/udhos/basgo/basgo"
+	"github.com/udhos/basgo/basgo"
 )
 
 const (
@@ -18,7 +18,7 @@ const (
 func main() {
 	log.Printf("%s version %s runtime %s GOMAXPROC=%d", basgoLabel, basgoVersion, runtime.Version(), runtime.GOMAXPROCS(0))
 
-	b := basgo.NewBasgo()
+	b := basgo.New()
 
 	b.REPL()
 }
