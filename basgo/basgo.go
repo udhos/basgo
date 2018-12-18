@@ -1,10 +1,12 @@
 package basgo
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"log"
 	"os"
+	"strings"
 )
 
 // Basgo holds a full environment
@@ -20,6 +22,37 @@ func New() *Basgo {
 
 // REPL is read-evaluate-print-loop
 func (b *Basgo) REPL() {
+	r := bufio.NewReader(b.In) // buffer delays feedback
+	w := bufio.NewWriter(b.Out)
+	defer w.Flush()
+
+	printf := func(format string, v ...interface{}) {
+		s := fmt.Sprintf(format, v...)
+		_, err := w.Write([]byte(s))
+		if err != nil {
+			log.Printf("REPL printf: %v", err)
+		}
+	}
+
+	for {
+		s, errRead := r.ReadString('\n')
+		if errRead != nil {
+			log.Printf("REPL: input: %v", errRead)
+			break
+		}
+		line := strings.TrimSpace(s)
+		log.Printf("REPL: [%s]", line)
+		if line == "" {
+			continue
+		}
+		b.executeLine(printf, line)
+	}
+}
+
+type funcPrintf func(format string, v ...interface{})
+
+func (b *Basgo) executeLine(printf funcPrintf, line string) {
+	printf("executeLine: [%s]\n", line)
 }
 
 func (b *Basgo) printf(format string, v ...interface{}) {
