@@ -3,6 +3,8 @@ package main
 import (
 	"bytes"
 	"testing"
+
+	"github.com/udhos/basgo/basgo"
 )
 
 func TestListRun(t *testing.T) {
@@ -11,7 +13,7 @@ func TestListRun(t *testing.T) {
 }
 
 func loadListRun(t *testing.T, source, expectedList, expectedOutput string) {
-	b := NewBasgo()
+	b := basgo.NewBasgo()
 
 	b.ExecuteString(source) // Load
 

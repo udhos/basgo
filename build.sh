@@ -15,4 +15,5 @@ build() {
 	go install -v "$pkg"
 }
 
+build ./basgo
 build ./basgo-run
