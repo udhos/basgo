@@ -1,4 +1,9 @@
-#!/bin/sh
+#!/bin/bash
+
+die() {
+	echo 2>&1 $0: $#
+	exit 
+}
 
 build() {
 	local pkg="$1"
@@ -15,5 +20,22 @@ build() {
 	go install -v "$pkg"
 }
 
+build_lex() {
+	local pkg="$1"
+
+	go test "$pkg"
+	go install -v "$pkg"
+}
+
+go get github.com/blynn/nex
+
+hash nex || die missing nex
+
+pushd lex
+nex -s -o generated-lex.go lex.nex
+popd
+
+build_lex ./lex
+build ./lex-run
 build ./basgo
 build ./basgo-run
