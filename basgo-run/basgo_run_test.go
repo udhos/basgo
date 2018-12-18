@@ -42,7 +42,7 @@ func loadListRun(t *testing.T, source, expectedList, expectedOutput string) {
 	}
 }
 
-const program1 = `10 cls
+const program1 = `10cls
 20 print "hi"
 30 a$="world"
 40 print a$

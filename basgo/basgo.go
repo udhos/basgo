@@ -22,9 +22,8 @@ func New() *Basgo {
 
 // REPL is read-evaluate-print-loop
 func (b *Basgo) REPL() {
-	r := bufio.NewReader(b.In) // buffer delays feedback
+	r := bufio.NewReader(b.In)
 	w := bufio.NewWriter(b.Out)
-	defer w.Flush()
 
 	printf := func(format string, v ...interface{}) {
 		s := fmt.Sprintf(format, v...)
@@ -37,7 +36,7 @@ func (b *Basgo) REPL() {
 	for {
 		s, errRead := r.ReadString('\n')
 		if errRead != nil {
-			log.Printf("REPL: input: %v", errRead)
+			log.Printf("REPL input: %v", errRead)
 			break
 		}
 		line := strings.TrimSpace(s)
@@ -46,6 +45,7 @@ func (b *Basgo) REPL() {
 			continue
 		}
 		b.executeLine(printf, line)
+		w.Flush()
 	}
 }
 
