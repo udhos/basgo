@@ -3,7 +3,7 @@
 //
 // the empty regex seen immediately above (//) is not a comment
 // below is user code
-// NN_FUN is replaced by the generated scan
+// NN_FUN is replaced by the generated scanner
 package lex
 
 import (
