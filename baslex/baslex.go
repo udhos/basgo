@@ -4,6 +4,7 @@ import (
 	"io"
 )
 
+// Tokens
 const (
 	TkEOF   = iota // EOF
 	TkFIXME = iota // FIXME
