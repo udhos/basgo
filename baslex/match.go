@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-type funcState func(l *Lex, b byte) (Token, bool)
+type funcState func(l *Lex, b byte) Token
 
 var tabState = []funcState{
 	matchBlank,
@@ -26,38 +26,38 @@ func (l *Lex) foundEOF() Token {
 	return Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: foundEOF bad state=%d", l.state)}
 }
 
-func (l *Lex) match(b byte) (Token, bool) {
+func (l *Lex) match(b byte) Token {
 
 	if l.state < 0 || l.state >= len(tabState) {
-		return Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: match bad state=%d", l.state)}, true
+		return Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: match bad state=%d", l.state)}
 	}
 
 	return tabState[l.state](l, b)
 }
 
-func (l *Lex) save(b byte) (Token, bool) {
+func (l *Lex) save(b byte) Token {
 	if errSave := l.buf.WriteByte(b); errSave != nil {
-		return Token{ID: TkErrLarge, Value: fmt.Sprintf("ERROR-LARGE-TOKEN: %s", errSave)}, true
+		return Token{ID: TkErrLarge, Value: fmt.Sprintf("ERROR-LARGE-TOKEN: %s", errSave)}
 	}
-	return tokenNull, false
+	return tokenNull
 }
 
-func matchBlank(l *Lex, b byte) (Token, bool) {
+func matchBlank(l *Lex, b byte) Token {
 
 	switch {
 	case eol(b):
-		return Token{ID: TkEOL, Value: "EOL"}, true
+		return Token{ID: TkEOL, Value: "EOL"}
 	case blank(b):
-		return tokenNull, false
+		return tokenNull
 	case b == '\'':
 		l.state = stCommentQ
 		return l.save(b)
 	case b == ':':
-		return Token{ID: TkColon, Value: ":"}, true
+		return Token{ID: TkColon, Value: ":"}
 	}
 
 	log.Printf("matchBlank: FIXME-WRITEME")
-	return tokenFIXME, true
+	return tokenFIXME
 }
 
 func blank(b byte) bool {
@@ -68,17 +68,17 @@ func eol(b byte) bool {
 	return b == '\r' || b == '\n'
 }
 
-func matchCommentQ(l *Lex, b byte) (Token, bool) {
+func matchCommentQ(l *Lex, b byte) Token {
 
 	switch {
 	case eol(b):
 		// push back EOL
 		if errUnread := l.r.UnreadByte(); errUnread != nil {
-			return Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)}, true
+			return Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)}
 		}
 		l.state = stBlank // blank state will deliver EOL
 
-		return Token{ID: TkCommentQ, Value: l.buf.String()}, true // deliver comment q
+		return Token{ID: TkCommentQ, Value: l.buf.String()} // deliver comment q
 	}
 
 	return l.save(b)

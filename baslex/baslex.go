@@ -122,8 +122,8 @@ func (l *Lex) findToken() Token {
 			return l.foundErrorInput(errRead)
 		}
 
-		t, found := l.match(b)
-		if found {
+		t := l.match(b)
+		if t.ID != TkNull {
 			return t
 		}
 	}
