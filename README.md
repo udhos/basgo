@@ -2,6 +2,8 @@
 
 # References
 
-http://www.antonis.de/qbebooks/gwbasman/
+http://www.antonis.de/qbebooks/gwbasman/ - GW-BASIC User's Guide
 
-https://godoc.org/modernc.org/golex
+https://github.com/robhagemans/pcbasic - GW-BASIC emulator
+
+https://godoc.org/modernc.org/golex - lex/flex-like utility
