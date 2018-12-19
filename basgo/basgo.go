@@ -33,6 +33,16 @@ func (b *Basgo) REPL() {
 		}
 	}
 
+	b.execReader(printf, r, w.Flush)
+}
+
+type funcPrintf func(format string, v ...interface{})
+
+type hasReadString interface {
+	ReadString(delim byte) (string, error)
+}
+
+func (b *Basgo) execReader(printf funcPrintf, r hasReadString, flush func() error) {
 	for {
 		s, errRead := r.ReadString('\n')
 		if errRead != nil {
@@ -40,19 +50,16 @@ func (b *Basgo) REPL() {
 			break
 		}
 		line := strings.TrimSpace(s)
-		log.Printf("REPL: [%s]", line)
 		if line == "" {
 			continue
 		}
-		b.executeLine(printf, line)
-		w.Flush()
+		b.execLine(printf, line)
+		flush()
 	}
 }
 
-type funcPrintf func(format string, v ...interface{})
-
-func (b *Basgo) executeLine(printf funcPrintf, line string) {
-	printf("executeLine: [%s]\n", line)
+func (b *Basgo) execLine(printf funcPrintf, line string) {
+	printf("execLine: [%s] FIXME WRITEME\n", line)
 }
 
 func (b *Basgo) printf(format string, v ...interface{}) {
@@ -66,17 +73,14 @@ func (b *Basgo) write(s string) {
 	}
 }
 
-// ExecuteString executes a string in environment
+// ExecuteLine executes a single line
+func (b *Basgo) ExecuteLine(line string) {
+	b.execLine(b.printf, line)
+}
+
+// ExecuteString executes a multi-line string
 func (b *Basgo) ExecuteString(s string) {
-	b.printf("ExecuteString: FIXME WRITEME")
-}
-
-// ExecuteCommandList executes LIST command
-func (b *Basgo) ExecuteCommandList() {
-	b.printf("ExecuteCommandList: FIXME WRITEME")
-}
-
-// ExecuteCommandRun executes RUN command
-func (b *Basgo) ExecuteCommandRun() {
-	b.printf("ExecuteCommandRun: FIXME WRITEME")
+	r := bufio.NewReader(strings.NewReader(s))
+	w := bufio.NewWriter(b.Out)
+	b.execReader(b.printf, r, w.Flush)
 }

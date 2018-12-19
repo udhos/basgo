@@ -5,49 +5,59 @@ import (
 )
 
 const (
-	TkEOF = iota
-	TkError = iota
+	TkEOF   = iota // EOF
+	TkFIXME = iota // FIXME
 
-	TkLineNumber = iota
-	TkString = iota
-	TkEqual = iota
-	TkUnequal = iota
+	TkLineNumber = iota // Line number
+	TkString     = iota // String
+	TkEqual      = iota // Equal
+	TkUnequal    = iota // Unequal
 
-	TkKeywordCls = iota
+	TkKeywordCls = iota // CLS
 
-	TkIdentifier = iota
+	TkIdentifier = iota // Identifier
 )
 
+// Token is a lexical token
 type Token struct {
-	Id int
-	Value string
+	ID     int
+	Value  string
 	Offset int
 }
 
+// IsEOF checks for EOF token
 func (t Token) IsEOF() bool {
 	return t.ID == TkEOF
 }
 
+// Lex is a full lexer object
 type Lex struct {
-	r io.Reader
+	r   io.Reader
 	eof bool
 }
 
+// New creates a Lex object
 func New(input io.Reader) *Lex {
 	return &Lex{r: input}
 }
 
+var tokenEOF = Token{ID: TkEOF, Value: "EOF"}
+
 func (l *Lex) returnEOF() Token {
-	l.eof = true
-	return Token{Id: TkEOF, Value: "EOF"}
+	l.eof = true // EOF sent
+	return tokenEOF
 }
 
+// Next gets next token
 func (l *Lex) Next() Token {
-	if eof {
+	if l.eof {
+		// will send EOF forever
 		return l.returnEOF()
 	}
-	return Token{Id: TkError, Value: "FIXME-WRITEME"}
+	return Token{ID: TkFIXME, Value: "FIXME-WRITEME"}
+}
 
+// HasToken checks if there are more tokens
 func (l *Lex) HasToken() bool {
-	return l.eof
+	return !l.eof
 }

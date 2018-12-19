@@ -37,5 +37,6 @@ popd
 
 build_lex ./lex
 build ./lex-run
+build ./baslex
 build ./basgo
 build ./basgo-run

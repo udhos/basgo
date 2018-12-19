@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"os"
 	"testing"
 
 	"github.com/udhos/basgo/basgo"
@@ -10,9 +11,13 @@ import (
 func TestListRun(t *testing.T) {
 	loadListRun(t, program1, list1, output1)
 	loadListRun(t, program2, list2, output2)
+	loadListRun(t, program3, list3, output3)
 }
 
 func loadListRun(t *testing.T, source, expectedList, expectedOutput string) {
+
+	verbose := testing.Verbose() || os.Getenv("DEBUG") != ""
+
 	b := basgo.New()
 
 	b.ExecuteString(source) // Load
@@ -22,11 +27,14 @@ func loadListRun(t *testing.T, source, expectedList, expectedOutput string) {
 	outList := bytes.NewBuffer(bufList)
 	b.Out = outList
 
-	b.ExecuteCommandList() // List
+	b.ExecuteLine("LIST")
 
 	resultList := outList.String()
 	if expectedList != resultList {
-		t.Errorf("LIST MISMATCH:\nexpected: [%v]\nresult: [%v]", expectedList, resultList)
+		t.Errorf("LIST MISMATCH")
+		if verbose {
+			t.Errorf("  LIST expected: [%v]\n  LIST result: [%v]", expectedList, resultList)
+		}
 	}
 
 	// redirect stdout to buf
@@ -34,11 +42,14 @@ func loadListRun(t *testing.T, source, expectedList, expectedOutput string) {
 	outRun := bytes.NewBuffer(bufRun)
 	b.Out = outRun
 
-	b.ExecuteCommandRun() // Run
+	b.ExecuteLine("RUN")
 
 	resultRun := outRun.String()
 	if expectedOutput != resultRun {
-		t.Errorf("RUN MISMATCH:\nexpected: [%v]\nresult: [%v]", expectedOutput, resultRun)
+		t.Errorf("RUN MISMATCH")
+		if verbose {
+			t.Errorf("  RUN expected: [%v]\n  RUN result: [%v]", expectedOutput, resultRun)
+		}
 	}
 }
 
@@ -81,4 +92,17 @@ const output2 = `
 
   :
   :::
+`
+
+const program3 = `10a=1
+20a!=2
+30print a a!
+`
+
+const list3 = `10 A=1
+20 A!=2
+30 PRINT A A!
+`
+
+const output3 = `  2  2
 `

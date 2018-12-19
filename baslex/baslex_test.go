@@ -1,10 +1,8 @@
 package baslex
 
 import (
-	"bytes"
+	"strings"
 	"testing"
-
-	"github.com/udhos/basgo/basgo"
 )
 
 func TestEOF(t *testing.T) {
@@ -13,7 +11,7 @@ func TestEOF(t *testing.T) {
 		t.Errorf("could not find any token")
 	}
 	tok := lex.Next()
-	if !tok.isEOF() {
+	if !tok.IsEOF() {
 		t.Errorf("non-EOF token: %v", tok)
 	}
 }
