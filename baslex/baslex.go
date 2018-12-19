@@ -59,7 +59,7 @@ func (t Token) IsError() bool {
 
 // Lex is a full lexer object
 type Lex struct {
-	r      *bufio.Reader
+	r      io.ByteScanner
 	eof    bool // hit EOF?
 	broken bool // hit error?
 	buf    bytes.Buffer
@@ -67,7 +67,7 @@ type Lex struct {
 }
 
 // New creates a Lex object
-func New(input *bufio.Reader) *Lex {
+func New(input io.ByteScanner) *Lex {
 	//return &Lex{r: input, buf: make([]byte, 0, 10)}
 	return &Lex{r: input}
 }
