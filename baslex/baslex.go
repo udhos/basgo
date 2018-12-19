@@ -54,7 +54,7 @@ type Lex struct {
 
 // New creates a Lex object
 func New(input io.Reader) *Lex {
-	return &Lex{r: input, buf: make([]byte, 10)}
+	return &Lex{r: input, buf: make([]byte, 0, 10)}
 }
 
 var tokenNull = Token{}
@@ -91,6 +91,8 @@ func (l *Lex) HasToken() bool {
 
 func (l *Lex) findToken() Token {
 
+	log.Printf("findToken: len=%d cap=%d", len(l.buf), cap(l.buf))
+
 	for {
 		if consume := l.tokenOffset + l.tokenSize; consume > 0 {
 			// shift last token
@@ -107,7 +109,8 @@ func (l *Lex) findToken() Token {
 
 		// grab more data
 		n, errRead := l.r.Read(l.buf[size:cap(l.buf)])
-		log.Printf("findToken: read=[%s]", string(l.buf[size:]))
+		l.buf = l.buf[:size+n]
+		log.Printf("findToken: size=%d read=[%s]", n, string(l.buf[size:]))
 		switch errRead {
 		case nil:
 			if n < 1 {
@@ -129,6 +132,7 @@ func (l *Lex) findToken() Token {
 			return t
 		}
 
+		log.Printf("findToken: FIXME WRITEME")
 		return tokenFIXME // stop loop
 	}
 
@@ -136,5 +140,6 @@ func (l *Lex) findToken() Token {
 }
 
 func (l *Lex) match() (Token, bool) {
+	log.Printf("match: FIXME WRITEME")
 	return tokenFIXME, true
 }
