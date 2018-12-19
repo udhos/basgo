@@ -11,7 +11,7 @@ import (
 	"fmt"
 )
 
-  var nLines, nChars int
+var nLines, nChars int
 
 func Run() {
 	NN_FUN(NewLexer(os.Stdin))
