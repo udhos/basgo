@@ -34,12 +34,13 @@ func (t Token) IsEOF() bool {
 // Lex is a full lexer object
 type Lex struct {
 	r   io.Reader
-	eof bool
+	eof bool // has sent EOF?
+	buf []byte
 }
 
 // New creates a Lex object
 func New(input io.Reader) *Lex {
-	return &Lex{r: input}
+	return &Lex{r: input, buf: make([]byte, 10)}
 }
 
 var tokenEOF = Token{ID: TkEOF, Value: "EOF"}
