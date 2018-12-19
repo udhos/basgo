@@ -1,12 +1,11 @@
 package baslex
 
 import (
-	"strings"
 	"testing"
 )
 
 func TestEOF(t *testing.T) {
-	lex := New(strings.NewReader(""))
+	lex := NewStr("")
 	if !lex.HasToken() {
 		t.Errorf("could not find any token")
 	}
@@ -17,7 +16,7 @@ func TestEOF(t *testing.T) {
 }
 
 func TestCommentQ1(t *testing.T) {
-	lex := New(strings.NewReader("'"))
+	lex := NewStr("'")
 	if !lex.HasToken() {
 		t.Errorf("could not find any token")
 	}
@@ -31,7 +30,7 @@ func TestCommentQ1(t *testing.T) {
 }
 
 func TestCommentQ2(t *testing.T) {
-	lex := New(strings.NewReader(" '"))
+	lex := NewStr(" '")
 	if !lex.HasToken() {
 		t.Errorf("could not find any token")
 	}
@@ -45,7 +44,7 @@ func TestCommentQ2(t *testing.T) {
 }
 
 func TestCommentQ3(t *testing.T) {
-	lex := New(strings.NewReader("' "))
+	lex := NewStr("' ")
 	if !lex.HasToken() {
 		t.Errorf("could not find any token")
 	}
@@ -59,7 +58,7 @@ func TestCommentQ3(t *testing.T) {
 }
 
 func TestCommentQ4(t *testing.T) {
-	lex := New(strings.NewReader(" ' "))
+	lex := NewStr(" ' ")
 	if !lex.HasToken() {
 		t.Errorf("could not find any token")
 	}
@@ -73,7 +72,7 @@ func TestCommentQ4(t *testing.T) {
 }
 
 func TestCls(t *testing.T) {
-	lex := New(strings.NewReader(" 10cls "))
+	lex := NewStr(" 10cls ")
 
 	if !lex.HasToken() {
 		t.Errorf("could not find 1st token")

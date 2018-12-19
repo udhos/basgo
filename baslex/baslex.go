@@ -1,8 +1,12 @@
 package baslex
 
 import (
+	"bufio"
+	"bytes"
+	"fmt"
 	"io"
-	"log"
+	//"log"
+	"strings"
 )
 
 // Tokens
@@ -16,6 +20,7 @@ const (
 	TkErrInternal = iota // Internal error
 	TkErrLarge    = iota // Large token -- last error
 
+	TkColon      = iota // Colon :
 	TkCommentQ   = iota // Comment '
 	TkLineNumber = iota // Line number
 	TkString     = iota // String
@@ -24,25 +29,22 @@ const (
 
 	TkKeywordCls = iota // CLS
 
-	TkIdentifier = iota // Identifier
+	TkIdentifier = iota // Identifier (variable)
 )
 
 const (
-	stBegin       = iota
-	stBeginCR     = iota
-	stCommentQ    = iota
-	stCommentQ_CR = iota
-	stBlank       = iota
-	stName        = iota
-	stNumber      = iota
-	stString      = iota
+	stBlank    = iota
+	stCommentQ = iota
+	//stName        = iota
+	//stNumber      = iota
+	//stString      = iota
 )
 
 // Token is a lexical token
 type Token struct {
-	ID     int
-	Value  string
-	Offset int
+	ID    int
+	Value string
+	//	Offset int
 }
 
 // IsEOF checks for EOF token
@@ -57,28 +59,34 @@ func (t Token) IsError() bool {
 
 // Lex is a full lexer object
 type Lex struct {
-	r      io.Reader
-	eof    bool // has sent EOF?
+	r      *bufio.Reader
+	eof    bool // hit EOF?
 	broken bool // hit error?
-	buf    []byte
+	buf    bytes.Buffer
 	state  int
-	offset int
 }
 
 // New creates a Lex object
-func New(input io.Reader) *Lex {
-	return &Lex{r: input, buf: make([]byte, 0, 10)}
+func New(input *bufio.Reader) *Lex {
+	//return &Lex{r: input, buf: make([]byte, 0, 10)}
+	return &Lex{r: input}
+}
+
+// NewStr creates a Lex object from string
+func NewStr(s string) *Lex {
+	return New(bufio.NewReader(strings.NewReader(s)))
 }
 
 var tokenNull = Token{}
 var tokenEOF = Token{ID: TkEOF, Value: "EOF"}
 var tokenFIXME = Token{ID: TkFIXME, Value: "FIXME-WRITEME"}
-var tokenErrInput = Token{ID: TkErrInput, Value: "ERROR-INPUT"}
-var tokenErrInternal = Token{ID: TkErrInternal, Value: "ERROR-INTERNAL"}
-var tokenErrLarge = Token{ID: TkErrLarge, Value: "ERROR-LARGE-TOKEN"}
 
-func (l *Lex) returnEOF() Token {
-	l.eof = true // set EOF, no more tokens
+//var tokenErrInput = Token{ID: TkErrInput, Value: "ERROR-INPUT"}
+//var tokenErrInternal = Token{ID: TkErrInternal, Value: "ERROR-INTERNAL"}
+//var tokenErrLarge = Token{ID: TkErrLarge, Value: "ERROR-LARGE-TOKEN"}
+
+func (l *Lex) returnTokenEOF() Token {
+	//l.eof = true // set EOF, no more tokens
 	return tokenEOF
 }
 
@@ -86,7 +94,7 @@ func (l *Lex) returnEOF() Token {
 func (l *Lex) Next() Token {
 	if !l.HasToken() {
 		// will send EOF forever
-		return l.returnEOF()
+		return l.returnTokenEOF()
 	}
 
 	t := l.findToken()
@@ -102,6 +110,32 @@ func (l *Lex) HasToken() bool {
 	return !l.eof && !l.broken
 }
 
+func (l *Lex) findToken() Token {
+
+	for {
+		b, errRead := l.r.ReadByte()
+		switch errRead {
+		case nil:
+		case io.EOF:
+			return l.foundEOF()
+		default:
+			return l.foundErrorInput(errRead)
+		}
+
+		t, found := l.match(b)
+		if found {
+			return t
+		}
+	}
+
+	// never reached
+}
+
+func (l *Lex) foundErrorInput(err error) Token {
+	return Token{ID: TkErrInput, Value: fmt.Sprintf("ERROR-INPUT: after [%s]: %s", l.buf.String(), err.Error())}
+}
+
+/*
 func (l *Lex) findToken() Token {
 
 	log.Printf("findToken: len=%d cap=%d", len(l.buf), cap(l.buf))
@@ -218,3 +252,4 @@ func (l *Lex) match() (Token, bool) {
 
 	return tokenNull, false
 }
+*/
