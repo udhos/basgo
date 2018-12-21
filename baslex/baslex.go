@@ -27,7 +27,9 @@ const (
 	TkEqual    = iota // Equal
 	TkUnequal  = iota // Unequal
 
-	TkKeywordCls = iota // CLS
+	TkKeywordCls  = iota // CLS
+	TkKeywordEnd  = iota // END
+	TkKeywordTime = iota // TIME$
 
 	TkIdentifier = iota // Identifier (variable)
 )

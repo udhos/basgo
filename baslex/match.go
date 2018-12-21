@@ -3,6 +3,7 @@ package baslex
 import (
 	"fmt"
 	"log"
+	"strings"
 )
 
 const (
@@ -10,8 +11,30 @@ const (
 	stCommentQ = iota
 	stString   = iota
 	stNumber   = iota
-	//stName        = iota
+	stName     = iota
 )
+
+var (
+	tabKeywords = []struct {
+		TokenID int
+		Name    string
+	}{
+		{TkKeywordCls, "CLS"},
+		{TkKeywordEnd, "END"},
+		{TkKeywordTime, "TIME$"},
+	}
+)
+
+// "CLS" => TkKeywordCls
+func findKeyword(name string) int {
+	nameUp := strings.ToUpper(name)
+	for _, k := range tabKeywords {
+		if nameUp == k.Name {
+			return k.TokenID
+		}
+	}
+	return TkIdentifier
+}
 
 type funcState func(l *Lex, b byte) Token
 
@@ -20,6 +43,7 @@ var tabState = []funcState{
 	matchCommentQ,
 	matchString,
 	matchNumber,
+	matchName,
 }
 
 func (l *Lex) consume(t Token) Token {
@@ -42,9 +66,17 @@ func (l *Lex) foundEOF() Token {
 		return l.consume(Token{ID: TkString})
 	case stNumber:
 		return l.consume(Token{ID: TkNumber})
+	case stName:
+		return l.consumeName()
 	}
 
 	return Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: foundEOF bad state=%d", l.state)}
+}
+
+func (l *Lex) consumeName() Token {
+	name := l.buf.String()
+	id := findKeyword(name)
+	return l.consume(Token{ID: id})
 }
 
 func (l *Lex) match(b byte) Token {
@@ -81,10 +113,17 @@ func matchBlank(l *Lex, b byte) Token {
 	case digit(b):
 		l.state = stNumber
 		return l.save(b)
+	case letter(b):
+		l.state = stName
+		return l.save(b)
 	}
 
 	log.Printf("matchBlank: FIXME-WRITEME")
 	return tokenFIXME
+}
+
+func letter(b byte) bool {
+	return (b >= 'a' && b <= 'z') || (b >= 'A' && b <= 'Z')
 }
 
 func digit(b byte) bool {
@@ -151,4 +190,29 @@ func matchNumber(l *Lex, b byte) Token {
 	l.state = stBlank // blank state will deliver next token
 
 	return l.consume(Token{ID: TkNumber})
+}
+
+func matchName(l *Lex, b byte) Token {
+
+	switch {
+
+	case letter(b) || digit(b):
+		return l.save(b)
+
+	case b == '$' || b == '%' || b == '!' || b == '#':
+		l.state = stBlank
+		// attention: must save byte before extracting value for new token
+		if t := l.save(b); t.ID != TkNull {
+			return t
+		}
+		return l.consumeName()
+	}
+
+	// push back non-name byte
+	if errUnread := l.r.UnreadByte(); errUnread != nil {
+		return Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)}
+	}
+	l.state = stBlank // blank state will deliver next token
+
+	return l.consumeName()
 }

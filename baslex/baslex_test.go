@@ -56,15 +56,34 @@ func TestNumber(t *testing.T) {
 	num345 := Token{ID: TkNumber, Value: `345`}
 	strHi := Token{ID: TkString, Value: `" hi "`}
 
-	compareValue(t, "number", `0`, []Token{{ID: TkNumber, Value: `0`}, expectTokenEOF})
-	compareValue(t, "number", ` 1 `, []Token{{ID: TkNumber, Value: `1`}, expectTokenEOF})
-	compareValue(t, "number", `20`, []Token{{ID: TkNumber, Value: `20`}, expectTokenEOF})
-	compareValue(t, "number", ` 345 `, []Token{num345, expectTokenEOF})
-	compareValue(t, "number", ` 345 67 `, []Token{num345, num67, expectTokenEOF})
-	compareValue(t, "number", ` 345:67 `, []Token{num345, expectTokenColon, num67, expectTokenEOF})
-	compareValue(t, "number", ` 345 : 67 `, []Token{num345, expectTokenColon, num67, expectTokenEOF})
-	compareValue(t, "number", ` 345" hi "67 `, []Token{num345, strHi, num67, expectTokenEOF})
-	compareValue(t, "number", ` 345  " hi "  67 `, []Token{num345, strHi, num67, expectTokenEOF})
+	compareValue(t, "number-simple", `0`, []Token{{ID: TkNumber, Value: `0`}, expectTokenEOF})
+	compareValue(t, "number-simple-spaces", ` 1 `, []Token{{ID: TkNumber, Value: `1`}, expectTokenEOF})
+	compareValue(t, "number-simple2", `20`, []Token{{ID: TkNumber, Value: `20`}, expectTokenEOF})
+	compareValue(t, "number-simple2-spaces", ` 345 `, []Token{num345, expectTokenEOF})
+	compareValue(t, "number-two-spaces", ` 345 67 `, []Token{num345, num67, expectTokenEOF})
+	compareValue(t, "number-two-colon", ` 345:67 `, []Token{num345, expectTokenColon, num67, expectTokenEOF})
+	compareValue(t, "number-two-color-spc", ` 345 : 67 `, []Token{num345, expectTokenColon, num67, expectTokenEOF})
+	compareValue(t, "number-two-string", ` 345" hi "67 `, []Token{num345, strHi, num67, expectTokenEOF})
+	compareValue(t, "number-two-string-spc", ` 345  " hi "  67 `, []Token{num345, strHi, num67, expectTokenEOF})
+}
+
+func TestName(t *testing.T) {
+	expectTokenEOF := tokenEOF
+	expectTokenColon := Token{ID: TkColon, Value: ":"}
+	num67 := Token{ID: TkNumber, Value: `67`}
+	strHi := Token{ID: TkString, Value: `" hi "`}
+
+	compareValue(t, "name", `a`, []Token{{ID: TkIdentifier, Value: `a`}, expectTokenEOF})
+	compareValue(t, "name", `a$`, []Token{{ID: TkIdentifier, Value: `a$`}, expectTokenEOF})
+	compareValue(t, "name", `a!`, []Token{{ID: TkIdentifier, Value: `a!`}, expectTokenEOF})
+	compareValue(t, "name", `a%`, []Token{{ID: TkIdentifier, Value: `a%`}, expectTokenEOF})
+	compareValue(t, "name", `a#`, []Token{{ID: TkIdentifier, Value: `a#`}, expectTokenEOF})
+
+	compareValue(t, "name", ` a `, []Token{{ID: TkIdentifier, Value: `a`}, expectTokenEOF})
+	compareValue(t, "name", ` abc `, []Token{{ID: TkIdentifier, Value: `abc`}, expectTokenEOF})
+	compareValue(t, "name", ` TIME 67 " hi "`, []Token{{ID: TkIdentifier, Value: `TIME`}, num67, strHi, expectTokenEOF})
+	compareValue(t, "name", ` TIME$ 67 " hi "`, []Token{{ID: TkKeywordTime, Value: `TIME$`}, num67, strHi, expectTokenEOF})
+	compareValue(t, "name", ` : CLS  67 " hi "`, []Token{expectTokenColon, {ID: TkKeywordCls, Value: `CLS`}, num67, strHi, expectTokenEOF})
 }
 
 func compareValue(t *testing.T, label, str string, tokens []Token) {
