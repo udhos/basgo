@@ -32,14 +32,6 @@ const (
 	TkIdentifier = iota // Identifier (variable)
 )
 
-const (
-	stBlank    = iota
-	stCommentQ = iota
-	//stName        = iota
-	//stNumber      = iota
-	//stString      = iota
-)
-
 // Token is a lexical token
 type Token struct {
 	ID    int
@@ -59,11 +51,12 @@ func (t Token) IsError() bool {
 
 // Lex is a full lexer object
 type Lex struct {
-	r      io.ByteScanner
-	eof    bool // hit EOF?
-	broken bool // hit error?
-	buf    bytes.Buffer
-	state  int
+	r       io.ByteScanner
+	eofSeen bool // hit EOF?
+	eofSent bool // delivered EOF?
+	broken  bool // hit error?
+	buf     bytes.Buffer
+	state   int
 }
 
 // New creates a Lex object
@@ -86,14 +79,18 @@ var tokenFIXME = Token{ID: TkFIXME, Value: "FIXME-WRITEME"}
 //var tokenErrLarge = Token{ID: TkErrLarge, Value: "ERROR-LARGE-TOKEN"}
 
 func (l *Lex) returnTokenEOF() Token {
-	//l.eof = true // set EOF, no more tokens
+	l.eofSent = true
 	return tokenEOF
 }
 
 // Next gets next token
 func (l *Lex) Next() Token {
 	if !l.HasToken() {
-		// will send EOF forever
+		return l.returnTokenEOF()
+	}
+
+	if l.eofSeen {
+		// deliver pending EOF
 		return l.returnTokenEOF()
 	}
 
@@ -107,7 +104,7 @@ func (l *Lex) Next() Token {
 
 // HasToken checks if there are more tokens
 func (l *Lex) HasToken() bool {
-	return !l.eof && !l.broken
+	return !l.eofSent && !l.broken
 }
 
 func (l *Lex) findToken() Token {
@@ -134,122 +131,3 @@ func (l *Lex) findToken() Token {
 func (l *Lex) foundErrorInput(err error) Token {
 	return Token{ID: TkErrInput, Value: fmt.Sprintf("ERROR-INPUT: after [%s]: %s", l.buf.String(), err.Error())}
 }
-
-/*
-func (l *Lex) findToken() Token {
-
-	log.Printf("findToken: len=%d cap=%d", len(l.buf), cap(l.buf))
-
-	for {
-		size := len(l.buf)
-		if size >= cap(l.buf) {
-			return tokenErrLarge // no room for more data
-		}
-
-		if size < 1 {
-			// grab more data
-			n, errRead := l.r.Read(l.buf[size:cap(l.buf)])
-			l.buf = l.buf[:size+n]
-			log.Printf("findToken: size=%d read=[%s]", n, string(l.buf[size:]))
-			switch errRead {
-			case nil:
-				if n < 1 {
-					return tokenErrInternal // ugh should not happen
-				}
-				l.buf = l.buf[:size+n]
-				log.Printf("findToken: buf=[%s]", string(l.buf))
-			case io.EOF:
-				return l.foundEOF() // EOF
-			default:
-				return tokenErrInput // unexpected input error
-			}
-		}
-
-		if len(l.buf) < 1 {
-			return tokenErrInternal // ugh should not happen
-		}
-
-		if t, found := l.match(); found {
-			return t
-		}
-	}
-
-	// NOT REACHED
-}
-
-func (l *Lex) consumeToken(size int) {
-	log.Printf("consume: size=%d [%s]", size, string(l.buf[:size]))
-	l.buf = append(l.buf[:0], l.buf[size:]...)
-}
-
-func (l *Lex) foundEOF() Token {
-	switch l.state {
-	case stCommentQ:
-		return Token{ID: TkCommentQ, Value: "'", Offset: l.offset}
-	}
-	return l.returnEOF() // EOF
-}
-
-func (l *Lex) match() (Token, bool) {
-
-	for i := 0; i < len(l.buf); i++ {
-		b := l.buf[i]
-		switch l.state {
-		case stBegin:
-			switch {
-			case b == '\r':
-				// Search for LF
-				l.state = stBeginCR
-			case b == '\n':
-				// LF
-				l.consumeToken(i + 1)
-				return Token{ID: TkEOL, Value: "EOL", Offset: l.offset}, true
-			case b == ' ':
-				l.state = stBlank
-			case b == '\'':
-				l.state = stCommentQ
-				l.consumeToken(i + 1)
-				return Token{ID: TkCommentQ, Value: "'", Offset: l.offset}, true
-			}
-		case stCommentQ:
-			switch {
-			case b == '\r':
-				// Search for LF
-				l.state = stCommentQ_CR
-			case b == '\n':
-				// LF
-				l.consumeToken(i + 1)
-				return Token{ID: TkCommentQ, Value: "'", Offset: l.offset}, true
-			}
-		case stCommentQ_CR:
-			if b == '\n' {
-				// CR LF
-				l.state = stBegin
-				l.consumeToken(i + 1)
-				return Token{ID: TkCommentQ, Value: "'", Offset: l.offset}, true
-			}
-			l.state = stBegin // restart
-			//l.consumeToken(0) // do not consume = push back
-			return Token{ID: TkCommentQ, Value: "'", Offset: l.offset}, true
-		case stBeginCR:
-			if b == '\n' {
-				// CR LF
-				l.consumeToken(i + 1)
-				return Token{ID: TkEOL, Value: "EOL", Offset: l.offset}, true
-			}
-			l.state = stBegin // restart
-			//l.consumeToken(0) // do not consume = push back
-			return Token{ID: TkEOL, Value: "EOL", Offset: l.offset}, true
-		case stBlank:
-		case stName:
-		case stNumber:
-		case stString:
-		default:
-			return tokenErrInternal, true // ugh should not happen
-		}
-		l.offset++
-	}
-
-	return tokenNull, false
-}
-*/

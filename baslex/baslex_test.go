@@ -5,97 +5,41 @@ import (
 )
 
 func TestEOF(t *testing.T) {
-	lex := NewStr("")
-	if !lex.HasToken() {
-		t.Errorf("could not find any token")
-	}
-	tok := lex.Next()
-	if !tok.IsEOF() {
-		t.Errorf("non-EOF token: %v", tok)
-	}
+	compare(t, "eof", "", []int{TkEOF})
 }
 
-func TestCommentQ1(t *testing.T) {
-	lex := NewStr("'")
-	if !lex.HasToken() {
-		t.Errorf("could not find any token")
-	}
-	tok := lex.Next()
-	if tok.ID != TkCommentQ {
-		t.Errorf("non-comment-q token: %v", tok)
-	}
-	if lex.HasToken() {
-		t.Errorf("non-expected token after comment-q: %v", lex.Next())
-	}
+func TestColon(t *testing.T) {
+	compare(t, "colon-empty", "", []int{TkEOF})
+	compare(t, "colon-1space", " ", []int{TkEOF})
+	compare(t, "colon-1colon", ":", []int{TkColon, TkEOF})
+	compare(t, "colon-1colon-spaces", "  :  ", []int{TkColon, TkEOF})
+	compare(t, "colon-2colon", "::", []int{TkColon, TkColon, TkEOF})
+	compare(t, "colon-2colon-spaces", "  ::  ", []int{TkColon, TkColon, TkEOF})
+	compare(t, "colon-2colon-spaces-between", "  :  :  ", []int{TkColon, TkColon, TkEOF})
 }
 
-func TestCommentQ2(t *testing.T) {
-	lex := NewStr(" '")
-	if !lex.HasToken() {
-		t.Errorf("could not find any token")
-	}
-	tok := lex.Next()
-	if tok.ID != TkCommentQ {
-		t.Errorf("non-comment-q token: %v", tok)
-	}
-	if lex.HasToken() {
-		t.Errorf("non-expected token after comment-q")
-	}
+func TestCommentQ(t *testing.T) {
+	compare(t, "commentq-empty", "'", []int{TkCommentQ, TkEOF})
+	compare(t, "commentq-hi", "' hi", []int{TkCommentQ, TkEOF})
+	compare(t, "commentq-hi-comment", "' hi '", []int{TkCommentQ, TkEOF})
+	compare(t, "commentq-colon-after", "' hi :", []int{TkCommentQ, TkEOF})
+	compare(t, "commentq-colon-before", ":' hi", []int{TkColon, TkCommentQ, TkEOF})
+	compare(t, "commentq-colon-before-spaces", " : ' hi", []int{TkColon, TkCommentQ, TkEOF})
 }
 
-func TestCommentQ3(t *testing.T) {
-	lex := NewStr("' ")
-	if !lex.HasToken() {
-		t.Errorf("could not find any token")
-	}
-	tok := lex.Next()
-	if tok.ID != TkCommentQ {
-		t.Errorf("non-comment-q token: %v", tok)
-	}
-	if lex.HasToken() {
-		t.Errorf("non-expected token after comment-q")
-	}
-}
+func compare(t *testing.T, label, str string, tokens []int) {
 
-func TestCommentQ4(t *testing.T) {
-	lex := NewStr(" ' ")
-	if !lex.HasToken() {
-		t.Errorf("could not find any token")
-	}
-	tok := lex.Next()
-	if tok.ID != TkCommentQ {
-		t.Errorf("non-comment-q token: %v", tok)
-	}
-	if lex.HasToken() {
-		t.Errorf("non-expected token after comment-q")
-	}
-}
-
-func TestCls(t *testing.T) {
-	lex := NewStr(" 10cls ")
-
-	if !lex.HasToken() {
-		t.Errorf("could not find 1st token")
-	}
-	if tok := lex.Next(); tok.ID != TkLineNumber {
-		t.Errorf("non-line-number token: %v", tok)
+	lex := NewStr(str)
+	var i int
+	for ; lex.HasToken(); i++ {
+		tok := lex.Next()
+		if tok.ID != tokens[i] {
+			t.Errorf("compare: %s: bad token: found %d expected: %v", label, tok.ID, tokens[i])
+			return
+		}
 	}
 
-	if !lex.HasToken() {
-		t.Errorf("could not find 2nd token")
-	}
-	if tok := lex.Next(); tok.ID != TkKeywordCls {
-		t.Errorf("non-cls token: %v", tok)
-	}
-
-	if !lex.HasToken() {
-		t.Errorf("could not find 3rd token")
-	}
-	if tok := lex.Next(); !tok.IsEOF() {
-		t.Errorf("non-EOF token: %v", tok)
-	}
-
-	if lex.HasToken() {
-		t.Errorf("non-expected token after EOF")
+	if i != len(tokens) {
+		t.Errorf("compare: %s: bad token count: found %d expected: %d", label, i, len(tokens))
 	}
 }

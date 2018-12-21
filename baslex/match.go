@@ -5,6 +5,14 @@ import (
 	"log"
 )
 
+const (
+	stBlank    = iota
+	stCommentQ = iota
+	//stName        = iota
+	//stNumber      = iota
+	//stString      = iota
+)
+
 type funcState func(l *Lex, b byte) Token
 
 var tabState = []funcState{
@@ -14,11 +22,11 @@ var tabState = []funcState{
 
 func (l *Lex) foundEOF() Token {
 
-	l.eof = true // set EOF, no more tokens
+	l.eofSeen = true
 
 	switch l.state {
 	case stBlank:
-		return l.returnTokenEOF() // EOF
+		return l.returnTokenEOF()
 	case stCommentQ:
 		return Token{ID: TkCommentQ, Value: l.buf.String()} // deliver comment q
 	}
