@@ -8,9 +8,9 @@ import (
 const (
 	stBlank    = iota
 	stCommentQ = iota
+	stString   = iota
 	//stName        = iota
 	//stNumber      = iota
-	//stString      = iota
 )
 
 type funcState func(l *Lex, b byte) Token
@@ -18,6 +18,14 @@ type funcState func(l *Lex, b byte) Token
 var tabState = []funcState{
 	matchBlank,
 	matchCommentQ,
+	matchString,
+}
+
+func (l *Lex) consume(t Token) Token {
+	t.Value = l.buf.String()
+	//log.Printf("consume: [%s]", t.Value)
+	l.buf.Reset()
+	return t
 }
 
 func (l *Lex) foundEOF() Token {
@@ -28,7 +36,9 @@ func (l *Lex) foundEOF() Token {
 	case stBlank:
 		return l.returnTokenEOF()
 	case stCommentQ:
-		return Token{ID: TkCommentQ, Value: l.buf.String()} // deliver comment q
+		return l.consume(Token{ID: TkCommentQ})
+	case stString:
+		return l.consume(Token{ID: TkString})
 	}
 
 	return Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: foundEOF bad state=%d", l.state)}
@@ -60,6 +70,9 @@ func matchBlank(l *Lex, b byte) Token {
 	case b == '\'':
 		l.state = stCommentQ
 		return l.save(b)
+	case b == '"':
+		l.state = stString
+		return l.save(b)
 	case b == ':':
 		return Token{ID: TkColon, Value: ":"}
 	}
@@ -86,7 +99,30 @@ func matchCommentQ(l *Lex, b byte) Token {
 		}
 		l.state = stBlank // blank state will deliver EOL
 
-		return Token{ID: TkCommentQ, Value: l.buf.String()} // deliver comment q
+		return l.consume(Token{ID: TkCommentQ})
+	}
+
+	return l.save(b)
+}
+
+func matchString(l *Lex, b byte) Token {
+
+	switch {
+	case b == '"':
+		l.state = stBlank
+		// attention: must save byte before extracting value for new token
+		if t := l.save(b); t.ID != TkNull {
+			return t
+		}
+		return l.consume(Token{ID: TkString})
+	case eol(b):
+		// push back EOL
+		if errUnread := l.r.UnreadByte(); errUnread != nil {
+			return Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)}
+		}
+		l.state = stBlank // blank state will deliver EOL
+
+		return l.consume(Token{ID: TkString})
 	}
 
 	return l.save(b)
