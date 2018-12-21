@@ -9,12 +9,14 @@ import (
 const (
 	TkNull  = iota // Null token should never be seen
 	TkEOF   = iota // EOF
+	TkEOL   = iota // EOL
 	TkFIXME = iota // FIXME
 
 	TkErrInput    = iota // Input error -- first error
 	TkErrInternal = iota // Internal error
 	TkErrLarge    = iota // Large token -- last error
 
+	TkCommentQ   = iota // Comment '
 	TkLineNumber = iota // Line number
 	TkString     = iota // String
 	TkEqual      = iota // Equal
@@ -23,6 +25,16 @@ const (
 	TkKeywordCls = iota // CLS
 
 	TkIdentifier = iota // Identifier
+)
+
+const (
+	stBegin   = iota
+	stComment = iota
+	stCR      = iota
+	stBlank   = iota
+	stName    = iota
+	stNumber  = iota
+	stString  = iota
 )
 
 // Token is a lexical token
@@ -44,12 +56,12 @@ func (t Token) IsError() bool {
 
 // Lex is a full lexer object
 type Lex struct {
-	r           io.Reader
-	eof         bool // has sent EOF?
-	broken      bool // hit error?
-	buf         []byte
-	tokenOffset int
-	tokenSize   int
+	r      io.Reader
+	eof    bool // has sent EOF?
+	broken bool // hit error?
+	buf    []byte
+	state  int
+	offset int
 }
 
 // New creates a Lex object
@@ -94,14 +106,6 @@ func (l *Lex) findToken() Token {
 	log.Printf("findToken: len=%d cap=%d", len(l.buf), cap(l.buf))
 
 	for {
-		if consume := l.tokenOffset + l.tokenSize; consume > 0 {
-			// shift last token
-			log.Printf("findToken: consume=%d", consume)
-			l.buf = append(l.buf[:0], l.buf[consume:]...)
-			l.tokenOffset = 0
-			l.tokenSize = 0
-		}
-
 		size := len(l.buf)
 		if size >= cap(l.buf) {
 			return tokenErrLarge // no room for more data
@@ -140,6 +144,44 @@ func (l *Lex) findToken() Token {
 }
 
 func (l *Lex) match() (Token, bool) {
+
+	for i := 0; i < len(l.buf); i++ {
+		b := l.buf[i]
+		switch l.state {
+		case stBegin:
+			switch {
+			case b == '\r':
+				// Search for LF
+				l.state = stCR
+			case b == '\n':
+				// LF
+				return Token{ID: TkEOL, Value: "EOL", Offset: l.offset}, true
+			case b == ' ':
+				l.state = stBlank
+			case b == '\'':
+				l.state = stComment
+				return Token{ID: TkCommentQ, Value: "'", Offset: l.offset}, true
+			}
+		case stComment:
+		case stCR:
+			if b == '\n' {
+				// CR LF
+				return Token{ID: TkEOL, Value: "EOL", Offset: l.offset}, true
+			}
+			// ignore and restart
+			l.state = stBegin
+			i--
+			continue // skip offset++
+		case stBlank:
+		case stName:
+		case stNumber:
+		case stString:
+		default:
+			return tokenErrInternal, true // ugh should not happen
+		}
+		l.offset++
+	}
+
 	log.Printf("match: FIXME WRITEME")
 	return tokenFIXME, true
 }
