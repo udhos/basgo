@@ -32,9 +32,15 @@ const (
 	TkLE      = iota // <=
 	TkGE      = iota // >=
 
-	TkKeywordCls  = iota // CLS
-	TkKeywordEnd  = iota // END
-	TkKeywordTime = iota // TIME$
+	TkPlus  = iota // +
+	TkMinus = iota // -
+	TkMult  = iota // *
+	TkDiv   = iota // /
+
+	TkKeywordCls   = iota // CLS
+	TkKeywordEnd   = iota // END
+	TkKeywordPrint = iota // PRINT
+	TkKeywordTime  = iota // TIME$
 
 	TkIdentifier = iota // Identifier (variable)
 )
@@ -61,8 +67,14 @@ var tabType = []string{
 	"LE",
 	"GE",
 
+	"PLUS",
+	"MINUS",
+	"MULT",
+	"DIV",
+
 	"CLS",
 	"END",
+	"PRINT",
 	"TIME",
 
 	"IDENTIFIER",

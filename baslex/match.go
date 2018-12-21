@@ -32,6 +32,7 @@ var (
 	}{
 		{TkKeywordCls, "CLS"},
 		{TkKeywordEnd, "END"},
+		{TkKeywordPrint, "PRINT"},
 		{TkKeywordTime, "TIME$"},
 	}
 )
@@ -127,6 +128,14 @@ func matchBlank(l *Lex, b byte) Token {
 	case b == '"':
 		l.state = stString
 		return l.save(b)
+	case b == '+':
+		return Token{ID: TkPlus, Value: "+"}
+	case b == '-':
+		return Token{ID: TkMinus, Value: "-"}
+	case b == '*':
+		return Token{ID: TkMult, Value: "*"}
+	case b == '/':
+		return Token{ID: TkDiv, Value: "/"}
 	case b == ':':
 		return Token{ID: TkColon, Value: ":"}
 	case b == '=':

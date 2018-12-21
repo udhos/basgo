@@ -126,6 +126,24 @@ func TestEqual(t *testing.T) {
 	compareValue(t, "equal-un-eq", ` <> = `, []Token{un, eq, expectTokenEOF})
 }
 
+func TestArith(t *testing.T) {
+
+	expectTokenEOF := tokenEOF
+	plus := Token{ID: TkPlus, Value: `+`}
+	minus := Token{ID: TkMinus, Value: `-`}
+	mult := Token{ID: TkMult, Value: `*`}
+	div := Token{ID: TkDiv, Value: `/`}
+	ident := Token{ID: TkIdentifier, Value: `a`}
+
+	seq1 := []Token{plus, minus, mult, div, expectTokenEOF}
+	seq2 := []Token{ident, plus, ident, minus, ident, mult, ident, div, ident, expectTokenEOF}
+
+	compareValue(t, "arith-plus", `+-*/`, seq1)
+	compareValue(t, "arith-plus", ` + - * / `, seq1)
+	compareValue(t, "arith-plus", `a+a-a*a/a`, seq2)
+	compareValue(t, "arith-plus", ` a + a - a * a / a `, seq2)
+}
+
 func compareValue(t *testing.T, label, str string, tokens []Token) {
 
 	lex := NewStr(str)
