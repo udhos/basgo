@@ -24,8 +24,13 @@ const (
 	TkCommentQ = iota // Comment '
 	TkString   = iota // String "
 	TkNumber   = iota // Number [0-9]+
-	TkEqual    = iota // Equal
-	TkUnequal  = iota // Unequal
+
+	TkEqual   = iota // Equal
+	TkLT      = iota // <
+	TkGT      = iota // >
+	TkUnequal = iota // Unequal <>
+	TkLE      = iota // <=
+	TkGE      = iota // >=
 
 	TkKeywordCls  = iota // CLS
 	TkKeywordEnd  = iota // END
@@ -48,8 +53,13 @@ var tabType = []string{
 	"COMMENT-Q",
 	"STRING",
 	"NUMBER",
+
 	"EQUAL",
+	"LT",
+	"GT",
 	"UNEQUAL",
+	"LE",
+	"GE",
 
 	"CLS",
 	"END",

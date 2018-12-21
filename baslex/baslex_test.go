@@ -86,6 +86,46 @@ func TestName(t *testing.T) {
 	compareValue(t, "name", ` : CLS  67 " hi "`, []Token{expectTokenColon, {ID: TkKeywordCls, Value: `CLS`}, num67, strHi, expectTokenEOF})
 }
 
+func TestEqual(t *testing.T) {
+	expectTokenEOF := tokenEOF
+	eq := Token{ID: TkEqual, Value: `=`}
+	un := Token{ID: TkUnequal, Value: `<>`}
+	lt := Token{ID: TkLT, Value: `<`}
+	gt := Token{ID: TkGT, Value: `>`}
+	le := Token{ID: TkLE, Value: `<=`}
+	ge := Token{ID: TkGE, Value: `>=`}
+
+	compareValue(t, "equal-lt", `<`, []Token{lt, expectTokenEOF})
+	compareValue(t, "equal-lt", ` < `, []Token{lt, expectTokenEOF})
+	compareValue(t, "equal-lt2", ` << `, []Token{lt, lt, expectTokenEOF})
+	compareValue(t, "equal-lt2", ` < < `, []Token{lt, lt, expectTokenEOF})
+
+	compareValue(t, "equal-gt", `>`, []Token{gt, expectTokenEOF})
+	compareValue(t, "equal-gt", ` > `, []Token{gt, expectTokenEOF})
+	compareValue(t, "equal-gt2", ` >> `, []Token{gt, gt, expectTokenEOF})
+	compareValue(t, "equal-gt2", ` > > `, []Token{gt, gt, expectTokenEOF})
+
+	compareValue(t, "equal-le", `<=`, []Token{le, expectTokenEOF})
+	compareValue(t, "equal-le", ` <= `, []Token{le, expectTokenEOF})
+	compareValue(t, "equal-le2", ` <=<= `, []Token{le, le, expectTokenEOF})
+	compareValue(t, "equal-le2", ` <= <= `, []Token{le, le, expectTokenEOF})
+
+	compareValue(t, "equal-ge", `>=`, []Token{ge, expectTokenEOF})
+	compareValue(t, "equal-ge", ` >= `, []Token{ge, expectTokenEOF})
+	compareValue(t, "equal-ge2", ` >=>= `, []Token{ge, ge, expectTokenEOF})
+	compareValue(t, "equal-ge2", ` >= >= `, []Token{ge, ge, expectTokenEOF})
+
+	compareValue(t, "equal-eq", `=`, []Token{eq, expectTokenEOF})
+	compareValue(t, "equal-eq", ` = `, []Token{eq, expectTokenEOF})
+	compareValue(t, "equal-un", `<>`, []Token{un, expectTokenEOF})
+	compareValue(t, "equal-un", ` <> `, []Token{un, expectTokenEOF})
+	compareValue(t, "equal-lg", ` < > `, []Token{lt, gt, expectTokenEOF})
+	compareValue(t, "equal-eq-un", `=<>`, []Token{eq, un, expectTokenEOF})
+	compareValue(t, "equal-eq-un", ` = <> `, []Token{eq, un, expectTokenEOF})
+	compareValue(t, "equal-un-eq", ` <>= `, []Token{un, eq, expectTokenEOF})
+	compareValue(t, "equal-un-eq", ` <> = `, []Token{un, eq, expectTokenEOF})
+}
+
 func compareValue(t *testing.T, label, str string, tokens []Token) {
 
 	lex := NewStr(str)

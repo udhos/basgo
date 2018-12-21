@@ -6,12 +6,23 @@ import (
 	"strings"
 )
 
+/*
+Keep states in sync:
+
+(1) const states
+(2) var tabState
+(3) func foundEOF()
+*/
+
+// (1) const states
 const (
 	stBlank    = iota
 	stCommentQ = iota
 	stString   = iota
 	stNumber   = iota
 	stName     = iota
+	stLT       = iota
+	stGT       = iota
 )
 
 var (
@@ -38,12 +49,15 @@ func findKeyword(name string) int {
 
 type funcState func(l *Lex, b byte) Token
 
+// (2) var tabState
 var tabState = []funcState{
 	matchBlank,
 	matchCommentQ,
 	matchString,
 	matchNumber,
 	matchName,
+	matchLT,
+	matchGT,
 }
 
 func (l *Lex) consume(t Token) Token {
@@ -53,6 +67,7 @@ func (l *Lex) consume(t Token) Token {
 	return t
 }
 
+// (3) func foundEOF()
 func (l *Lex) foundEOF() Token {
 
 	l.eofSeen = true
@@ -68,9 +83,13 @@ func (l *Lex) foundEOF() Token {
 		return l.consume(Token{ID: TkNumber})
 	case stName:
 		return l.consumeName()
+	case stLT:
+		return l.consume(Token{ID: TkLT})
+	case stGT:
+		return l.consume(Token{ID: TkGT})
 	}
 
-	return Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: foundEOF bad state=%d", l.state)}
+	return Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL:foundEOF: bad state=%d", l.state)}
 }
 
 func (l *Lex) consumeName() Token {
@@ -110,6 +129,14 @@ func matchBlank(l *Lex, b byte) Token {
 		return l.save(b)
 	case b == ':':
 		return Token{ID: TkColon, Value: ":"}
+	case b == '=':
+		return Token{ID: TkEqual, Value: "="}
+	case b == '<':
+		l.state = stLT
+		return l.save(b)
+	case b == '>':
+		l.state = stGT
+		return l.save(b)
 	case digit(b):
 		l.state = stNumber
 		return l.save(b)
@@ -215,4 +242,53 @@ func matchName(l *Lex, b byte) Token {
 	l.state = stBlank // blank state will deliver next token
 
 	return l.consumeName()
+}
+
+func matchLT(l *Lex, b byte) Token {
+
+	switch b {
+	case '>':
+		l.state = stBlank
+		// attention: must save byte before extracting value for new token
+		if t := l.save(b); t.ID != TkNull {
+			return t
+		}
+		return l.consume(Token{ID: TkUnequal})
+	case '=':
+		l.state = stBlank
+		// attention: must save byte before extracting value for new token
+		if t := l.save(b); t.ID != TkNull {
+			return t
+		}
+		return l.consume(Token{ID: TkLE})
+	}
+
+	// push back
+	if errUnread := l.r.UnreadByte(); errUnread != nil {
+		return Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)}
+	}
+	l.state = stBlank // blank state will deliver next token
+
+	return l.consume(Token{ID: TkLT})
+}
+
+func matchGT(l *Lex, b byte) Token {
+
+	switch b {
+	case '=':
+		l.state = stBlank
+		// attention: must save byte before extracting value for new token
+		if t := l.save(b); t.ID != TkNull {
+			return t
+		}
+		return l.consume(Token{ID: TkGE})
+	}
+
+	// push back
+	if errUnread := l.r.UnreadByte(); errUnread != nil {
+		return Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)}
+	}
+	l.state = stBlank // blank state will deliver next token
+
+	return l.consume(Token{ID: TkGT})
 }
