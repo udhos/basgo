@@ -28,13 +28,14 @@ const (
 )
 
 const (
-	stBegin   = iota
-	stComment = iota
-	stCR      = iota
-	stBlank   = iota
-	stName    = iota
-	stNumber  = iota
-	stString  = iota
+	stBegin       = iota
+	stBeginCR     = iota
+	stCommentQ    = iota
+	stCommentQ_CR = iota
+	stBlank       = iota
+	stName        = iota
+	stNumber      = iota
+	stString      = iota
 )
 
 // Token is a lexical token
@@ -51,7 +52,7 @@ func (t Token) IsEOF() bool {
 
 // IsError checks for error token
 func (t Token) IsError() bool {
-	return t.ID >= TkErrInput && t.ID <= TkErrLarge
+	return t.ID >= TkErrInput && t.ID <= TkErrLarge || t.ID == TkFIXME
 }
 
 // Lex is a full lexer object
@@ -111,21 +112,23 @@ func (l *Lex) findToken() Token {
 			return tokenErrLarge // no room for more data
 		}
 
-		// grab more data
-		n, errRead := l.r.Read(l.buf[size:cap(l.buf)])
-		l.buf = l.buf[:size+n]
-		log.Printf("findToken: size=%d read=[%s]", n, string(l.buf[size:]))
-		switch errRead {
-		case nil:
-			if n < 1 {
-				return tokenErrInternal // ugh should not happen
-			}
+		if size < 1 {
+			// grab more data
+			n, errRead := l.r.Read(l.buf[size:cap(l.buf)])
 			l.buf = l.buf[:size+n]
-			log.Printf("findToken: buf=[%s]", string(l.buf))
-		case io.EOF:
-			return l.returnEOF() // EOF
-		default:
-			return tokenErrInput // unexpected input error
+			log.Printf("findToken: size=%d read=[%s]", n, string(l.buf[size:]))
+			switch errRead {
+			case nil:
+				if n < 1 {
+					return tokenErrInternal // ugh should not happen
+				}
+				l.buf = l.buf[:size+n]
+				log.Printf("findToken: buf=[%s]", string(l.buf))
+			case io.EOF:
+				return l.foundEOF() // EOF
+			default:
+				return tokenErrInput // unexpected input error
+			}
 		}
 
 		if len(l.buf) < 1 {
@@ -135,12 +138,22 @@ func (l *Lex) findToken() Token {
 		if t, found := l.match(); found {
 			return t
 		}
-
-		log.Printf("findToken: FIXME WRITEME")
-		return tokenFIXME // stop loop
 	}
 
 	// NOT REACHED
+}
+
+func (l *Lex) consumeToken(size int) {
+	log.Printf("consume: size=%d [%s]", size, string(l.buf[:size]))
+	l.buf = append(l.buf[:0], l.buf[size:]...)
+}
+
+func (l *Lex) foundEOF() Token {
+	switch l.state {
+	case stCommentQ:
+		return Token{ID: TkCommentQ, Value: "'", Offset: l.offset}
+	}
+	return l.returnEOF() // EOF
 }
 
 func (l *Lex) match() (Token, bool) {
@@ -152,26 +165,47 @@ func (l *Lex) match() (Token, bool) {
 			switch {
 			case b == '\r':
 				// Search for LF
-				l.state = stCR
+				l.state = stBeginCR
 			case b == '\n':
 				// LF
+				l.consumeToken(i + 1)
 				return Token{ID: TkEOL, Value: "EOL", Offset: l.offset}, true
 			case b == ' ':
 				l.state = stBlank
 			case b == '\'':
-				l.state = stComment
+				l.state = stCommentQ
+				l.consumeToken(i + 1)
 				return Token{ID: TkCommentQ, Value: "'", Offset: l.offset}, true
 			}
-		case stComment:
-		case stCR:
+		case stCommentQ:
+			switch {
+			case b == '\r':
+				// Search for LF
+				l.state = stCommentQ_CR
+			case b == '\n':
+				// LF
+				l.consumeToken(i + 1)
+				return Token{ID: TkCommentQ, Value: "'", Offset: l.offset}, true
+			}
+		case stCommentQ_CR:
 			if b == '\n' {
 				// CR LF
+				l.state = stBegin
+				l.consumeToken(i + 1)
+				return Token{ID: TkCommentQ, Value: "'", Offset: l.offset}, true
+			}
+			l.state = stBegin // restart
+			//l.consumeToken(0) // do not consume = push back
+			return Token{ID: TkCommentQ, Value: "'", Offset: l.offset}, true
+		case stBeginCR:
+			if b == '\n' {
+				// CR LF
+				l.consumeToken(i + 1)
 				return Token{ID: TkEOL, Value: "EOL", Offset: l.offset}, true
 			}
-			// ignore and restart
-			l.state = stBegin
-			i--
-			continue // skip offset++
+			l.state = stBegin // restart
+			//l.consumeToken(0) // do not consume = push back
+			return Token{ID: TkEOL, Value: "EOL", Offset: l.offset}, true
 		case stBlank:
 		case stName:
 		case stNumber:
@@ -182,6 +216,5 @@ func (l *Lex) match() (Token, bool) {
 		l.offset++
 	}
 
-	log.Printf("match: FIXME WRITEME")
-	return tokenFIXME, true
+	return tokenNull, false
 }

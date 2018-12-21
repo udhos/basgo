@@ -16,6 +16,62 @@ func TestEOF(t *testing.T) {
 	}
 }
 
+func TestCommentQ1(t *testing.T) {
+	lex := New(strings.NewReader("'"))
+	if !lex.HasToken() {
+		t.Errorf("could not find any token")
+	}
+	tok := lex.Next()
+	if tok.ID != TkCommentQ {
+		t.Errorf("non-comment-q token: %v", tok)
+	}
+	if lex.HasToken() {
+		t.Errorf("non-expected token after comment-q: %v", lex.Next())
+	}
+}
+
+func TestCommentQ2(t *testing.T) {
+	lex := New(strings.NewReader(" '"))
+	if !lex.HasToken() {
+		t.Errorf("could not find any token")
+	}
+	tok := lex.Next()
+	if tok.ID != TkCommentQ {
+		t.Errorf("non-comment-q token: %v", tok)
+	}
+	if lex.HasToken() {
+		t.Errorf("non-expected token after comment-q")
+	}
+}
+
+func TestCommentQ3(t *testing.T) {
+	lex := New(strings.NewReader("' "))
+	if !lex.HasToken() {
+		t.Errorf("could not find any token")
+	}
+	tok := lex.Next()
+	if tok.ID != TkCommentQ {
+		t.Errorf("non-comment-q token: %v", tok)
+	}
+	if lex.HasToken() {
+		t.Errorf("non-expected token after comment-q")
+	}
+}
+
+func TestCommentQ4(t *testing.T) {
+	lex := New(strings.NewReader(" ' "))
+	if !lex.HasToken() {
+		t.Errorf("could not find any token")
+	}
+	tok := lex.Next()
+	if tok.ID != TkCommentQ {
+		t.Errorf("non-comment-q token: %v", tok)
+	}
+	if lex.HasToken() {
+		t.Errorf("non-expected token after comment-q")
+	}
+}
+
 func TestCls(t *testing.T) {
 	lex := New(strings.NewReader(" 10cls "))
 
