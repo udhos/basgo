@@ -9,8 +9,8 @@ const (
 	stBlank    = iota
 	stCommentQ = iota
 	stString   = iota
+	stNumber   = iota
 	//stName        = iota
-	//stNumber      = iota
 )
 
 type funcState func(l *Lex, b byte) Token
@@ -19,6 +19,7 @@ var tabState = []funcState{
 	matchBlank,
 	matchCommentQ,
 	matchString,
+	matchNumber,
 }
 
 func (l *Lex) consume(t Token) Token {
@@ -39,6 +40,8 @@ func (l *Lex) foundEOF() Token {
 		return l.consume(Token{ID: TkCommentQ})
 	case stString:
 		return l.consume(Token{ID: TkString})
+	case stNumber:
+		return l.consume(Token{ID: TkNumber})
 	}
 
 	return Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: foundEOF bad state=%d", l.state)}
@@ -75,10 +78,17 @@ func matchBlank(l *Lex, b byte) Token {
 		return l.save(b)
 	case b == ':':
 		return Token{ID: TkColon, Value: ":"}
+	case digit(b):
+		l.state = stNumber
+		return l.save(b)
 	}
 
 	log.Printf("matchBlank: FIXME-WRITEME")
 	return tokenFIXME
+}
+
+func digit(b byte) bool {
+	return b >= '0' && b <= '9'
 }
 
 func blank(b byte) bool {
@@ -126,4 +136,19 @@ func matchString(l *Lex, b byte) Token {
 	}
 
 	return l.save(b)
+}
+
+func matchNumber(l *Lex, b byte) Token {
+
+	if digit(b) {
+		return l.save(b)
+	}
+
+	// push back non-digit
+	if errUnread := l.r.UnreadByte(); errUnread != nil {
+		return Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)}
+	}
+	l.state = stBlank // blank state will deliver next token
+
+	return l.consume(Token{ID: TkNumber})
 }

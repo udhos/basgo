@@ -20,12 +20,12 @@ const (
 	TkErrInternal = iota // Internal error
 	TkErrLarge    = iota // Large token -- last error
 
-	TkColon      = iota // Colon :
-	TkCommentQ   = iota // Comment '
-	TkLineNumber = iota // Line number
-	TkString     = iota // String
-	TkEqual      = iota // Equal
-	TkUnequal    = iota // Unequal
+	TkColon    = iota // Colon :
+	TkCommentQ = iota // Comment '
+	TkString   = iota // String "
+	TkNumber   = iota // Number [0-9]+
+	TkEqual    = iota // Equal
+	TkUnequal  = iota // Unequal
 
 	TkKeywordCls = iota // CLS
 
