@@ -34,11 +34,43 @@ const (
 	TkIdentifier = iota // Identifier (variable)
 )
 
+var tabType = []string{
+	"NULL",
+	"EOF",
+	"EOL",
+	"FIXME",
+
+	"ERROR-INPUT",
+	"ERROR-INTERNAL",
+	"ERROR-LARGE",
+
+	"COLON",
+	"COMMENT-Q",
+	"STRING",
+	"NUMBER",
+	"EQUAL",
+	"UNEQUAL",
+
+	"CLS",
+	"END",
+	"TIME",
+
+	"IDENTIFIER",
+}
+
 // Token is a lexical token
 type Token struct {
-	ID    int
-	Value string
-	//	Offset int
+	ID        int
+	Value     string
+	LineCount int
+}
+
+// Type gets the token type
+func (t Token) Type() string {
+	if t.ID < 0 || t.ID >= len(tabType) {
+		return fmt.Sprintf("TYPE-ERROR:%d", t.ID)
+	}
+	return tabType[t.ID]
 }
 
 // IsEOF checks for EOF token
@@ -63,7 +95,6 @@ type Lex struct {
 
 // New creates a Lex object
 func New(input io.ByteScanner) *Lex {
-	//return &Lex{r: input, buf: make([]byte, 0, 10)}
 	return &Lex{r: input}
 }
 

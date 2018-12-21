@@ -36,5 +36,6 @@ build() {
 #build ./lex-run
 
 build ./baslex
+build ./baslex-run
 build ./basgo
 build ./basgo-run

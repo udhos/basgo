@@ -118,7 +118,7 @@ func matchBlank(l *Lex, b byte) Token {
 		return l.save(b)
 	}
 
-	log.Printf("matchBlank: FIXME-WRITEME")
+	log.Printf("matchBlank: FIXME-WRITEME: byte=%d: '%c'", b, b)
 	return tokenFIXME
 }
 
