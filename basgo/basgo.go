@@ -61,10 +61,11 @@ func (b *Basgo) execReader(printf funcPrintf, r hasReadString, flush func() erro
 }
 
 func (b *Basgo) execLine(printf funcPrintf, line string) {
-	printf("execLine: [%s]\n", line)
+	//printf("execLine: [%s]\n", line)
 	lex := baslex.NewStr(line)
 	for lex.HasToken() {
-		printf("execLine: token: %v\n", lex.Next())
+		tok := lex.Next()
+		printf("execLine: [%s] token: %s [%s]\n", line, tok.Type(), tok.Value)
 	}
 }
 
