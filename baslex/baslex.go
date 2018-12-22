@@ -46,10 +46,11 @@ const (
 	TkLE      = iota // <=
 	TkGE      = iota // >=
 
-	TkPlus  = iota // +
-	TkMinus = iota // -
-	TkMult  = iota // *
-	TkDiv   = iota // /
+	TkPlus      = iota // +
+	TkMinus     = iota // -
+	TkMult      = iota // *
+	TkDiv       = iota // /
+	TkBackSlash = iota // \
 
 	TkKeywordCls   = iota // CLS
 	TkKeywordEnd   = iota // END
@@ -111,6 +112,7 @@ var tabType = []string{
 	"MINUS",
 	"MULT",
 	"DIV",
+	"BACK-SLASH",
 
 	"CLS",
 	"GOTO",

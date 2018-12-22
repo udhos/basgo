@@ -124,6 +124,8 @@ func matchBlank(l *Lex, b byte) Token {
 		return Token{ID: TkMult, Value: "*"}
 	case b == '/':
 		return Token{ID: TkDiv, Value: "/"}
+	case b == '\\':
+		return Token{ID: TkBackSlash, Value: "\\"}
 	case b == ':':
 		return Token{ID: TkColon, Value: ":"}
 	case b == '=':

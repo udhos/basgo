@@ -133,15 +133,16 @@ func TestArith(t *testing.T) {
 	minus := Token{ID: TkMinus, Value: `-`}
 	mult := Token{ID: TkMult, Value: `*`}
 	div := Token{ID: TkDiv, Value: `/`}
+	bs := Token{ID: TkBackSlash, Value: `\`}
 	ident := Token{ID: TkIdentifier, Value: `a`}
 
-	seq1 := []Token{plus, minus, mult, div, expectTokenEOF}
-	seq2 := []Token{ident, plus, ident, minus, ident, mult, ident, div, ident, expectTokenEOF}
+	seq1 := []Token{plus, minus, mult, div, bs, expectTokenEOF}
+	seq2 := []Token{ident, plus, ident, minus, ident, mult, ident, div, ident, bs, ident, expectTokenEOF}
 
-	compareValue(t, "arith", `+-*/`, seq1)
-	compareValue(t, "arith", ` + - * / `, seq1)
-	compareValue(t, "arith", `a+a-a*a/a`, seq2)
-	compareValue(t, "arith", ` a + a - a * a / a `, seq2)
+	compareValue(t, "arith", `+-*/\`, seq1)
+	compareValue(t, "arith", ` + - * / \ `, seq1)
+	compareValue(t, "arith", `a+a-a*a/a\a`, seq2)
+	compareValue(t, "arith", ` a + a - a * a / a \ a `, seq2)
 }
 
 func TestMarks(t *testing.T) {
