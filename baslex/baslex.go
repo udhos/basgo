@@ -52,14 +52,23 @@ const (
 	TkDiv       = iota // /
 	TkBackSlash = iota // \
 
-	TkKeywordCls   = iota // CLS
-	TkKeywordEnd   = iota // END
-	TkKeywordGoto  = iota // GOTO
-	TkKeywordLet   = iota // LET
-	TkKeywordList  = iota // LIST
-	TkKeywordPrint = iota // PRINT
-	TkKeywordRun   = iota // RUN
-	TkKeywordTime  = iota // TIME$
+	TkKeywordCls    = iota // CLS
+	TkKeywordCont   = iota // CONT
+	TkKeywordElse   = iota // ELSE
+	TkKeywordEnd    = iota // END
+	TkKeywordGoto   = iota // GOTO
+	TkKeywordInput  = iota // INPUT
+	TkKeywordIf     = iota // IF
+	TkKeywordLet    = iota // LET
+	TkKeywordList   = iota // LIST
+	TkKeywordLoad   = iota // LOAD
+	TkKeywordPrint  = iota // PRINT
+	TkKeywordRun    = iota // RUN
+	TkKeywordSave   = iota // SAVE
+	TkKeywordStop   = iota // STOP
+	TkKeywordSystem = iota // SYSTEM
+	TkKeywordThen   = iota // THEN
+	TkKeywordTime   = iota // TIME$
 
 	TkIdentifier = iota // Identifier (variable)
 )
@@ -70,12 +79,21 @@ var tabKeywords = []struct {
 	Name    string
 }{
 	{TkKeywordCls, "CLS"},
+	{TkKeywordCont, "CONT"},
+	{TkKeywordElse, "ELSE"},
 	{TkKeywordEnd, "END"},
 	{TkKeywordGoto, "GOTO"},
+	{TkKeywordIf, "IF"},
+	{TkKeywordInput, "INPUT"},
 	{TkKeywordLet, "LET"},
 	{TkKeywordList, "LIST"},
+	{TkKeywordLoad, "LOAD"},
 	{TkKeywordPrint, "PRINT"},
 	{TkKeywordRun, "RUN"},
+	{TkKeywordSave, "SAVE"},
+	{TkKeywordStop, "STOP"},
+	{TkKeywordSystem, "SYSTEM"},
+	{TkKeywordThen, "THEN"},
 	{TkKeywordTime, "TIME$"},
 }
 
@@ -115,12 +133,21 @@ var tabType = []string{
 	"BACK-SLASH",
 
 	"CLS",
+	"CONT",
 	"GOTO",
+	"ELSE",
 	"END",
+	"IF",
+	"INPUT",
 	"LET",
 	"LIST",
+	"LOAD",
 	"PRINT",
 	"RUN",
+	"SAVE",
+	"STOP",
+	"SYSTEM",
+	"THEN",
 	"TIME",
 
 	"IDENTIFIER",

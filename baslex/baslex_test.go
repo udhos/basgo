@@ -179,6 +179,21 @@ func TestBrackets(t *testing.T) {
 	compareValue(t, "bracket", ` let [ let ] let `, seq2)
 }
 
+func TestKeywords(t *testing.T) {
+
+	expectTokenEOF := tokenEOF
+	kwIf := Token{ID: TkKeywordIf, Value: `if`}
+	kwThen := Token{ID: TkKeywordThen, Value: `then`}
+	kwElse := Token{ID: TkKeywordElse, Value: `else`}
+	kwStop := Token{ID: TkKeywordStop, Value: `stop`}
+	kwSystem := Token{ID: TkKeywordSystem, Value: `system`}
+	kwCont := Token{ID: TkKeywordCont, Value: `cont`}
+
+	seq := []Token{kwIf, kwThen, kwElse, kwStop, kwSystem, kwCont, expectTokenEOF}
+
+	compareValue(t, "keywords", ` if then else stop system cont `, seq)
+}
+
 func compareValue(t *testing.T, label, str string, tokens []Token) {
 
 	lex := NewStr(str)
