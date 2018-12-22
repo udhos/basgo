@@ -1,5 +1,9 @@
 package basparser
 
+import (
+	"github.com/udhos/basgo/baslex"
+)
+
 // index: lex token    (baslex.Tk...)
 // value: parser token (basparser.Tk...)
 
@@ -64,7 +68,7 @@ const (
 )
 
 func parserToken(lexToken int) int {
-	if lexToken < parserTokenIDFirst || lexToken > parserTokenIDLast {
+	if lexToken < baslex.TokenIDFirst || lexToken > baslex.TokenIDLast {
 		return 0
 	}
 	return tabLexToken[lexToken]
