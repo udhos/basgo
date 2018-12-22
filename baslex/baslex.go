@@ -73,6 +73,12 @@ const (
 	TkIdentifier = iota // Identifier (variable)
 )
 
+// Token ID marks
+const (
+	TokenIDFirst = TkNull
+	TokenIDLast  = TkIdentifier
+)
+
 // (B) var tabKeywords
 var tabKeywords = []struct {
 	TokenID int

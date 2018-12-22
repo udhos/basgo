@@ -24,6 +24,59 @@ import (
 // same for terminals
 %token <val> CHARACTER
 
+%token <val> TkNull
+%token <val> TkEOF
+%token <val> TkEOL
+
+%token <val> TkErrInput
+%token <val> TkErrInternal
+%token <val> TkErrInvalid
+%token <val> TkErrLarge
+
+%token <val> TkColon
+%token <val> TkComma
+%token <val> TkSemicolon
+%token <val> TkParLeft
+%token <val> TkParRight
+%token <val> TkBracketLeft
+%token <val> TkBracketRight
+%token <val> TkCommentQ
+%token <val> TkString
+%token <val> TkNumber
+
+%token <val> TkEqual
+%token <val> TkLT
+%token <val> TkGT
+%token <val> TkUnequal
+%token <val> TkLE
+%token <val> TkGE
+
+%token <val> TkPlus
+%token <val> TkMinus
+%token <val> TkMult
+%token <val> TkDiv
+%token <val> TkBackSlash
+
+%token <val> TkKeywordCls
+%token <val> TkKeywordCont
+%token <val> TkKeywordElse
+%token <val> TkKeywordEnd
+%token <val> TkKeywordGoto
+%token <val> TkKeywordInput
+%token <val> TkKeywordIf
+%token <val> TkKeywordLet
+%token <val> TkKeywordList
+%token <val> TkKeywordLoad
+%token <val> TkKeywordPrint
+%token <val> TkKeywordRun
+%token <val> TkKeywordSave
+%token <val> TkKeywordStop
+%token <val> TkKeywordSystem
+%token <val> TkKeywordThen
+%token <val> TkKeywordTime
+
+%token <val> TkIdentifier
+
 %%
 
 in : /* empty */
