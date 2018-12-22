@@ -19,23 +19,25 @@ Keep tokens in sync:
 
 // (A) const tokens
 const (
-	TkNull  = iota // Null token should never be seen
-	TkEOF   = iota // EOF
-	TkEOL   = iota // EOL
-	TkFIXME = iota // FIXME
+	TkNull = iota // Null token should never be seen
+	TkEOF  = iota // EOF
+	TkEOL  = iota // EOL
 
 	TkErrInput    = iota // Input error -- first error
 	TkErrInternal = iota // Internal error
+	TkErrInvalid  = iota // Invalid, unexpected token found
 	TkErrLarge    = iota // Large token -- last error
 
-	TkColon     = iota // Colon :
-	TkComma     = iota // Comma ,
-	TkSemicolon = iota // Semicolon ; (newline suppressor)
-	TkParLeft   = iota // (
-	TkParRight  = iota // )
-	TkCommentQ  = iota // Comment '
-	TkString    = iota // String "
-	TkNumber    = iota // Number [0-9]+
+	TkColon        = iota // Colon :
+	TkComma        = iota // Comma ,
+	TkSemicolon    = iota // Semicolon ; (newline suppressor)
+	TkParLeft      = iota // (
+	TkParRight     = iota // )
+	TkBracketLeft  = iota // [
+	TkBracketRight = iota // ]
+	TkCommentQ     = iota // Comment '
+	TkString       = iota // String "
+	TkNumber       = iota // Number [0-9]+
 
 	TkEqual   = iota // Equal
 	TkLT      = iota // <
@@ -52,6 +54,7 @@ const (
 	TkKeywordCls   = iota // CLS
 	TkKeywordEnd   = iota // END
 	TkKeywordGoto  = iota // GOTO
+	TkKeywordLet   = iota // LET
 	TkKeywordList  = iota // LIST
 	TkKeywordPrint = iota // PRINT
 	TkKeywordRun   = iota // RUN
@@ -68,6 +71,7 @@ var tabKeywords = []struct {
 	{TkKeywordCls, "CLS"},
 	{TkKeywordEnd, "END"},
 	{TkKeywordGoto, "GOTO"},
+	{TkKeywordLet, "LET"},
 	{TkKeywordList, "LIST"},
 	{TkKeywordPrint, "PRINT"},
 	{TkKeywordRun, "RUN"},
@@ -79,17 +83,19 @@ var tabType = []string{
 	"NULL",
 	"EOF",
 	"EOL",
-	"FIXME",
 
 	"ERROR-INPUT",
 	"ERROR-INTERNAL",
+	"ERROR-INVALID",
 	"ERROR-LARGE",
 
 	"COLON",
 	"COMMA",
 	"SEMICOLON",
-	"PAR-LEFT",
-	"PAR-RIGHT",
+	"ROUND-BRACKET-LEFT",
+	"ROUND-BRACKET-RIGHT",
+	"SQUARE-BRACKET-LEFT",
+	"SQUARE-BRACKET-RIGHT",
 	"COMMENT-Q",
 	"STRING",
 	"NUMBER",
@@ -109,6 +115,7 @@ var tabType = []string{
 	"CLS",
 	"GOTO",
 	"END",
+	"LET",
 	"LIST",
 	"PRINT",
 	"RUN",
@@ -139,7 +146,7 @@ func (t Token) IsEOF() bool {
 
 // IsError checks for error token
 func (t Token) IsError() bool {
-	return t.ID >= TkErrInput && t.ID <= TkErrLarge || t.ID == TkFIXME
+	return t.ID >= TkErrInput && t.ID <= TkErrLarge
 }
 
 // Lex is a full lexer object
@@ -164,8 +171,8 @@ func NewStr(s string) *Lex {
 
 var tokenNull = Token{}
 var tokenEOF = Token{ID: TkEOF, Value: "EOF"}
-var tokenFIXME = Token{ID: TkFIXME, Value: "FIXME-WRITEME"}
 
+//var tokenFIXME = Token{ID: TkFIXME, Value: "FIXME-WRITEME"}
 //var tokenErrInput = Token{ID: TkErrInput, Value: "ERROR-INPUT"}
 //var tokenErrInternal = Token{ID: TkErrInternal, Value: "ERROR-INTERNAL"}
 //var tokenErrLarge = Token{ID: TkErrLarge, Value: "ERROR-LARGE-TOKEN"}
@@ -175,7 +182,9 @@ func (l *Lex) returnTokenEOF() Token {
 	return tokenEOF
 }
 
-// Next gets next token
+// Next gets next token.
+// Will return EOF token unless Lex.HasToken() is true.
+// Check for EOF token with Token.IsEOF() method.
 func (l *Lex) Next() Token {
 	if !l.HasToken() {
 		return l.returnTokenEOF()

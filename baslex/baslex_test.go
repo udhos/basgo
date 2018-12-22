@@ -79,7 +79,7 @@ func TestName(t *testing.T) {
 	compareValue(t, "name", `a%`, []Token{{ID: TkIdentifier, Value: `a%`}, expectTokenEOF})
 	compareValue(t, "name", `a#`, []Token{{ID: TkIdentifier, Value: `a#`}, expectTokenEOF})
 
-	compareValue(t, "name", ` a `, []Token{{ID: TkIdentifier, Value: `a`}, expectTokenEOF})
+	compareValue(t, "name", ` a.2 `, []Token{{ID: TkIdentifier, Value: `a.2`}, expectTokenEOF})
 	compareValue(t, "name", ` abc `, []Token{{ID: TkIdentifier, Value: `abc`}, expectTokenEOF})
 	compareValue(t, "name", ` TIME 67 " hi "`, []Token{{ID: TkIdentifier, Value: `TIME`}, num67, strHi, expectTokenEOF})
 	compareValue(t, "name", ` TIME$ 67 " hi "`, []Token{{ID: TkKeywordTime, Value: `TIME$`}, num67, strHi, expectTokenEOF})
@@ -160,6 +160,22 @@ func TestMarks(t *testing.T) {
 	compareValue(t, "mark", ` , ; ( ) `, seq1)
 	compareValue(t, "mark", `end,end;end(end)end`, seq2)
 	compareValue(t, "mark", ` end , end ; end ( end ) end `, seq2)
+}
+
+func TestBrackets(t *testing.T) {
+
+	expectTokenEOF := tokenEOF
+	lb := Token{ID: TkBracketLeft, Value: `[`}
+	rb := Token{ID: TkBracketRight, Value: `]`}
+	let := Token{ID: TkKeywordLet, Value: `let`}
+
+	seq1 := []Token{lb, rb, expectTokenEOF}
+	seq2 := []Token{let, lb, let, rb, let, expectTokenEOF}
+
+	compareValue(t, "bracket", `[]`, seq1)
+	compareValue(t, "bracket", ` [ ] `, seq1)
+	compareValue(t, "bracket", `let[let]let`, seq2)
+	compareValue(t, "bracket", ` let [ let ] let `, seq2)
 }
 
 func compareValue(t *testing.T, label, str string, tokens []Token) {

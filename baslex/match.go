@@ -2,7 +2,7 @@ package baslex
 
 import (
 	"fmt"
-	"log"
+	//"log"
 	"strings"
 )
 
@@ -136,6 +136,10 @@ func matchBlank(l *Lex, b byte) Token {
 		return Token{ID: TkParLeft, Value: "("}
 	case b == ')':
 		return Token{ID: TkParRight, Value: ")"}
+	case b == '[':
+		return Token{ID: TkBracketLeft, Value: "["}
+	case b == ']':
+		return Token{ID: TkBracketRight, Value: "]"}
 	case b == '<':
 		l.state = stLT
 		return l.save(b)
@@ -150,8 +154,9 @@ func matchBlank(l *Lex, b byte) Token {
 		return l.save(b)
 	}
 
-	log.Printf("matchBlank: FIXME-WRITEME: byte=%d: '%c'", b, b)
-	return tokenFIXME
+	invalid := fmt.Sprintf("INVALID: byte=%d: '%c'", b, b)
+	//log.Printf("matchBlank: %s", invalid)
+	return Token{ID: TkErrInvalid, Value: invalid}
 }
 
 func letter(b byte) bool {
@@ -228,7 +233,7 @@ func matchName(l *Lex, b byte) Token {
 
 	switch {
 
-	case letter(b) || digit(b):
+	case letter(b) || digit(b) || b == '.':
 		return l.save(b)
 
 	case b == '$' || b == '%' || b == '!' || b == '#':
