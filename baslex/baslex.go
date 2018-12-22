@@ -9,7 +9,15 @@ import (
 	"strings"
 )
 
-// Tokens
+/*
+Keep tokens in sync:
+
+(A) const tokens
+(B) var tabKeywords
+(C) var tabType
+*/
+
+// (A) const tokens
 const (
 	TkNull  = iota // Null token should never be seen
 	TkEOF   = iota // EOF
@@ -20,10 +28,14 @@ const (
 	TkErrInternal = iota // Internal error
 	TkErrLarge    = iota // Large token -- last error
 
-	TkColon    = iota // Colon :
-	TkCommentQ = iota // Comment '
-	TkString   = iota // String "
-	TkNumber   = iota // Number [0-9]+
+	TkColon     = iota // Colon :
+	TkComma     = iota // Comma ,
+	TkSemicolon = iota // Semicolon ; (newline suppressor)
+	TkParLeft   = iota // (
+	TkParRight  = iota // )
+	TkCommentQ  = iota // Comment '
+	TkString    = iota // String "
+	TkNumber    = iota // Number [0-9]+
 
 	TkEqual   = iota // Equal
 	TkLT      = iota // <
@@ -39,12 +51,30 @@ const (
 
 	TkKeywordCls   = iota // CLS
 	TkKeywordEnd   = iota // END
+	TkKeywordGoto  = iota // GOTO
+	TkKeywordList  = iota // LIST
 	TkKeywordPrint = iota // PRINT
+	TkKeywordRun   = iota // RUN
 	TkKeywordTime  = iota // TIME$
 
 	TkIdentifier = iota // Identifier (variable)
 )
 
+// (B) var tabKeywords
+var tabKeywords = []struct {
+	TokenID int
+	Name    string
+}{
+	{TkKeywordCls, "CLS"},
+	{TkKeywordEnd, "END"},
+	{TkKeywordGoto, "GOTO"},
+	{TkKeywordList, "LIST"},
+	{TkKeywordPrint, "PRINT"},
+	{TkKeywordRun, "RUN"},
+	{TkKeywordTime, "TIME$"},
+}
+
+// (C) var tabType
 var tabType = []string{
 	"NULL",
 	"EOF",
@@ -56,6 +86,10 @@ var tabType = []string{
 	"ERROR-LARGE",
 
 	"COLON",
+	"COMMA",
+	"SEMICOLON",
+	"PAR-LEFT",
+	"PAR-RIGHT",
 	"COMMENT-Q",
 	"STRING",
 	"NUMBER",
@@ -73,8 +107,11 @@ var tabType = []string{
 	"DIV",
 
 	"CLS",
+	"GOTO",
 	"END",
+	"LIST",
 	"PRINT",
+	"RUN",
 	"TIME",
 
 	"IDENTIFIER",

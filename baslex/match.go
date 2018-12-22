@@ -25,18 +25,6 @@ const (
 	stGT       = iota
 )
 
-var (
-	tabKeywords = []struct {
-		TokenID int
-		Name    string
-	}{
-		{TkKeywordCls, "CLS"},
-		{TkKeywordEnd, "END"},
-		{TkKeywordPrint, "PRINT"},
-		{TkKeywordTime, "TIME$"},
-	}
-)
-
 // "CLS" => TkKeywordCls
 func findKeyword(name string) int {
 	nameUp := strings.ToUpper(name)
@@ -140,6 +128,14 @@ func matchBlank(l *Lex, b byte) Token {
 		return Token{ID: TkColon, Value: ":"}
 	case b == '=':
 		return Token{ID: TkEqual, Value: "="}
+	case b == ',':
+		return Token{ID: TkComma, Value: ","}
+	case b == ';':
+		return Token{ID: TkSemicolon, Value: ";"}
+	case b == '(':
+		return Token{ID: TkParLeft, Value: "("}
+	case b == ')':
+		return Token{ID: TkParRight, Value: ")"}
 	case b == '<':
 		l.state = stLT
 		return l.save(b)

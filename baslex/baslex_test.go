@@ -138,10 +138,28 @@ func TestArith(t *testing.T) {
 	seq1 := []Token{plus, minus, mult, div, expectTokenEOF}
 	seq2 := []Token{ident, plus, ident, minus, ident, mult, ident, div, ident, expectTokenEOF}
 
-	compareValue(t, "arith-plus", `+-*/`, seq1)
-	compareValue(t, "arith-plus", ` + - * / `, seq1)
-	compareValue(t, "arith-plus", `a+a-a*a/a`, seq2)
-	compareValue(t, "arith-plus", ` a + a - a * a / a `, seq2)
+	compareValue(t, "arith", `+-*/`, seq1)
+	compareValue(t, "arith", ` + - * / `, seq1)
+	compareValue(t, "arith", `a+a-a*a/a`, seq2)
+	compareValue(t, "arith", ` a + a - a * a / a `, seq2)
+}
+
+func TestMarks(t *testing.T) {
+
+	expectTokenEOF := tokenEOF
+	comma := Token{ID: TkComma, Value: `,`}
+	semi := Token{ID: TkSemicolon, Value: `;`}
+	lp := Token{ID: TkParLeft, Value: `(`}
+	rp := Token{ID: TkParRight, Value: `)`}
+	end := Token{ID: TkKeywordEnd, Value: `end`}
+
+	seq1 := []Token{comma, semi, lp, rp, expectTokenEOF}
+	seq2 := []Token{end, comma, end, semi, end, lp, end, rp, end, expectTokenEOF}
+
+	compareValue(t, "mark", `,;()`, seq1)
+	compareValue(t, "mark", ` , ; ( ) `, seq1)
+	compareValue(t, "mark", `end,end;end(end)end`, seq2)
+	compareValue(t, "mark", ` end , end ; end ( end ) end `, seq2)
 }
 
 func compareValue(t *testing.T, label, str string, tokens []Token) {
