@@ -1,11 +1,11 @@
 %{
 
-package main
+package basparser
 
 import (
-	"bufio"
+	//"bufio"
 	"fmt"
-	"os"
+	//"os"
 	"unicode"
 )
 
@@ -35,12 +35,17 @@ input : CHARACTER
   | input CHARACTER
       { $$ = $1 + $2 }
   ;
+
 %%
+
+func NewInputLex(line string) *InputLex {
+ 	return &InputLex{s: line}
+}
 
 type InputLex struct {
         // contains one complete input string (with the trailing \n)
         s string
-        // used to keep track of parser position along the above imput string
+        // used to keep track of parser position along the above input string
         pos int
 }
 
@@ -62,7 +67,7 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 	    return CHARACTER
 	}
 
-        // do not return any token in case of unrecognized grammer
+        // do not return any token in case of unrecognized grammar
         // this results in syntax error
 	return int(c)
 }
@@ -71,26 +76,3 @@ func (l *InputLex) Error(s string) {
 	fmt.Printf("syntax error: %s\n", s)
 }
 
-func main() {
-	fi := bufio.NewReader(os.NewFile(0, "stdin"))
-
-	for {
-		var eqn string
-		var ok bool
-
-		fmt.Printf("input: ")
-		if eqn, ok = readline(fi); ok {
-			InputParse(&InputLex{s: eqn})
-		} else {
-			break
-		}
-	}
-}
-
-func readline(fi *bufio.Reader) (string, bool) {
-	s, err := fi.ReadString('\n')
-	if err != nil {
-		return "", false
-	}
-	return s, true
-}

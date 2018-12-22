@@ -20,21 +20,6 @@ build() {
 	go install -v "$pkg"
 }
 
-#build_lex() {
-#	local pkg="$1"
-#
-#	go test "$pkg"
-#	go install -v "$pkg"
-#}
-#
-#go get github.com/blynn/nex
-#hash nex || die missing nex
-#pushd lex
-#nex -s -o generated-lex.go lex.nex
-#popd
-#build_lex ./lex
-#build ./lex-run
-
 build ./baslex
 build ./baslex-run
 build ./basgo
@@ -46,4 +31,5 @@ go get golang.org/x/tools/cmd/goyacc
 goyacc -o ./basparser/parser.go -p Input ./basparser/parser.y
 
 build ./basparser
+build ./basparser-run
 
