@@ -68,6 +68,7 @@ import (
 %token <val> TkKeywordList
 %token <val> TkKeywordLoad
 %token <val> TkKeywordPrint
+%token <val> TkKeywordRem
 %token <val> TkKeywordRun
 %token <val> TkKeywordSave
 %token <val> TkKeywordStop

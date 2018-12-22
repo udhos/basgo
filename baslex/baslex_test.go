@@ -194,6 +194,23 @@ func TestKeywords(t *testing.T) {
 	compareValue(t, "keywords", ` if then else stop system cont `, seq)
 }
 
+func TestRem(t *testing.T) {
+
+	expectTokenEOF := tokenEOF
+	rem := Token{ID: TkKeywordRem, Value: `rem`}
+	remSpc := Token{ID: TkKeywordRem, Value: `rem `}
+	remBig := Token{ID: TkKeywordRem, Value: `rem  this is a comment! : print`}
+
+	seq := []Token{rem, expectTokenEOF}
+	seqSpc := []Token{remSpc, expectTokenEOF}
+	seqBig := []Token{remBig, expectTokenEOF}
+
+	compareValue(t, "rem", `rem`, seq)
+	compareValue(t, "rem", ` rem`, seq)
+	compareValue(t, "rem", ` rem `, seqSpc)
+	compareValue(t, "rem", ` rem  this is a comment! : print`, seqBig)
+}
+
 func compareValue(t *testing.T, label, str string, tokens []Token) {
 
 	lex := NewStr(str)
@@ -201,7 +218,7 @@ func compareValue(t *testing.T, label, str string, tokens []Token) {
 	for ; lex.HasToken(); i++ {
 		tok := lex.Next()
 		if tok.ID != tokens[i].ID {
-			t.Errorf("compareValue: %s: bad id: found id=%v expected: tok=%v", label, tok, tokens[i])
+			t.Errorf("compareValue: %s: bad id: found %v id=%d expected: tok=%v id=%d", label, tok, tok.ID, tokens[i], tokens[i].ID)
 			return
 		}
 		if tok.Value != tokens[i].Value {

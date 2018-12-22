@@ -52,6 +52,7 @@ var tabLexToken = []int{
 	TkKeywordList,   // TkKeywordList
 	TkKeywordLoad,   // TkKeywordLoad
 	TkKeywordPrint,  // TkKeywordPrint
+	TkKeywordRem,    // TkKeywordRem
 	TkKeywordRun,    // TkKeywordRun
 	TkKeywordSave,   // TkKeywordSave
 	TkKeywordStop,   // TkKeywordStop

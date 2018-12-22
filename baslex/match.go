@@ -16,13 +16,14 @@ Keep states in sync:
 
 // (1) const states
 const (
-	stBlank    = iota
-	stCommentQ = iota
-	stString   = iota
-	stNumber   = iota
-	stName     = iota
-	stLT       = iota
-	stGT       = iota
+	stBlank      = iota
+	stCommentQ   = iota
+	stCommentRem = iota
+	stString     = iota
+	stNumber     = iota
+	stName       = iota
+	stLT         = iota
+	stGT         = iota
 )
 
 // "CLS" => TkKeywordCls
@@ -42,6 +43,7 @@ type funcState func(l *Lex, b byte) Token
 var tabState = []funcState{
 	matchBlank,
 	matchCommentQ,
+	matchCommentRem,
 	matchString,
 	matchNumber,
 	matchName,
@@ -66,6 +68,8 @@ func (l *Lex) foundEOF() Token {
 		return l.returnTokenEOF()
 	case stCommentQ:
 		return l.consume(Token{ID: TkCommentQ})
+	case stCommentRem:
+		return l.consume(Token{ID: TkKeywordRem})
 	case stString:
 		return l.consume(Token{ID: TkString})
 	case stNumber:
@@ -193,6 +197,22 @@ func matchCommentQ(l *Lex, b byte) Token {
 	return l.save(b)
 }
 
+func matchCommentRem(l *Lex, b byte) Token {
+
+	switch {
+	case eol(b):
+		// push back EOL
+		if errUnread := l.r.UnreadByte(); errUnread != nil {
+			return Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)}
+		}
+		l.state = stBlank // blank state will deliver EOL
+
+		return l.consume(Token{ID: TkKeywordRem})
+	}
+
+	return l.save(b)
+}
+
 func matchString(l *Lex, b byte) Token {
 
 	switch {
@@ -247,11 +267,22 @@ func matchName(l *Lex, b byte) Token {
 		return l.consumeName()
 	}
 
+	// found name
+
 	// push back non-name byte
 	if errUnread := l.r.UnreadByte(); errUnread != nil {
 		return Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)}
 	}
 	l.state = stBlank // blank state will deliver next token
+
+	// trap special keyword REM
+
+	name := l.buf.String()
+	id := findKeyword(name)
+	if id == TkKeywordRem {
+		l.state = stCommentRem
+		return tokenNull // keep matching REM
+	}
 
 	return l.consumeName()
 }

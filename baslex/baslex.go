@@ -63,6 +63,7 @@ const (
 	TkKeywordList   = iota // LIST
 	TkKeywordLoad   = iota // LOAD
 	TkKeywordPrint  = iota // PRINT
+	TkKeywordRem    = iota // REM
 	TkKeywordRun    = iota // RUN
 	TkKeywordSave   = iota // SAVE
 	TkKeywordStop   = iota // STOP
@@ -95,6 +96,7 @@ var tabKeywords = []struct {
 	{TkKeywordList, "LIST"},
 	{TkKeywordLoad, "LOAD"},
 	{TkKeywordPrint, "PRINT"},
+	{TkKeywordRem, "REM"},
 	{TkKeywordRun, "RUN"},
 	{TkKeywordSave, "SAVE"},
 	{TkKeywordStop, "STOP"},
@@ -149,6 +151,7 @@ var tabType = []string{
 	"LIST",
 	"LOAD",
 	"PRINT",
+	"REM",
 	"RUN",
 	"SAVE",
 	"STOP",
