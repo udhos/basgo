@@ -2,31 +2,20 @@ package main
 
 import (
 	"bufio"
-	"fmt"
+	//"fmt"
+	"log"
 	"os"
 
 	"github.com/udhos/basgo/basparser"
 )
 
 func main() {
-	fi := bufio.NewReader(os.Stdin)
+	me := os.Args[0]
+	log.Printf("%s: reading from stdin...", me)
 
-	for {
-		fmt.Printf("input: ")
+	input := bufio.NewReader(os.Stdin)
+	lex := basparser.NewInputLex(input)
+	basparser.InputParse(lex)
 
-		if line, ok := readline(fi); ok {
-			lex := basparser.NewInputLex(line)
-			basparser.InputParse(lex)
-		} else {
-			break
-		}
-	}
-}
-
-func readline(fi *bufio.Reader) (string, bool) {
-	s, err := fi.ReadString('\n')
-	if err != nil {
-		return "", false
-	}
-	return s, true
+	log.Printf("%s: reading from stdin...done", me)
 }

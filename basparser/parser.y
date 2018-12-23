@@ -6,7 +6,10 @@ import (
 	//"bufio"
 	"fmt"
 	//"os"
-	"unicode"
+	//"unicode"
+	"io"
+
+	"github.com/udhos/basgo/baslex"
 )
 
 %}
@@ -14,119 +17,147 @@ import (
 // fields inside this union end up as the fields in a structure known
 // as ${PREFIX}SymType, of which a reference is passed to the lexer.
 %union{
-	val string
+	typeProg int
+	typeLine int
+	typeStmtList int
+	typeStmt int
+	tok int
 }
 
 // any non-terminal which returns a value needs a type, which is
 // really a field name in the above union struct
-%type <val> input
+//%type <val> input
+%type <typeProg> prog
+%type <typeLine> line
+%type <typeStmtList> statements
+%type <typeStmt> stmt
 
 // same for terminals
-%token <val> CHARACTER
+//%token <val> CHARACTER
 
-%token <val> TkNull
-%token <val> TkEOF
-%token <val> TkEOL
+%token <tok> TkNull
+%token <tok> TkEOF
+%token <tok> TkEOL
 
-%token <val> TkErrInput
-%token <val> TkErrInternal
-%token <val> TkErrInvalid
-%token <val> TkErrLarge
+%token <tok> TkErrInput
+%token <tok> TkErrInternal
+%token <tok> TkErrInvalid
+%token <tok> TkErrLarge
 
-%token <val> TkColon
-%token <val> TkComma
-%token <val> TkSemicolon
-%token <val> TkParLeft
-%token <val> TkParRight
-%token <val> TkBracketLeft
-%token <val> TkBracketRight
-%token <val> TkCommentQ
-%token <val> TkString
-%token <val> TkNumber
+%token <tok> TkColon
+%token <tok> TkComma
+%token <tok> TkSemicolon
+%token <tok> TkParLeft
+%token <tok> TkParRight
+%token <tok> TkBracketLeft
+%token <tok> TkBracketRight
+%token <tok> TkCommentQ
+%token <tok> TkString
+%token <tok> TkNumber
 
-%token <val> TkEqual
-%token <val> TkLT
-%token <val> TkGT
-%token <val> TkUnequal
-%token <val> TkLE
-%token <val> TkGE
+%token <tok> TkEqual
+%token <tok> TkLT
+%token <tok> TkGT
+%token <tok> TkUnequal
+%token <tok> TkLE
+%token <tok> TkGE
 
-%token <val> TkPlus
-%token <val> TkMinus
-%token <val> TkMult
-%token <val> TkDiv
-%token <val> TkBackSlash
+%token <tok> TkPlus
+%token <tok> TkMinus
+%token <tok> TkMult
+%token <tok> TkDiv
+%token <tok> TkBackSlash
 
-%token <val> TkKeywordCls
-%token <val> TkKeywordCont
-%token <val> TkKeywordElse
-%token <val> TkKeywordEnd
-%token <val> TkKeywordGoto
-%token <val> TkKeywordInput
-%token <val> TkKeywordIf
-%token <val> TkKeywordLet
-%token <val> TkKeywordList
-%token <val> TkKeywordLoad
-%token <val> TkKeywordPrint
-%token <val> TkKeywordRem
-%token <val> TkKeywordRun
-%token <val> TkKeywordSave
-%token <val> TkKeywordStop
-%token <val> TkKeywordSystem
-%token <val> TkKeywordThen
-%token <val> TkKeywordTime
+%token <tok> TkKeywordCls
+%token <tok> TkKeywordCont
+%token <tok> TkKeywordElse
+%token <tok> TkKeywordEnd
+%token <tok> TkKeywordGoto
+%token <tok> TkKeywordInput
+%token <tok> TkKeywordIf
+%token <tok> TkKeywordLet
+%token <tok> TkKeywordList
+%token <tok> TkKeywordLoad
+%token <tok> TkKeywordPrint
+%token <tok> TkKeywordRem
+%token <tok> TkKeywordRun
+%token <tok> TkKeywordSave
+%token <tok> TkKeywordStop
+%token <tok> TkKeywordSystem
+%token <tok> TkKeywordThen
+%token <tok> TkKeywordTime
 
-%token <val> TkIdentifier
-
-%%
-
-in : /* empty */
-  | in input '\n'
-     { fmt.Printf("Read character: %s\n", $2) }
-  ;
-
-input : CHARACTER
-  | input CHARACTER
-      { $$ = $1 + $2 }
-  ;
+%token <tok> TkIdentifier
 
 %%
 
-func NewInputLex(line string) *InputLex {
- 	return &InputLex{s: line}
+prog: line_list TkEOF
+     {
+	 fmt.Printf("parser action - full prog?\n")
+	 $$ = 1
+     }
+  ;
+
+line_list: line
+  | line_list TkEOL line
+  ;
+
+line: statements
+     { $$ = 4 /* statements */ }
+  | TkNumber statements
+     { $$ = 5 /* number statements */ }
+  ;
+
+statements: stmt
+     { $$ = 6 }
+  | statements TkColon stmt
+     { $$ = 7 /* stmt */ }
+  ;
+
+stmt: /* empty */
+     { $$ = 8  }
+  | TkKeywordEnd
+     { $$ = 9 /* end */ }
+  | TkKeywordPrint
+     { $$ = 10 /* print */ }
+  ;
+
+//in : /* empty */
+//  | in input '\n'
+//     { fmt.Printf("Read character: %s\n", $2) }
+//  ;
+//
+//input : CHARACTER
+//  | input CHARACTER
+//      { $$ = $1 + $2 }
+//  ;
+
+%%
+
+func NewInputLex(input io.ByteScanner) *InputLex {
+ 	return &InputLex{lex: baslex.New(input)}
 }
 
 type InputLex struct {
-        // contains one complete input string (with the trailing \n)
-        s string
-        // used to keep track of parser position along the above input string
-        pos int
+	lex *baslex.Lex
 }
 
 func (l *InputLex) Lex(lval *InputSymType) int {
-	var c rune = ' '
 
-        // skip through all the spaces, both at the ends and in between
-	for c == ' ' {
-		if l.pos == len(l.s) {
-			return 0
-		}
-		c = rune(l.s[l.pos])
-		l.pos += 1
+	if !l.lex.HasToken() {
+		return 0
 	}
 
-        // only look for input characters that are either digits or lower case
-	if unicode.IsDigit(c) || unicode.IsLower(c) {
-	    lval.val = string(c)
-	    return CHARACTER
-	}
+	t := l.lex.Next()
 
-        // do not return any token in case of unrecognized grammar
-        // this results in syntax error
-	return int(c)
+	id := parserToken(t.ID) // convert lex ID to parser ID
+
+	fmt.Printf("InputLex.Lex: lex=%v parser=%d\n", t, id)
+
+	return id
 }
 
 func (l *InputLex) Error(s string) {
-	fmt.Printf("syntax error: %s\n", s)
+	fmt.Printf("InputLex.Error: syntax error: %s\n", s)
 }
 
