@@ -45,20 +45,26 @@ var tabLexToken = []int{
 	TkKeywordCont,   // TkKeywordCont
 	TkKeywordElse,   // TkKeywordElse
 	TkKeywordEnd,    // TkKeywordEnd
+	TkKeywordFor,    // TkKeywordFor
+	TkKeywordGosub,  // TkKeywordGosub
 	TkKeywordGoto,   // TkKeywordGoto
 	TkKeywordInput,  // TkKeywordInput
 	TkKeywordIf,     // TkKeywordIf
 	TkKeywordLet,    // TkKeywordLet
 	TkKeywordList,   // TkKeywordList
 	TkKeywordLoad,   // TkKeywordLoad
+	TkKeywordNext,   // TkKeywordNext
 	TkKeywordPrint,  // TkKeywordPrint
 	TkKeywordRem,    // TkKeywordRem
+	TkKeywordReturn, // TkKeywordReturn
 	TkKeywordRun,    // TkKeywordRun
 	TkKeywordSave,   // TkKeywordSave
+	TkKeywordStep,   // TkKeywordStep
 	TkKeywordStop,   // TkKeywordStop
 	TkKeywordSystem, // TkKeywordSystem
 	TkKeywordThen,   // TkKeywordThen
 	TkKeywordTime,   // TkKeywordTime
+	TkKeywordTo,     // TkKeywordTo
 
 	TkIdentifier, // TkIdentifier
 }

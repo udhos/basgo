@@ -72,20 +72,26 @@ import (
 %token <tok> TkKeywordCont
 %token <tok> TkKeywordElse
 %token <tok> TkKeywordEnd
+%token <tok> TkKeywordFor
+%token <tok> TkKeywordGosub
 %token <tok> TkKeywordGoto
 %token <tok> TkKeywordInput
 %token <tok> TkKeywordIf
 %token <tok> TkKeywordLet
 %token <tok> TkKeywordList
 %token <tok> TkKeywordLoad
+%token <tok> TkKeywordNext
 %token <tok> TkKeywordPrint
 %token <tok> TkKeywordRem
+%token <tok> TkKeywordReturn
 %token <tok> TkKeywordRun
 %token <tok> TkKeywordSave
+%token <tok> TkKeywordStep
 %token <tok> TkKeywordStop
 %token <tok> TkKeywordSystem
 %token <tok> TkKeywordThen
 %token <tok> TkKeywordTime
+%token <tok> TkKeywordTo
 
 %token <tok> TkIdentifier
 

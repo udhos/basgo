@@ -27,7 +27,6 @@ build ./basgo-run
 
 go get golang.org/x/tools/cmd/goyacc
 
-#go tool yacc -o ./basparser/parser.go -p Input ./basparser/parser.y
 goyacc -o ./basparser/parser.go -p Input ./basparser/parser.y
 
 build ./basparser

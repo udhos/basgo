@@ -220,6 +220,21 @@ func TestRem(t *testing.T) {
 	compareValue(t, "rem", ` rem  this is a comment! : print`, seqBig)
 }
 
+func TestLoop(t *testing.T) {
+
+	expectTokenEOF := tokenEOF
+	kwFor := Token{ID: TkKeywordFor, Value: `for`}
+	kwTo := Token{ID: TkKeywordTo, Value: `to`}
+	kwStep := Token{ID: TkKeywordStep, Value: `step`}
+	kwNext := Token{ID: TkKeywordNext, Value: `next`}
+	kwGosub := Token{ID: TkKeywordGosub, Value: `gosub`}
+	kwReturn := Token{ID: TkKeywordReturn, Value: `return`}
+
+	seq := []Token{kwFor, kwTo, kwStep, kwNext, kwGosub, kwReturn, expectTokenEOF}
+
+	compareValue(t, "loop", " for to step next gosub return", seq)
+}
+
 func compareValue(t *testing.T, label, str string, tokens []Token) {
 
 	lex := NewStr(str)
