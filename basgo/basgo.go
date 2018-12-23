@@ -8,7 +8,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/udhos/basgo/baslex"
+	//"github.com/udhos/basgo/baslex"
+	"github.com/udhos/basgo/basparser"
 )
 
 // Basgo holds a full environment
@@ -61,12 +62,20 @@ func (b *Basgo) execReader(printf funcPrintf, r hasReadString, flush func() erro
 }
 
 func (b *Basgo) execLine(printf funcPrintf, line string) {
-	//printf("execLine: [%s]\n", line)
-	lex := baslex.NewStr(line)
-	for lex.HasToken() {
-		tok := lex.Next()
-		printf("execLine: [%s] token: %s [%s]\n", line, tok.Type(), tok.Value)
-	}
+
+	input := bufio.NewReader(strings.NewReader(line))
+	lex := basparser.NewInputLex(input)
+	status := basparser.InputParse(lex)
+
+	printf("execLine: [%s] status=%d\n", line, status)
+
+	/*
+		lex := baslex.NewStr(line)
+		for lex.HasToken() {
+			tok := lex.Next()
+			printf("execLine: [%s] token: %s [%s]\n", line, tok.Type(), tok.Value)
+		}
+	*/
 }
 
 func (b *Basgo) printf(format string, v ...interface{}) {
