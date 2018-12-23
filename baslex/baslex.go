@@ -189,17 +189,18 @@ func (t Token) IsError() bool {
 
 // Lex is a full lexer object
 type Lex struct {
-	r       io.ByteScanner
-	eofSeen bool // hit EOF?
-	eofSent bool // delivered EOF?
-	broken  bool // hit error?
-	buf     bytes.Buffer
-	state   int
+	r         io.ByteScanner
+	eofSeen   bool // hit EOF?
+	eofSent   bool // delivered EOF?
+	broken    bool // hit error?
+	buf       bytes.Buffer
+	state     int
+	lineCount int
 }
 
 // New creates a Lex object
 func New(input io.ByteScanner) *Lex {
-	return &Lex{r: input}
+	return &Lex{r: input, lineCount: 1}
 }
 
 // NewStr creates a Lex object from string
@@ -259,9 +260,14 @@ func (l *Lex) findToken() Token {
 		}
 
 		t := l.match(b)
-		if t.ID != TkNull {
-			return t
+		switch t.ID {
+		case TkNull:
+			continue
+		case TkEOL:
+			l.lineCount++
 		}
+
+		return t
 	}
 
 	// never reached
