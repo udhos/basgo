@@ -200,6 +200,16 @@ type Lex struct {
 	lineOffset int
 }
 
+// Line returns current line count.
+func (l *Lex) Line() int {
+	return l.lineCount
+}
+
+// Column returns current column offset within line.
+func (l *Lex) Column() int {
+	return l.lineOffset
+}
+
 // New creates a Lex object
 func New(input io.ByteScanner) *Lex {
 	return &Lex{r: input, lineCount: 1}
