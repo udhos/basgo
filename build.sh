@@ -20,15 +20,13 @@ build() {
 	go install -v "$pkg"
 }
 
-build ./baslex
-build ./baslex-run
-build ./basgo
-build ./basgo-run
-
 go get golang.org/x/tools/cmd/goyacc
-
 goyacc -o ./basparser/parser.go -p Input ./basparser/parser.y
 
+build ./baslex
+build ./baslex-run
 build ./basparser
 build ./basparser-run
+build ./basgo
+build ./basgo-run
 

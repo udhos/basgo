@@ -8,12 +8,14 @@ import (
 	//"os"
 	//"unicode"
 	"io"
+	"strconv"
 
 	"github.com/udhos/basgo/baslex"
 )
 
 // parser auxiliary variables
 var (
+	LastNumber int
 	Root []Node
 	lineList []Node
 	nodeList []Node
@@ -25,6 +27,7 @@ var (
 // as ${PREFIX}SymType, of which a reference is passed to the lexer.
 %union{
 	//typeProg []Node
+
 	typeLineList []Node
 	typeLine Node
 	typeStmtList []Node
@@ -122,9 +125,15 @@ line_list: line
   ;
 
 line: statements
-     { $$ = &LineImmediate{Nodes:$1} }
+     {
+	fmt.Printf("found line\n")
+	 $$ = &LineImmediate{Nodes:$1}
+ }
   | TkNumber statements
-     { $$ = &LineNumbered{LineNumber:$1, Nodes:$2} }
+     {
+	fmt.Printf("found line number=%d\n", LastNumber)
+	 $$ = &LineNumbered{LineNumber:LastNumber, Nodes:$2}
+ }
   ;
 
 statements: stmt
@@ -165,9 +174,18 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 
 	t := l.lex.Next()
 
+	if t.ID == baslex.TkNumber {
+		num, errConv := strconv.Atoi(t.Value)
+		if errConv != nil {
+			fmt.Printf("InputLex.Lex: error parsing number: '%s': %v\n", t.Value, errConv)
+		}
+		LastNumber = num
+		fmt.Printf("InputLex.Lex: last number=%d\n", LastNumber)
+	}
+
 	id := parserToken(t.ID) // convert lex ID to parser ID
 
-	fmt.Printf("InputLex.Lex: lex=%v parser=%d\n", t, id)
+	fmt.Printf("InputLex.Lex: %s [%s] lex=%v parser=%d\n", t.Type(), t.Value, t, id)
 
 	return id
 }
