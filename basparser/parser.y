@@ -12,28 +12,36 @@ import (
 	"github.com/udhos/basgo/baslex"
 )
 
+// parser auxiliary variables
+var (
+	Root []Node
+	lineList []Node
+	nodeList []Node
+)
+
 %}
 
 // fields inside this union end up as the fields in a structure known
 // as ${PREFIX}SymType, of which a reference is passed to the lexer.
 %union{
-	typeProg int
-	typeLine int
-	typeStmtList int
-	typeStmt int
+	//typeProg []Node
+	typeLineList []Node
+	typeLine Node
+	typeStmtList []Node
+	typeStmt Node
 	tok int
 }
 
 // any non-terminal which returns a value needs a type, which is
 // really a field name in the above union struct
-//%type <val> input
-%type <typeProg> prog
+
+//%type <typeProg> prog
+%type <typeLineList> line_list
 %type <typeLine> line
 %type <typeStmtList> statements
 %type <typeStmt> stmt
 
 // same for terminals
-//%token <val> CHARACTER
 
 %token <tok> TkNull
 %token <tok> TkEOF
@@ -98,45 +106,46 @@ import (
 %%
 
 prog: line_list TkEOF
-     {
-	 fmt.Printf("parser action - full prog?\n")
-	 $$ = 1
-     }
+     { Root = $1 }
   ;
 
 line_list: line
+     {
+        lineList = []Node{$1} // reset line list
+	$$ = lineList
+     }
   | line_list TkEOL line
+     {
+        lineList = append(lineList, $3)
+        $$ = lineList
+     }
   ;
 
 line: statements
-     { $$ = 4 /* statements */ }
+     { $$ = &LineImmediate{Nodes:$1} }
   | TkNumber statements
-     { $$ = 5 /* number statements */ }
+     { $$ = &LineNumbered{LineNumber:$1, Nodes:$2} }
   ;
 
 statements: stmt
-     { $$ = 6 }
+     {
+        nodeList = []Node{$1} // reset node list
+	$$ = nodeList
+     }
   | statements TkColon stmt
-     { $$ = 7 /* stmt */ }
+     {
+        nodeList = append(nodeList, $3)
+        $$ = nodeList
+     }
   ;
 
 stmt: /* empty */
-     { $$ = 8  }
+     { $$ = &NodeEmpty{} }
   | TkKeywordEnd
-     { $$ = 9 /* end */ }
+     { $$ = &NodeEnd{} }
   | TkKeywordPrint
-     { $$ = 10 /* print */ }
+     { $$ = &NodePrint{} }
   ;
-
-//in : /* empty */
-//  | in input '\n'
-//     { fmt.Printf("Read character: %s\n", $2) }
-//  ;
-//
-//input : CHARACTER
-//  | input CHARACTER
-//      { $$ = $1 + $2 }
-//  ;
 
 %%
 

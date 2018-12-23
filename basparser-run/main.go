@@ -2,7 +2,7 @@ package main
 
 import (
 	"bufio"
-	//"fmt"
+	"fmt"
 	"log"
 	"os"
 
@@ -18,4 +18,11 @@ func main() {
 	status := basparser.InputParse(lex)
 
 	log.Printf("%s: reading from stdin...done status=%d", me, status)
+
+	log.Printf("%s: running syntax tree lines=%d:", me, len(basparser.Root))
+
+	for i, n := range basparser.Root {
+		fmt.Printf("%d: ", i)
+		n.Run()
+	}
 }
