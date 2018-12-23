@@ -4,7 +4,16 @@ import (
 	"testing"
 )
 
-//var expectTokenEOF = Token{ID: TkEOF, Value: "EOF"}
+func TestTokenTable(t *testing.T) {
+
+	if TokenIDFirst != 0 {
+		t.Errorf("Bad first token ID: %d", TokenIDFirst)
+	}
+
+	if len(tabType) != (TokenIDLast + 1) {
+		t.Errorf("Size=%d of type table does NOT match the last token id=%d", len(tabType), TokenIDLast+1)
+	}
+}
 
 func TestEOF(t *testing.T) {
 	compareID(t, "eof", "", []int{TkEOF})
