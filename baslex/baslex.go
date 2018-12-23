@@ -164,9 +164,10 @@ var tabType = []string{
 
 // Token is a lexical token
 type Token struct {
-	ID        int
-	Value     string
-	LineCount int
+	ID         int
+	Value      string
+	LineCount  int
+	LineOffset int
 }
 
 // Type gets the token type
@@ -189,13 +190,14 @@ func (t Token) IsError() bool {
 
 // Lex is a full lexer object
 type Lex struct {
-	r         io.ByteScanner
-	eofSeen   bool // hit EOF?
-	eofSent   bool // delivered EOF?
-	broken    bool // hit error?
-	buf       bytes.Buffer
-	state     int
-	lineCount int
+	r          io.ByteScanner
+	eofSeen    bool // hit EOF?
+	eofSent    bool // delivered EOF?
+	broken     bool // hit error?
+	buf        bytes.Buffer
+	state      int
+	lineCount  int
+	lineOffset int
 }
 
 // New creates a Lex object
@@ -259,11 +261,14 @@ func (l *Lex) findToken() Token {
 			return l.foundErrorInput(errRead)
 		}
 
+		l.lineOffset++
+
 		t := l.match(b)
 		switch t.ID {
 		case TkNull:
 			continue
 		case TkEOL:
+			l.lineOffset = 0
 			l.lineCount++
 		}
 

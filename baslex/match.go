@@ -51,11 +51,35 @@ var tabState = []funcState{
 	matchGT,
 }
 
+func (l *Lex) saveLocation(t Token, size int) Token {
+	t.LineCount = l.lineCount          // save line
+	t.LineOffset = l.lineOffset - size // save offset
+	return t
+}
+
+func (l *Lex) saveLocationEmpty(t Token) Token {
+	return l.saveLocation(t, 0)
+}
+
+func (l *Lex) saveLocationValue(t Token) Token {
+	return l.saveLocation(t, len(t.Value))
+}
+
 func (l *Lex) consume(t Token) Token {
-	t.Value = l.buf.String()
+	t.Value = l.buf.String() // save value
+
+	t = l.saveLocationValue(t)
+
 	//log.Printf("consume: [%s]", t.Value)
+
 	l.buf.Reset()
 	return t
+}
+
+func (l *Lex) consumeName() Token {
+	name := l.buf.String()
+	id := findKeyword(name)
+	return l.consume(Token{ID: id})
 }
 
 // (3) func foundEOF()
@@ -65,7 +89,7 @@ func (l *Lex) foundEOF() Token {
 
 	switch l.state {
 	case stBlank:
-		return l.returnTokenEOF()
+		return l.saveLocationEmpty(l.returnTokenEOF())
 	case stCommentQ:
 		return l.consume(Token{ID: TkCommentQ})
 	case stCommentRem:
@@ -82,19 +106,13 @@ func (l *Lex) foundEOF() Token {
 		return l.consume(Token{ID: TkGT})
 	}
 
-	return Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL:foundEOF: bad state=%d", l.state)}
-}
-
-func (l *Lex) consumeName() Token {
-	name := l.buf.String()
-	id := findKeyword(name)
-	return l.consume(Token{ID: id})
+	return l.saveLocationEmpty(Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL:foundEOF: bad state=%d", l.state)})
 }
 
 func (l *Lex) match(b byte) Token {
 
 	if l.state < 0 || l.state >= len(tabState) {
-		return Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: match bad state=%d", l.state)}
+		return l.saveLocationEmpty(Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: match bad state=%d", l.state)})
 	}
 
 	return tabState[l.state](l, b)
@@ -102,7 +120,7 @@ func (l *Lex) match(b byte) Token {
 
 func (l *Lex) save(b byte) Token {
 	if errSave := l.buf.WriteByte(b); errSave != nil {
-		return Token{ID: TkErrLarge, Value: fmt.Sprintf("ERROR-LARGE-TOKEN: %s", errSave)}
+		return l.saveLocationEmpty(Token{ID: TkErrLarge, Value: fmt.Sprintf("ERROR-LARGE-TOKEN: %s", errSave)})
 	}
 	return tokenNull
 }
@@ -111,7 +129,7 @@ func matchBlank(l *Lex, b byte) Token {
 
 	switch {
 	case eol(b):
-		return Token{ID: TkEOL, Value: "EOL"}
+		return l.saveLocationEmpty(Token{ID: TkEOL, Value: "EOL"})
 	case blank(b):
 		return tokenNull
 	case b == '\'':
@@ -121,31 +139,31 @@ func matchBlank(l *Lex, b byte) Token {
 		l.state = stString
 		return l.save(b)
 	case b == '+':
-		return Token{ID: TkPlus, Value: "+"}
+		return l.saveLocationValue(Token{ID: TkPlus, Value: "+"})
 	case b == '-':
-		return Token{ID: TkMinus, Value: "-"}
+		return l.saveLocationValue(Token{ID: TkMinus, Value: "-"})
 	case b == '*':
-		return Token{ID: TkMult, Value: "*"}
+		return l.saveLocationValue(Token{ID: TkMult, Value: "*"})
 	case b == '/':
-		return Token{ID: TkDiv, Value: "/"}
+		return l.saveLocationValue(Token{ID: TkDiv, Value: "/"})
 	case b == '\\':
-		return Token{ID: TkBackSlash, Value: "\\"}
+		return l.saveLocationValue(Token{ID: TkBackSlash, Value: "\\"})
 	case b == ':':
-		return Token{ID: TkColon, Value: ":"}
+		return l.saveLocationValue(Token{ID: TkColon, Value: ":"})
 	case b == '=':
-		return Token{ID: TkEqual, Value: "="}
+		return l.saveLocationValue(Token{ID: TkEqual, Value: "="})
 	case b == ',':
-		return Token{ID: TkComma, Value: ","}
+		return l.saveLocationValue(Token{ID: TkComma, Value: ","})
 	case b == ';':
-		return Token{ID: TkSemicolon, Value: ";"}
+		return l.saveLocationValue(Token{ID: TkSemicolon, Value: ";"})
 	case b == '(':
-		return Token{ID: TkParLeft, Value: "("}
+		return l.saveLocationValue(Token{ID: TkParLeft, Value: "("})
 	case b == ')':
-		return Token{ID: TkParRight, Value: ")"}
+		return l.saveLocationValue(Token{ID: TkParRight, Value: ")"})
 	case b == '[':
-		return Token{ID: TkBracketLeft, Value: "["}
+		return l.saveLocationValue(Token{ID: TkBracketLeft, Value: "["})
 	case b == ']':
-		return Token{ID: TkBracketRight, Value: "]"}
+		return l.saveLocationValue(Token{ID: TkBracketRight, Value: "]"})
 	case b == '<':
 		l.state = stLT
 		return l.save(b)
@@ -162,7 +180,7 @@ func matchBlank(l *Lex, b byte) Token {
 
 	invalid := fmt.Sprintf("INVALID: byte=%d: '%c'", b, b)
 	//log.Printf("matchBlank: %s", invalid)
-	return Token{ID: TkErrInvalid, Value: invalid}
+	return l.saveLocationEmpty(Token{ID: TkErrInvalid, Value: invalid})
 }
 
 func letter(b byte) bool {
@@ -181,13 +199,22 @@ func eol(b byte) bool {
 	return b == '\r' || b == '\n'
 }
 
+// push back byte
+func unread(l *Lex) error {
+	err := l.r.UnreadByte()
+	if err == nil {
+		l.lineOffset--
+	}
+	return err
+}
+
 func matchCommentQ(l *Lex, b byte) Token {
 
 	switch {
 	case eol(b):
 		// push back EOL
-		if errUnread := l.r.UnreadByte(); errUnread != nil {
-			return Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)}
+		if errUnread := unread(l); errUnread != nil {
+			return l.saveLocationEmpty(Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)})
 		}
 		l.state = stBlank // blank state will deliver EOL
 
@@ -202,8 +229,8 @@ func matchCommentRem(l *Lex, b byte) Token {
 	switch {
 	case eol(b):
 		// push back EOL
-		if errUnread := l.r.UnreadByte(); errUnread != nil {
-			return Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)}
+		if errUnread := unread(l); errUnread != nil {
+			return l.saveLocationEmpty(Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)})
 		}
 		l.state = stBlank // blank state will deliver EOL
 
@@ -225,8 +252,8 @@ func matchString(l *Lex, b byte) Token {
 		return l.consume(Token{ID: TkString})
 	case eol(b):
 		// push back EOL
-		if errUnread := l.r.UnreadByte(); errUnread != nil {
-			return Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)}
+		if errUnread := unread(l); errUnread != nil {
+			return l.saveLocationEmpty(Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)})
 		}
 		l.state = stBlank // blank state will deliver EOL
 
@@ -243,8 +270,8 @@ func matchNumber(l *Lex, b byte) Token {
 	}
 
 	// push back non-digit
-	if errUnread := l.r.UnreadByte(); errUnread != nil {
-		return Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)}
+	if errUnread := unread(l); errUnread != nil {
+		return l.saveLocationEmpty(Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)})
 	}
 	l.state = stBlank // blank state will deliver next token
 
@@ -270,8 +297,8 @@ func matchName(l *Lex, b byte) Token {
 	// found name
 
 	// push back non-name byte
-	if errUnread := l.r.UnreadByte(); errUnread != nil {
-		return Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)}
+	if errUnread := unread(l); errUnread != nil {
+		return l.saveLocationEmpty(Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)})
 	}
 	l.state = stBlank // blank state will deliver next token
 
@@ -307,8 +334,8 @@ func matchLT(l *Lex, b byte) Token {
 	}
 
 	// push back
-	if errUnread := l.r.UnreadByte(); errUnread != nil {
-		return Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)}
+	if errUnread := unread(l); errUnread != nil {
+		return l.saveLocationEmpty(Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)})
 	}
 	l.state = stBlank // blank state will deliver next token
 
@@ -328,8 +355,8 @@ func matchGT(l *Lex, b byte) Token {
 	}
 
 	// push back
-	if errUnread := l.r.UnreadByte(); errUnread != nil {
-		return Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)}
+	if errUnread := unread(l); errUnread != nil {
+		return l.saveLocationEmpty(Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)})
 	}
 	l.state = stBlank // blank state will deliver next token
 

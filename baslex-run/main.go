@@ -15,7 +15,7 @@ func main() {
 	lex := baslex.New(bufio.NewReader(os.Stdin))
 	for lex.HasToken() {
 		tok := lex.Next()
-		fmt.Printf("lineCount=%03d id=%02d %-s [%-s]\n", tok.LineCount, tok.ID, tok.Type(), tok.Value)
+		fmt.Printf("line=%02d offset=%02d id=%02d %-s [%-s]\n", tok.LineCount, tok.LineOffset, tok.ID, tok.Type(), tok.Value)
 	}
 	log.Printf("%s: reading input from stdin...done", me)
 }
