@@ -13,8 +13,9 @@ func main() {
 	me := os.Args[0]
 	log.Printf("%s: reading from stdin...", me)
 
+	debug := true
 	input := bufio.NewReader(os.Stdin)
-	lex := basparser.NewInputLex(input)
+	lex := basparser.NewInputLex(input, debug)
 	status := basparser.InputParse(lex)
 
 	log.Printf("%s: reading from stdin...done status=%d", me, status)

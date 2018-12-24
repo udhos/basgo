@@ -155,12 +155,13 @@ stmt: /* empty */
 
 %%
 
-func NewInputLex(input io.ByteScanner) *InputLex {
- 	return &InputLex{lex: baslex.New(input)}
+func NewInputLex(input io.ByteScanner, debug bool) *InputLex {
+ 	return &InputLex{lex: baslex.New(input), debug:debug}
 }
 
 type InputLex struct {
 	lex *baslex.Lex
+	debug bool
 }
 
 func (l *InputLex) Lex(lval *InputSymType) int {
@@ -177,13 +178,22 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 
 	// ATTENTION: id is in parser token space
 
-	fmt.Printf("InputLex.Lex: %s [%s] lex=%v parser=%d\n", t.Type(), t.Value, t, id)
+	if l.debug {
+		fmt.Printf("InputLex.Lex: %s [%s]\n", t.Type(), t.Value)
+	}
 
+	// need to store values only for some terminals
+	// for example, number, name, string, etc
 	switch id {
 		case TkNumber:
 			lval.typeNumber = t.Value
+		case TkEOL: // do not store
+		case TkEOF: // do not store
+		case TkColon: // do not store
+		case TkKeywordEnd: // do not store
+		case TkKeywordPrint: // do not store
 		default:
-			fmt.Printf("InputLex.Lex: WARNING token value not stored for parser actions\n")
+			fmt.Printf("InputLex.Lex: WARNING token value [%s] not stored for parser actions\n", t.Value)
 	}
 
 	return id

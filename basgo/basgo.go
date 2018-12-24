@@ -63,8 +63,9 @@ func (b *Basgo) execReader(printf funcPrintf, r hasReadString, flush func() erro
 
 func (b *Basgo) execLine(printf funcPrintf, line string) {
 
+	debug := false
 	input := bufio.NewReader(strings.NewReader(line))
-	lex := basparser.NewInputLex(input)
+	lex := basparser.NewInputLex(input, debug)
 	status := basparser.InputParse(lex)
 
 	printf("execLine: [%s] status=%d\n", line, status)
