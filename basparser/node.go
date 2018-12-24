@@ -1,13 +1,15 @@
 package basparser
 
 import (
-	//"log"
-	"fmt"
+//"log"
+//"fmt"
 )
+
+type funcPrintf func(format string, v ...interface{}) (int, error)
 
 // Node is element for syntax tree
 type Node interface {
-	Run()
+	Show(printf funcPrintf)
 }
 
 // LineNumbered is empty
@@ -16,12 +18,13 @@ type LineNumbered struct {
 	Nodes      []Node
 }
 
-// Run executes the node
-func (n *LineNumbered) Run() {
-	fmt.Printf("LineNumbered.Run: %s\n", n.LineNumber)
+// Show displays the node
+func (n *LineNumbered) Show(printf funcPrintf) {
+	printf("line[%s]: ", n.LineNumber)
 	for _, n := range n.Nodes {
-		n.Run()
+		n.Show(printf)
 	}
+	printf("\n")
 }
 
 // LineImmediate is empty
@@ -29,37 +32,38 @@ type LineImmediate struct {
 	Nodes []Node
 }
 
-// Run executes the node
-func (n *LineImmediate) Run() {
-	fmt.Printf("LineImmediate.Run\n")
+// Show displays the node
+func (n *LineImmediate) Show(printf funcPrintf) {
+	printf("immediate: ")
 	for _, n := range n.Nodes {
-		n.Run()
+		n.Show(printf)
 	}
+	printf("\n")
 }
 
 // NodeEmpty is empty
 type NodeEmpty struct {
 }
 
-// Run executes the node
-func (n *NodeEmpty) Run() {
-	fmt.Printf("NodeEmpty.Run\n")
+// Show displays the node
+func (n *NodeEmpty) Show(printf funcPrintf) {
+	printf("[empty]")
 }
 
 // NodePrint is print
 type NodePrint struct {
 }
 
-// Run executes the node
-func (n *NodePrint) Run() {
-	fmt.Printf("NodePrint.Run\n")
+// Show displays the node
+func (n *NodePrint) Show(printf funcPrintf) {
+	printf("[PRINT]")
 }
 
 // NodeEnd is end
 type NodeEnd struct {
 }
 
-// Run executes the node
-func (n *NodeEnd) Run() {
-	fmt.Printf("NodeEnd.Run\n")
+// Show displays the node
+func (n *NodeEnd) Show(printf funcPrintf) {
+	printf("[END]")
 }

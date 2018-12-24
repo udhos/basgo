@@ -19,10 +19,10 @@ func main() {
 
 	log.Printf("%s: reading from stdin...done status=%d", me, status)
 
-	log.Printf("%s: running syntax tree lines=%d:", me, len(basparser.Root))
+	log.Printf("%s: syntax tree lines=%d:", me, len(basparser.Root))
 
 	for i, n := range basparser.Root {
-		fmt.Printf("%d: ", i)
-		n.Run()
+		fmt.Printf("%s: input line %d: ", me, i)
+		n.Show(fmt.Printf)
 	}
 }
