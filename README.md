@@ -2,7 +2,7 @@
 
 Fix package import cycle:
 
-basgo.REPL: basparser.Root.Run()
+basgo.REPL(): basparser.Root.Run(b Basgo)
 
 basgo -> basparser -> node -> basgo
 
