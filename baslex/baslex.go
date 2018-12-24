@@ -307,5 +307,5 @@ func (l *Lex) findToken() Token {
 }
 
 func (l *Lex) foundErrorInput(err error) Token {
-	return Token{ID: TkErrInput, Value: fmt.Sprintf("ERROR-INPUT: after [%s]: %s", l.buf.String(), err.Error())}
+	return l.saveLocationEmpty(Token{ID: TkErrInput, Value: fmt.Sprintf("ERROR-INPUT: after [%s]: %s", l.buf.String(), err.Error())})
 }

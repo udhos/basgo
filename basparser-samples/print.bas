@@ -1,5 +1,2 @@
-
 10 print
-
-20 end
-
+20 print : end
