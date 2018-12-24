@@ -1,8 +1,11 @@
-package basparser
+package node
 
 import (
 //"log"
 //"fmt"
+//"bufio"
+
+//"github.com/udhos/basgo/basgo"
 )
 
 type funcPrintf func(format string, v ...interface{}) (int, error)
@@ -10,6 +13,7 @@ type funcPrintf func(format string, v ...interface{}) (int, error)
 // Node is element for syntax tree
 type Node interface {
 	Show(printf funcPrintf)
+	//Run(b *Basgo, printf funcPrintf, r *bufio.Reader)
 }
 
 // LineNumbered is empty

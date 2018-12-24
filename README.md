@@ -1,5 +1,11 @@
 # basgo
 
+Fix package import cycle:
+
+basgo.REPL: basparser.Root.Run()
+
+basgo -> basparser -> node -> basgo
+
 # References
 
 http://www.antonis.de/qbebooks/gwbasman/ - GW-BASIC User's Guide

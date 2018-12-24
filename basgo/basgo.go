@@ -8,7 +8,6 @@ import (
 	"os"
 	"strings"
 
-	//"github.com/udhos/basgo/baslex"
 	"github.com/udhos/basgo/basparser"
 )
 
@@ -28,24 +27,27 @@ func (b *Basgo) REPL() {
 	r := bufio.NewReader(b.In)
 	w := bufio.NewWriter(b.Out)
 
-	printf := func(format string, v ...interface{}) {
+	printf := func(format string, v ...interface{}) (int, error) {
 		s := fmt.Sprintf(format, v...)
 		_, err := w.Write([]byte(s))
 		if err != nil {
 			log.Printf("REPL printf: %v", err)
 		}
+		return 0, nil
 	}
 
 	b.execReader(printf, r, w.Flush)
 }
 
-type funcPrintf func(format string, v ...interface{})
+type funcPrintf func(format string, v ...interface{}) (int, error)
 
+/*
 type hasReadString interface {
 	ReadString(delim byte) (string, error)
 }
+*/
 
-func (b *Basgo) execReader(printf funcPrintf, r hasReadString, flush func() error) {
+func (b *Basgo) execReader(printf funcPrintf, r *bufio.Reader, flush func() error) {
 	for {
 		s, errRead := r.ReadString('\n')
 		if errRead != nil {
@@ -56,23 +58,33 @@ func (b *Basgo) execReader(printf funcPrintf, r hasReadString, flush func() erro
 		if line == "" {
 			continue
 		}
-		b.execLine(printf, line)
+		b.execLine(printf, r, line)
 		flush()
 	}
 }
 
-func (b *Basgo) execLine(printf funcPrintf, line string) {
+func (b *Basgo) execLine(printf funcPrintf, r *bufio.Reader, line string) {
 
 	debug := false
 	input := bufio.NewReader(strings.NewReader(line))
 	lex := basparser.NewInputLex(input, debug)
 	status := basparser.InputParse(lex)
 
-	printf("execLine: [%s] status=%d\n", line, status)
+	if status != 0 {
+		printf("execLine: syntax error\n")
+		return
+	}
+
+	printf("execLine: begin\n")
+
+	//basparser.Root.Run(b, printf, r)
+
+	printf("execLine: end\n")
 }
 
-func (b *Basgo) printf(format string, v ...interface{}) {
+func (b *Basgo) printf(format string, v ...interface{}) (int, error) {
 	b.write(fmt.Sprintf(format, v...))
+	return 0, nil
 }
 
 func (b *Basgo) write(s string) {
@@ -82,9 +94,12 @@ func (b *Basgo) write(s string) {
 	}
 }
 
+/*
+
 // ExecuteLine executes a single line
 func (b *Basgo) ExecuteLine(line string) {
-	b.execLine(b.printf, line)
+	r := bufio.NewReader(strings.NewReader(line))
+	b.execLine(b.printf, r, line)
 }
 
 // ExecuteString executes a multi-line string
@@ -93,3 +108,5 @@ func (b *Basgo) ExecuteString(s string) {
 	w := bufio.NewWriter(b.Out)
 	b.execReader(b.printf, r, w.Flush)
 }
+
+*/

@@ -25,6 +25,7 @@ goyacc -o ./basparser/parser.go -p Input ./basparser/parser.y
 
 build ./baslex
 build ./baslex-run
+build ./node
 build ./basparser
 build ./basparser-run
 build ./basgo

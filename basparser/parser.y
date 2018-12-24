@@ -11,13 +11,14 @@ import (
 	//"strconv"
 
 	"github.com/udhos/basgo/baslex"
+	"github.com/udhos/basgo/node"
 )
 
 // parser auxiliary variables
 var (
-	Root []Node
-	lineList []Node
-	nodeList []Node
+	Root []node.Node
+	lineList []node.Node
+	nodeList []node.Node
 )
 
 %}
@@ -25,10 +26,10 @@ var (
 // fields inside this union end up as the fields in a structure known
 // as ${PREFIX}SymType, of which a reference is passed to the lexer.
 %union{
-	typeLineList []Node
-	typeLine Node
-	typeStmtList []Node
-	typeStmt Node
+	typeLineList []node.Node
+	typeLine node.Node
+	typeStmtList []node.Node
+	typeStmt node.Node
 
 	typeNumber string
 
@@ -113,7 +114,7 @@ prog: line_list TkEOF
 
 line_list: line
      {
-        lineList = []Node{$1} // reset line list
+        lineList = []node.Node{$1} // reset line list
 	$$ = lineList
      }
   | line_list TkEOL line
@@ -125,17 +126,17 @@ line_list: line
 
 line: statements
      {
-        $$ = &LineImmediate{Nodes:$1}
+        $$ = &node.LineImmediate{Nodes:$1}
      }
   | TkNumber statements
      {
-       $$ = &LineNumbered{LineNumber:$1, Nodes:$2}
+       $$ = &node.LineNumbered{LineNumber:$1, Nodes:$2}
      }
   ;
 
 statements: stmt
      {
-        nodeList = []Node{$1} // reset node list
+        nodeList = []node.Node{$1} // reset node list
 	$$ = nodeList
      }
   | statements TkColon stmt
@@ -146,11 +147,11 @@ statements: stmt
   ;
 
 stmt: /* empty */
-     { $$ = &NodeEmpty{} }
+     { $$ = &node.NodeEmpty{} }
   | TkKeywordEnd
-     { $$ = &NodeEnd{} }
+     { $$ = &node.NodeEnd{} }
   | TkKeywordPrint
-     { $$ = &NodePrint{} }
+     { $$ = &node.NodePrint{} }
   ;
 
 %%
