@@ -12,13 +12,13 @@ type Node interface {
 
 // LineNumbered is empty
 type LineNumbered struct {
-	LineNumber int
+	LineNumber string
 	Nodes      []Node
 }
 
 // Run executes the node
 func (n *LineNumbered) Run() {
-	fmt.Printf("LineNumbered.Run: %d\n", n.LineNumber)
+	fmt.Printf("LineNumbered.Run: %s\n", n.LineNumber)
 	for _, n := range n.Nodes {
 		n.Run()
 	}

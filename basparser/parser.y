@@ -8,14 +8,13 @@ import (
 	//"os"
 	//"unicode"
 	"io"
-	"strconv"
+	//"strconv"
 
 	"github.com/udhos/basgo/baslex"
 )
 
 // parser auxiliary variables
 var (
-	LastNumber int
 	Root []Node
 	lineList []Node
 	nodeList []Node
@@ -26,19 +25,19 @@ var (
 // fields inside this union end up as the fields in a structure known
 // as ${PREFIX}SymType, of which a reference is passed to the lexer.
 %union{
-	//typeProg []Node
-
 	typeLineList []Node
 	typeLine Node
 	typeStmtList []Node
 	typeStmt Node
+
+	typeNumber string
+
 	tok int
 }
 
 // any non-terminal which returns a value needs a type, which is
 // really a field name in the above union struct
 
-//%type <typeProg> prog
 %type <typeLineList> line_list
 %type <typeLine> line
 %type <typeStmtList> statements
@@ -64,7 +63,7 @@ var (
 %token <tok> TkBracketRight
 %token <tok> TkCommentQ
 %token <tok> TkString
-%token <tok> TkNumber
+%token <typeNumber> TkNumber
 
 %token <tok> TkEqual
 %token <tok> TkLT
@@ -126,14 +125,12 @@ line_list: line
 
 line: statements
      {
-	fmt.Printf("found line\n")
-	 $$ = &LineImmediate{Nodes:$1}
- }
+        $$ = &LineImmediate{Nodes:$1}
+     }
   | TkNumber statements
      {
-	fmt.Printf("found line number=%d\n", LastNumber)
-	 $$ = &LineNumbered{LineNumber:LastNumber, Nodes:$2}
- }
+       $$ = &LineNumbered{LineNumber:$1, Nodes:$2}
+     }
   ;
 
 statements: stmt
@@ -174,18 +171,20 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 
 	t := l.lex.Next()
 
-	if t.ID == baslex.TkNumber {
-		num, errConv := strconv.Atoi(t.Value)
-		if errConv != nil {
-			fmt.Printf("InputLex.Lex: error parsing number: '%s': %v\n", t.Value, errConv)
-		}
-		LastNumber = num
-		fmt.Printf("InputLex.Lex: last number=%d\n", LastNumber)
-	}
+	// ATTENTION: t.ID is in lex token space
 
 	id := parserToken(t.ID) // convert lex ID to parser ID
 
+	// ATTENTION: id is in parser token space
+
 	fmt.Printf("InputLex.Lex: %s [%s] lex=%v parser=%d\n", t.Type(), t.Value, t, id)
+
+	switch id {
+		case TkNumber:
+			lval.typeNumber = t.Value
+		default:
+			fmt.Printf("InputLex.Lex: WARNING token value not stored for parser actions\n")
+	}
 
 	return id
 }
