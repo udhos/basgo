@@ -68,14 +68,6 @@ func (b *Basgo) execLine(printf funcPrintf, line string) {
 	status := basparser.InputParse(lex)
 
 	printf("execLine: [%s] status=%d\n", line, status)
-
-	/*
-		lex := baslex.NewStr(line)
-		for lex.HasToken() {
-			tok := lex.Next()
-			printf("execLine: [%s] token: %s [%s]\n", line, tok.Type(), tok.Value)
-		}
-	*/
 }
 
 func (b *Basgo) printf(format string, v ...interface{}) {
