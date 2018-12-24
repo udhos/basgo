@@ -183,7 +183,8 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 	}
 
 	// need to store values only for some terminals
-	// for example, number, name, string, etc
+        // when a parser rule action need to consume the value
+	// for example: ident, literals (number, string)
 	switch id {
 		case TkNumber:
 			lval.typeNumber = t.Value

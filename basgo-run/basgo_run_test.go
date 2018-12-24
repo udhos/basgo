@@ -1,13 +1,14 @@
 package main
 
 import (
-	"bytes"
-	"os"
-	"testing"
+//"bytes"
+//"os"
+//"testing"
 
-	"github.com/udhos/basgo/basgo"
+//"github.com/udhos/basgo/basgo"
 )
 
+/*
 func TestListRun(t *testing.T) {
 	loadListRun(t, program1, list1, output1)
 	loadListRun(t, program2, list2, output2)
@@ -106,3 +107,5 @@ const list3 = `10 A=1
 
 const output3 = `  2  2
 `
+
+*/
