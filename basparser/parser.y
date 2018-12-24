@@ -190,6 +190,6 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 }
 
 func (l *InputLex) Error(s string) {
-	fmt.Printf("InputLex.Error: syntax error: %s\n", s)
+	fmt.Printf("InputLex.Error: line=%d column=%d: %s\n", l.lex.Line(), l.lex.Column(), s)
 }
 
