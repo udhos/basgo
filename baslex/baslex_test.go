@@ -4,6 +4,12 @@ import (
 	"testing"
 )
 
+func TestTabKeywords(t *testing.T) {
+	if len(tabKeywords) != (TkKeywordTo - TkKeywordCls + 1) {
+		t.Errorf("mismatch keywords table size: table=%d tokens=%d", len(tabKeywords), TkKeywordTo-TkKeywordCls+1)
+	}
+}
+
 func TestTokenTable(t *testing.T) {
 
 	if TokenIDFirst != 0 {
@@ -11,7 +17,7 @@ func TestTokenTable(t *testing.T) {
 	}
 
 	if len(tabType) != (TokenIDLast + 1) {
-		t.Errorf("Size=%d of type table does NOT match the last token id=%d", len(tabType), TokenIDLast+1)
+		t.Errorf("Token table size=%d MISMATCHES last token id=%d", len(tabType), TokenIDLast+1)
 	}
 }
 
