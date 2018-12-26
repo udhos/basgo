@@ -201,11 +201,13 @@ func eol(b byte) bool {
 
 // push back byte
 func unread(l *Lex) error {
-	err := l.r.UnreadByte()
-	if err == nil {
+	l.rawLine.Truncate(l.rawLine.Len() - 1) // unwrite byte from raw line buf
+
+	errInputUnread := l.r.UnreadByte()
+	if errInputUnread == nil {
 		l.lineOffset--
 	}
-	return err
+	return errInputUnread
 }
 
 func matchCommentQ(l *Lex, b byte) Token {

@@ -209,10 +209,11 @@ func (t Token) IsError() bool {
 // Lex is a full lexer object
 type Lex struct {
 	r          io.ByteScanner
-	eofSeen    bool // hit EOF?
-	eofSent    bool // delivered EOF?
-	broken     bool // hit error?
-	buf        bytes.Buffer
+	eofSeen    bool         // hit EOF?
+	eofSent    bool         // delivered EOF?
+	broken     bool         // hit error?
+	buf        bytes.Buffer // current token
+	rawLine    bytes.Buffer // current raw line
 	state      int
 	lineCount  int
 	lineOffset int
@@ -286,7 +287,11 @@ func (l *Lex) findToken() Token {
 		case io.EOF:
 			return l.foundEOF()
 		default:
-			return l.foundErrorInput(errRead)
+			return l.saveLocationEmpty(Token{ID: TkErrInput, Value: fmt.Sprintf("ERROR-INPUT: after [%s]: %v", l.buf.String(), errRead)})
+		}
+
+		if errRaw := l.rawLine.WriteByte(b); errRaw != nil {
+			return l.saveLocationEmpty(Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: %v", errRaw)})
 		}
 
 		l.lineOffset++
@@ -304,8 +309,4 @@ func (l *Lex) findToken() Token {
 	}
 
 	// never reached
-}
-
-func (l *Lex) foundErrorInput(err error) Token {
-	return l.saveLocationEmpty(Token{ID: TkErrInput, Value: fmt.Sprintf("ERROR-INPUT: after [%s]: %s", l.buf.String(), err.Error())})
 }

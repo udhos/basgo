@@ -30,4 +30,5 @@ build ./basparser
 build ./basparser-run
 build ./basgo
 build ./basgo-run
+build ./basgo-build
 

@@ -9,7 +9,11 @@ import (
 	"strings"
 
 	"github.com/udhos/basgo/basparser"
+	"github.com/udhos/basgo/node"
 )
+
+// Version reports basgo version
+const Version = "0.0"
 
 // Basgo holds a full environment
 type Basgo struct {
@@ -23,7 +27,7 @@ func New() *Basgo {
 }
 
 // REPL is read-evaluate-print-loop
-func (b *Basgo) REPL() {
+func (b *Basgo) REPL() (errCount int) {
 	r := bufio.NewReader(b.In)
 	w := bufio.NewWriter(b.Out)
 
@@ -36,10 +40,11 @@ func (b *Basgo) REPL() {
 		return 0, nil
 	}
 
-	b.execReader(printf, r, w.Flush)
+	errCount = b.execReader(printf, r, w.Flush)
+	return
 }
 
-type funcPrintf func(format string, v ...interface{}) (int, error)
+type funcPrintf node.FuncPrintf
 
 /*
 type hasReadString interface {
@@ -47,7 +52,7 @@ type hasReadString interface {
 }
 */
 
-func (b *Basgo) execReader(printf funcPrintf, r *bufio.Reader, flush func() error) {
+func (b *Basgo) execReader(printf funcPrintf, r *bufio.Reader, flush func() error) (errorCount int) {
 	for {
 		s, errRead := r.ReadString('\n')
 		if errRead != nil {
@@ -58,12 +63,16 @@ func (b *Basgo) execReader(printf funcPrintf, r *bufio.Reader, flush func() erro
 		if line == "" {
 			continue
 		}
-		b.execLine(printf, r, line)
+		errLine := b.execLine(printf, r, line)
+		if errLine != nil {
+			errorCount++ // only count execLine() errors
+		}
 		flush()
 	}
+	return
 }
 
-func (b *Basgo) execLine(printf funcPrintf, r *bufio.Reader, line string) {
+func (b *Basgo) execLine(printf funcPrintf, r *bufio.Reader, line string) error {
 
 	debug := false
 	input := bufio.NewReader(strings.NewReader(line))
@@ -71,15 +80,33 @@ func (b *Basgo) execLine(printf funcPrintf, r *bufio.Reader, line string) {
 	status := basparser.InputParse(lex)
 
 	if status != 0 {
-		printf("execLine: syntax error\n")
-		return
+		err := fmt.Errorf("execLine: syntax error")
+		printf("%v\n", err)
+		return err
 	}
 
-	printf("execLine: begin\n")
+	for _, n := range basparser.Root {
+		scanStatements(printf, b, n, "")
+	}
 
-	//basparser.Root.Run(b, printf, r)
+	printf("execLine: FIXME WRITEME insert numbered lines, execute immediate lines\n")
 
-	printf("execLine: end\n")
+	return nil
+}
+
+func scanStatements(printf funcPrintf, b *Basgo, n node.Node, lineNum string) {
+	switch nn := n.(type) {
+	case *node.LineNumbered:
+		for _, c := range nn.Nodes {
+			scanStatements(printf, b, c, nn.LineNumber)
+		}
+	case *node.LineImmediate:
+		for _, c := range nn.Nodes {
+			scanStatements(printf, b, c, "")
+		}
+	default:
+		printf("line [%s] statement [%s]\n", lineNum, nn.Name())
+	}
 }
 
 func (b *Basgo) printf(format string, v ...interface{}) (int, error) {

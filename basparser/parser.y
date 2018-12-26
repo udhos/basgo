@@ -195,7 +195,7 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 		case TkKeywordEnd: // do not store
 		case TkKeywordPrint: // do not store
 		default:
-			fmt.Printf("InputLex.Lex: WARNING token value [%s] not stored for parser actions\n", t.Value)
+			fmt.Printf("InputLex.Lex: FIXME token value [%s] not stored for parser actions\n", t.Value)
 	}
 
 	return id

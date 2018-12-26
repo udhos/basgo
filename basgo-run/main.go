@@ -11,14 +11,15 @@ import (
 )
 
 const (
-	basgoVersion = "0.0"
-	basgoLabel   = "basgo-run"
+	basgoLabel = "basgo-run"
 )
 
 func main() {
-	log.Printf("%s version %s runtime %s GOMAXPROC=%d", basgoLabel, basgoVersion, runtime.Version(), runtime.GOMAXPROCS(0))
+	log.Printf("%s version %s runtime %s GOMAXPROC=%d", basgoLabel, basgo.Version, runtime.Version(), runtime.GOMAXPROCS(0))
 
 	b := basgo.New()
 
-	b.REPL()
+	errCount := b.REPL()
+
+	log.Printf("%s: syntax errors: %d", basgoLabel, errCount)
 }
