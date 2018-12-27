@@ -9,6 +9,7 @@ import (
 	//"unicode"
 	"io"
 	//"strconv"
+        "log"
 
 	"github.com/udhos/basgo/baslex"
 	"github.com/udhos/basgo/node"
@@ -32,6 +33,7 @@ var (
 	typeStmt node.Node
 
 	typeNumber string
+	typeRawLine string
 
 	tok int
 }
@@ -47,8 +49,8 @@ var (
 // same for terminals
 
 %token <tok> TkNull
-%token <tok> TkEOF
-%token <tok> TkEOL
+%token <typeRawLine> TkEOF
+%token <typeRawLine> TkEOL
 
 %token <tok> TkErrInput
 %token <tok> TkErrInternal
@@ -109,7 +111,12 @@ var (
 %%
 
 prog: line_list TkEOF
-     { Root = $1 }
+     {
+         list := $1
+         captureRawLine("EOF", list, $2) // only last line
+         
+	 Root = $1 // save for caller
+     }
   ;
 
 line_list: line
@@ -119,6 +126,8 @@ line_list: line
      }
   | line_list TkEOL line
      {
+        captureRawLine("EOL", lineList, $2) // all lines except last
+
         lineList = append(lineList, $3)
         $$ = lineList
      }
@@ -156,6 +165,27 @@ stmt: /* empty */
 
 %%
 
+func captureRawLine(label string, list []node.Node, rawLine string) {
+	last := len(list) - 1
+	if last < 0 {
+		log.Printf("captureRawLine: %s last line index=%d < 0", label, last)
+		return
+	}
+
+	switch n := list[last].(type) {
+		case *node.LineNumbered:
+			n.RawLine = rawLine
+			list[last] = n	
+             		//log.Printf("captureRawLine: %s numbered index=%d raw=[%s]", label, last, n.RawLine)
+		case *node.LineImmediate:
+			n.RawLine = rawLine
+			list[last] = n	
+             		//log.Printf("captureRawLine: %s immediate index=%d raw=[%s]", label, last, n.RawLine)
+		default:
+			log.Printf("captureRawLine: %s non-line node: %v", label, list[last])
+	}
+}
+
 func NewInputLex(input io.ByteScanner, debug bool) *InputLex {
  	return &InputLex{lex: baslex.New(input), debug:debug}
 }
@@ -189,8 +219,10 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 	switch id {
 		case TkNumber:
 			lval.typeNumber = t.Value
-		case TkEOL: // do not store
-		case TkEOF: // do not store
+		case TkEOL:
+			lval.typeRawLine = l.lex.RawLine()
+		case TkEOF:
+			lval.typeRawLine = l.lex.RawLine()
 		case TkColon: // do not store
 		case TkKeywordEnd: // do not store
 		case TkKeywordPrint: // do not store

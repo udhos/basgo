@@ -6,6 +6,7 @@ import (
 //"bufio"
 )
 
+// FuncPrintf is func type for printf
 type FuncPrintf func(format string, v ...interface{}) (int, error)
 
 // Node is element for syntax tree
@@ -19,6 +20,7 @@ type Node interface {
 type LineNumbered struct {
 	LineNumber string
 	Nodes      []Node
+	RawLine    string
 }
 
 // Show displays the node
@@ -45,7 +47,8 @@ func (n *LineNumbered) Build(outputf FuncPrintf) {
 
 // LineImmediate is empty
 type LineImmediate struct {
-	Nodes []Node
+	Nodes   []Node
+	RawLine string
 }
 
 // Show displays the node

@@ -208,15 +208,16 @@ func (t Token) IsError() bool {
 
 // Lex is a full lexer object
 type Lex struct {
-	r          io.ByteScanner
-	eofSeen    bool         // hit EOF?
-	eofSent    bool         // delivered EOF?
-	broken     bool         // hit error?
-	buf        bytes.Buffer // current token
-	rawLine    bytes.Buffer // current raw line
-	state      int
-	lineCount  int
-	lineOffset int
+	r                io.ByteScanner
+	eofSeen          bool         // hit EOF?
+	eofSent          bool         // delivered EOF?
+	broken           bool         // hit error?
+	buf              bytes.Buffer // current token
+	rawLine          bytes.Buffer // current raw line
+	pendingLineReset bool
+	state            int
+	lineCount        int
+	lineOffset       int
 }
 
 // Line returns current line count.
@@ -227,6 +228,11 @@ func (l *Lex) Line() int {
 // Column returns current column offset within line.
 func (l *Lex) Column() int {
 	return l.lineOffset
+}
+
+// RawLine returns current raw line.
+func (l *Lex) RawLine() string {
+	return l.rawLine.String()
 }
 
 // New creates a Lex object
@@ -280,6 +286,12 @@ func (l *Lex) HasToken() bool {
 
 func (l *Lex) findToken() Token {
 
+	if l.pendingLineReset {
+		// after returning EOL, on reentrance, we ought to discard full raw line
+		l.rawLine.Reset()
+		l.pendingLineReset = false
+	}
+
 	for {
 		b, errRead := l.r.ReadByte()
 		switch errRead {
@@ -303,6 +315,7 @@ func (l *Lex) findToken() Token {
 		case TkEOL:
 			l.lineOffset = 0
 			l.lineCount++
+			l.pendingLineReset = true
 		}
 
 		return t
