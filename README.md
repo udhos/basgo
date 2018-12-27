@@ -1,5 +1,21 @@
 # basgo
 
+# Install
+
+    git clone https://github.com/udhos/basgo
+    cd basgo
+    ./build.sh
+
+# Run the Interpreter
+
+    # interpreter interactively reads from stdin
+    basgo-run
+
+# Run the Compiler
+
+    basgo-build < program.bas > program.go
+    go run program.go
+
 # References
 
 http://www.antonis.de/qbebooks/gwbasman/ - GW-BASIC User's Guide
