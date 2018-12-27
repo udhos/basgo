@@ -91,6 +91,7 @@ func (n *NodeEmpty) Build(outputf FuncPrintf) {
 
 // NodePrint is print
 type NodePrint struct {
+	Expressions []string // FIXME should support multiple types
 }
 
 // Name returns the name of the node
@@ -100,12 +101,23 @@ func (n *NodePrint) Name() string {
 
 // Show displays the node
 func (n *NodePrint) Show(printf FuncPrintf) {
-	printf("[" + n.Name() + "]")
+	printf("[" + n.Name())
+	for _, e := range n.Expressions {
+		printf(" (" + e + ")")
+	}
+	printf("]")
 }
 
 // Build generates code
 func (n *NodePrint) Build(outputf FuncPrintf) {
-	outputf("fmt.Println() // %s\n", n.Name())
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+
+	for _, e := range n.Expressions {
+		outputf("fmt.Print(%s)\n", e)
+	}
+	outputf("fmt.Println()\n")
 }
 
 // NodeEnd is end

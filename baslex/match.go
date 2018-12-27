@@ -21,6 +21,7 @@ const (
 	stCommentRem = iota
 	stString     = iota
 	stNumber     = iota
+	stFloat      = iota
 	stName       = iota
 	stLT         = iota
 	stGT         = iota
@@ -46,6 +47,7 @@ var tabState = []funcState{
 	matchCommentRem,
 	matchString,
 	matchNumber,
+	matchFloat,
 	matchName,
 	matchLT,
 	matchGT,
@@ -98,6 +100,8 @@ func (l *Lex) foundEOF() Token {
 		return l.consume(Token{ID: TkString})
 	case stNumber:
 		return l.consume(Token{ID: TkNumber})
+	case stFloat:
+		return l.consume(Token{ID: TkFloat})
 	case stName:
 		return l.consumeName()
 	case stLT:
@@ -172,6 +176,9 @@ func matchBlank(l *Lex, b byte) Token {
 		return l.save(b)
 	case digit(b):
 		l.state = stNumber
+		return l.save(b)
+	case b == '.':
+		l.state = stFloat
 		return l.save(b)
 	case letter(b):
 		l.state = stName
@@ -267,7 +274,11 @@ func matchString(l *Lex, b byte) Token {
 
 func matchNumber(l *Lex, b byte) Token {
 
-	if digit(b) {
+	switch {
+	case digit(b):
+		return l.save(b)
+	case b == '.':
+		l.state = stFloat // switch from number to float
 		return l.save(b)
 	}
 
@@ -278,6 +289,21 @@ func matchNumber(l *Lex, b byte) Token {
 	l.state = stBlank // blank state will deliver next token
 
 	return l.consume(Token{ID: TkNumber})
+}
+
+func matchFloat(l *Lex, b byte) Token {
+
+	if digit(b) {
+		return l.save(b)
+	}
+
+	// push back non-digit
+	if errUnread := unread(l); errUnread != nil {
+		return l.saveLocationEmpty(Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)})
+	}
+	l.state = stBlank // blank state will deliver next token
+
+	return l.consume(Token{ID: TkFloat})
 }
 
 func matchName(l *Lex, b byte) Token {

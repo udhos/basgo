@@ -7,7 +7,7 @@ import (
 )
 
 type command interface {
-	Exec(b *Basgo, printf funcPrintf) (stop bool)
+	exec(b *Basgo, printf funcPrintf) (stop bool)
 }
 
 func commandNew(n node.Node) (command, error) {
@@ -19,7 +19,7 @@ func commandNew(n node.Node) (command, error) {
 	case *node.NodeList:
 		return &commandList{}, nil
 	case *node.NodePrint:
-		return &commandPrint{}, nil
+		return &commandPrint{expressions: nn.Expressions}, nil
 	default:
 		return nil, fmt.Errorf("commandNew: unknown command: %v", nn.Name())
 	}
@@ -27,20 +27,20 @@ func commandNew(n node.Node) (command, error) {
 
 type commandEmpty struct{}
 
-func (c *commandEmpty) Exec(b *Basgo, printf funcPrintf) (stop bool) {
+func (c *commandEmpty) exec(b *Basgo, printf funcPrintf) (stop bool) {
 	return
 }
 
 type commandEnd struct{}
 
-func (c *commandEnd) Exec(b *Basgo, printf funcPrintf) (stop bool) {
+func (c *commandEnd) exec(b *Basgo, printf funcPrintf) (stop bool) {
 	stop = true
 	return
 }
 
 type commandList struct{}
 
-func (c *commandList) Exec(b *Basgo, printf funcPrintf) (stop bool) {
+func (c *commandList) exec(b *Basgo, printf funcPrintf) (stop bool) {
 	for _, line := range b.lines {
 		printf(line.raw + "\n")
 	}
@@ -48,9 +48,14 @@ func (c *commandList) Exec(b *Basgo, printf funcPrintf) (stop bool) {
 	return
 }
 
-type commandPrint struct{}
+type commandPrint struct {
+	expressions []string
+}
 
-func (c *commandPrint) Exec(b *Basgo, printf funcPrintf) (stop bool) {
+func (c *commandPrint) exec(b *Basgo, printf funcPrintf) (stop bool) {
+	for _, e := range c.expressions {
+		printf(e)
+	}
 	printf("\n")
 	return
 }

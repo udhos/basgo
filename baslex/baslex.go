@@ -38,6 +38,7 @@ const (
 	TkCommentQ     = iota // Comment '
 	TkString       = iota // String "
 	TkNumber       = iota // Number [0-9]+
+	TkFloat        = iota // .digits | digits. | digits.digits
 
 	TkEqual   = iota // Equal
 	TkLT      = iota // <
@@ -138,6 +139,7 @@ var tabType = []string{
 	"COMMENT-Q",
 	"STRING",
 	"NUMBER",
+	"FLOAT",
 
 	"EQUAL",
 	"LT",

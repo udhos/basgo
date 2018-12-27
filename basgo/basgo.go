@@ -189,7 +189,7 @@ func (b *Basgo) execStatement(printf funcPrintf, stmt node.Node) (stop bool) {
 		return
 	}
 
-	stop = cmd.Exec(b, printf)
+	stop = cmd.exec(b, printf)
 
 	return
 }

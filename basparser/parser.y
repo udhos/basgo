@@ -20,6 +20,7 @@ var (
 	Root []node.Node
 	lineList []node.Node
 	nodeList []node.Node
+	exprList []string
 )
 
 %}
@@ -32,7 +33,12 @@ var (
 	typeStmtList []node.Node
 	typeStmt node.Node
 
+	typeExpressions []string
+	typeExpr string
+
+	typeString string
 	typeNumber string
+	typeFloat string
 	typeRawLine string
 
 	tok int
@@ -45,6 +51,8 @@ var (
 %type <typeLine> line
 %type <typeStmtList> statements
 %type <typeStmt> stmt
+%type <typeExpressions> expressions
+%type <typeExpr> expr
 
 // same for terminals
 
@@ -65,8 +73,9 @@ var (
 %token <tok> TkBracketLeft
 %token <tok> TkBracketRight
 %token <tok> TkCommentQ
-%token <tok> TkString
+%token <typeString> TkString
 %token <typeNumber> TkNumber
+%token <typeFloat> TkFloat
 
 %token <tok> TkEqual
 %token <tok> TkLT
@@ -163,7 +172,43 @@ stmt: /* empty */
      { $$ = &node.NodeList{} }
   | TkKeywordPrint
      { $$ = &node.NodePrint{} }
+  | TkKeywordPrint expressions
+     { $$ = &node.NodePrint{Expressions: $2} }
   ;
+
+expressions: expr
+	{
+        	exprList = []string{$1} // reset
+	}
+    |
+        expressions expr
+        {
+		exprList = append(exprList, $2)
+		$$ = exprList
+	}
+    |
+        expressions TkComma expr
+        {
+		exprList = append(exprList, $3)
+		$$ = exprList
+	}
+    |
+        expressions TkSemicolon expr
+        {
+		exprList = append(exprList, $3)
+		$$ = exprList
+	}
+    ;
+
+expr:   TkNumber
+    { $$ = $1 }
+    |   
+        TkFloat
+    { $$ = $1 }
+    |   
+        TkString
+    { $$ = $1 }
+    ;
 
 %%
 
@@ -219,13 +264,19 @@ func (l *InputLex) Lex(lval *InputSymType) int {
         // when a parser rule action need to consume the value
 	// for example: ident, literals (number, string)
 	switch id {
+		case TkString:
+			lval.typeString = t.Value
 		case TkNumber:
 			lval.typeNumber = t.Value
+		case TkFloat:
+			lval.typeFloat = t.Value
 		case TkEOL:
 			lval.typeRawLine = l.lex.RawLine()
 		case TkEOF:
 			lval.typeRawLine = l.lex.RawLine()
 		case TkColon: // do not store
+		case TkComma: // do not store
+		case TkSemicolon: // do not store
 		case TkKeywordEnd: // do not store
 		case TkKeywordList: // do not store
 		case TkKeywordPrint: // do not store
