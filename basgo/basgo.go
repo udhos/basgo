@@ -21,18 +21,18 @@ type Basgo struct {
 	In  io.Reader
 	Out io.Writer
 
-	lines   []lineEntry
-	lineTab map[int]int // lineNumber => lineIndex
+	lines []lineEntry
 }
 
 type lineEntry struct {
+	number   int
 	raw      string
 	commands []command
 }
 
 // New creates a new basgo environment
 func New() *Basgo {
-	return &Basgo{In: os.Stdin, Out: os.Stdout, lineTab: map[int]int{}}
+	return &Basgo{In: os.Stdin, Out: os.Stdout}
 }
 
 // REPL is read-evaluate-print-loop
@@ -111,6 +111,18 @@ func (b *Basgo) scanSingleLine(printf funcPrintf, n node.Node, rawLine string) {
 	}
 }
 
+func (b *Basgo) findLine(num int) (int, bool) {
+	for i, line := range b.lines {
+		if line.number > num {
+			return i, false
+		}
+		if line.number == num {
+			return i, true
+		}
+	}
+	return -1, false
+}
+
 func (b *Basgo) installLine(printf funcPrintf, statements []node.Node, rawLine, lineNum string) {
 
 	num, errAtoi := strconv.Atoi(lineNum)
@@ -119,7 +131,7 @@ func (b *Basgo) installLine(printf funcPrintf, statements []node.Node, rawLine, 
 		return
 	}
 
-	newLine := lineEntry{raw: rawLine}
+	newLine := lineEntry{number: num, raw: rawLine}
 	for _, n := range statements {
 		cmd, errCmd := commandNew(n)
 		if errCmd != nil {
@@ -129,7 +141,7 @@ func (b *Basgo) installLine(printf funcPrintf, statements []node.Node, rawLine, 
 		newLine.commands = append(newLine.commands, cmd)
 	}
 
-	index, found := b.lineTab[num]
+	index, found := b.findLine(num)
 
 	// insert or delete line?
 
@@ -138,23 +150,34 @@ func (b *Basgo) installLine(printf funcPrintf, statements []node.Node, rawLine, 
 		if _, empty := newLine.commands[0].(*commandEmpty); empty {
 			// single empty command: means delete line
 			if found {
-				delete(b.lineTab, num)
 				b.lines = append(b.lines[:index], b.lines[index+1:]...)
 			}
 			return
 		}
 	}
 
-	// insert
+	// replace?
 
 	if found {
-		b.lines[index] = newLine // replace existing index
+		b.lines[index] = newLine // found: replace existing index
+		return
+	}
+
+	// !found = insert or append?
+
+	if index >= 0 {
+		// insert
+
+		// insert https://github.com/golang/go/wiki/SliceTricks
+		b.lines = append(b.lines, newLine) // just grow, element will be lost
+		copy(b.lines[index+1:], b.lines[index:])
+		b.lines[index] = newLine
+
 		return
 	}
 
 	// append
 
-	b.lineTab[num] = len(b.lines)
 	b.lines = append(b.lines, newLine)
 }
 
