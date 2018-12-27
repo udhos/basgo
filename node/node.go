@@ -126,3 +126,22 @@ func (n *NodeEnd) Show(printf FuncPrintf) {
 func (n *NodeEnd) Build(outputf FuncPrintf) {
 	outputf("os.Exit(0) // %s\n", n.Name())
 }
+
+// NodeList lists lines
+type NodeList struct {
+}
+
+// Name returns the name of the node
+func (n *NodeList) Name() string {
+	return "LIST"
+}
+
+// Show displays the node
+func (n *NodeList) Show(printf FuncPrintf) {
+	printf("[" + n.Name() + "]")
+}
+
+// Build generates code
+func (n *NodeList) Build(outputf FuncPrintf) {
+	outputf("// %s currently not supported by compiler\n", n.Name())
+}

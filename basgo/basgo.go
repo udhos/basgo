@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/udhos/basgo/basparser"
@@ -19,11 +20,19 @@ const Version = "0.0"
 type Basgo struct {
 	In  io.Reader
 	Out io.Writer
+
+	lines   []lineEntry
+	lineTab map[int]int // lineNumber => lineIndex
+}
+
+type lineEntry struct {
+	raw      string
+	commands []command
 }
 
 // New creates a new basgo environment
 func New() *Basgo {
-	return &Basgo{In: os.Stdin, Out: os.Stdout}
+	return &Basgo{In: os.Stdin, Out: os.Stdout, lineTab: map[int]int{}}
 }
 
 // REPL is read-evaluate-print-loop
@@ -80,27 +89,86 @@ func (b *Basgo) execLine(printf funcPrintf, r *bufio.Reader, line string) error 
 	}
 
 	for _, n := range basparser.Root {
-		scanStatements(printf, b, n, "")
+		b.scanSingleLine(printf, n, line)
 	}
-
-	printf("execLine: FIXME WRITEME insert numbered lines, execute immediate lines\n")
 
 	return nil
 }
 
-func scanStatements(printf funcPrintf, b *Basgo, n node.Node, lineNum string) {
+func (b *Basgo) scanSingleLine(printf funcPrintf, n node.Node, rawLine string) {
 	switch nn := n.(type) {
 	case *node.LineNumbered:
-		for _, c := range nn.Nodes {
-			scanStatements(printf, b, c, nn.LineNumber)
-		}
+		b.installLine(printf, nn.Nodes, rawLine, nn.LineNumber)
 	case *node.LineImmediate:
-		for _, c := range nn.Nodes {
-			scanStatements(printf, b, c, "")
+		// execute line
+		for _, stmt := range nn.Nodes {
+			if b.execStatement(printf, stmt) {
+				break // some commands like END might stop execution
+			}
 		}
 	default:
-		printf("line [%s] statement [%s]\n", lineNum, nn.Name())
+		printf("unexpected non-line: %v\n", nn)
 	}
+}
+
+func (b *Basgo) installLine(printf funcPrintf, statements []node.Node, rawLine, lineNum string) {
+
+	num, errAtoi := strconv.Atoi(lineNum)
+	if errAtoi != nil {
+		printf("line number error: %v\n", errAtoi)
+		return
+	}
+
+	newLine := lineEntry{raw: rawLine}
+	for _, n := range statements {
+		cmd, errCmd := commandNew(n)
+		if errCmd != nil {
+			printf("line %d: command error: %v\n", num, errCmd)
+			return
+		}
+		newLine.commands = append(newLine.commands, cmd)
+	}
+
+	index, found := b.lineTab[num]
+
+	// insert or delete line?
+
+	if len(newLine.commands) == 1 {
+		// single command
+		if _, empty := newLine.commands[0].(*commandEmpty); empty {
+			// single empty command: means delete line
+			if found {
+				delete(b.lineTab, num)
+				b.lines = append(b.lines[:index], b.lines[index+1:]...)
+			}
+			return
+		}
+	}
+
+	// insert
+
+	if found {
+		b.lines[index] = newLine // replace existing index
+		return
+	}
+
+	// append
+
+	b.lineTab[num] = len(b.lines)
+	b.lines = append(b.lines, newLine)
+}
+
+func (b *Basgo) execStatement(printf funcPrintf, stmt node.Node) (stop bool) {
+
+	cmd, errCmd := commandNew(stmt)
+	if errCmd != nil {
+		printf("command error: %v\n", errCmd)
+		return
+	}
+
+	stop = cmd.Exec(b, printf)
+
+	return
 }
 
 func (b *Basgo) printf(format string, v ...interface{}) (int, error) {

@@ -159,6 +159,8 @@ stmt: /* empty */
      { $$ = &node.NodeEmpty{} }
   | TkKeywordEnd
      { $$ = &node.NodeEnd{} }
+  | TkKeywordList
+     { $$ = &node.NodeList{} }
   | TkKeywordPrint
      { $$ = &node.NodePrint{} }
   ;
@@ -225,6 +227,7 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 			lval.typeRawLine = l.lex.RawLine()
 		case TkColon: // do not store
 		case TkKeywordEnd: // do not store
+		case TkKeywordList: // do not store
 		case TkKeywordPrint: // do not store
 		default:
 			fmt.Printf("InputLex.Lex: FIXME token value [%s] not stored for parser actions\n", t.Value)
