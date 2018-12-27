@@ -44,13 +44,7 @@ func (b *Basgo) REPL() (errCount int) {
 	return
 }
 
-type funcPrintf node.FuncPrintf
-
-/*
-type hasReadString interface {
-	ReadString(delim byte) (string, error)
-}
-*/
+type funcPrintf node.FuncPrintf // shortcut
 
 func (b *Basgo) execReader(printf funcPrintf, r *bufio.Reader, flush func() error) (errorCount int) {
 	for {
@@ -120,20 +114,3 @@ func (b *Basgo) write(s string) {
 		log.Printf("write: %v", err)
 	}
 }
-
-/*
-
-// ExecuteLine executes a single line
-func (b *Basgo) ExecuteLine(line string) {
-	r := bufio.NewReader(strings.NewReader(line))
-	b.execLine(b.printf, r, line)
-}
-
-// ExecuteString executes a multi-line string
-func (b *Basgo) ExecuteString(s string) {
-	r := bufio.NewReader(strings.NewReader(s))
-	w := bufio.NewWriter(b.Out)
-	b.execReader(b.printf, r, w.Flush)
-}
-
-*/
