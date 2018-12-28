@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io"
 	"log"
@@ -36,34 +37,48 @@ func compile(input io.Reader, outputf node.FuncPrintf) {
 
 	log.Printf("%s: issuing code\n", basgoLabel)
 
-	header := `package main
-
-import (
-        "fmt"
-        "os"
-)
-
+	header := `
+package main
 `
-
-	mainOpen := `func main() {
+	mainOpen := `
+func main() {
 `
-
-	mainClose := `}
+	mainClose := `
+}
 `
-
-	outputf(header)
-	outputf(mainOpen)
 
 	log.Printf("%s: issuing code FIXME WRITEME generate runtime\n", basgoLabel)
 	log.Printf("%s: issuing code FIXME WRITEME sort lines\n", basgoLabel)
 	log.Printf("%s: issuing code FIXME WRITEME replace duplicate lines\n", basgoLabel)
 
-	for _, n := range nodes {
-		n.Build(outputf)
+	buf := bytes.Buffer{}
+	options := node.BuildOptions{Headers: map[string]struct{}{}}
+
+	funcGen := func(format string, v ...interface{}) (int, error) {
+		s := fmt.Sprintf(format, v...)
+		return buf.WriteString(s)
 	}
 
+	for _, n := range nodes {
+		n.Build(&options, funcGen)
+	}
+
+	outputf(header)
+	writeImport(options.Headers, outputf)
+	outputf(mainOpen)
+	outputf(buf.String())
 	outputf(mainClose)
 
+}
+
+func writeImport(headers map[string]struct{}, outputf node.FuncPrintf) {
+	if len(headers) > 0 {
+		outputf("import (\n")
+		for h := range headers {
+			outputf("\"%s\"\n", h)
+		}
+		outputf(")\n")
+	}
 }
 
 func parse(input io.Reader, outputf node.FuncPrintf) ([]node.Node, int) {

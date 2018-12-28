@@ -13,7 +13,7 @@ build() {
 	go vet "$pkg"
 
 	#hash gosimple >/dev/null && gosimple "$pkg"
-	hash golint >/dev/null && golint "$pkg"
+	#hash golint >/dev/null && golint "$pkg"
 	#hash staticcheck >/dev/null && staticcheck "$pkg"
 
 	go test "$pkg"

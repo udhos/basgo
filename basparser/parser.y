@@ -177,14 +177,19 @@ stmt: /* empty */
   | TkKeywordList
      { $$ = &node.NodeList{} }
   | TkKeywordPrint
-     { $$ = &node.NodePrint{} }
+     { 
+        $$ = &node.NodePrint{}
+     }
   | TkKeywordPrint expressions
-     { $$ = &node.NodePrint{Expressions: $2} }
+     {
+        $$ = &node.NodePrint{Expressions: $2}
+     }
   ;
 
 expressions: exp
 	{
         	expList = []node.NodeExp{$1} // reset
+	        $$ = expList
 	}
     |
         expressions exp

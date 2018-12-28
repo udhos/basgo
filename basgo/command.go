@@ -54,7 +54,7 @@ type commandPrint struct {
 
 func (c *commandPrint) exec(b *Basgo, printf funcPrintf) (stop bool) {
 	for _, e := range c.expressions {
-		printf("command.exec: FIXME WRITEME: evaluate: %s\n", e.Exp())
+		printf("command.exec: FIXME WRITEME: evaluate exp: %s\n", e.String())
 	}
 	printf("\n")
 	return

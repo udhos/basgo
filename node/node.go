@@ -9,11 +9,15 @@ import (
 // FuncPrintf is func type for printf
 type FuncPrintf func(format string, v ...interface{}) (int, error)
 
+type BuildOptions struct {
+	Headers map[string]struct{}
+}
+
 // Node is element for syntax tree
 type Node interface {
 	Show(printf FuncPrintf)
 	Name() string
-	Build(outputf FuncPrintf)
+	Build(options *BuildOptions, outputf FuncPrintf)
 }
 
 // LineNumbered is empty
@@ -38,10 +42,10 @@ func (n *LineNumbered) Name() string {
 }
 
 // Build generates code
-func (n *LineNumbered) Build(outputf FuncPrintf) {
+func (n *LineNumbered) Build(options *BuildOptions, outputf FuncPrintf) {
 	outputf("// line %s\n", n.LineNumber)
 	for _, n := range n.Nodes {
-		n.Build(outputf)
+		n.Build(options, outputf)
 	}
 }
 
@@ -66,7 +70,7 @@ func (n *LineImmediate) Name() string {
 }
 
 // Build generates code
-func (n *LineImmediate) Build(outputf FuncPrintf) {
+func (n *LineImmediate) Build(options *BuildOptions, outputf FuncPrintf) {
 	outputf("// unnumbered line ignored\n")
 }
 
@@ -85,7 +89,7 @@ func (n *NodeEmpty) Show(printf FuncPrintf) {
 }
 
 // Build generates code
-func (n *NodeEmpty) Build(outputf FuncPrintf) {
+func (n *NodeEmpty) Build(options *BuildOptions, outputf FuncPrintf) {
 	outputf("// empty node ignored\n")
 }
 
@@ -103,21 +107,25 @@ func (n *NodePrint) Name() string {
 func (n *NodePrint) Show(printf FuncPrintf) {
 	printf("[" + n.Name())
 	for _, e := range n.Expressions {
-		printf(" <" + e.Exp() + ">")
+		printf(" <")
+		printf(e.String())
+		printf(">")
 	}
 	printf("]")
 }
 
 // Build generates code
-func (n *NodePrint) Build(outputf FuncPrintf) {
+func (n *NodePrint) Build(options *BuildOptions, outputf FuncPrintf) {
 	outputf("// ")
 	n.Show(outputf)
 	outputf("\n")
 
 	for _, e := range n.Expressions {
-		outputf("fmt.Print(%s)\n", e.Exp())
+		outputf("fmt.Print(%s)\n", e.Exp(options))
 	}
 	outputf("fmt.Println()\n")
+
+	options.Headers["fmt"] = struct{}{} // used package
 }
 
 // NodeEnd is end
@@ -135,8 +143,9 @@ func (n *NodeEnd) Show(printf FuncPrintf) {
 }
 
 // Build generates code
-func (n *NodeEnd) Build(outputf FuncPrintf) {
+func (n *NodeEnd) Build(options *BuildOptions, outputf FuncPrintf) {
 	outputf("os.Exit(0) // %s\n", n.Name())
+	options.Headers["os"] = struct{}{} // used package
 }
 
 // NodeList lists lines
@@ -154,6 +163,6 @@ func (n *NodeList) Show(printf FuncPrintf) {
 }
 
 // Build generates code
-func (n *NodeList) Build(outputf FuncPrintf) {
+func (n *NodeList) Build(options *BuildOptions, outputf FuncPrintf) {
 	outputf("// %s currently not supported by compiler\n", n.Name())
 }
