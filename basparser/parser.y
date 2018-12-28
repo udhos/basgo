@@ -20,7 +20,7 @@ var (
 	Root []node.Node
 	lineList []node.Node
 	nodeList []node.Node
-	exprList []string
+	expList []node.NodeExp
 )
 
 %}
@@ -33,12 +33,13 @@ var (
 	typeStmtList []node.Node
 	typeStmt node.Node
 
-	typeExpressions []string
-	typeExpr string
+	typeExpressions []node.NodeExp
+	typeExp node.NodeExp
 
-	typeString string
 	typeNumber string
 	typeFloat string
+	typeString string
+	typeIdentifier string
 	typeRawLine string
 
 	tok int
@@ -52,7 +53,7 @@ var (
 %type <typeStmtList> statements
 %type <typeStmt> stmt
 %type <typeExpressions> expressions
-%type <typeExpr> expr
+%type <typeExp> exp
 
 // same for terminals
 
@@ -84,11 +85,16 @@ var (
 %token <tok> TkLE
 %token <tok> TkGE
 
-%token <tok> TkPlus
-%token <tok> TkMinus
-%token <tok> TkMult
-%token <tok> TkDiv
-%token <tok> TkBackSlash
+//%token <tok> TkPlus
+//%token <tok> TkMinus
+//%token <tok> TkMult
+//%token <tok> TkDiv
+//%token <tok> TkBackSlash
+
+%left <tok> TkPlus TkMinus
+%left <tok> TkMult TkDiv TkBackSlash
+%precedence UnaryPlus // fictitious
+%precedence UnaryMinus // fictitious
 
 %token <tok> TkKeywordCls
 %token <tok> TkKeywordCont
@@ -115,7 +121,7 @@ var (
 %token <tok> TkKeywordTime
 %token <tok> TkKeywordTo
 
-%token <tok> TkIdentifier
+%token <typeIdentifier> TkIdentifier
 
 %%
 
@@ -176,39 +182,43 @@ stmt: /* empty */
      { $$ = &node.NodePrint{Expressions: $2} }
   ;
 
-expressions: expr
+expressions: exp
 	{
-        	exprList = []string{$1} // reset
+        	expList = []node.NodeExp{$1} // reset
 	}
     |
-        expressions expr
+        expressions exp
         {
-		exprList = append(exprList, $2)
-		$$ = exprList
+		expList = append(expList, $2)
+		$$ = expList
 	}
     |
-        expressions TkComma expr
+        expressions TkComma exp
         {
-		exprList = append(exprList, $3)
-		$$ = exprList
+		expList = append(expList, $3)
+		$$ = expList
 	}
     |
-        expressions TkSemicolon expr
+        expressions TkSemicolon exp
         {
-		exprList = append(exprList, $3)
-		$$ = exprList
+		expList = append(expList, $3)
+		$$ = expList
 	}
     ;
 
-expr:   TkNumber
-    { $$ = $1 }
-    |   
-        TkFloat
-    { $$ = $1 }
-    |   
-        TkString
-    { $$ = $1 }
-    ;
+exp: TkNumber { $$ = &node.NodeExpNumber{Value:$1} }
+   | TkFloat { $$ = &node.NodeExpFloat{Value:$1} }
+   | TkString { $$ = &node.NodeExpString{Value:$1} }
+   | TkIdentifier { $$ = &node.NodeExpIdentifier{Value:$1} }
+   | exp TkPlus exp { $$ = &node.NodeExpPlus{Left: $1, Right: $3} }
+   | exp TkMinus exp { $$ = &node.NodeExpMinus{Left: $1, Right: $3} }
+   | exp TkMult exp { $$ = &node.NodeExpMult{Left: $1, Right: $3} }
+   | exp TkDiv exp { $$ = &node.NodeExpDiv{Left: $1, Right: $3} }
+   | exp TkBackSlash exp { $$ = &node.NodeExpDivInt{Left: $1, Right: $3} }
+   | TkPlus exp %prec UnaryPlus { $$ = &node.NodeExpUnaryPlus{Value:$2} }
+   | TkMinus exp %prec UnaryMinus { $$ = &node.NodeExpUnaryMinus{Value:$2} }
+   | TkParLeft exp TkParRight { $$ = &node.NodeExpGroup{Value:$2} }
+   ;
 
 %%
 
@@ -245,7 +255,7 @@ type InputLex struct {
 func (l *InputLex) Lex(lval *InputSymType) int {
 
 	if !l.lex.HasToken() {
-		return 0
+		return 0 // 0 means real EOF for the parser
 	}
 
 	t := l.lex.Next()
@@ -270,13 +280,22 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 			lval.typeNumber = t.Value
 		case TkFloat:
 			lval.typeFloat = t.Value
+		case TkIdentifier:
+			lval.typeIdentifier = t.Value
 		case TkEOL:
 			lval.typeRawLine = l.lex.RawLine()
 		case TkEOF:
 			lval.typeRawLine = l.lex.RawLine()
+		case TkParLeft: // do not store
+		case TkParRight: // do not store
 		case TkColon: // do not store
 		case TkComma: // do not store
 		case TkSemicolon: // do not store
+		case TkPlus: // do not store
+		case TkMinus: // do not store
+		case TkMult: // do not store
+		case TkDiv: // do not store
+		case TkBackSlash: // do not store
 		case TkKeywordEnd: // do not store
 		case TkKeywordList: // do not store
 		case TkKeywordPrint: // do not store

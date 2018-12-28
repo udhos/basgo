@@ -20,7 +20,8 @@ build() {
 	go install -v "$pkg"
 }
 
-go get golang.org/x/tools/cmd/goyacc
+#go get golang.org/x/tools/cmd/goyacc
+go get modernc.org/goyacc          ;# supports %precedence
 goyacc -o ./basparser/parser.go -p Input ./basparser/parser.y
 
 build ./baslex

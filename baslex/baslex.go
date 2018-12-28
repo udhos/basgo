@@ -52,6 +52,8 @@ const (
 	TkMult      = iota // *
 	TkDiv       = iota // /
 	TkBackSlash = iota // \
+	UnaryPlus   = iota // fictitious
+	UnaryMinus  = iota // fictitious
 
 	TkKeywordCls    = iota // CLS
 	TkKeywordCont   = iota // CONT
@@ -153,6 +155,8 @@ var tabType = []string{
 	"MULT",
 	"DIV",
 	"BACK-SLASH",
+	"UNARY-PLUS",
+	"UNARY-MINUS",
 
 	"CLS",
 	"CONT",

@@ -49,12 +49,12 @@ func (c *commandList) exec(b *Basgo, printf funcPrintf) (stop bool) {
 }
 
 type commandPrint struct {
-	expressions []string
+	expressions []node.NodeExp
 }
 
 func (c *commandPrint) exec(b *Basgo, printf funcPrintf) (stop bool) {
 	for _, e := range c.expressions {
-		printf(e)
+		printf("command.exec: FIXME WRITEME: evaluate: %s\n", e.Exp())
 	}
 	printf("\n")
 	return
