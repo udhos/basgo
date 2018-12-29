@@ -175,7 +175,7 @@ type NodeExpUnaryMinus struct{ Value NodeExp }
 
 // String returns value
 func (e *NodeExpUnaryMinus) String() string {
-	return "+" + e.Value.String()
+	return "-" + e.Value.String()
 }
 
 // Exp returns value
