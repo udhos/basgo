@@ -192,7 +192,6 @@ func (e *NodeExpGroup) String() string {
 }
 
 // Exp returns value
-// Exp returns value
 func (e *NodeExpGroup) Exp(options *BuildOptions) string {
 	return "(" + e.Value.Exp(options) + ")"
 }
