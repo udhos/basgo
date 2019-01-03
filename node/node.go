@@ -1,10 +1,36 @@
 package node
 
 import (
-//"log"
-//"fmt"
-//"bufio"
+	"log"
+	//"fmt"
+	//"bufio"
+	"strconv"
+	"strings"
 )
+
+type ByLineNumber []Node
+
+func (a ByLineNumber) Len() int      { return len(a) }
+func (a ByLineNumber) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a ByLineNumber) Less(i, j int) bool {
+	n1, n1Numbered := a[i].(*LineNumbered)
+	n2, n2Numbered := a[j].(*LineNumbered)
+	if n1Numbered && n2Numbered {
+		v1, err1 := strconv.Atoi(n1.LineNumber)
+		if err1 != nil {
+			log.Printf("node sort: bad line number: '%s': %v", n1.LineNumber, err1)
+		}
+		v2, err2 := strconv.Atoi(n2.LineNumber)
+		if err2 != nil {
+			log.Printf("node sort: bad line number: '%s': %v", n2.LineNumber, err2)
+		}
+		return v1 < v2
+	}
+	if n1Numbered {
+		return true
+	}
+	return false
+}
 
 // FuncPrintf is func type for printf
 type FuncPrintf func(format string, v ...interface{}) (int, error)
@@ -71,7 +97,7 @@ func (n *LineImmediate) Name() string {
 
 // Build generates code
 func (n *LineImmediate) Build(options *BuildOptions, outputf FuncPrintf) {
-	outputf("// unnumbered line ignored\n")
+	outputf("// unnumbered line ignored: '%s'\n", strings.TrimSpace(n.RawLine))
 }
 
 // NodeEmpty is empty
@@ -165,4 +191,24 @@ func (n *NodeList) Show(printf FuncPrintf) {
 // Build generates code
 func (n *NodeList) Build(options *BuildOptions, outputf FuncPrintf) {
 	outputf("// %s currently not supported by compiler\n", n.Name())
+}
+
+// NodeRem is rem
+type NodeRem struct {
+	Value string
+}
+
+// Name returns the name of the node
+func (n *NodeRem) Name() string {
+	return "REM"
+}
+
+// Show displays the node
+func (n *NodeRem) Show(printf FuncPrintf) {
+	printf("[" + n.Name() + "]")
+}
+
+// Build generates code
+func (n *NodeRem) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// REM: '%s'", n.Value)
 }

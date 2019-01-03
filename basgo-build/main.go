@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"runtime"
+	"sort"
 
 	"github.com/udhos/basgo/basgo"
 	"github.com/udhos/basgo/basparser"
@@ -34,6 +35,10 @@ func compile(input io.Reader, outputf node.FuncPrintf) {
 		log.Printf("%s: syntax error\n", basgoLabel)
 		os.Exit(1)
 	}
+
+	log.Printf("%s: sorting lines\n", basgoLabel)
+
+	sort.Sort(node.ByLineNumber(nodes))
 
 	log.Printf("%s: issuing code\n", basgoLabel)
 

@@ -36,6 +36,7 @@ var (
 	typeExpressions []node.NodeExp
 	typeExp node.NodeExp
 
+	typeRem string
 	typeNumber string
 	typeFloat string
 	typeString string
@@ -107,7 +108,7 @@ var (
 %token <tok> TkKeywordLoad
 %token <tok> TkKeywordNext
 %token <tok> TkKeywordPrint
-%token <tok> TkKeywordRem
+%token <typeRem> TkKeywordRem
 %token <tok> TkKeywordReturn
 %token <tok> TkKeywordRun
 %token <tok> TkKeywordSave
@@ -181,6 +182,8 @@ stmt: /* empty */
      {
         $$ = &node.NodePrint{Expressions: $2}
      }
+  | TkKeywordRem
+     { $$ = &node.NodeRem{Value: $1} }
   ;
 
 expressions: exp
@@ -278,6 +281,8 @@ func (l *InputLex) Lex(lval *InputSymType) int {
         // when a parser rule action need to consume the value
 	// for example: ident, literals (number, string)
 	switch id {
+		case TkKeywordRem:
+			lval.typeRem = t.Value
 		case TkString:
 			lval.typeString = t.Value
 		case TkNumber:
