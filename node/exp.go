@@ -4,6 +4,7 @@ import (
 //"log"
 //"fmt"
 //"bufio"
+//"strconv"
 )
 
 // NodeExp is interface for expressions
@@ -22,11 +23,11 @@ func (e *NodeExpNumber) String() string {
 
 // Exp returns value
 func (e *NodeExpNumber) Exp(options *BuildOptions) string {
-	return expFloat(e.Value)
+	return toFloat(e.Value)
 }
 
-func expFloat(v string) string {
-	return "float32(" + v + ")"
+func toFloat(v string) string {
+	return "float64(" + v + ")"
 }
 
 // NodeExpFloat holds value
@@ -39,7 +40,17 @@ func (e *NodeExpFloat) String() string {
 
 // Exp returns value
 func (e *NodeExpFloat) Exp(options *BuildOptions) string {
-	return expFloat(e.Value)
+	/*
+		value, err := strconv.ParseFloat(e.Value, 64)
+		if err != nil {
+			return fmt.Sprintf("NodeExpFloat.Exp: '%s' error: %v", e.Value, err)
+		}
+		return fmt.Sprintf("%v", value)
+	*/
+	if e.Value == "." {
+		return "0.0"
+	}
+	return e.Value
 }
 
 // NodeExpString holds value
@@ -100,6 +111,26 @@ func (e *NodeExpMinus) Exp(options *BuildOptions) string {
 	return e.Left.Exp(options) + "-" + e.Right.Exp(options)
 }
 
+// NodeExpMod holds value
+type NodeExpMod struct {
+	Left  NodeExp
+	Right NodeExp
+}
+
+// String returns value
+func (e *NodeExpMod) String() string {
+	return e.Left.String() + " MOD " + e.Right.String()
+}
+
+// Exp returns value
+func (e *NodeExpMod) Exp(options *BuildOptions) string {
+	return toInt(round(options, e.Left.Exp(options))) + `%%` + toInt(round(options, e.Right.Exp(options)))
+}
+
+func toInt(s string) string {
+	return "int(" + s + ")"
+}
+
 // NodeExpMult holds value
 type NodeExpMult struct {
 	Left  NodeExp
@@ -145,16 +176,34 @@ func (e *NodeExpDivInt) String() string {
 
 // Exp returns value
 func (e *NodeExpDivInt) Exp(options *BuildOptions) string {
-	options.Headers["math"] = struct{}{}
-	return trunc(round(e.Left.Exp(options)) + "/" + round(e.Right.Exp(options)))
+	return trunc(options, round(options, e.Left.Exp(options))+"/"+round(options, e.Right.Exp(options)))
 }
 
-func trunc(s string) string {
+// NodeExpPow holds value
+type NodeExpPow struct {
+	Left  NodeExp
+	Right NodeExp
+}
+
+// String returns value
+func (e *NodeExpPow) String() string {
+	return e.Left.String() + "^" + e.Right.String()
+}
+
+// Exp returns value
+func (e *NodeExpPow) Exp(options *BuildOptions) string {
+	options.Headers["math"] = struct{}{}
+	return "math.Pow(" + e.Left.Exp(options) + "," + e.Right.Exp(options) + ")"
+}
+
+func trunc(options *BuildOptions, s string) string {
+	options.Headers["math"] = struct{}{}
 	return "math.Trunc(" + s + ")"
 }
 
-func round(s string) string {
-	return "math.Round(float64(" + s + "))"
+func round(options *BuildOptions, s string) string {
+	options.Headers["math"] = struct{}{}
+	return "math.Round(" + toFloat(s) + ")"
 }
 
 // NodeExpUnaryPlus holds value

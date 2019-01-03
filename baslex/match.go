@@ -150,6 +150,8 @@ func matchBlank(l *Lex, b byte) Token {
 		return l.saveLocationValue(Token{ID: TkMult, Value: "*"})
 	case b == '/':
 		return l.saveLocationValue(Token{ID: TkDiv, Value: "/"})
+	case b == '^':
+		return l.saveLocationValue(Token{ID: TkPow, Value: "^"})
 	case b == '\\':
 		return l.saveLocationValue(Token{ID: TkBackSlash, Value: "\\"})
 	case b == ':':

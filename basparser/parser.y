@@ -4,7 +4,7 @@ package basparser
 
 import (
 	//"bufio"
-	"fmt"
+	//"fmt"
 	//"os"
 	//"unicode"
 	"io"
@@ -85,14 +85,11 @@ var (
 %token <tok> TkLE
 %token <tok> TkGE
 
-//%token <tok> TkPlus
-//%token <tok> TkMinus
-//%token <tok> TkMult
-//%token <tok> TkDiv
-//%token <tok> TkBackSlash
-
 %left <tok> TkPlus TkMinus
-%left <tok> TkMult TkDiv TkBackSlash
+%left <tok> TkKeywordMod
+%left <tok> TkBackSlash
+%left <tok> TkMult TkDiv
+%left <tok> TkPow
 %precedence UnaryPlus // fictitious
 %precedence UnaryMinus // fictitious
 
@@ -217,9 +214,11 @@ exp: TkNumber { $$ = &node.NodeExpNumber{Value:$1} }
    | TkIdentifier { $$ = &node.NodeExpIdentifier{Value:$1} }
    | exp TkPlus exp { $$ = &node.NodeExpPlus{Left: $1, Right: $3} }
    | exp TkMinus exp { $$ = &node.NodeExpMinus{Left: $1, Right: $3} }
+   | exp TkKeywordMod exp { $$ = &node.NodeExpMod{Left: $1, Right: $3} }
+   | exp TkBackSlash exp { $$ = &node.NodeExpDivInt{Left: $1, Right: $3} }
    | exp TkMult exp { $$ = &node.NodeExpMult{Left: $1, Right: $3} }
    | exp TkDiv exp { $$ = &node.NodeExpDiv{Left: $1, Right: $3} }
-   | exp TkBackSlash exp { $$ = &node.NodeExpDivInt{Left: $1, Right: $3} }
+   | exp TkPow exp { $$ = &node.NodeExpPow{Left: $1, Right: $3} }
    | TkPlus exp %prec UnaryPlus { $$ = &node.NodeExpUnaryPlus{Value:$2} }
    | TkMinus exp %prec UnaryMinus { $$ = &node.NodeExpUnaryMinus{Value:$2} }
    | TkParLeft exp TkParRight { $$ = &node.NodeExpGroup{Value:$2} }
@@ -272,7 +271,7 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 	// ATTENTION: id is in parser token space
 
 	if l.debug {
-		fmt.Printf("InputLex.Lex: %s [%s]\n", t.Type(), t.Value)
+		log.Printf("InputLex.Lex: %s [%s]\n", t.Type(), t.Value)
 	}
 
 	// need to store values only for some terminals
@@ -301,17 +300,19 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 		case TkMult: // do not store
 		case TkDiv: // do not store
 		case TkBackSlash: // do not store
+		case TkPow: // do not store
 		case TkKeywordEnd: // do not store
 		case TkKeywordList: // do not store
+		case TkKeywordMod: // do not store
 		case TkKeywordPrint: // do not store
 		default:
-			fmt.Printf("InputLex.Lex: FIXME token value [%s] not stored for parser actions\n", t.Value)
+			log.Printf("InputLex.Lex: FIXME token value [%s] not stored for parser actions\n", t.Value)
 	}
 
 	return id
 }
 
 func (l *InputLex) Error(s string) {
-	fmt.Printf("InputLex.Error: line=%d column=%d: %s\n", l.lex.Line(), l.lex.Column(), s)
+	log.Printf("InputLex.Error: line=%d column=%d: %s\n", l.lex.Line(), l.lex.Column(), s)
 }
 

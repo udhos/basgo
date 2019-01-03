@@ -5,8 +5,12 @@ import (
 )
 
 func TestTabKeywords(t *testing.T) {
-	if len(tabKeywords) != (TkKeywordTo - TkKeywordCls + 1) {
-		t.Errorf("mismatch keywords table size: table=%d tokens=%d", len(tabKeywords), TkKeywordTo-TkKeywordCls+1)
+	// tabKeywords is 1 entry bigger because
+	// it contains the MOD keyword
+	// otherwise expected size should be +1 instead of +2
+	size := TkKeywordTo - TkKeywordCls + 2
+	if len(tabKeywords) != size {
+		t.Errorf("mismatch keywords table size: table=%d tokens=%d", len(tabKeywords), size)
 	}
 }
 

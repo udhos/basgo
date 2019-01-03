@@ -47,13 +47,15 @@ const (
 	TkLE      = iota // <=
 	TkGE      = iota // >=
 
-	TkPlus      = iota // +
-	TkMinus     = iota // -
-	TkMult      = iota // *
-	TkDiv       = iota // /
-	TkBackSlash = iota // \
-	UnaryPlus   = iota // fictitious
-	UnaryMinus  = iota // fictitious
+	TkPlus       = iota // +
+	TkMinus      = iota // -
+	TkKeywordMod = iota // MOD
+	TkBackSlash  = iota // \
+	TkMult       = iota // *
+	TkDiv        = iota // /
+	TkPow        = iota // ^
+	UnaryPlus    = iota // fictitious
+	UnaryMinus   = iota // fictitious
 
 	TkKeywordCls    = iota // CLS
 	TkKeywordCont   = iota // CONT
@@ -106,6 +108,7 @@ var tabKeywords = []struct {
 	{TkKeywordLet, "LET"},
 	{TkKeywordList, "LIST"},
 	{TkKeywordLoad, "LOAD"},
+	{TkKeywordMod, "MOD"},
 	{TkKeywordNext, "NEXT"},
 	{TkKeywordPrint, "PRINT"},
 	{TkKeywordRem, "REM"},
@@ -152,9 +155,11 @@ var tabType = []string{
 
 	"PLUS",
 	"MINUS",
+	"MOD",
+	"BACK-SLASH",
 	"MULT",
 	"DIV",
-	"BACK-SLASH",
+	"POW",
 	"UNARY-PLUS",
 	"UNARY-MINUS",
 
