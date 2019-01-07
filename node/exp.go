@@ -1,10 +1,10 @@
 package node
 
 import (
-//"log"
-//"fmt"
-//"bufio"
-//"strconv"
+	//"log"
+	"fmt"
+	//"bufio"
+	//"strconv"
 )
 
 // NodeExp is interface for expressions
@@ -31,26 +31,16 @@ func toFloat(v string) string {
 }
 
 // NodeExpFloat holds value
-type NodeExpFloat struct{ Value string }
+type NodeExpFloat struct{ Value float64 }
 
 // String returns value
 func (e *NodeExpFloat) String() string {
-	return e.Value
+	return fmt.Sprintf("%v", e.Value)
 }
 
 // Exp returns value
 func (e *NodeExpFloat) Exp(options *BuildOptions) string {
-	/*
-		value, err := strconv.ParseFloat(e.Value, 64)
-		if err != nil {
-			return fmt.Sprintf("NodeExpFloat.Exp: '%s' error: %v", e.Value, err)
-		}
-		return fmt.Sprintf("%v", value)
-	*/
-	if e.Value == "." {
-		return "0.0"
-	}
-	return e.Value
+	return fmt.Sprintf("%v", e.Value)
 }
 
 // NodeExpString holds value

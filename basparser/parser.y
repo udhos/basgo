@@ -4,11 +4,11 @@ package basparser
 
 import (
 	//"bufio"
-	//"fmt"
+	"fmt"
 	//"os"
 	//"unicode"
 	"io"
-	//"strconv"
+	"strconv"
         "log"
 
 	"github.com/udhos/basgo/baslex"
@@ -212,7 +212,23 @@ expressions: exp
     ;
 
 exp: TkNumber { $$ = &node.NodeExpNumber{Value:$1} }
-   | TkFloat { $$ = &node.NodeExpFloat{Value:$1} }
+   | TkFloat 
+     {
+       n := &node.NodeExpFloat{}
+       v := $1
+       if v != "." {
+         var errParse error
+         n.Value, errParse = strconv.ParseFloat(v, 64)
+         if errParse != nil {
+           msg := fmt.Sprintf("TkFloat action syntax error: %v", errParse)
+
+           // Code inside the grammar actions may refer to the variable yylex,
+           // which holds the yyLexer passed to yyParse.
+           yylex.Error(msg)
+         }
+       }
+       $$ = n
+     }
    | TkString { $$ = &node.NodeExpString{Value:$1} }
    | TkIdentifier { $$ = &node.NodeExpIdentifier{Value:$1} }
    | exp TkPlus exp { $$ = &node.NodeExpPlus{Left: $1, Right: $3} }
@@ -257,6 +273,11 @@ func NewInputLex(input io.ByteScanner, debug bool) *InputLex {
 type InputLex struct {
 	lex *baslex.Lex
 	debug bool
+	syntaxErrorCount int
+}
+
+func (l *InputLex) Errors() int {
+	return l.syntaxErrorCount
 }
 
 func (l *InputLex) Lex(lval *InputSymType) int {
@@ -318,6 +339,7 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 }
 
 func (l *InputLex) Error(s string) {
-	log.Printf("InputLex.Error: line=%d column=%d: %s\n", l.lex.Line(), l.lex.Column(), s)
+	l.syntaxErrorCount++
+	log.Printf("InputLex.Error: count=%d line=%d column=%d: %s\n", l.syntaxErrorCount, l.lex.Line(), l.lex.Column(), s)
 }
 

@@ -29,10 +29,10 @@ func compile(input io.Reader, outputf node.FuncPrintf) {
 
 	log.Printf("%s: parsing\n", basgoLabel)
 
-	nodes, status := parse(input, outputf)
+	nodes, errors := parse(input, outputf)
 
-	if status != 0 {
-		log.Printf("%s: syntax error\n", basgoLabel)
+	if errors != 0 {
+		log.Printf("%s: syntax errors: %d\n", basgoLabel, errors)
 		os.Exit(1)
 	}
 
@@ -92,5 +92,7 @@ func parse(input io.Reader, outputf node.FuncPrintf) ([]node.Node, int) {
 	lex := basparser.NewInputLex(byteInput, debug)
 	status := basparser.InputParse(lex)
 
-	return basparser.Root, status
+	log.Printf("%s: parse status=%d", basgoLabel, status)
+
+	return basparser.Root, lex.Errors()
 }

@@ -18,7 +18,9 @@ func main() {
 	lex := basparser.NewInputLex(input, debug)
 	status := basparser.InputParse(lex)
 
-	log.Printf("%s: reading from stdin...done status=%d", me, status)
+	log.Printf("%s: reading from stdin...done", me)
+
+	log.Printf("%s: status=%d errors=%d", me, status, lex.Errors())
 
 	log.Printf("%s: syntax tree lines=%d:", me, len(basparser.Root))
 
