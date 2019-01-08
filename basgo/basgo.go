@@ -83,7 +83,13 @@ func (b *Basgo) execLine(printf funcPrintf, r *bufio.Reader, line string) error 
 	status := basparser.InputParse(lex)
 
 	if status != 0 {
-		err := fmt.Errorf("execLine: syntax error")
+		err := fmt.Errorf("execLine: parser error status: %d", status)
+		printf("%v\n", err)
+		return err
+	}
+
+	if errors := lex.Errors(); errors != 0 {
+		err := fmt.Errorf("execLine: syntax errors: %d", errors)
 		printf("%v\n", err)
 		return err
 	}
