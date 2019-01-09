@@ -1,2 +1,3 @@
-10 a=1 : b$="hello"
-20 print len a, " ", len b$
+10 let a=1
+10 b$="hello"
+30 print len a, " ", len b$
