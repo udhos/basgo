@@ -66,6 +66,7 @@ const (
 	TkKeywordGoto   = iota // GOTO
 	TkKeywordInput  = iota // INPUT
 	TkKeywordIf     = iota // IF
+	TkKeywordLen    = iota // LEN
 	TkKeywordLet    = iota // LET
 	TkKeywordList   = iota // LIST
 	TkKeywordLoad   = iota // LOAD
@@ -105,6 +106,7 @@ var tabKeywords = []struct {
 	{TkKeywordGoto, "GOTO"},
 	{TkKeywordIf, "IF"},
 	{TkKeywordInput, "INPUT"},
+	{TkKeywordLen, "LEN"},
 	{TkKeywordLet, "LET"},
 	{TkKeywordList, "LIST"},
 	{TkKeywordLoad, "LOAD"},
@@ -172,6 +174,7 @@ var tabType = []string{
 	"GOTO",
 	"IF",
 	"INPUT",
+	"LEN",
 	"LET",
 	"LIST",
 	"LOAD",
@@ -258,11 +261,6 @@ func NewStr(s string) *Lex {
 
 var tokenNull = Token{}
 var tokenEOF = Token{ID: TkEOF, Value: "EOF"}
-
-//var tokenFIXME = Token{ID: TkFIXME, Value: "FIXME-WRITEME"}
-//var tokenErrInput = Token{ID: TkErrInput, Value: "ERROR-INPUT"}
-//var tokenErrInternal = Token{ID: TkErrInternal, Value: "ERROR-INTERNAL"}
-//var tokenErrLarge = Token{ID: TkErrLarge, Value: "ERROR-LARGE-TOKEN"}
 
 func (l *Lex) returnTokenEOF() Token {
 	l.eofSent = true

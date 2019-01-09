@@ -37,6 +37,20 @@ type FuncPrintf func(format string, v ...interface{}) (int, error)
 
 type BuildOptions struct {
 	Headers map[string]struct{}
+	Vars    map[string]struct{}
+}
+
+// RenameVar renames a$ => a
+func RenameVar(name string) string {
+	last := len(name) - 1
+	if last < 1 {
+		return name
+	}
+	switch name[last] {
+	case '$', '%', '!', '#':
+		return name[:last]
+	}
+	return name
 }
 
 // Node is element for syntax tree
@@ -117,6 +131,39 @@ func (n *NodeEmpty) Show(printf FuncPrintf) {
 // Build generates code
 func (n *NodeEmpty) Build(options *BuildOptions, outputf FuncPrintf) {
 	outputf("// empty node ignored\n")
+}
+
+// NodeAssign is print
+type NodeAssign struct {
+	Left  string
+	Right NodeExp
+}
+
+// Name returns the name of the node
+func (n *NodeAssign) Name() string {
+	return "LET"
+}
+
+// Show displays the node
+func (n *NodeAssign) Show(printf FuncPrintf) {
+	printf("[")
+	printf(n.Name())
+	printf(" ")
+	printf(n.Left)
+	printf("=")
+	printf(n.Right.String())
+	printf("]")
+}
+
+// Build generates code
+func (n *NodeAssign) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+
+	outputf("%s = %s\n", RenameVar(n.Left), n.Right.Exp(options))
+
+	options.Vars[n.Left] = struct{}{}
 }
 
 // NodePrint is print

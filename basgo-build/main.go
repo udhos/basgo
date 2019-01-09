@@ -9,6 +9,7 @@ import (
 	"os"
 	"runtime"
 	"sort"
+	"strings"
 
 	"github.com/udhos/basgo/basgo"
 	"github.com/udhos/basgo/basparser"
@@ -57,7 +58,12 @@ func main() {
 	log.Printf("%s: issuing code FIXME WRITEME replace duplicate lines\n", basgoLabel)
 
 	buf := bytes.Buffer{}
-	options := node.BuildOptions{Headers: map[string]struct{}{}}
+	options := node.BuildOptions{
+		Headers: map[string]struct{}{},
+		Vars:    map[string]struct{}{},
+	}
+
+	options.Headers["os"] = struct{}{}
 
 	funcGen := func(format string, v ...interface{}) (int, error) {
 		s := fmt.Sprintf(format, v...)
@@ -71,9 +77,16 @@ func main() {
 	outputf(header)
 	writeImport(options.Headers, outputf)
 	outputf(mainOpen)
+	writeVar(options.Vars, outputf)
 	outputf(buf.String())
-	outputf(mainClose)
 
+	outputf("// below we use all vars to prevent Go compiler error\n")
+	outputf("os.Exit(0)\n")
+	for v := range options.Vars {
+		outputf("println(%s) // [%s]\n", node.RenameVar(v), v)
+	}
+
+	outputf(mainClose)
 }
 
 func writeImport(headers map[string]struct{}, outputf node.FuncPrintf) {
@@ -81,6 +94,25 @@ func writeImport(headers map[string]struct{}, outputf node.FuncPrintf) {
 		outputf("import (\n")
 		for h := range headers {
 			outputf("\"%s\"\n", h)
+		}
+		outputf(")\n")
+	}
+}
+
+func writeVar(vars map[string]struct{}, outputf node.FuncPrintf) {
+	if len(vars) > 0 {
+		outputf("var (\n")
+		for v := range vars {
+			var t string
+			switch {
+			case strings.HasSuffix(v, "$"):
+				t = "string"
+			case strings.HasSuffix(v, "%"):
+				t = "int"
+			default:
+				t = "float64"
+			}
+			outputf("  %s %s // [%s]\n", node.RenameVar(v), t, v)
 		}
 		outputf(")\n")
 	}

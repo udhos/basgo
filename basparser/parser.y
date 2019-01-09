@@ -36,6 +36,7 @@ var (
 	typeExpressions []node.NodeExp
 	typeExp node.NodeExp
 
+	typeLen string
 	typeRem string
 	typeNumber string
 	typeFloat string
@@ -53,6 +54,7 @@ var (
 %type <typeLine> line
 %type <typeStmtList> statements
 %type <typeStmt> stmt
+%type <typeStmt> assign
 %type <typeExpressions> expressions
 %type <typeExp> exp
 
@@ -103,6 +105,7 @@ var (
 %token <tok> TkKeywordGoto
 %token <tok> TkKeywordInput
 %token <tok> TkKeywordIf
+%token <typeLen> TkKeywordLen
 %token <tok> TkKeywordLet
 %token <tok> TkKeywordList
 %token <tok> TkKeywordLoad
@@ -172,6 +175,10 @@ stmt: /* empty */
      { $$ = &node.NodeEmpty{} }
   | TkKeywordEnd
      { $$ = &node.NodeEnd{} }
+  | TkKeywordLet assign
+     { $$ = $2 }
+  | assign
+     { $$ = $1 }
   | TkKeywordList
      { $$ = &node.NodeList{} }
   | TkKeywordPrint
@@ -184,6 +191,12 @@ stmt: /* empty */
      }
   | TkKeywordRem
      { $$ = &node.NodeRem{Value: $1} }
+  ;
+
+assign: TkIdentifier TkEqual exp
+     {
+        $$ = &node.NodeAssign{Left: $1, Right: $3}
+     }
   ;
 
 expressions: exp
@@ -241,6 +254,7 @@ exp: TkNumber { $$ = &node.NodeExpNumber{Value:$1} }
    | TkPlus exp %prec UnaryPlus { $$ = &node.NodeExpUnaryPlus{Value:$2} }
    | TkMinus exp %prec UnaryMinus { $$ = &node.NodeExpUnaryMinus{Value:$2} }
    | TkParLeft exp TkParRight { $$ = &node.NodeExpGroup{Value:$2} }
+   | TkKeywordLen exp { $$ = &node.NodeExpLen{Value:$2} }
    ;
 
 %%

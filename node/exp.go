@@ -7,14 +7,28 @@ import (
 	//"strconv"
 )
 
+// Types
+const (
+	TypeUnknown = iota
+	TypeString  = iota
+	TypeFloat   = iota
+	TypeInteger = iota
+)
+
 // NodeExp is interface for expressions
 type NodeExp interface {
 	String() string                   // Literal cosmetic display
 	Exp(options *BuildOptions) string // For code generation in Go
+	Type() int
 }
 
 // NodeExpNumber holds value
 type NodeExpNumber struct{ Value string }
+
+// Type returns type
+func (e *NodeExpNumber) Type() int {
+	return TypeInteger
+}
 
 // String returns value
 func (e *NodeExpNumber) String() string {
@@ -33,6 +47,11 @@ func toFloat(v string) string {
 // NodeExpFloat holds value
 type NodeExpFloat struct{ Value float64 }
 
+// Type returns type
+func (e *NodeExpFloat) Type() int {
+	return TypeFloat
+}
+
 // String returns value
 func (e *NodeExpFloat) String() string {
 	return fmt.Sprintf("%v", e.Value)
@@ -45,6 +64,11 @@ func (e *NodeExpFloat) Exp(options *BuildOptions) string {
 
 // NodeExpString holds value
 type NodeExpString struct{ Value string }
+
+// Type returns type
+func (e *NodeExpString) Type() int {
+	return TypeString
+}
 
 // String returns value
 func (e *NodeExpString) String() string {
@@ -59,6 +83,21 @@ func (e *NodeExpString) Exp(options *BuildOptions) string {
 // NodeExpIdentifier holds value
 type NodeExpIdentifier struct{ Value string }
 
+// Type returns type
+func (e *NodeExpIdentifier) Type() int {
+	last := len(e.Value) - 1
+	if last < 1 {
+		return TypeFloat
+	}
+	switch e.Value[last] {
+	case '$':
+		return TypeString
+	case '%':
+		return TypeInteger
+	}
+	return TypeFloat
+}
+
 // String returns value
 func (e *NodeExpIdentifier) String() string {
 	return e.Value
@@ -66,13 +105,37 @@ func (e *NodeExpIdentifier) String() string {
 
 // Exp returns value
 func (e *NodeExpIdentifier) Exp(options *BuildOptions) string {
-	return e.Value
+	return RenameVar(e.Value)
 }
 
 // NodeExpPlus holds value
 type NodeExpPlus struct {
 	Left  NodeExp
 	Right NodeExp
+}
+
+// Type returns type
+func (e *NodeExpPlus) Type() int {
+	return combineType(e.Left.Type(), e.Right.Type())
+}
+
+func combineType(t1, t2 int) int {
+	if t1 == TypeString && t2 == TypeString {
+		return TypeString
+	}
+	if t1 == TypeInteger && t2 == TypeInteger {
+		return TypeInteger
+	}
+	if t1 == TypeFloat && t2 == TypeFloat {
+		return TypeFloat
+	}
+	if t1 == TypeInteger && t2 == TypeFloat {
+		return TypeFloat
+	}
+	if t1 == TypeInteger && t2 == TypeFloat {
+		return TypeFloat
+	}
+	return TypeUnknown
 }
 
 // String returns value
@@ -91,6 +154,11 @@ type NodeExpMinus struct {
 	Right NodeExp
 }
 
+// Type returns type
+func (e *NodeExpMinus) Type() int {
+	return combineType(e.Left.Type(), e.Right.Type())
+}
+
 // String returns value
 func (e *NodeExpMinus) String() string {
 	return e.Left.String() + "-" + e.Right.String()
@@ -105,6 +173,11 @@ func (e *NodeExpMinus) Exp(options *BuildOptions) string {
 type NodeExpMod struct {
 	Left  NodeExp
 	Right NodeExp
+}
+
+// Type returns type
+func (e *NodeExpMod) Type() int {
+	return combineType(e.Left.Type(), e.Right.Type())
 }
 
 // String returns value
@@ -127,6 +200,11 @@ type NodeExpMult struct {
 	Right NodeExp
 }
 
+// Type returns type
+func (e *NodeExpMult) Type() int {
+	return combineType(e.Left.Type(), e.Right.Type())
+}
+
 // String returns value
 func (e *NodeExpMult) String() string {
 	return e.Left.String() + "*" + e.Right.String()
@@ -141,6 +219,11 @@ func (e *NodeExpMult) Exp(options *BuildOptions) string {
 type NodeExpDiv struct {
 	Left  NodeExp
 	Right NodeExp
+}
+
+// Type returns type
+func (e *NodeExpDiv) Type() int {
+	return combineType(e.Left.Type(), e.Right.Type())
 }
 
 // String returns value
@@ -159,6 +242,11 @@ type NodeExpDivInt struct {
 	Right NodeExp
 }
 
+// Type returns type
+func (e *NodeExpDivInt) Type() int {
+	return combineType(e.Left.Type(), e.Right.Type())
+}
+
 // String returns value
 func (e *NodeExpDivInt) String() string {
 	return e.Left.String() + "\\" + e.Right.String()
@@ -173,6 +261,11 @@ func (e *NodeExpDivInt) Exp(options *BuildOptions) string {
 type NodeExpPow struct {
 	Left  NodeExp
 	Right NodeExp
+}
+
+// Type returns type
+func (e *NodeExpPow) Type() int {
+	return combineType(e.Left.Type(), e.Right.Type())
 }
 
 // String returns value
@@ -199,6 +292,11 @@ func round(options *BuildOptions, s string) string {
 // NodeExpUnaryPlus holds value
 type NodeExpUnaryPlus struct{ Value NodeExp }
 
+// Type returns type
+func (e *NodeExpUnaryPlus) Type() int {
+	return e.Value.Type()
+}
+
 // String returns value
 func (e *NodeExpUnaryPlus) String() string {
 	return "+" + e.Value.String()
@@ -211,6 +309,11 @@ func (e *NodeExpUnaryPlus) Exp(options *BuildOptions) string {
 
 // NodeExpUnaryMinus holds value
 type NodeExpUnaryMinus struct{ Value NodeExp }
+
+// Type returns type
+func (e *NodeExpUnaryMinus) Type() int {
+	return e.Value.Type()
+}
 
 // String returns value
 func (e *NodeExpUnaryMinus) String() string {
@@ -225,6 +328,11 @@ func (e *NodeExpUnaryMinus) Exp(options *BuildOptions) string {
 // NodeExpGroup holds value
 type NodeExpGroup struct{ Value NodeExp }
 
+// Type returns type
+func (e *NodeExpGroup) Type() int {
+	return e.Value.Type()
+}
+
 // String returns value
 func (e *NodeExpGroup) String() string {
 	return "(" + e.Value.String() + ")"
@@ -233,4 +341,28 @@ func (e *NodeExpGroup) String() string {
 // Exp returns value
 func (e *NodeExpGroup) Exp(options *BuildOptions) string {
 	return "(" + e.Value.Exp(options) + ")"
+}
+
+// NodeExpLen holds value
+type NodeExpLen struct {
+	Value NodeExp
+}
+
+// Type returns type
+func (e *NodeExpLen) Type() int {
+	return TypeInteger
+}
+
+// String returns value
+func (e *NodeExpLen) String() string {
+	return "LEN(" + e.Value.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpLen) Exp(options *BuildOptions) string {
+	t := e.Value.Type()
+	if t == TypeString {
+		return "len(" + e.Value.Exp(options) + ")"
+	}
+	return "8 /* LEN(non-string) */"
 }
