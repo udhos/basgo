@@ -58,6 +58,7 @@ type Node interface {
 	Show(printf FuncPrintf)
 	Name() string
 	Build(options *BuildOptions, outputf FuncPrintf)
+	FindUsedVars(vars map[string]struct{})
 }
 
 // LineNumbered is empty
@@ -89,6 +90,13 @@ func (n *LineNumbered) Build(options *BuildOptions, outputf FuncPrintf) {
 	}
 }
 
+// FindUsedVars finds used vars
+func (n *LineNumbered) FindUsedVars(vars map[string]struct{}) {
+	for _, n := range n.Nodes {
+		n.FindUsedVars(vars)
+	}
+}
+
 // LineImmediate is empty
 type LineImmediate struct {
 	Nodes   []Node
@@ -114,6 +122,11 @@ func (n *LineImmediate) Build(options *BuildOptions, outputf FuncPrintf) {
 	outputf("// unnumbered line ignored: '%s'\n", strings.TrimSpace(n.RawLine))
 }
 
+// FindUsedVars finds used vars
+func (n *LineImmediate) FindUsedVars(vars map[string]struct{}) {
+	// do nothing
+}
+
 // NodeEmpty is empty
 type NodeEmpty struct {
 }
@@ -131,6 +144,11 @@ func (n *NodeEmpty) Show(printf FuncPrintf) {
 // Build generates code
 func (n *NodeEmpty) Build(options *BuildOptions, outputf FuncPrintf) {
 	outputf("// empty node ignored\n")
+}
+
+// FindUsedVars finds used vars
+func (n *NodeEmpty) FindUsedVars(vars map[string]struct{}) {
+	// do nothing
 }
 
 // NodeAssign is print
@@ -161,9 +179,16 @@ func (n *NodeAssign) Build(options *BuildOptions, outputf FuncPrintf) {
 	n.Show(outputf)
 	outputf("\n")
 
-	outputf("%s = %s\n", RenameVar(n.Left), n.Right.Exp(options))
+	if _, found := options.Vars[n.Left]; found {
+		outputf("%s = %s\n", RenameVar(n.Left), n.Right.Exp(options))
+	} else {
+		outputf("// %s = %s // suppressed \n", RenameVar(n.Left), n.Right.Exp(options))
+	}
+}
 
-	options.Vars[n.Left] = struct{}{}
+// FindUsedVars finds used vars
+func (n *NodeAssign) FindUsedVars(vars map[string]struct{}) {
+	n.Right.FindUsedVars(vars)
 }
 
 // NodePrint is print
@@ -201,6 +226,13 @@ func (n *NodePrint) Build(options *BuildOptions, outputf FuncPrintf) {
 	options.Headers["fmt"] = struct{}{} // used package
 }
 
+// FindUsedVars finds used vars
+func (n *NodePrint) FindUsedVars(vars map[string]struct{}) {
+	for _, e := range n.Expressions {
+		e.FindUsedVars(vars)
+	}
+}
+
 // NodeEnd is end
 type NodeEnd struct {
 }
@@ -219,6 +251,11 @@ func (n *NodeEnd) Show(printf FuncPrintf) {
 func (n *NodeEnd) Build(options *BuildOptions, outputf FuncPrintf) {
 	outputf("os.Exit(0) // %s\n", n.Name())
 	options.Headers["os"] = struct{}{} // used package
+}
+
+// FindUsedVars finds used vars
+func (n *NodeEnd) FindUsedVars(vars map[string]struct{}) {
+	// do nothing
 }
 
 // NodeList lists lines
@@ -240,6 +277,11 @@ func (n *NodeList) Build(options *BuildOptions, outputf FuncPrintf) {
 	outputf("// %s currently not supported by compiler\n", n.Name())
 }
 
+// FindUsedVars finds used vars
+func (n *NodeList) FindUsedVars(vars map[string]struct{}) {
+	// do nothing
+}
+
 // NodeRem is rem
 type NodeRem struct {
 	Value string
@@ -258,4 +300,9 @@ func (n *NodeRem) Show(printf FuncPrintf) {
 // Build generates code
 func (n *NodeRem) Build(options *BuildOptions, outputf FuncPrintf) {
 	outputf("// REM: '%s'", n.Value)
+}
+
+// FindUsedVars finds used vars
+func (n *NodeRem) FindUsedVars(vars map[string]struct{}) {
+	// do nothing
 }

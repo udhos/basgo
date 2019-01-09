@@ -20,6 +20,7 @@ type NodeExp interface {
 	String() string                   // Literal cosmetic display
 	Exp(options *BuildOptions) string // For code generation in Go
 	Type() int
+	FindUsedVars(vars map[string]struct{})
 }
 
 // NodeExpNumber holds value
@@ -38,6 +39,11 @@ func (e *NodeExpNumber) String() string {
 // Exp returns value
 func (e *NodeExpNumber) Exp(options *BuildOptions) string {
 	return toFloat(e.Value)
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpNumber) FindUsedVars(vars map[string]struct{}) {
+	// do nothing
 }
 
 func toFloat(v string) string {
@@ -62,6 +68,11 @@ func (e *NodeExpFloat) Exp(options *BuildOptions) string {
 	return fmt.Sprintf("%v", e.Value)
 }
 
+// FindUsedVars finds used vars
+func (e *NodeExpFloat) FindUsedVars(vars map[string]struct{}) {
+	// do nothing
+}
+
 // NodeExpString holds value
 type NodeExpString struct{ Value string }
 
@@ -78,6 +89,11 @@ func (e *NodeExpString) String() string {
 // Exp returns value
 func (e *NodeExpString) Exp(options *BuildOptions) string {
 	return e.Value
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpString) FindUsedVars(vars map[string]struct{}) {
+	// do nothing
 }
 
 // NodeExpIdentifier holds value
@@ -106,6 +122,11 @@ func (e *NodeExpIdentifier) String() string {
 // Exp returns value
 func (e *NodeExpIdentifier) Exp(options *BuildOptions) string {
 	return RenameVar(e.Value)
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpIdentifier) FindUsedVars(vars map[string]struct{}) {
+	vars[e.Value] = struct{}{}
 }
 
 // NodeExpPlus holds value
@@ -148,6 +169,12 @@ func (e *NodeExpPlus) Exp(options *BuildOptions) string {
 	return e.Left.Exp(options) + "+" + e.Right.Exp(options)
 }
 
+// FindUsedVars finds used vars
+func (e *NodeExpPlus) FindUsedVars(vars map[string]struct{}) {
+	e.Left.FindUsedVars(vars)
+	e.Right.FindUsedVars(vars)
+}
+
 // NodeExpMinus holds value
 type NodeExpMinus struct {
 	Left  NodeExp
@@ -169,6 +196,12 @@ func (e *NodeExpMinus) Exp(options *BuildOptions) string {
 	return e.Left.Exp(options) + "-" + e.Right.Exp(options)
 }
 
+// FindUsedVars finds used vars
+func (e *NodeExpMinus) FindUsedVars(vars map[string]struct{}) {
+	e.Left.FindUsedVars(vars)
+	e.Right.FindUsedVars(vars)
+}
+
 // NodeExpMod holds value
 type NodeExpMod struct {
 	Left  NodeExp
@@ -188,6 +221,12 @@ func (e *NodeExpMod) String() string {
 // Exp returns value
 func (e *NodeExpMod) Exp(options *BuildOptions) string {
 	return toInt(round(options, e.Left.Exp(options))) + `%%` + toInt(round(options, e.Right.Exp(options)))
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpMod) FindUsedVars(vars map[string]struct{}) {
+	e.Left.FindUsedVars(vars)
+	e.Right.FindUsedVars(vars)
 }
 
 func toInt(s string) string {
@@ -215,6 +254,12 @@ func (e *NodeExpMult) Exp(options *BuildOptions) string {
 	return e.Left.Exp(options) + "*" + e.Right.Exp(options)
 }
 
+// FindUsedVars finds used vars
+func (e *NodeExpMult) FindUsedVars(vars map[string]struct{}) {
+	e.Left.FindUsedVars(vars)
+	e.Right.FindUsedVars(vars)
+}
+
 // NodeExpDiv holds value
 type NodeExpDiv struct {
 	Left  NodeExp
@@ -234,6 +279,12 @@ func (e *NodeExpDiv) String() string {
 // Exp returns value
 func (e *NodeExpDiv) Exp(options *BuildOptions) string {
 	return e.Left.Exp(options) + "/" + e.Right.Exp(options)
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpDiv) FindUsedVars(vars map[string]struct{}) {
+	e.Left.FindUsedVars(vars)
+	e.Right.FindUsedVars(vars)
 }
 
 // NodeExpDivInt holds value
@@ -257,6 +308,12 @@ func (e *NodeExpDivInt) Exp(options *BuildOptions) string {
 	return trunc(options, round(options, e.Left.Exp(options))+"/"+round(options, e.Right.Exp(options)))
 }
 
+// FindUsedVars finds used vars
+func (e *NodeExpDivInt) FindUsedVars(vars map[string]struct{}) {
+	e.Left.FindUsedVars(vars)
+	e.Right.FindUsedVars(vars)
+}
+
 // NodeExpPow holds value
 type NodeExpPow struct {
 	Left  NodeExp
@@ -277,6 +334,12 @@ func (e *NodeExpPow) String() string {
 func (e *NodeExpPow) Exp(options *BuildOptions) string {
 	options.Headers["math"] = struct{}{}
 	return "math.Pow(" + e.Left.Exp(options) + "," + e.Right.Exp(options) + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpPow) FindUsedVars(vars map[string]struct{}) {
+	e.Left.FindUsedVars(vars)
+	e.Right.FindUsedVars(vars)
 }
 
 func trunc(options *BuildOptions, s string) string {
@@ -307,6 +370,11 @@ func (e *NodeExpUnaryPlus) Exp(options *BuildOptions) string {
 	return "+" + e.Value.Exp(options)
 }
 
+// FindUsedVars finds used vars
+func (e *NodeExpUnaryPlus) FindUsedVars(vars map[string]struct{}) {
+	e.Value.FindUsedVars(vars)
+}
+
 // NodeExpUnaryMinus holds value
 type NodeExpUnaryMinus struct{ Value NodeExp }
 
@@ -323,6 +391,11 @@ func (e *NodeExpUnaryMinus) String() string {
 // Exp returns value
 func (e *NodeExpUnaryMinus) Exp(options *BuildOptions) string {
 	return "-" + e.Value.Exp(options)
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpUnaryMinus) FindUsedVars(vars map[string]struct{}) {
+	e.Value.FindUsedVars(vars)
 }
 
 // NodeExpGroup holds value
@@ -343,6 +416,11 @@ func (e *NodeExpGroup) Exp(options *BuildOptions) string {
 	return "(" + e.Value.Exp(options) + ")"
 }
 
+// FindUsedVars finds used vars
+func (e *NodeExpGroup) FindUsedVars(vars map[string]struct{}) {
+	e.Value.FindUsedVars(vars)
+}
+
 // NodeExpLen holds value
 type NodeExpLen struct {
 	Value NodeExp
@@ -360,9 +438,15 @@ func (e *NodeExpLen) String() string {
 
 // Exp returns value
 func (e *NodeExpLen) Exp(options *BuildOptions) string {
-	t := e.Value.Type()
-	if t == TypeString {
+	if e.Value.Type() == TypeString {
 		return "len(" + e.Value.Exp(options) + ")"
 	}
 	return "8 /* LEN(non-string) */"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpLen) FindUsedVars(vars map[string]struct{}) {
+	if e.Value.Type() == TypeString {
+		e.Value.FindUsedVars(vars)
+	}
 }

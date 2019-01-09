@@ -36,7 +36,6 @@ var (
 	typeExpressions []node.NodeExp
 	typeExp node.NodeExp
 
-	typeLen string
 	typeRem string
 	typeNumber string
 	typeFloat string
@@ -105,7 +104,7 @@ var (
 %token <tok> TkKeywordGoto
 %token <tok> TkKeywordInput
 %token <tok> TkKeywordIf
-%token <typeLen> TkKeywordLen
+%token <tok> TkKeywordLen
 %token <tok> TkKeywordLet
 %token <tok> TkKeywordList
 %token <tok> TkKeywordLoad
@@ -330,6 +329,7 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 			lval.typeRawLine = l.lex.RawLine()
 		case TkEOF:
 			lval.typeRawLine = l.lex.RawLine()
+		case TkEqual: // do not store
 		case TkParLeft: // do not store
 		case TkParRight: // do not store
 		case TkColon: // do not store
@@ -342,6 +342,7 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 		case TkBackSlash: // do not store
 		case TkPow: // do not store
 		case TkKeywordEnd: // do not store
+		case TkKeywordLen: // do not store
 		case TkKeywordList: // do not store
 		case TkKeywordMod: // do not store
 		case TkKeywordPrint: // do not store

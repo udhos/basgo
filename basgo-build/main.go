@@ -37,11 +37,11 @@ func compile(input io.Reader, outputf node.FuncPrintf) {
 		os.Exit(1)
 	}
 
+	log.Printf("%s: issuing code FIXME WRITEME replace duplicate lines\n", basgoLabel)
+
 	log.Printf("%s: sorting lines\n", basgoLabel)
 
 	sort.Sort(node.ByLineNumber(nodes))
-
-	log.Printf("%s: issuing code\n", basgoLabel)
 
 	header := `
 package main
@@ -53,17 +53,22 @@ func main() {
 }
 `
 
-	log.Printf("%s: issuing code FIXME WRITEME generate runtime\n", basgoLabel)
-	log.Printf("%s: issuing code FIXME WRITEME sort lines\n", basgoLabel)
-	log.Printf("%s: issuing code FIXME WRITEME replace duplicate lines\n", basgoLabel)
-
-	buf := bytes.Buffer{}
 	options := node.BuildOptions{
 		Headers: map[string]struct{}{},
 		Vars:    map[string]struct{}{},
 	}
 
-	options.Headers["os"] = struct{}{}
+	//options.Headers["os"] = struct{}{}
+
+	log.Printf("%s: scanning used vars\n", basgoLabel)
+
+	for _, n := range nodes {
+		n.FindUsedVars(options.Vars)
+	}
+
+	log.Printf("%s: issuing code\n", basgoLabel)
+
+	buf := bytes.Buffer{}
 
 	funcGen := func(format string, v ...interface{}) (int, error) {
 		s := fmt.Sprintf(format, v...)
@@ -80,11 +85,13 @@ func main() {
 	writeVar(options.Vars, outputf)
 	outputf(buf.String())
 
-	outputf("// below we use all vars to prevent Go compiler error\n")
-	outputf("os.Exit(0)\n")
-	for v := range options.Vars {
-		outputf("println(%s) // [%s]\n", node.RenameVar(v), v)
-	}
+	/*
+		outputf("// below we use all vars to prevent Go compiler error\n")
+		outputf("os.Exit(0)\n")
+		for v := range options.Vars {
+			outputf("println(%s) // [%s]\n", node.RenameVar(v), v)
+		}
+	*/
 
 	outputf(mainClose)
 }
