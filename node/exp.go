@@ -210,7 +210,7 @@ type NodeExpMod struct {
 
 // Type returns type
 func (e *NodeExpMod) Type() int {
-	return combineType(e.Left.Type(), e.Right.Type())
+	return TypeInteger
 }
 
 // String returns value
