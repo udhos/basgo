@@ -322,7 +322,7 @@ type NodeExpPow struct {
 
 // Type returns type
 func (e *NodeExpPow) Type() int {
-	return combineType(e.Left.Type(), e.Right.Type())
+	return TypeFloat
 }
 
 // String returns value
