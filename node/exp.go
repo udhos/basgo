@@ -295,7 +295,7 @@ type NodeExpDivInt struct {
 
 // Type returns type
 func (e *NodeExpDivInt) Type() int {
-	return combineType(e.Left.Type(), e.Right.Type())
+	return TypeFloat
 }
 
 // String returns value
