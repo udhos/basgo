@@ -153,7 +153,7 @@ func combineType(t1, t2 int) int {
 	if t1 == TypeInteger && t2 == TypeFloat {
 		return TypeFloat
 	}
-	if t1 == TypeInteger && t2 == TypeFloat {
+	if t1 == TypeFloat && t2 == TypeInteger {
 		return TypeFloat
 	}
 	return TypeUnknown
