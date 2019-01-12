@@ -5,10 +5,10 @@ import (
 )
 
 func TestTabKeywords(t *testing.T) {
-	// tabKeywords is 1 entry bigger because
-	// it contains the MOD keyword
-	// otherwise expected size should be +1 instead of +2
-	size := TkKeywordTo - TkKeywordCls + 2
+	// should be +1
+	// however these 7 keywords don't belong to keyword block:
+	// REM EQV IMP NOT AND OR XOR
+	size := TkKeywordTo - TkKeywordCls + 8
 	if len(tabKeywords) != size {
 		t.Errorf("mismatch keywords table size: table=%d tokens=%d", len(tabKeywords), size)
 	}
@@ -243,6 +243,21 @@ func TestLoop(t *testing.T) {
 	seq := []Token{kwFor, kwTo, kwStep, kwNext, kwGosub, kwReturn, expectTokenEOF}
 
 	compareValue(t, "loop", " for to step next gosub return", seq)
+}
+
+func TestLogical(t *testing.T) {
+
+	expectTokenEOF := tokenEOF
+	kwAnd := Token{ID: TkKeywordAnd, Value: `and`}
+	kwNot := Token{ID: TkKeywordNot, Value: `not`}
+	kwImp := Token{ID: TkKeywordImp, Value: `imp`}
+	kwEqv := Token{ID: TkKeywordEqv, Value: `eqv`}
+	kwOr := Token{ID: TkKeywordOr, Value: `or`}
+	kwXor := Token{ID: TkKeywordXor, Value: `xor`}
+
+	seq := []Token{kwAnd, kwNot, kwImp, kwEqv, kwOr, kwXor, expectTokenEOF}
+
+	compareValue(t, "logical", " and not imp eqv or xor", seq)
 }
 
 func compareValue(t *testing.T, label, str string, tokens []Token) {

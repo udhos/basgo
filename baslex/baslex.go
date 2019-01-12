@@ -40,6 +40,13 @@ const (
 	TkNumber       = iota // Number [0-9]+
 	TkFloat        = iota // .digits | digits. | digits.digits
 
+	TkKeywordImp = iota // IMP
+	TkKeywordEqv = iota // EQV
+	TkKeywordXor = iota // XOR
+	TkKeywordOr  = iota // OR
+	TkKeywordAnd = iota // AND
+	TkKeywordNot = iota // NOT
+
 	TkEqual   = iota // Equal
 	TkUnequal = iota // Unequal <>
 	TkLT      = iota // <
@@ -97,14 +104,17 @@ var tabKeywords = []struct {
 	TokenID int
 	Name    string
 }{
+	{TkKeywordAnd, "AND"},
 	{TkKeywordCls, "CLS"},
 	{TkKeywordCont, "CONT"},
 	{TkKeywordElse, "ELSE"},
 	{TkKeywordEnd, "END"},
+	{TkKeywordEqv, "EQV"},
 	{TkKeywordFor, "FOR"},
 	{TkKeywordGosub, "GOSUB"},
 	{TkKeywordGoto, "GOTO"},
 	{TkKeywordIf, "IF"},
+	{TkKeywordImp, "IMP"},
 	{TkKeywordInput, "INPUT"},
 	{TkKeywordLen, "LEN"},
 	{TkKeywordLet, "LET"},
@@ -112,6 +122,8 @@ var tabKeywords = []struct {
 	{TkKeywordLoad, "LOAD"},
 	{TkKeywordMod, "MOD"},
 	{TkKeywordNext, "NEXT"},
+	{TkKeywordNot, "NOT"},
+	{TkKeywordOr, "OR"},
 	{TkKeywordPrint, "PRINT"},
 	{TkKeywordRem, "REM"},
 	{TkKeywordReturn, "RETURN"},
@@ -123,6 +135,7 @@ var tabKeywords = []struct {
 	{TkKeywordThen, "THEN"},
 	{TkKeywordTime, "TIME$"},
 	{TkKeywordTo, "TO"},
+	{TkKeywordXor, "XOR"},
 }
 
 // (C) var tabType
@@ -147,6 +160,13 @@ var tabType = []string{
 	"STRING",
 	"NUMBER",
 	"FLOAT",
+
+	"IMP",
+	"EQV",
+	"XOR",
+	"OR",
+	"AND",
+	"NOT",
 
 	"EQUAL",
 	"UNEQUAL",
