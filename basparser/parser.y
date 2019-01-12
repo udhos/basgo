@@ -80,13 +80,21 @@ var (
 %token <typeNumber> TkNumber
 %token <typeFloat> TkFloat
 
-%token <tok> TkEqual
-%token <tok> TkLT
-%token <tok> TkGT
-%token <tok> TkUnequal
-%token <tok> TkLE
-%token <tok> TkGE
+//%token <tok> TkEqual
+//%token <tok> TkLT
+//%token <tok> TkGT
+//%token <tok> TkUnequal
+//%token <tok> TkLE
+//%token <tok> TkGE
 
+//%left <tok> TkKeywordImp
+//%left <tok> TkKeywordEqv
+//%left <tok> TkKeywordXor
+//%left <tok> TkKeywordOr
+//%left <tok> TkKeywordAnd
+//%left <tok> TkKeywordNot
+
+%left <tok> TkEqual TkUnequal TkLT TkGT TkLE TkGE
 %left <tok> TkPlus TkMinus
 %left <tok> TkKeywordMod
 %left <tok> TkBackSlash

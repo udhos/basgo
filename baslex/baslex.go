@@ -41,9 +41,9 @@ const (
 	TkFloat        = iota // .digits | digits. | digits.digits
 
 	TkEqual   = iota // Equal
+	TkUnequal = iota // Unequal <>
 	TkLT      = iota // <
 	TkGT      = iota // >
-	TkUnequal = iota // Unequal <>
 	TkLE      = iota // <=
 	TkGE      = iota // >=
 
@@ -149,9 +149,9 @@ var tabType = []string{
 	"FLOAT",
 
 	"EQUAL",
+	"UNEQUAL",
 	"LT",
 	"GT",
-	"UNEQUAL",
 	"LE",
 	"GE",
 
