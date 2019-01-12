@@ -40,17 +40,24 @@ type BuildOptions struct {
 	Vars    map[string]struct{}
 }
 
-// RenameVar renames a$ => a
+// RenameVar renames a.b$ => str_a_b
 func RenameVar(name string) string {
-	last := len(name) - 1
-	if last < 1 {
-		return name
-	}
-	switch name[last] {
-	case '$', '%', '!', '#':
-		return name[:last]
-	}
-	return name
+    name = strings.Replace(name, “.”, “_”, -1)
+    last := len(name) - 1
+    if last < 1 {
+        return name
+    }
+    switch name[last] {
+    case '$':
+        return “str_” + name[:last]
+ case '%':
+return “int_” + name[:last]
+case '!':
+return “simple_” + name[:last]
+case '#':
+return “double_” + name[:last]
+}
+    return “simple_” + name
 }
 
 // Node is element for syntax tree
