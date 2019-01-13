@@ -295,7 +295,7 @@ type NodeExpDivInt struct {
 
 // Type returns type
 func (e *NodeExpDivInt) Type() int {
-	return TypeFloat
+	return TypeInteger
 }
 
 // String returns value
