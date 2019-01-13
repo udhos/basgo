@@ -38,7 +38,7 @@ func (e *NodeExpNumber) String() string {
 
 // Exp returns value
 func (e *NodeExpNumber) Exp(options *BuildOptions) string {
-	return toFloat(e.Value)
+	return e.Value
 }
 
 // FindUsedVars finds used vars
