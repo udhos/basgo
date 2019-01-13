@@ -503,7 +503,7 @@ func (e *NodeExpAnd) String() string {
 
 // Exp returns value
 func (e *NodeExpAnd) Exp(options *BuildOptions) string {
-	return "(" + e.Left.Exp(options) + ")&(" + e.Right.Exp(options) + ")"
+	return "(" + forceInt(options, e.Left) + ")&(" + forceInt(options, e.Right) + ")"
 }
 
 // FindUsedVars finds used vars
@@ -530,7 +530,7 @@ func (e *NodeExpEqv) String() string {
 
 // Exp returns value
 func (e *NodeExpEqv) Exp(options *BuildOptions) string {
-	return "^((" + e.Left.Exp(options) + ")^(" + e.Right.Exp(options) + "))"
+	return "^((" + forceInt(options, e.Left) + ")^(" + forceInt(options, e.Right) + "))"
 }
 
 // FindUsedVars finds used vars
@@ -557,7 +557,7 @@ func (e *NodeExpImp) String() string {
 
 // Exp returns value
 func (e *NodeExpImp) Exp(options *BuildOptions) string {
-	return "(" + e.Left.Exp(options) + ") IMP_FIXME (" + e.Right.Exp(options) + ")"
+	return "(" + forceInt(options, e.Left) + ") IMP_FIXME (" + forceInt(options, e.Right) + ")"
 }
 
 // FindUsedVars finds used vars
@@ -584,7 +584,7 @@ func (e *NodeExpOr) String() string {
 
 // Exp returns value
 func (e *NodeExpOr) Exp(options *BuildOptions) string {
-	return "(" + e.Left.Exp(options) + ")|(" + e.Right.Exp(options) + ")"
+	return "(" + forceInt(options, e.Left) + ")|(" + forceInt(options, e.Right) + ")"
 }
 
 // FindUsedVars finds used vars
@@ -611,7 +611,7 @@ func (e *NodeExpXor) String() string {
 
 // Exp returns value
 func (e *NodeExpXor) Exp(options *BuildOptions) string {
-	return "(" + e.Left.Exp(options) + ")^(" + e.Right.Exp(options) + ")"
+	return "(" + forceInt(options, e.Left) + ")^(" + forceInt(options, e.Right) + ")"
 }
 
 // FindUsedVars finds used vars
@@ -638,7 +638,7 @@ func (e *NodeExpEqual) String() string {
 
 // Exp returns value
 func (e *NodeExpEqual) Exp(options *BuildOptions) string {
-	return "(" + e.Left.Exp(options) + ")==(" + e.Right.Exp(options) + ")"
+	return "(" + forceInt(options, e.Left) + ")==(" + forceInt(options, e.Right) + ")"
 }
 
 // FindUsedVars finds used vars
@@ -665,7 +665,7 @@ func (e *NodeExpUnequal) String() string {
 
 // Exp returns value
 func (e *NodeExpUnequal) Exp(options *BuildOptions) string {
-	return "(" + e.Left.Exp(options) + ")!=(" + e.Right.Exp(options) + ")"
+	return "(" + forceInt(options, e.Left) + ")!=(" + forceInt(options, e.Right) + ")"
 }
 
 // FindUsedVars finds used vars
@@ -692,7 +692,7 @@ func (e *NodeExpGT) String() string {
 
 // Exp returns value
 func (e *NodeExpGT) Exp(options *BuildOptions) string {
-	return "(" + e.Left.Exp(options) + ")>(" + e.Right.Exp(options) + ")"
+	return "(" + forceInt(options, e.Left) + ")>(" + forceInt(options, e.Right) + ")"
 }
 
 // FindUsedVars finds used vars
@@ -719,7 +719,7 @@ func (e *NodeExpLT) String() string {
 
 // Exp returns value
 func (e *NodeExpLT) Exp(options *BuildOptions) string {
-	return "(" + e.Left.Exp(options) + ")<(" + e.Right.Exp(options) + ")"
+	return "(" + forceInt(options, e.Left) + ")<(" + forceInt(options, e.Right) + ")"
 }
 
 // FindUsedVars finds used vars
@@ -746,7 +746,7 @@ func (e *NodeExpGE) String() string {
 
 // Exp returns value
 func (e *NodeExpGE) Exp(options *BuildOptions) string {
-	return "(" + e.Left.Exp(options) + ")>=(" + e.Right.Exp(options) + ")"
+	return "(" + forceInt(options, e.Left) + ")>=(" + forceInt(options, e.Right) + ")"
 }
 
 // FindUsedVars finds used vars
@@ -773,7 +773,7 @@ func (e *NodeExpLE) String() string {
 
 // Exp returns value
 func (e *NodeExpLE) Exp(options *BuildOptions) string {
-	return "(" + e.Left.Exp(options) + ")<=(" + e.Right.Exp(options) + ")"
+	return "(" + forceInt(options, e.Left) + ")<=(" + forceInt(options, e.Right) + ")"
 }
 
 // FindUsedVars finds used vars
