@@ -361,6 +361,7 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 		case TkPow: // do not store
 		case TkKeywordEnd: // do not store
 		case TkKeywordLen: // do not store
+		case TkKeywordLet: // do not store
 		case TkKeywordList: // do not store
 		case TkKeywordMod: // do not store
 		case TkKeywordPrint: // do not store
