@@ -450,3 +450,334 @@ func (e *NodeExpLen) FindUsedVars(vars map[string]struct{}) {
 		e.Value.FindUsedVars(vars)
 	}
 }
+
+// NodeExpNot holds value
+type NodeExpNot struct {
+	Value NodeExp
+}
+
+// Type returns type
+func (e *NodeExpNot) Type() int {
+	return TypeInteger
+}
+
+// String returns value
+func (e *NodeExpNot) String() string {
+	return "NOT(" + e.Value.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpNot) Exp(options *BuildOptions) string {
+	return "^(" + forceInt(options, e.Value) + ")"
+}
+
+func forceInt(options *BuildOptions, e NodeExp) string {
+	s := e.Exp(options)
+	if e.Type() == TypeFloat {
+		options.Headers["math"] = struct{}{}
+		return toInt("math.Round(" + s + ")")
+	}
+	return s
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpNot) FindUsedVars(vars map[string]struct{}) {
+	e.Value.FindUsedVars(vars)
+}
+
+// NodeExpAnd holds value
+type NodeExpAnd struct {
+	Left  NodeExp
+	Right NodeExp
+}
+
+// Type returns type
+func (e *NodeExpAnd) Type() int {
+	return TypeInteger
+}
+
+// String returns value
+func (e *NodeExpAnd) String() string {
+	return "(" + e.Left.String() + ") AND (" + e.Right.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpAnd) Exp(options *BuildOptions) string {
+	return "(" + e.Left.Exp(options) + ")&(" + e.Right.Exp(options) + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpAnd) FindUsedVars(vars map[string]struct{}) {
+	e.Left.FindUsedVars(vars)
+	e.Right.FindUsedVars(vars)
+}
+
+// NodeExpEqv holds value
+type NodeExpEqv struct {
+	Left  NodeExp
+	Right NodeExp
+}
+
+// Type returns type
+func (e *NodeExpEqv) Type() int {
+	return TypeInteger
+}
+
+// String returns value
+func (e *NodeExpEqv) String() string {
+	return "(" + e.Left.String() + ") EQV (" + e.Right.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpEqv) Exp(options *BuildOptions) string {
+	return "^((" + e.Left.Exp(options) + ")^(" + e.Right.Exp(options) + "))"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpEqv) FindUsedVars(vars map[string]struct{}) {
+	e.Left.FindUsedVars(vars)
+	e.Right.FindUsedVars(vars)
+}
+
+// NodeExpImp holds value
+type NodeExpImp struct {
+	Left  NodeExp
+	Right NodeExp
+}
+
+// Type returns type
+func (e *NodeExpImp) Type() int {
+	return TypeInteger
+}
+
+// String returns value
+func (e *NodeExpImp) String() string {
+	return "(" + e.Left.String() + ") IMP (" + e.Right.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpImp) Exp(options *BuildOptions) string {
+	return "(" + e.Left.Exp(options) + ") IMP_FIXME (" + e.Right.Exp(options) + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpImp) FindUsedVars(vars map[string]struct{}) {
+	e.Left.FindUsedVars(vars)
+	e.Right.FindUsedVars(vars)
+}
+
+// NodeExpOr holds value
+type NodeExpOr struct {
+	Left  NodeExp
+	Right NodeExp
+}
+
+// Type returns type
+func (e *NodeExpOr) Type() int {
+	return TypeInteger
+}
+
+// String returns value
+func (e *NodeExpOr) String() string {
+	return "(" + e.Left.String() + ") OR (" + e.Right.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpOr) Exp(options *BuildOptions) string {
+	return "(" + e.Left.Exp(options) + ")|(" + e.Right.Exp(options) + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpOr) FindUsedVars(vars map[string]struct{}) {
+	e.Left.FindUsedVars(vars)
+	e.Right.FindUsedVars(vars)
+}
+
+// NodeExpXor holds value
+type NodeExpXor struct {
+	Left  NodeExp
+	Right NodeExp
+}
+
+// Type returns type
+func (e *NodeExpXor) Type() int {
+	return TypeInteger
+}
+
+// String returns value
+func (e *NodeExpXor) String() string {
+	return "(" + e.Left.String() + ") XOR (" + e.Right.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpXor) Exp(options *BuildOptions) string {
+	return "(" + e.Left.Exp(options) + ")^(" + e.Right.Exp(options) + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpXor) FindUsedVars(vars map[string]struct{}) {
+	e.Left.FindUsedVars(vars)
+	e.Right.FindUsedVars(vars)
+}
+
+// NodeExpEqual holds value
+type NodeExpEqual struct {
+	Left  NodeExp
+	Right NodeExp
+}
+
+// Type returns type
+func (e *NodeExpEqual) Type() int {
+	return TypeInteger
+}
+
+// String returns value
+func (e *NodeExpEqual) String() string {
+	return "(" + e.Left.String() + ") = (" + e.Right.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpEqual) Exp(options *BuildOptions) string {
+	return "(" + e.Left.Exp(options) + ")==(" + e.Right.Exp(options) + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpEqual) FindUsedVars(vars map[string]struct{}) {
+	e.Left.FindUsedVars(vars)
+	e.Right.FindUsedVars(vars)
+}
+
+// NodeExpUnequal holds value
+type NodeExpUnequal struct {
+	Left  NodeExp
+	Right NodeExp
+}
+
+// Type returns type
+func (e *NodeExpUnequal) Type() int {
+	return TypeInteger
+}
+
+// String returns value
+func (e *NodeExpUnequal) String() string {
+	return "(" + e.Left.String() + ") <> (" + e.Right.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpUnequal) Exp(options *BuildOptions) string {
+	return "(" + e.Left.Exp(options) + ")!=(" + e.Right.Exp(options) + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpUnequal) FindUsedVars(vars map[string]struct{}) {
+	e.Left.FindUsedVars(vars)
+	e.Right.FindUsedVars(vars)
+}
+
+// NodeExpGT holds value
+type NodeExpGT struct {
+	Left  NodeExp
+	Right NodeExp
+}
+
+// Type returns type
+func (e *NodeExpGT) Type() int {
+	return TypeInteger
+}
+
+// String returns value
+func (e *NodeExpGT) String() string {
+	return "(" + e.Left.String() + ") > (" + e.Right.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpGT) Exp(options *BuildOptions) string {
+	return "(" + e.Left.Exp(options) + ")>(" + e.Right.Exp(options) + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpGT) FindUsedVars(vars map[string]struct{}) {
+	e.Left.FindUsedVars(vars)
+	e.Right.FindUsedVars(vars)
+}
+
+// NodeExpLT holds value
+type NodeExpLT struct {
+	Left  NodeExp
+	Right NodeExp
+}
+
+// Type returns type
+func (e *NodeExpLT) Type() int {
+	return TypeInteger
+}
+
+// String returns value
+func (e *NodeExpLT) String() string {
+	return "(" + e.Left.String() + ") < (" + e.Right.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpLT) Exp(options *BuildOptions) string {
+	return "(" + e.Left.Exp(options) + ")<(" + e.Right.Exp(options) + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpLT) FindUsedVars(vars map[string]struct{}) {
+	e.Left.FindUsedVars(vars)
+	e.Right.FindUsedVars(vars)
+}
+
+// NodeExpGE holds value
+type NodeExpGE struct {
+	Left  NodeExp
+	Right NodeExp
+}
+
+// Type returns type
+func (e *NodeExpGE) Type() int {
+	return TypeInteger
+}
+
+// String returns value
+func (e *NodeExpGE) String() string {
+	return "(" + e.Left.String() + ") >= (" + e.Right.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpGE) Exp(options *BuildOptions) string {
+	return "(" + e.Left.Exp(options) + ")>=(" + e.Right.Exp(options) + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpGE) FindUsedVars(vars map[string]struct{}) {
+	e.Left.FindUsedVars(vars)
+	e.Right.FindUsedVars(vars)
+}
+
+// NodeExpLE holds value
+type NodeExpLE struct {
+	Left  NodeExp
+	Right NodeExp
+}
+
+// Type returns type
+func (e *NodeExpLE) Type() int {
+	return TypeInteger
+}
+
+// String returns value
+func (e *NodeExpLE) String() string {
+	return "(" + e.Left.String() + ") <= (" + e.Right.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpLE) Exp(options *BuildOptions) string {
+	return "(" + e.Left.Exp(options) + ")<=(" + e.Right.Exp(options) + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpLE) FindUsedVars(vars map[string]struct{}) {
+	e.Left.FindUsedVars(vars)
+	e.Right.FindUsedVars(vars)
+}

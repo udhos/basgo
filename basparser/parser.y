@@ -254,6 +254,18 @@ exp: TkNumber { $$ = &node.NodeExpNumber{Value:$1} }
    | TkPlus exp %prec UnaryPlus { $$ = &node.NodeExpUnaryPlus{Value:$2} }
    | TkMinus exp %prec UnaryMinus { $$ = &node.NodeExpUnaryMinus{Value:$2} }
    | TkParLeft exp TkParRight { $$ = &node.NodeExpGroup{Value:$2} }
+   | TkKeywordNot exp { $$ = &node.NodeExpNot{Value:$2} }
+   | exp TkKeywordAnd exp { $$ = &node.NodeExpAnd{Left:$1, Right:$3} }
+   | exp TkKeywordEqv exp { $$ = &node.NodeExpEqv{Left:$1, Right:$3} }
+   | exp TkKeywordImp exp { $$ = &node.NodeExpImp{Left:$1, Right:$3} }
+   | exp TkKeywordOr exp { $$ = &node.NodeExpOr{Left:$1, Right:$3} }
+   | exp TkKeywordXor exp { $$ = &node.NodeExpXor{Left:$1, Right:$3} }
+   | exp TkEqual exp { $$ = &node.NodeExpEqual{Left:$1, Right:$3} }
+   | exp TkUnequal exp { $$ = &node.NodeExpUnequal{Left:$1, Right:$3} }
+   | exp TkGT exp { $$ = &node.NodeExpGT{Left:$1, Right:$3} }
+   | exp TkLT exp { $$ = &node.NodeExpLT{Left:$1, Right:$3} }
+   | exp TkGE exp { $$ = &node.NodeExpGE{Left:$1, Right:$3} }
+   | exp TkLE exp { $$ = &node.NodeExpLE{Left:$1, Right:$3} }
    | TkKeywordLen exp { $$ = &node.NodeExpLen{Value:$2} }
    ;
 
@@ -331,6 +343,11 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 		case TkEOF:
 			lval.typeRawLine = l.lex.RawLine()
 		case TkEqual: // do not store
+		case TkUnequal: // do not store
+		case TkLT: // do not store
+		case TkGT: // do not store
+		case TkLE: // do not store
+		case TkGE: // do not store
 		case TkParLeft: // do not store
 		case TkParRight: // do not store
 		case TkColon: // do not store
@@ -347,6 +364,12 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 		case TkKeywordList: // do not store
 		case TkKeywordMod: // do not store
 		case TkKeywordPrint: // do not store
+		case TkKeywordNot: // do not store
+		case TkKeywordAnd: // do not store
+		case TkKeywordEqv: // do not store
+		case TkKeywordImp: // do not store
+		case TkKeywordOr: // do not store
+		case TkKeywordXor: // do not store
 		default:
 			log.Printf("InputLex.Lex: FIXME token value [%s] not stored for parser actions\n", t.Value)
 	}

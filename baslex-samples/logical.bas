@@ -1,2 +1,2 @@
-
-10 print not ( a > 1 ) and ( b < 2 or 0 )
+10 print not 2
+20 print not 3.3
