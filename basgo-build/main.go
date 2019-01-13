@@ -94,6 +94,16 @@ func main() {
 	*/
 
 	outputf(mainClose)
+
+	funcBoolToInt := `
+func boolToInt(v bool) int {
+	if v {
+		return -1
+	}
+	return 0
+}
+`
+	outputf(funcBoolToInt)
 }
 
 func writeImport(headers map[string]struct{}, outputf node.FuncPrintf) {

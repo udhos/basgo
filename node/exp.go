@@ -638,7 +638,11 @@ func (e *NodeExpEqual) String() string {
 
 // Exp returns value
 func (e *NodeExpEqual) Exp(options *BuildOptions) string {
-	return "(" + forceInt(options, e.Left) + ")==(" + forceInt(options, e.Right) + ")"
+	return boolToInt("(" + forceInt(options, e.Left) + ")==(" + forceInt(options, e.Right) + ")")
+}
+
+func boolToInt(s string) string {
+	return fmt.Sprintf("boolToInt(%s)", s)
 }
 
 // FindUsedVars finds used vars
@@ -665,7 +669,7 @@ func (e *NodeExpUnequal) String() string {
 
 // Exp returns value
 func (e *NodeExpUnequal) Exp(options *BuildOptions) string {
-	return "(" + forceInt(options, e.Left) + ")!=(" + forceInt(options, e.Right) + ")"
+	return boolToInt("(" + forceInt(options, e.Left) + ")!=(" + forceInt(options, e.Right) + ")")
 }
 
 // FindUsedVars finds used vars
@@ -692,7 +696,7 @@ func (e *NodeExpGT) String() string {
 
 // Exp returns value
 func (e *NodeExpGT) Exp(options *BuildOptions) string {
-	return "(" + forceInt(options, e.Left) + ")>(" + forceInt(options, e.Right) + ")"
+	return boolToInt("(" + forceInt(options, e.Left) + ")>(" + forceInt(options, e.Right) + ")")
 }
 
 // FindUsedVars finds used vars
@@ -719,7 +723,7 @@ func (e *NodeExpLT) String() string {
 
 // Exp returns value
 func (e *NodeExpLT) Exp(options *BuildOptions) string {
-	return "(" + forceInt(options, e.Left) + ")<(" + forceInt(options, e.Right) + ")"
+	return boolToInt("(" + forceInt(options, e.Left) + ")<(" + forceInt(options, e.Right) + ")")
 }
 
 // FindUsedVars finds used vars
@@ -746,7 +750,7 @@ func (e *NodeExpGE) String() string {
 
 // Exp returns value
 func (e *NodeExpGE) Exp(options *BuildOptions) string {
-	return "(" + forceInt(options, e.Left) + ")>=(" + forceInt(options, e.Right) + ")"
+	return boolToInt("(" + forceInt(options, e.Left) + ")>=(" + forceInt(options, e.Right) + ")")
 }
 
 // FindUsedVars finds used vars
@@ -773,7 +777,7 @@ func (e *NodeExpLE) String() string {
 
 // Exp returns value
 func (e *NodeExpLE) Exp(options *BuildOptions) string {
-	return "(" + forceInt(options, e.Left) + ")<=(" + forceInt(options, e.Right) + ")"
+	return boolToInt("(" + forceInt(options, e.Left) + ")<=(" + forceInt(options, e.Right) + ")")
 }
 
 // FindUsedVars finds used vars
