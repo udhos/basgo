@@ -44,8 +44,8 @@ type BuildOptions struct {
 func RenameVar(name string) string {
 	name = strings.Replace(name, ".", "_", -1)
 	last := len(name) - 1
-	if last < 1 {
-		return name
+	if last < 0 {
+		return "single_" + name
 	}
 	switch name[last] {
 	case '$':
