@@ -16,6 +16,21 @@ type buildTest struct {
 	buildError bool
 }
 
+const sourceGoto = `
+10 goto 900
+700 print 3
+710 end 
+800 print 2
+810 goto 700
+900 print 1
+910 goto 800
+`
+
+const outputGoto = `1
+2
+3
+`
+
 var testTable = []buildTest{
 	{"", "", "", false},   // empty program
 	{"ugh", "", "", true}, // invalid program
@@ -180,6 +195,8 @@ var testTable = []buildTest{
 	{"10 print 3.3 <= 2.2", "", "0\n", false},
 	{`10 print "a" <= ""`, "", "0\n", false},
 	{`10 print 0 <= ""`, "", "", true},
+
+	{sourceGoto, "", outputGoto, false},
 }
 
 func TestBuild(t *testing.T) {

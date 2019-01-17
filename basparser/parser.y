@@ -21,6 +21,7 @@ var (
 	lineList []node.Node
 	nodeList []node.Node
 	expList []node.NodeExp
+	LineNumbers = map[string]struct{}{} // used by GOTO GOSUB etc
 )
 
 %}
@@ -175,6 +176,11 @@ stmt: /* empty */
      { $$ = &node.NodeEmpty{} }
   | TkKeywordEnd
      { $$ = &node.NodeEnd{} }
+  | TkKeywordGoto TkNumber
+     { 
+       LineNumbers[$2] = struct{}{}
+       $$ = &node.NodeGoto{Line: $2}
+     }
   | TkKeywordLet assign
      { $$ = $2 }
   | assign

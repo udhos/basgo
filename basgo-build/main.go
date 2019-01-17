@@ -34,7 +34,7 @@ func compile(input io.Reader, outputf node.FuncPrintf) (int, int) {
 
 	log.Printf("%s: parsing\n", basgoLabel)
 
-	nodes, status, errors := parse(input, outputf)
+	lineNumbersFound, nodes, status, errors := parse(input, outputf)
 
 	if status != 0 || errors != 0 {
 		return status, errors
@@ -57,8 +57,9 @@ func main() {
 `
 
 	options := node.BuildOptions{
-		Headers: map[string]struct{}{},
-		Vars:    map[string]struct{}{},
+		Headers:     map[string]struct{}{},
+		Vars:        map[string]struct{}{},
+		LineNumbers: lineNumbersFound,
 	}
 
 	//options.Headers["os"] = struct{}{}
@@ -140,11 +141,11 @@ func writeVar(vars map[string]struct{}, outputf node.FuncPrintf) {
 	}
 }
 
-func parse(input io.Reader, outputf node.FuncPrintf) ([]node.Node, int, int) {
+func parse(input io.Reader, outputf node.FuncPrintf) (map[string]struct{}, []node.Node, int, int) {
 	debug := false
 	byteInput := bufio.NewReader(input)
 	lex := basparser.NewInputLex(byteInput, debug)
 	status := basparser.InputParse(lex)
 
-	return basparser.Root, status, lex.Errors()
+	return basparser.LineNumbers, basparser.Root, status, lex.Errors()
 }

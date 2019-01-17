@@ -36,8 +36,9 @@ func (a ByLineNumber) Less(i, j int) bool {
 type FuncPrintf func(format string, v ...interface{}) (int, error)
 
 type BuildOptions struct {
-	Headers map[string]struct{}
-	Vars    map[string]struct{}
+	Headers     map[string]struct{}
+	Vars        map[string]struct{}
+	LineNumbers map[string]struct{} // numbers used by GOTO, GOSUB etc
 }
 
 // RenameVar renames a.b$ => str_a_b
@@ -92,6 +93,10 @@ func (n *LineNumbered) Name() string {
 // Build generates code
 func (n *LineNumbered) Build(options *BuildOptions, outputf FuncPrintf) {
 	outputf("// line %s\n", n.LineNumber)
+	if _, used := options.LineNumbers[n.LineNumber]; used {
+		// generate label for GOTO GOSUB etc
+		outputf("line%s:\n", n.LineNumber)
+	}
 	for _, n := range n.Nodes {
 		n.Build(options, outputf)
 	}
@@ -262,6 +267,31 @@ func (n *NodeEnd) Build(options *BuildOptions, outputf FuncPrintf) {
 
 // FindUsedVars finds used vars
 func (n *NodeEnd) FindUsedVars(vars map[string]struct{}) {
+	// do nothing
+}
+
+// NodeGoto is end
+type NodeGoto struct {
+	Line string
+}
+
+// Name returns the name of the node
+func (n *NodeGoto) Name() string {
+	return "GOTO"
+}
+
+// Show displays the node
+func (n *NodeGoto) Show(printf FuncPrintf) {
+	printf("[" + n.Name() + " " + n.Line + "]")
+}
+
+// Build generates code
+func (n *NodeGoto) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("goto line%s // %s %s\n", n.Line, n.Name(), n.Line)
+}
+
+// FindUsedVars finds used vars
+func (n *NodeGoto) FindUsedVars(vars map[string]struct{}) {
 	// do nothing
 }
 
