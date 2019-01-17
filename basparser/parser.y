@@ -415,11 +415,106 @@ exp: TkNumber { $$ = &node.NodeExpNumber{Value:$1} }
        }
        $$ = &node.NodeExpNot{Value:$2}
      }
-   | exp TkKeywordAnd exp { $$ = &node.NodeExpAnd{Left:$1, Right:$3} }
-   | exp TkKeywordEqv exp { $$ = &node.NodeExpEqv{Left:$1, Right:$3} }
-   | exp TkKeywordImp exp { $$ = &node.NodeExpImp{Left:$1, Right:$3} }
-   | exp TkKeywordOr exp { $$ = &node.NodeExpOr{Left:$1, Right:$3} }
-   | exp TkKeywordXor exp { $$ = &node.NodeExpXor{Left:$1, Right:$3} }
+   | exp TkKeywordAnd exp
+     {
+       switch $1.Type() {
+       case node.TypeString:
+           yylex.Error("TkAnd left value has string type")
+       case node.TypeUnknown:
+           yylex.Error("TkAnd left value has unknown type")
+       }
+       switch $3.Type() {
+       case node.TypeString:
+           yylex.Error("TkAnd right value has string type")
+       case node.TypeUnknown:
+           yylex.Error("TkAnd right value has unknown type")
+       }
+       n := &node.NodeExpAnd{Left:$1, Right:$3}
+       if  n.Type() != node.TypeInteger {
+           yylex.Error("TkAnd produces non-integer type")
+       }
+       $$ = n
+     }
+   | exp TkKeywordEqv exp
+     {
+       switch $1.Type() {
+       case node.TypeString:
+           yylex.Error("TkEqv left value has string type")
+       case node.TypeUnknown:
+           yylex.Error("TkEqv left value has unknown type")
+       }
+       switch $3.Type() {
+       case node.TypeString:
+           yylex.Error("TkEqv right value has string type")
+       case node.TypeUnknown:
+           yylex.Error("TkEqv right value has unknown type")
+       }
+       n := &node.NodeExpEqv{Left:$1, Right:$3}
+       if  n.Type() != node.TypeInteger {
+           yylex.Error("TkEqv produces non-integer type")
+       }
+       $$ = n
+     }
+   | exp TkKeywordImp exp
+     {
+       switch $1.Type() {
+       case node.TypeString:
+           yylex.Error("TkImp left value has string type")
+       case node.TypeUnknown:
+           yylex.Error("TkImp left value has unknown type")
+       }
+       switch $3.Type() {
+       case node.TypeString:
+           yylex.Error("TkImp right value has string type")
+       case node.TypeUnknown:
+           yylex.Error("TkImp right value has unknown type")
+       }
+       n := &node.NodeExpImp{Left:$1, Right:$3}
+       if  n.Type() != node.TypeInteger {
+           yylex.Error("TkImp produces non-integer type")
+       }
+       $$ = n
+     }
+   | exp TkKeywordOr exp
+     {
+       switch $1.Type() {
+       case node.TypeString:
+           yylex.Error("TkOr left value has string type")
+       case node.TypeUnknown:
+           yylex.Error("TkOr left value has unknown type")
+       }
+       switch $3.Type() {
+       case node.TypeString:
+           yylex.Error("TkOr right value has string type")
+       case node.TypeUnknown:
+           yylex.Error("TkOr right value has unknown type")
+       }
+       n := &node.NodeExpOr{Left:$1, Right:$3}
+       if  n.Type() != node.TypeInteger {
+           yylex.Error("TkOr produces non-integer type")
+       }
+       $$ = n
+     }
+   | exp TkKeywordXor exp
+     {
+       switch $1.Type() {
+       case node.TypeString:
+           yylex.Error("TkXor left value has string type")
+       case node.TypeUnknown:
+           yylex.Error("TkXor left value has unknown type")
+       }
+       switch $3.Type() {
+       case node.TypeString:
+           yylex.Error("TkXor right value has string type")
+       case node.TypeUnknown:
+           yylex.Error("TkXor right value has unknown type")
+       }
+       n := &node.NodeExpXor{Left:$1, Right:$3}
+       if  n.Type() != node.TypeInteger {
+           yylex.Error("TkXor produces non-integer type")
+       }
+       $$ = n
+     }
    | exp TkEqual exp { $$ = &node.NodeExpEqual{Left:$1, Right:$3} }
    | exp TkUnequal exp { $$ = &node.NodeExpUnequal{Left:$1, Right:$3} }
    | exp TkGT exp { $$ = &node.NodeExpGT{Left:$1, Right:$3} }

@@ -555,7 +555,7 @@ func (e *NodeExpImp) String() string {
 
 // Exp returns value
 func (e *NodeExpImp) Exp(options *BuildOptions) string {
-	return "(" + forceInt(options, e.Left) + ") IMP_FIXME (" + forceInt(options, e.Right) + ")"
+	return "((^(" + forceInt(options, e.Left) + "))|(" + forceInt(options, e.Right) + "))"
 }
 
 // FindUsedVars finds used vars

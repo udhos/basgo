@@ -78,6 +78,36 @@ var testTable = []buildTest{
 	{`10 print not -1`, "", "0\n", false},
 	{`10 print not 1.1`, "", "-2\n", false},
 	{`10 print not ""`, "", "", true},
+
+	{"10 print -1 and -1", "", "-1\n", false},
+	{"10 print 0 and 0", "", "0\n", false},
+	{"10 print 1 and 0", "", "0\n", false},
+	{"10 print 1 and 3", "", "1\n", false},
+	{`10 print "" and ""`, "", "", true},
+
+	{"10 print -1 or -1", "", "-1\n", false},
+	{"10 print 0 or 0", "", "0\n", false},
+	{"10 print 1 or 0", "", "1\n", false},
+	{"10 print 1 or 3", "", "3\n", false},
+	{`10 print "" or ""`, "", "", true},
+
+	{"10 print -1 xor -1", "", "0\n", false},
+	{"10 print 0 xor -1", "", "-1\n", false},
+	{"10 print 0 xor 0", "", "0\n", false},
+	{"10 print 1 xor 0", "", "1\n", false},
+	{"10 print 1 xor 3", "", "2\n", false},
+	{`10 print "" xor ""`, "", "", true},
+
+	{"10 print -1 eqv -1", "", "-1\n", false},
+	{"10 print 0 eqv -1", "", "0\n", false},
+	{"10 print 0 eqv 0", "", "-1\n", false},
+	{`10 print "" eqv ""`, "", "", true},
+
+	{"10 print -1 imp -1", "", "-1\n", false},
+	{"10 print 0 imp -1", "", "-1\n", false},
+	{"10 print 0 imp 0", "", "-1\n", false},
+	{"10 print -1 imp 0", "", "0\n", false},
+	{`10 print "" imp ""`, "", "", true},
 }
 
 func TestBuild(t *testing.T) {
