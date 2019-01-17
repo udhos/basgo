@@ -40,7 +40,9 @@ func compile(input io.Reader, outputf node.FuncPrintf) (int, int) {
 		return status, errors
 	}
 
-	log.Printf("%s: issuing code FIXME WRITEME replace duplicate lines\n", basgoLabel)
+	log.Printf("%s: FIXME WRITEME replace duplicate lines\n", basgoLabel)
+
+	log.Printf("%s: FIXME WRITEME check that used line numbers in lineNumbersFound exist as nodes\n", basgoLabel)
 
 	log.Printf("%s: sorting lines\n", basgoLabel)
 
@@ -61,8 +63,6 @@ func main() {
 		Vars:        map[string]struct{}{},
 		LineNumbers: lineNumbersFound,
 	}
-
-	//options.Headers["os"] = struct{}{}
 
 	log.Printf("%s: scanning used vars\n", basgoLabel)
 
@@ -88,14 +88,6 @@ func main() {
 	outputf(mainOpen)
 	writeVar(options.Vars, outputf)
 	outputf(buf.String())
-
-	/*
-		outputf("// below we use all vars to prevent Go compiler error\n")
-		outputf("os.Exit(0)\n")
-		for v := range options.Vars {
-			outputf("println(%s) // [%s]\n", node.RenameVar(v), v)
-		}
-	*/
 
 	outputf(mainClose)
 
