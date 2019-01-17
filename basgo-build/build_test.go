@@ -34,6 +34,12 @@ var testTable = []buildTest{
 	{"10 print 5 MOD 3", "", "2\n", false},
 	{"10 print 5.5 MOD 3.3", "", "0\n", false},
 	{`10 print "a" MOD "b"`, "", "", true},
+
+	{`10 print 5 \ 3`, "", "1\n", false},
+	{`10 print 5 \ 2`, "", "2\n", false},
+	{`10 print 5 \ 2.5`, "", "1\n", false},
+	{`10 print 6.6 \ 3.3`, "", "2\n", false},
+	{`10 print "a" \ "b"`, "", "", true},
 }
 
 func TestBuild(t *testing.T) {

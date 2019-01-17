@@ -220,7 +220,6 @@ func (e *NodeExpMod) String() string {
 
 // Exp returns value
 func (e *NodeExpMod) Exp(options *BuildOptions) string {
-	//return toInt(round(options, e.Left.Exp(options))) + `%%` + toInt(round(options, e.Right.Exp(options)))
 	return "(" + forceInt(options, e.Left) + `)%%(` + forceInt(options, e.Right) + ")"
 }
 
@@ -247,12 +246,12 @@ func (e *NodeExpMult) Type() int {
 
 // String returns value
 func (e *NodeExpMult) String() string {
-	return e.Left.String() + "*" + e.Right.String()
+	return "(" + e.Left.String() + ") * (" + e.Right.String() + ")"
 }
 
 // Exp returns value
 func (e *NodeExpMult) Exp(options *BuildOptions) string {
-	return e.Left.Exp(options) + "*" + e.Right.Exp(options)
+	return "(" + e.Left.Exp(options) + ")*(" + e.Right.Exp(options) + ")"
 }
 
 // FindUsedVars finds used vars
@@ -301,12 +300,12 @@ func (e *NodeExpDivInt) Type() int {
 
 // String returns value
 func (e *NodeExpDivInt) String() string {
-	return e.Left.String() + "\\" + e.Right.String()
+	return "(" + e.Left.String() + ") \\ (" + e.Right.String() + ")"
 }
 
 // Exp returns value
 func (e *NodeExpDivInt) Exp(options *BuildOptions) string {
-	return trunc(options, round(options, e.Left.Exp(options))+"/"+round(options, e.Right.Exp(options)))
+	return "(" + forceInt(options, e.Left) + `)/(` + forceInt(options, e.Right) + ")"
 }
 
 // FindUsedVars finds used vars

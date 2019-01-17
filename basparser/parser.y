@@ -301,7 +301,26 @@ exp: TkNumber { $$ = &node.NodeExpNumber{Value:$1} }
        }
        $$ = n
      }
-   | exp TkBackSlash exp { $$ = &node.NodeExpDivInt{Left: $1, Right: $3} }
+   | exp TkBackSlash exp
+     {
+       switch $1.Type() {
+       case node.TypeString:
+           yylex.Error("Integer division left value has string type")
+       case node.TypeUnknown:
+           yylex.Error("Integer division left value has unknown type")
+       }
+       switch $3.Type() {
+       case node.TypeString:
+           yylex.Error("Integer division right value has string type")
+       case node.TypeUnknown:
+           yylex.Error("Integer division right value has unknown type")
+       }
+       n := &node.NodeExpDivInt{Left: $1, Right: $3}
+       if  n.Type() != node.TypeInteger {
+           yylex.Error("Integer division produces non-integer type")
+       }
+       $$ = n
+     }
    | exp TkMult exp { $$ = &node.NodeExpMult{Left: $1, Right: $3} }
    | exp TkDiv exp { $$ = &node.NodeExpDiv{Left: $1, Right: $3} }
    | exp TkPow exp { $$ = &node.NodeExpPow{Left: $1, Right: $3} }
