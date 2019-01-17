@@ -215,12 +215,13 @@ func (e *NodeExpMod) Type() int {
 
 // String returns value
 func (e *NodeExpMod) String() string {
-	return e.Left.String() + " MOD " + e.Right.String()
+	return "(" + e.Left.String() + ") MOD (" + e.Right.String() + ")"
 }
 
 // Exp returns value
 func (e *NodeExpMod) Exp(options *BuildOptions) string {
-	return toInt(round(options, e.Left.Exp(options))) + `%%` + toInt(round(options, e.Right.Exp(options)))
+	//return toInt(round(options, e.Left.Exp(options))) + `%%` + toInt(round(options, e.Right.Exp(options)))
+	return "(" + forceInt(options, e.Left) + `)%%(` + forceInt(options, e.Right) + ")"
 }
 
 // FindUsedVars finds used vars

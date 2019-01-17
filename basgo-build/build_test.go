@@ -19,15 +19,21 @@ type buildTest struct {
 var testTable = []buildTest{
 	{"", "", "", false},   // empty program
 	{"ugh", "", "", true}, // invalid program
+
 	{"10 print 1+2", "", "3\n", false},
 	{"10 print 1.1+2", "", "3.1\n", false},
 	{"10 print 1.1+2.2", "", "3.3\n", false},
 	{`10 print "a"+"b"`, "", "ab\n", false},
 	{`10 print 1+"b"`, "", "", true},
+
 	{"10 print 1-2", "", "-1\n", false},
 	{"10 print 1.1-2", "", "-0.9\n", false},
 	{"10 print 1.1-2.2", "", "-1.1\n", false},
 	{`10 print "a"-"b"`, "", "", true},
+
+	{"10 print 5 MOD 3", "", "2\n", false},
+	{"10 print 5.5 MOD 3.3", "", "0\n", false},
+	{`10 print "a" MOD "b"`, "", "", true},
 }
 
 func TestBuild(t *testing.T) {

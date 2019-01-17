@@ -281,7 +281,26 @@ exp: TkNumber { $$ = &node.NodeExpNumber{Value:$1} }
        }
        $$ = n
      }
-   | exp TkKeywordMod exp { $$ = &node.NodeExpMod{Left: $1, Right: $3} }
+   | exp TkKeywordMod exp
+     {
+       switch $1.Type() {
+       case node.TypeString:
+           yylex.Error("TkMod left value has string type")
+       case node.TypeUnknown:
+           yylex.Error("TkMod left value has unknown type")
+       }
+       switch $3.Type() {
+       case node.TypeString:
+           yylex.Error("TkMod right value has string type")
+       case node.TypeUnknown:
+           yylex.Error("TkMod right value has unknown type")
+       }
+       n := &node.NodeExpMod{Left: $1, Right: $3}
+       if  n.Type() != node.TypeInteger {
+           yylex.Error("TkMod produces non-integer type")
+       }
+       $$ = n
+     }
    | exp TkBackSlash exp { $$ = &node.NodeExpDivInt{Left: $1, Right: $3} }
    | exp TkMult exp { $$ = &node.NodeExpMult{Left: $1, Right: $3} }
    | exp TkDiv exp { $$ = &node.NodeExpDiv{Left: $1, Right: $3} }
