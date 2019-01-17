@@ -23,18 +23,21 @@ const (
 func main() {
 	log.Printf("%s version %s runtime %s GOMAXPROC=%d", basgoLabel, basgo.Version, runtime.Version(), runtime.GOMAXPROCS(0))
 
-	compile(os.Stdin, fmt.Printf)
+	status, errors := compile(os.Stdin, fmt.Printf)
+	if status != 0 || errors != 0 {
+		log.Printf("%s: status=%d errors=%d\n", basgoLabel, status, errors)
+		os.Exit(1)
+	}
 }
 
-func compile(input io.Reader, outputf node.FuncPrintf) {
+func compile(input io.Reader, outputf node.FuncPrintf) (int, int) {
 
 	log.Printf("%s: parsing\n", basgoLabel)
 
-	nodes, errors := parse(input, outputf)
+	nodes, status, errors := parse(input, outputf)
 
-	if errors != 0 {
-		log.Printf("%s: syntax errors: %d\n", basgoLabel, errors)
-		os.Exit(1)
+	if status != 0 || errors != 0 {
+		return status, errors
 	}
 
 	log.Printf("%s: issuing code FIXME WRITEME replace duplicate lines\n", basgoLabel)
@@ -104,6 +107,8 @@ func boolToInt(v bool) int {
 }
 `
 	outputf(funcBoolToInt)
+
+	return status, errors
 }
 
 func writeImport(headers map[string]struct{}, outputf node.FuncPrintf) {
@@ -135,13 +140,11 @@ func writeVar(vars map[string]struct{}, outputf node.FuncPrintf) {
 	}
 }
 
-func parse(input io.Reader, outputf node.FuncPrintf) ([]node.Node, int) {
+func parse(input io.Reader, outputf node.FuncPrintf) ([]node.Node, int, int) {
 	debug := false
 	byteInput := bufio.NewReader(input)
 	lex := basparser.NewInputLex(byteInput, debug)
 	status := basparser.InputParse(lex)
 
-	log.Printf("%s: parse status=%d", basgoLabel, status)
-
-	return basparser.Root, lex.Errors()
+	return basparser.Root, status, lex.Errors()
 }
