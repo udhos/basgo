@@ -431,7 +431,7 @@ func (e *NodeExpLen) Exp(options *BuildOptions) string {
 	if e.Value.Type() == TypeString {
 		return "len(" + e.Value.Exp(options) + ")"
 	}
-	return "8 /* LEN(non-string) */"
+	return "8 /* <- LEN(non-string) */"
 }
 
 // FindUsedVars finds used vars

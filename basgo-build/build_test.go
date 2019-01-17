@@ -65,6 +65,10 @@ var testTable = []buildTest{
 	{`10 print -10`, "", "-10\n", false},
 	{`10 print -(2.2-1)`, "", "-1.2\n", false},
 	{`10 print -"a"`, "", "", true},
+
+	{`10 print (22)`, "", "22\n", false},
+	{`10 print ("a"+"b")`, "", "ab\n", false},
+	{`10 print 2*(3+4)`, "", "14\n", false},
 }
 
 func TestBuild(t *testing.T) {
