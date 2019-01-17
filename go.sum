@@ -1,5 +1,7 @@
 github.com/remyoudompheng/bigfft v0.0.0-20170806203942-52369c62f446 h1:/NRJ5vAYoqz+7sG51ubIDHXeWO8DlTSrToPu6q11ziA=
 github.com/remyoudompheng/bigfft v0.0.0-20170806203942-52369c62f446/go.mod h1:uYEyJGbgTkfkS4+E/PavXkNJcbFIpEtjt2B0KDQ5+9M=
+golang.org/x/tools v0.0.0-20190116231616-b258f6da2383 h1:CWP4O+Q3OaGBOLxV1/YRnzRSpvZYJlauwRUu3auRH5s=
+golang.org/x/tools v0.0.0-20190116231616-b258f6da2383/go.mod h1:n7NCudcB/nEzxVGmLbDWY5pfWTLqBcC2KZ6jyYvM4mQ=
 modernc.org/golex v1.0.0 h1:wWpDlbK8ejRfSyi0frMyhilD3JBvtcx2AdGDnU+JtsE=
 modernc.org/golex v1.0.0/go.mod h1:b/QX9oBD/LhixY6NDh+IdGv17hgB+51fET1i2kPSmvk=
 modernc.org/goyacc v1.0.0 h1:v4ZeBGrj8ZXIYwm7TS+AbRygEO1Eu+IogHCOC/Xpn64=
