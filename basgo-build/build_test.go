@@ -17,7 +17,8 @@ type buildTest struct {
 }
 
 var testTable = []buildTest{
-	{"ugh", "", "", true},
+	{"", "", "", false},   // empty program
+	{"ugh", "", "", true}, // invalid program
 	{"10 print 1+2", "", "3\n", false},
 	{"10 print 1.1+2", "", "3.1\n", false},
 	{"10 print 1.1+2.2", "", "3.3\n", false},
