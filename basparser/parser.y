@@ -364,7 +364,26 @@ exp: TkNumber { $$ = &node.NodeExpNumber{Value:$1} }
        }
        $$ = n
      }
-   | exp TkPow exp { $$ = &node.NodeExpPow{Left: $1, Right: $3} }
+   | exp TkPow exp
+     {
+       switch $1.Type() {
+       case node.TypeString:
+           yylex.Error("TkPow left value has string type")
+       case node.TypeUnknown:
+           yylex.Error("TkPow left value has unknown type")
+       }
+       switch $3.Type() {
+       case node.TypeString:
+           yylex.Error("TkPow right value has string type")
+       case node.TypeUnknown:
+           yylex.Error("TkPow right value has unknown type")
+       }
+       n := &node.NodeExpPow{Left: $1, Right: $3}
+       if  n.Type() != node.TypeFloat {
+           yylex.Error("TkPow produces non-float type")
+       }
+       $$ = n
+     }
    | TkPlus exp %prec UnaryPlus { $$ = &node.NodeExpUnaryPlus{Value:$2} }
    | TkMinus exp %prec UnaryMinus { $$ = &node.NodeExpUnaryMinus{Value:$2} }
    | TkParLeft exp TkParRight { $$ = &node.NodeExpGroup{Value:$2} }

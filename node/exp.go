@@ -327,13 +327,13 @@ func (e *NodeExpPow) Type() int {
 
 // String returns value
 func (e *NodeExpPow) String() string {
-	return e.Left.String() + "^" + e.Right.String()
+	return "(" + e.Left.String() + " ^ " + e.Right.String() + ")"
 }
 
 // Exp returns value
 func (e *NodeExpPow) Exp(options *BuildOptions) string {
 	options.Headers["math"] = struct{}{}
-	return "math.Pow(" + e.Left.Exp(options) + "," + e.Right.Exp(options) + ")"
+	return "math.Pow(" + forceFloat(options, e.Left) + "," + forceFloat(options, e.Right) + ")"
 }
 
 // FindUsedVars finds used vars
@@ -341,18 +341,6 @@ func (e *NodeExpPow) FindUsedVars(vars map[string]struct{}) {
 	e.Left.FindUsedVars(vars)
 	e.Right.FindUsedVars(vars)
 }
-
-/*
-func trunc(options *BuildOptions, s string) string {
-	options.Headers["math"] = struct{}{}
-	return "math.Trunc(" + s + ")"
-}
-
-func round(options *BuildOptions, s string) string {
-	options.Headers["math"] = struct{}{}
-	return "math.Round(" + toFloat(s) + ")"
-}
-*/
 
 // NodeExpUnaryPlus holds value
 type NodeExpUnaryPlus struct{ Value NodeExp }
