@@ -244,7 +244,20 @@ exp: TkNumber { $$ = &node.NodeExpNumber{Value:$1} }
      }
    | TkString { $$ = &node.NodeExpString{Value:$1} }
    | TkIdentifier { $$ = &node.NodeExpIdentifier{Value:$1} }
-   | exp TkPlus exp { $$ = &node.NodeExpPlus{Left: $1, Right: $3} }
+   | exp TkPlus exp
+     {
+       if $1.Type() == node.TypeString && $3.Type() != node.TypeString {
+           yylex.Error("TkPlus string and non-string")
+       }
+       if $1.Type() != node.TypeString && $3.Type() == node.TypeString {
+           yylex.Error("TkPlus non-string and string")
+       }
+       n := &node.NodeExpPlus{Left: $1, Right: $3}
+       if n.Type() == node.TypeUnknown {
+           yylex.Error("TkPlus unknown type")
+       }
+       $$ = n
+     }
    | exp TkMinus exp { $$ = &node.NodeExpMinus{Left: $1, Right: $3} }
    | exp TkKeywordMod exp { $$ = &node.NodeExpMod{Left: $1, Right: $3} }
    | exp TkBackSlash exp { $$ = &node.NodeExpDivInt{Left: $1, Right: $3} }

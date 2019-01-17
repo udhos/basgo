@@ -161,12 +161,12 @@ func combineType(t1, t2 int) int {
 
 // String returns value
 func (e *NodeExpPlus) String() string {
-	return e.Left.String() + "+" + e.Right.String()
+	return "(" + e.Left.String() + ") + (" + e.Right.String() + ")"
 }
 
 // Exp returns value
 func (e *NodeExpPlus) Exp(options *BuildOptions) string {
-	return e.Left.Exp(options) + "+" + e.Right.Exp(options)
+	return "(" + e.Left.Exp(options) + ")+(" + e.Right.Exp(options) + ")"
 }
 
 // FindUsedVars finds used vars
