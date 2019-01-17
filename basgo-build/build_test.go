@@ -73,6 +73,11 @@ var testTable = []buildTest{
 	{`10 print LEN "hello"`, "", "5\n", false},
 	{`10 print LEN 2`, "", "8\n", false},
 	{`10 print LEN 3.3`, "", "8\n", false},
+
+	{`10 print not 0`, "", "-1\n", false},
+	{`10 print not -1`, "", "0\n", false},
+	{`10 print not 1.1`, "", "-2\n", false},
+	{`10 print not ""`, "", "", true},
 }
 
 func TestBuild(t *testing.T) {

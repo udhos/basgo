@@ -405,7 +405,16 @@ exp: TkNumber { $$ = &node.NodeExpNumber{Value:$1} }
        $$ = &node.NodeExpUnaryMinus{Value:$2}
      }
    | TkParLeft exp TkParRight { $$ = &node.NodeExpGroup{Value:$2} }
-   | TkKeywordNot exp { $$ = &node.NodeExpNot{Value:$2} }
+   | TkKeywordNot exp
+     {
+       switch $2.Type() {
+       case node.TypeString:
+           yylex.Error("Not has string type")
+       case node.TypeUnknown:
+           yylex.Error("Not has unknown type")
+       }
+       $$ = &node.NodeExpNot{Value:$2}
+     }
    | exp TkKeywordAnd exp { $$ = &node.NodeExpAnd{Left:$1, Right:$3} }
    | exp TkKeywordEqv exp { $$ = &node.NodeExpEqv{Left:$1, Right:$3} }
    | exp TkKeywordImp exp { $$ = &node.NodeExpImp{Left:$1, Right:$3} }
