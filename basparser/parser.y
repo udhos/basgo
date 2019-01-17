@@ -92,7 +92,7 @@ var (
 %left <tok> TkKeywordMod
 %left <tok> TkBackSlash
 %left <tok> TkMult TkDiv
-%left <tok> TkPow
+%right <tok> TkPow
 %precedence UnaryPlus // fictitious
 %precedence UnaryMinus // fictitious
 
@@ -254,11 +254,33 @@ exp: TkNumber { $$ = &node.NodeExpNumber{Value:$1} }
        }
        n := &node.NodeExpPlus{Left: $1, Right: $3}
        if n.Type() == node.TypeUnknown {
-           yylex.Error("TkPlus unknown type")
+           yylex.Error("TkPlus produces unknown type")
        }
        $$ = n
      }
-   | exp TkMinus exp { $$ = &node.NodeExpMinus{Left: $1, Right: $3} }
+   | exp TkMinus exp
+     {
+       switch $1.Type() {
+       case node.TypeString:
+           yylex.Error("TkMinus left value has string type")
+       case node.TypeUnknown:
+           yylex.Error("TkMinus left value has unknown type")
+       }
+       switch $3.Type() {
+       case node.TypeString:
+           yylex.Error("TkMinus right value has string type")
+       case node.TypeUnknown:
+           yylex.Error("TkMinus right value has unknown type")
+       }
+       n := &node.NodeExpMinus{Left: $1, Right: $3}
+       switch n.Type() {
+       case node.TypeString:
+           yylex.Error("TkMinus produces string type")
+       case node.TypeUnknown:
+           yylex.Error("TkMinus produces unknown type")
+       }
+       $$ = n
+     }
    | exp TkKeywordMod exp { $$ = &node.NodeExpMod{Left: $1, Right: $3} }
    | exp TkBackSlash exp { $$ = &node.NodeExpDivInt{Left: $1, Right: $3} }
    | exp TkMult exp { $$ = &node.NodeExpMult{Left: $1, Right: $3} }

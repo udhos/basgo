@@ -24,6 +24,10 @@ var testTable = []buildTest{
 	{"10 print 1.1+2.2", "", "3.3\n", false},
 	{`10 print "a"+"b"`, "", "ab\n", false},
 	{`10 print 1+"b"`, "", "", true},
+	{"10 print 1-2", "", "-1\n", false},
+	{"10 print 1.1-2", "", "-0.9\n", false},
+	{"10 print 1.1-2.2", "", "-1.1\n", false},
+	{`10 print "a"-"b"`, "", "", true},
 }
 
 func TestBuild(t *testing.T) {
@@ -90,7 +94,7 @@ func TestBuild(t *testing.T) {
 		result := output.String()
 		t.Logf("output: %q\n", result)
 		if result != data.output {
-			t.Errorf("unexpected output: got=[%s] expected=[%s]", result, data.output)
+			t.Errorf("unexpected output: got=%q expected=%q", result, data.output)
 		}
 	}
 
