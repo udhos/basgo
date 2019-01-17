@@ -15,6 +15,16 @@ const (
 	TypeInteger = iota
 )
 
+// TypeNumeric reports whether type is numeric.
+func TypeNumeric(t int) bool {
+	return t == TypeFloat || t == TypeInteger
+}
+
+// TypeCompare reports whether types are comparable.
+func TypeCompare(t1, t2 int) bool {
+	return (t1 == TypeString && t2 == TypeString) || (TypeNumeric(t1) && TypeNumeric(t2))
+}
+
 // NodeExp is interface for expressions
 type NodeExp interface {
 	String() string                   // Literal cosmetic display
@@ -618,6 +628,10 @@ func (e *NodeExpXor) FindUsedVars(vars map[string]struct{}) {
 	e.Right.FindUsedVars(vars)
 }
 
+type NodeExpBinary interface {
+	Values() (left, right NodeExp)
+}
+
 // NodeExpEqual holds value
 type NodeExpEqual struct {
 	Left  NodeExp
@@ -629,6 +643,11 @@ func (e *NodeExpEqual) Type() int {
 	return TypeInteger
 }
 
+// Values returns children from binary exp
+func (e *NodeExpEqual) Values() (NodeExp, NodeExp) {
+	return e.Left, e.Right
+}
+
 // String returns value
 func (e *NodeExpEqual) String() string {
 	return "(" + e.Left.String() + ") = (" + e.Right.String() + ")"
@@ -636,7 +655,12 @@ func (e *NodeExpEqual) String() string {
 
 // Exp returns value
 func (e *NodeExpEqual) Exp(options *BuildOptions) string {
-	return boolToInt("(" + forceInt(options, e.Left) + ")==(" + forceInt(options, e.Right) + ")")
+	return compareOp(e, options, "==")
+}
+
+func compareOp(e NodeExpBinary, options *BuildOptions, golangOp string) string {
+	left, right := e.Values()
+	return boolToInt("(" + left.Exp(options) + ")" + golangOp + "(" + right.Exp(options) + ")")
 }
 
 func boolToInt(s string) string {
@@ -660,6 +684,11 @@ func (e *NodeExpUnequal) Type() int {
 	return TypeInteger
 }
 
+// Values returns children from binary exp
+func (e *NodeExpUnequal) Values() (NodeExp, NodeExp) {
+	return e.Left, e.Right
+}
+
 // String returns value
 func (e *NodeExpUnequal) String() string {
 	return "(" + e.Left.String() + ") <> (" + e.Right.String() + ")"
@@ -667,7 +696,7 @@ func (e *NodeExpUnequal) String() string {
 
 // Exp returns value
 func (e *NodeExpUnequal) Exp(options *BuildOptions) string {
-	return boolToInt("(" + forceInt(options, e.Left) + ")!=(" + forceInt(options, e.Right) + ")")
+	return compareOp(e, options, "!=")
 }
 
 // FindUsedVars finds used vars
@@ -687,6 +716,11 @@ func (e *NodeExpGT) Type() int {
 	return TypeInteger
 }
 
+// Values returns children from binary exp
+func (e *NodeExpGT) Values() (NodeExp, NodeExp) {
+	return e.Left, e.Right
+}
+
 // String returns value
 func (e *NodeExpGT) String() string {
 	return "(" + e.Left.String() + ") > (" + e.Right.String() + ")"
@@ -694,7 +728,7 @@ func (e *NodeExpGT) String() string {
 
 // Exp returns value
 func (e *NodeExpGT) Exp(options *BuildOptions) string {
-	return boolToInt("(" + forceInt(options, e.Left) + ")>(" + forceInt(options, e.Right) + ")")
+	return compareOp(e, options, ">")
 }
 
 // FindUsedVars finds used vars
@@ -714,6 +748,11 @@ func (e *NodeExpLT) Type() int {
 	return TypeInteger
 }
 
+// Values returns children from binary exp
+func (e *NodeExpLT) Values() (NodeExp, NodeExp) {
+	return e.Left, e.Right
+}
+
 // String returns value
 func (e *NodeExpLT) String() string {
 	return "(" + e.Left.String() + ") < (" + e.Right.String() + ")"
@@ -721,7 +760,7 @@ func (e *NodeExpLT) String() string {
 
 // Exp returns value
 func (e *NodeExpLT) Exp(options *BuildOptions) string {
-	return boolToInt("(" + forceInt(options, e.Left) + ")<(" + forceInt(options, e.Right) + ")")
+	return compareOp(e, options, "<")
 }
 
 // FindUsedVars finds used vars
@@ -741,6 +780,11 @@ func (e *NodeExpGE) Type() int {
 	return TypeInteger
 }
 
+// Values returns children from binary exp
+func (e *NodeExpGE) Values() (NodeExp, NodeExp) {
+	return e.Left, e.Right
+}
+
 // String returns value
 func (e *NodeExpGE) String() string {
 	return "(" + e.Left.String() + ") >= (" + e.Right.String() + ")"
@@ -748,7 +792,7 @@ func (e *NodeExpGE) String() string {
 
 // Exp returns value
 func (e *NodeExpGE) Exp(options *BuildOptions) string {
-	return boolToInt("(" + forceInt(options, e.Left) + ")>=(" + forceInt(options, e.Right) + ")")
+	return compareOp(e, options, ">=")
 }
 
 // FindUsedVars finds used vars
@@ -768,6 +812,11 @@ func (e *NodeExpLE) Type() int {
 	return TypeInteger
 }
 
+// Values returns children from binary exp
+func (e *NodeExpLE) Values() (NodeExp, NodeExp) {
+	return e.Left, e.Right
+}
+
 // String returns value
 func (e *NodeExpLE) String() string {
 	return "(" + e.Left.String() + ") <= (" + e.Right.String() + ")"
@@ -775,7 +824,7 @@ func (e *NodeExpLE) String() string {
 
 // Exp returns value
 func (e *NodeExpLE) Exp(options *BuildOptions) string {
-	return boolToInt("(" + forceInt(options, e.Left) + ")<=(" + forceInt(options, e.Right) + ")")
+	return compareOp(e, options, "<=")
 }
 
 // FindUsedVars finds used vars

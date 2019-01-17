@@ -515,12 +515,48 @@ exp: TkNumber { $$ = &node.NodeExpNumber{Value:$1} }
        }
        $$ = n
      }
-   | exp TkEqual exp { $$ = &node.NodeExpEqual{Left:$1, Right:$3} }
-   | exp TkUnequal exp { $$ = &node.NodeExpUnequal{Left:$1, Right:$3} }
-   | exp TkGT exp { $$ = &node.NodeExpGT{Left:$1, Right:$3} }
-   | exp TkLT exp { $$ = &node.NodeExpLT{Left:$1, Right:$3} }
-   | exp TkGE exp { $$ = &node.NodeExpGE{Left:$1, Right:$3} }
-   | exp TkLE exp { $$ = &node.NodeExpLE{Left:$1, Right:$3} }
+   | exp TkEqual exp
+     {
+       if !node.TypeCompare($1.Type(), $3.Type()) {
+           yylex.Error("TkEqual type mismatch")
+       }
+       $$ = &node.NodeExpEqual{Left:$1, Right:$3}
+     }
+   | exp TkUnequal exp
+     {
+       if !node.TypeCompare($1.Type(), $3.Type()) {
+           yylex.Error("TkUnequal type mismatch")
+       }
+       $$ = &node.NodeExpUnequal{Left:$1, Right:$3}
+     }
+   | exp TkGT exp
+     {
+       if !node.TypeCompare($1.Type(), $3.Type()) {
+           yylex.Error("TkGT type mismatch")
+       }
+       $$ = &node.NodeExpGT{Left:$1, Right:$3}
+     }
+   | exp TkLT exp
+     {
+       if !node.TypeCompare($1.Type(), $3.Type()) {
+           yylex.Error("TkLT type mismatch")
+       }
+       $$ = &node.NodeExpLT{Left:$1, Right:$3}
+     }
+   | exp TkGE exp
+     {
+       if !node.TypeCompare($1.Type(), $3.Type()) {
+           yylex.Error("TkGE type mismatch")
+       }
+       $$ = &node.NodeExpGE{Left:$1, Right:$3}
+     }
+   | exp TkLE exp
+     {
+       if !node.TypeCompare($1.Type(), $3.Type()) {
+           yylex.Error("TkLE type mismatch")
+       }
+       $$ = &node.NodeExpLE{Left:$1, Right:$3}
+     }
    | TkKeywordLen exp { $$ = &node.NodeExpLen{Value:$2} }
    ;
 
