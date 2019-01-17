@@ -352,12 +352,12 @@ func (e *NodeExpUnaryPlus) Type() int {
 
 // String returns value
 func (e *NodeExpUnaryPlus) String() string {
-	return "+" + e.Value.String()
+	return "+(" + e.Value.String() + ")"
 }
 
 // Exp returns value
 func (e *NodeExpUnaryPlus) Exp(options *BuildOptions) string {
-	return "+" + e.Value.Exp(options)
+	return "+(" + e.Value.Exp(options) + ")"
 }
 
 // FindUsedVars finds used vars
@@ -375,12 +375,12 @@ func (e *NodeExpUnaryMinus) Type() int {
 
 // String returns value
 func (e *NodeExpUnaryMinus) String() string {
-	return "-" + e.Value.String()
+	return "-(" + e.Value.String() + ")"
 }
 
 // Exp returns value
 func (e *NodeExpUnaryMinus) Exp(options *BuildOptions) string {
-	return "-" + e.Value.Exp(options)
+	return "-(" + e.Value.Exp(options) + ")"
 }
 
 // FindUsedVars finds used vars

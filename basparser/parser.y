@@ -384,8 +384,26 @@ exp: TkNumber { $$ = &node.NodeExpNumber{Value:$1} }
        }
        $$ = n
      }
-   | TkPlus exp %prec UnaryPlus { $$ = &node.NodeExpUnaryPlus{Value:$2} }
-   | TkMinus exp %prec UnaryMinus { $$ = &node.NodeExpUnaryMinus{Value:$2} }
+   | TkPlus exp %prec UnaryPlus
+     {
+       switch $2.Type() {
+       case node.TypeString:
+           yylex.Error("Unary plus has string type")
+       case node.TypeUnknown:
+           yylex.Error("Unary plus has unknown type")
+       }
+       $$ = &node.NodeExpUnaryPlus{Value:$2}
+     }
+   | TkMinus exp %prec UnaryMinus
+     {
+       switch $2.Type() {
+       case node.TypeString:
+           yylex.Error("Unary minus has string type")
+       case node.TypeUnknown:
+           yylex.Error("Unary minus has unknown type")
+       }
+       $$ = &node.NodeExpUnaryMinus{Value:$2}
+     }
    | TkParLeft exp TkParRight { $$ = &node.NodeExpGroup{Value:$2} }
    | TkKeywordNot exp { $$ = &node.NodeExpNot{Value:$2} }
    | exp TkKeywordAnd exp { $$ = &node.NodeExpAnd{Left:$1, Right:$3} }
