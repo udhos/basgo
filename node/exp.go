@@ -268,17 +268,17 @@ type NodeExpDiv struct {
 
 // Type returns type
 func (e *NodeExpDiv) Type() int {
-	return TypeFloat
+	return TypeFloat // remember: 5 / 2 = float
 }
 
 // String returns value
 func (e *NodeExpDiv) String() string {
-	return e.Left.String() + "/" + e.Right.String()
+	return "(" + e.Left.String() + ") / (" + e.Right.String() + ")"
 }
 
 // Exp returns value
 func (e *NodeExpDiv) Exp(options *BuildOptions) string {
-	return e.Left.Exp(options) + "/" + e.Right.Exp(options)
+	return "(" + forceFloat(options, e.Left) + ")/(" + forceFloat(options, e.Right) + ")"
 }
 
 // FindUsedVars finds used vars
@@ -342,6 +342,7 @@ func (e *NodeExpPow) FindUsedVars(vars map[string]struct{}) {
 	e.Right.FindUsedVars(vars)
 }
 
+/*
 func trunc(options *BuildOptions, s string) string {
 	options.Headers["math"] = struct{}{}
 	return "math.Trunc(" + s + ")"
@@ -351,6 +352,7 @@ func round(options *BuildOptions, s string) string {
 	options.Headers["math"] = struct{}{}
 	return "math.Round(" + toFloat(s) + ")"
 }
+*/
 
 // NodeExpUnaryPlus holds value
 type NodeExpUnaryPlus struct{ Value NodeExp }
@@ -473,9 +475,17 @@ func (e *NodeExpNot) Exp(options *BuildOptions) string {
 
 func forceInt(options *BuildOptions, e NodeExp) string {
 	s := e.Exp(options)
-	if e.Type() == TypeFloat {
+	if e.Type() != TypeInteger {
 		options.Headers["math"] = struct{}{}
-		return toInt("math.Round(" + s + ")")
+		return toInt("math.Round(" + s + ") /* <- forceInt(non-int) */")
+	}
+	return s
+}
+
+func forceFloat(options *BuildOptions, e NodeExp) string {
+	s := e.Exp(options)
+	if e.Type() != TypeFloat {
+		return toFloat(s) + " /* <- forceFloat(non-float) */"
 	}
 	return s
 }

@@ -321,8 +321,49 @@ exp: TkNumber { $$ = &node.NodeExpNumber{Value:$1} }
        }
        $$ = n
      }
-   | exp TkMult exp { $$ = &node.NodeExpMult{Left: $1, Right: $3} }
-   | exp TkDiv exp { $$ = &node.NodeExpDiv{Left: $1, Right: $3} }
+   | exp TkMult exp
+     {
+       switch $1.Type() {
+       case node.TypeString:
+           yylex.Error("TkMult left value has string type")
+       case node.TypeUnknown:
+           yylex.Error("TkMult left value has unknown type")
+       }
+       switch $3.Type() {
+       case node.TypeString:
+           yylex.Error("TkMult right value has string type")
+       case node.TypeUnknown:
+           yylex.Error("TkMult right value has unknown type")
+       }
+       n := &node.NodeExpMult{Left: $1, Right: $3}
+       switch n.Type() {
+       case node.TypeString:
+           yylex.Error("TkMult produces string type")
+       case node.TypeUnknown:
+           yylex.Error("TkMult produces unknown type")
+       }
+       $$ = n
+     }
+   | exp TkDiv exp
+     {
+       switch $1.Type() {
+       case node.TypeString:
+           yylex.Error("TkDiv left value has string type")
+       case node.TypeUnknown:
+           yylex.Error("TkDiv left value has unknown type")
+       }
+       switch $3.Type() {
+       case node.TypeString:
+           yylex.Error("TkDiv right value has string type")
+       case node.TypeUnknown:
+           yylex.Error("TkDiv right value has unknown type")
+       }
+       n := &node.NodeExpDiv{Left: $1, Right: $3}
+       if  n.Type() != node.TypeFloat {
+           yylex.Error("TkDiv produces non-float type")
+       }
+       $$ = n
+     }
    | exp TkPow exp { $$ = &node.NodeExpPow{Left: $1, Right: $3} }
    | TkPlus exp %prec UnaryPlus { $$ = &node.NodeExpUnaryPlus{Value:$2} }
    | TkMinus exp %prec UnaryMinus { $$ = &node.NodeExpUnaryMinus{Value:$2} }

@@ -40,6 +40,19 @@ var testTable = []buildTest{
 	{`10 print 5 \ 2.5`, "", "1\n", false},
 	{`10 print 6.6 \ 3.3`, "", "2\n", false},
 	{`10 print "a" \ "b"`, "", "", true},
+
+	{`10 print 5 * 3`, "", "15\n", false},
+	{`10 print 1.1 * 2`, "", "2.2\n", false},
+	{`10 print 2 * 2.5`, "", "5\n", false},
+	{`10 print "a" * "b"`, "", "", true},
+
+	{`10 print 5 / 5`, "", "1\n", false},
+	{`10 print 5 / 4`, "", "1.25\n", false},
+	{`10 print 5 / 2`, "", "2.5\n", false},
+	{`10 print 5 / 1`, "", "5\n", false},
+	{`10 print 5 / 2.5`, "", "2\n", false},
+	{`10 print 6.6 / 3.3`, "", "2\n", false},
+	{`10 print "a" / "b"`, "", "", true},
 }
 
 func TestBuild(t *testing.T) {
