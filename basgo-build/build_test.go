@@ -196,6 +196,7 @@ var testTable = []buildTest{
 	{`10 print "a" <= ""`, "", "0\n", false},
 	{`10 print 0 <= ""`, "", "", true},
 
+	{`10 goto 20`, "", "", true},
 	{sourceGoto, "", outputGoto, false},
 }
 

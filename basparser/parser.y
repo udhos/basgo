@@ -21,8 +21,13 @@ var (
 	lineList []node.Node
 	nodeList []node.Node
 	expList []node.NodeExp
-	LineNumbers = map[string]struct{}{} // used by GOTO GOSUB etc
+	LineNumbers = map[string]node.LineNumber{} // used by GOTO GOSUB etc
 )
+
+func Reset() {
+	Root = []node.Node{}
+	LineNumbers = map[string]node.LineNumber{} // used by GOTO GOSUB etc
+}
 
 %}
 
@@ -156,7 +161,17 @@ line: statements
      }
   | TkNumber statements
      {
-       $$ = &node.LineNumbered{LineNumber:$1, Nodes:$2}
+       n := $1
+       ln, found := LineNumbers[n]
+       if found {
+         // set defined, keep used unchanged
+         ln.Defined = true
+         LineNumbers[n] = ln
+       } else {
+         // set defined, unset used
+         LineNumbers[n] = node.LineNumber{Defined: true}
+       }
+       $$ = &node.LineNumbered{LineNumber:n, Nodes:$2}
      }
   ;
 
@@ -178,8 +193,17 @@ stmt: /* empty */
      { $$ = &node.NodeEnd{} }
   | TkKeywordGoto TkNumber
      { 
-       LineNumbers[$2] = struct{}{}
-       $$ = &node.NodeGoto{Line: $2}
+       n := $2
+       ln, found := LineNumbers[n]
+       if found {
+         // set used, keep defined unchanged
+         ln.Used = true
+         LineNumbers[n] = ln
+       } else {
+         // set used, unset defined
+         LineNumbers[n] = node.LineNumber{Used: true}
+       }
+       $$ = &node.NodeGoto{Line: n}
      }
   | TkKeywordLet assign
      { $$ = $2 }

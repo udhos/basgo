@@ -8,6 +8,11 @@ import (
 	"strings"
 )
 
+type LineNumber struct {
+	Used    bool // GOTO 10, GOSUB 10 etc
+	Defined bool // 10 print
+}
+
 type ByLineNumber []Node
 
 func (a ByLineNumber) Len() int      { return len(a) }
@@ -38,7 +43,7 @@ type FuncPrintf func(format string, v ...interface{}) (int, error)
 type BuildOptions struct {
 	Headers     map[string]struct{}
 	Vars        map[string]struct{}
-	LineNumbers map[string]struct{} // numbers used by GOTO, GOSUB etc
+	LineNumbers map[string]LineNumber // numbers used by GOTO, GOSUB etc
 }
 
 // RenameVar renames a.b$ => str_a_b
@@ -93,7 +98,7 @@ func (n *LineNumbered) Name() string {
 // Build generates code
 func (n *LineNumbered) Build(options *BuildOptions, outputf FuncPrintf) {
 	outputf("// line %s\n", n.LineNumber)
-	if _, used := options.LineNumbers[n.LineNumber]; used {
+	if ln, found := options.LineNumbers[n.LineNumber]; found && ln.Used {
 		// generate label for GOTO GOSUB etc
 		outputf("line%s:\n", n.LineNumber)
 	}

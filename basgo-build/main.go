@@ -32,19 +32,27 @@ func main() {
 
 func compile(input io.Reader, outputf node.FuncPrintf) (int, int) {
 
-	log.Printf("%s: parsing\n", basgoLabel)
+	log.Printf("%s: parsing", basgoLabel)
 
-	lineNumbersFound, nodes, status, errors := parse(input, outputf)
+	lineNumbersTab, nodes, status, errors := parse(input, outputf)
 
 	if status != 0 || errors != 0 {
 		return status, errors
 	}
 
-	log.Printf("%s: FIXME WRITEME replace duplicate lines\n", basgoLabel)
+	log.Printf("%s: FIXME WRITEME replace duplicate lines", basgoLabel)
 
-	log.Printf("%s: FIXME WRITEME check that used line numbers in lineNumbersFound exist as nodes\n", basgoLabel)
+	log.Printf("%s: checking lines used/defined", basgoLabel)
 
-	log.Printf("%s: sorting lines\n", basgoLabel)
+	for n, ln := range lineNumbersTab {
+		//log.Printf("%s: line %s used=%v defined=%v", basgoLabel, n, ln.Used, ln.Defined)
+		if ln.Used && !ln.Defined {
+			log.Printf("%s: line %s used but not defined", basgoLabel, n)
+			return 0, 1000
+		}
+	}
+
+	log.Printf("%s: sorting lines", basgoLabel)
 
 	sort.Sort(node.ByLineNumber(nodes))
 
@@ -61,16 +69,16 @@ func main() {
 	options := node.BuildOptions{
 		Headers:     map[string]struct{}{},
 		Vars:        map[string]struct{}{},
-		LineNumbers: lineNumbersFound,
+		LineNumbers: lineNumbersTab,
 	}
 
-	log.Printf("%s: scanning used vars\n", basgoLabel)
+	log.Printf("%s: scanning used vars", basgoLabel)
 
 	for _, n := range nodes {
 		n.FindUsedVars(options.Vars)
 	}
 
-	log.Printf("%s: issuing code\n", basgoLabel)
+	log.Printf("%s: issuing code", basgoLabel)
 
 	buf := bytes.Buffer{}
 
@@ -133,10 +141,11 @@ func writeVar(vars map[string]struct{}, outputf node.FuncPrintf) {
 	}
 }
 
-func parse(input io.Reader, outputf node.FuncPrintf) (map[string]struct{}, []node.Node, int, int) {
+func parse(input io.Reader, outputf node.FuncPrintf) (map[string]node.LineNumber, []node.Node, int, int) {
 	debug := false
 	byteInput := bufio.NewReader(input)
 	lex := basparser.NewInputLex(byteInput, debug)
+	basparser.Reset()
 	status := basparser.InputParse(lex)
 
 	return basparser.LineNumbers, basparser.Root, status, lex.Errors()
