@@ -105,6 +105,13 @@ func main() {
 
 	outputf(mainClose)
 
+	lib(outputf)
+
+	return status, errors
+}
+
+func lib(outputf node.FuncPrintf) {
+
 	funcBoolToInt := `
 func boolToInt(v bool) int {
 	if v {
@@ -113,9 +120,23 @@ func boolToInt(v bool) int {
 	return 0
 }
 `
-	outputf(funcBoolToInt)
 
-	return status, errors
+	funcInput := `
+func inputString() string {
+	return "inputString() FIXME-WRITEME"
+}
+
+func inputFloat() float64 {
+	return 9.9
+}
+
+func inputInt() int {
+	return 9
+}
+`
+
+	outputf(funcBoolToInt)
+	outputf(funcInput)
 }
 
 func writeImport(headers map[string]struct{}, outputf node.FuncPrintf) {

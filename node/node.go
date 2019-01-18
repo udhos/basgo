@@ -1,8 +1,8 @@
 package node
 
 import (
+	"fmt"
 	"log"
-	//"fmt"
 	//"bufio"
 	"strconv"
 	"strings"
@@ -51,7 +51,7 @@ func RenameVar(name string) string {
 	name = strings.Replace(name, ".", "_", -1)
 	last := len(name) - 1
 	if last < 0 {
-		return "single_" + name
+		return "sng_" + name
 	}
 	switch name[last] {
 	case '$':
@@ -59,11 +59,26 @@ func RenameVar(name string) string {
 	case '%':
 		return "int_" + name[:last]
 	case '!':
-		return "single_" + name[:last]
+		return "sng_" + name[:last]
 	case '#':
-		return "double_" + name[:last]
+		return "dbl_" + name[:last]
 	}
-	return "single_" + name
+	return "sng_" + name
+}
+
+// VarType finds var type: a$ => string
+func VarType(name string) int {
+	last := len(name) - 1
+	if last < 1 {
+		return TypeFloat
+	}
+	switch name[last] {
+	case '$':
+		return TypeString
+	case '%':
+		return TypeInteger
+	}
+	return TypeFloat
 }
 
 // Node is element for syntax tree
@@ -74,7 +89,7 @@ type Node interface {
 	FindUsedVars(vars map[string]struct{})
 }
 
-// LineNumbered is empty
+// LineNumbered is numbered line
 type LineNumbered struct {
 	LineNumber string
 	Nodes      []Node
@@ -114,7 +129,7 @@ func (n *LineNumbered) FindUsedVars(vars map[string]struct{}) {
 	}
 }
 
-// LineImmediate is empty
+// LineImmediate is unnumbered line
 type LineImmediate struct {
 	Nodes   []Node
 	RawLine string
@@ -168,7 +183,7 @@ func (n *NodeEmpty) FindUsedVars(vars map[string]struct{}) {
 	// do nothing
 }
 
-// NodeAssign is print
+// NodeAssign is assignment
 type NodeAssign struct {
 	Left  string
 	Right NodeExp
@@ -387,6 +402,59 @@ func (n *NodeIf) FindUsedVars(vars map[string]struct{}) {
 	for _, t := range n.Else {
 		t.FindUsedVars(vars)
 	}
+}
+
+// NodeInput handles input
+type NodeInput struct {
+	Variable string
+}
+
+// Name returns the name of the node
+func (n *NodeInput) Name() string {
+	return "INPUT"
+}
+
+// Show displays the node
+func (n *NodeInput) Show(printf FuncPrintf) {
+	printf("[%s %s]", n.Name(), n.Variable)
+}
+
+// Build generates code
+func (n *NodeInput) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+
+	var code string
+
+	t := VarType(n.Variable) // a$ => string
+	switch t {
+	case TypeString:
+		code = "inputString()"
+	case TypeInteger:
+		code = "inputInteger()"
+	case TypeFloat:
+		code = "inputFloat()"
+	default:
+		msg := fmt.Sprintf("NodeInput.Build: unknown var '%s' type: %d", n.Variable, t)
+		log.Printf(msg)
+		outputf("panic(%s) // INPUT bad var type\n", msg)
+		return
+	}
+
+	v := RenameVar(n.Variable) // a$ => str_a
+
+	if _, varUsed := options.Vars[n.Variable]; varUsed {
+		outputf("%s = %s\n", v, code)
+		return
+	}
+
+	outputf("%s // unnused INPUT variable %s/%s suppressed\n", code, n.Variable, v)
+}
+
+// FindUsedVars finds used vars
+func (n *NodeInput) FindUsedVars(vars map[string]struct{}) {
+	// INPUT does not actually use var
 }
 
 // NodeList lists lines

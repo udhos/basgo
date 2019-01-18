@@ -286,6 +286,10 @@ stmt: /* empty */
        }
        $$ = &node.NodeIf{Cond: cond, Then: $4, Else: $6}
      }
+  | TkKeywordInput TkIdentifier
+     {
+        $$ = &node.NodeInput{Variable: $2}
+     }
   | TkKeywordGoto stmt_goto
      { $$ = $2 }
   | TkKeywordLet assign
@@ -771,6 +775,7 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 		case TkKeywordElse: // do not store
 		case TkKeywordGoto: // do not store
 		case TkKeywordIf: // do not store
+		case TkKeywordInput: // do not store
 		case TkKeywordLen: // do not store
 		case TkKeywordLet: // do not store
 		case TkKeywordList: // do not store

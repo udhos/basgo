@@ -111,17 +111,7 @@ type NodeExpIdentifier struct{ Value string }
 
 // Type returns type
 func (e *NodeExpIdentifier) Type() int {
-	last := len(e.Value) - 1
-	if last < 1 {
-		return TypeFloat
-	}
-	switch e.Value[last] {
-	case '$':
-		return TypeString
-	case '%':
-		return TypeInteger
-	}
-	return TypeFloat
+	return VarType(e.Value)
 }
 
 // String returns value
