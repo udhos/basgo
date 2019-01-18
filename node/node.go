@@ -210,6 +210,7 @@ func (n *NodeAssign) FindUsedVars(vars map[string]struct{}) {
 
 // NodePrint is print
 type NodePrint struct {
+	Newline     bool
 	Expressions []NodeExp
 }
 
@@ -238,7 +239,10 @@ func (n *NodePrint) Build(options *BuildOptions, outputf FuncPrintf) {
 	for _, e := range n.Expressions {
 		outputf("fmt.Print(%s)\n", e.Exp(options))
 	}
-	outputf("fmt.Println()\n")
+
+	if n.Newline {
+		outputf("fmt.Println()\n")
+	}
 
 	options.Headers["fmt"] = struct{}{} // used package
 }

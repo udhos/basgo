@@ -198,6 +198,9 @@ var testTable = []buildTest{
 
 	{`10 goto 20`, "", "", true},
 	{sourceGoto, "", outputGoto, false},
+
+	{`10 print "hi"`, "", "hi\n", false},
+	{`10 print "hi";`, "", "hi", false},
 }
 
 func TestBuild(t *testing.T) {

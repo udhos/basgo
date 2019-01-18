@@ -213,9 +213,13 @@ stmt: /* empty */
      { $$ = &node.NodeList{} }
   | TkKeywordPrint
      { 
-        $$ = &node.NodePrint{}
+        $$ = &node.NodePrint{Newline: true}
      }
   | TkKeywordPrint expressions
+     {
+        $$ = &node.NodePrint{Expressions: $2, Newline: true}
+     }
+  | TkKeywordPrint expressions TkSemicolon
      {
         $$ = &node.NodePrint{Expressions: $2}
      }
