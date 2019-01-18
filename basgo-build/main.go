@@ -9,7 +9,7 @@ import (
 	"os"
 	"runtime"
 	"sort"
-	"strings"
+	//"strings"
 
 	"github.com/udhos/basgo/basgo"
 	"github.com/udhos/basgo/basparser"
@@ -78,6 +78,8 @@ func main() {
 		LineNumbers: lineNumbersTab,
 	}
 
+	libHeaders(options.Headers) // add packages used by lib() below
+
 	log.Printf("%s: scanning used vars", basgoLabel)
 
 	for _, n := range nodes {
@@ -110,6 +112,14 @@ func main() {
 	return status, errors
 }
 
+func libHeaders(h map[string]struct{}) {
+	h["bufio"] = struct{}{}
+	h["log"] = struct{}{}
+	h["os"] = struct{}{}
+	h["strconv"] = struct{}{}
+	h["strings"] = struct{}{}
+}
+
 func lib(outputf node.FuncPrintf) {
 
 	funcBoolToInt := `
@@ -123,15 +133,30 @@ func boolToInt(v bool) int {
 
 	funcInput := `
 func inputString() string {
-	return "inputString() FIXME-WRITEME"
-}
-
-func inputFloat() float64 {
-	return 9.9
+	r := bufio.NewReader(os.Stdin)
+	line, err := r.ReadString('\n')
+	if err != nil {
+		log.Printf("input error: %%v", err)
+	}
+	return line 
 }
 
 func inputInt() int {
-	return 9
+        str := strings.TrimSpace(inputString())
+	v, err := strconv.Atoi(str)
+	if err != nil {
+		log.Printf("integer error: %%v", err)
+	}
+	return v 
+}
+
+func inputFloat() float64 {
+        str := strings.TrimSpace(inputString())
+	v, err := strconv.ParseFloat(str, 64)
+	if err != nil {
+		log.Printf("float error: %%v", err)
+	}
+	return v 
 }
 `
 
@@ -153,16 +178,21 @@ func writeVar(vars map[string]struct{}, outputf node.FuncPrintf) {
 	if len(vars) > 0 {
 		outputf("var (\n")
 		for v := range vars {
-			var t string
-			switch {
-			case strings.HasSuffix(v, "$"):
-				t = "string"
-			case strings.HasSuffix(v, "%"):
-				t = "int"
+			vv := node.RenameVar(v)
+			t := node.VarType(v)
+			var tt string
+			switch t {
+			case node.TypeString:
+				tt = "string"
+			case node.TypeInteger:
+				tt = "int"
+			case node.TypeFloat:
+				tt = "float64"
 			default:
-				t = "float64"
+				log.Printf("writeVar: unknown var %s/%s type: %d", v, vv, t)
+				tt = "TYPE_UNKNOWN_writeVar"
 			}
-			outputf("  %s %s // [%s]\n", node.RenameVar(v), t, v)
+			outputf("  %s %s // [%s]\n", vv, tt, v)
 		}
 		outputf(")\n")
 	}
