@@ -227,6 +227,9 @@ func (n *NodePrint) Show(printf FuncPrintf) {
 		printf(e.String())
 		printf(">")
 	}
+	if n.Newline {
+		printf(" NEWLINE")
+	}
 	printf("]")
 }
 
@@ -342,7 +345,7 @@ func (n *NodeIf) Build(options *BuildOptions, outputf FuncPrintf) {
 
 	_, isEmpty := n.Else.(*NodeEmpty)
 	if !isEmpty {
-		outputf("} else {")
+		outputf("} else {\n")
 		n.Else.Build(options, outputf)
 	}
 
