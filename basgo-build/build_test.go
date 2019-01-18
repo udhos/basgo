@@ -209,6 +209,11 @@ var testTable = []buildTest{
 	{`10 if 0 then print 1 else print 2`, "", "2\n", false},
 	{`10 if -1 then print 1 else print 2`, "", "1\n", false},
 	{`10 if 1.1 then print 1 else print 2`, "", "1\n", false},
+
+	{"10 if 0 then 20\n20 end\n30 print 30", "", "", false},
+	{"10 if 0 goto 20\n20 end\n30 print 30", "", "", false},
+	{"10 if 0 then 20 else 30\n20 end\n30 print 30", "", "30\n", false},
+	{"10 if 0 goto 20 else 30\n20 end\n30 print 30", "", "30\n", false},
 }
 
 func TestBuild(t *testing.T) {

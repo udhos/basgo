@@ -204,17 +204,38 @@ stmt_goto: TkNumber
     }
   ;
 
+then_or_goto: TkKeywordThen
+           |
+           TkKeywordGoto
+           ;
+
 stmt: /* empty */
      { $$ = &node.NodeEmpty{} }
   | TkKeywordEnd
      { $$ = &node.NodeEnd{} }
-  | TkKeywordIf exp TkKeywordThen stmt_goto
+  | TkKeywordIf exp then_or_goto stmt_goto
      {
        cond := $2
        if !node.TypeNumeric(cond.Type()) {
            yylex.Error("IF condition must be boolean")
        }
        $$ = &node.NodeIf{Cond: cond, Then: $4, Else: &node.NodeEmpty{}}
+     }
+  | TkKeywordIf exp then_or_goto stmt_goto TkKeywordElse stmt_goto
+     {
+       cond := $2
+       if !node.TypeNumeric(cond.Type()) {
+           yylex.Error("IF condition must be boolean")
+       }
+       $$ = &node.NodeIf{Cond: cond, Then: $4, Else: $6}
+     }
+  | TkKeywordIf exp then_or_goto stmt_goto TkKeywordElse stmt
+     {
+       cond := $2
+       if !node.TypeNumeric(cond.Type()) {
+           yylex.Error("IF condition must be boolean")
+       }
+       $$ = &node.NodeIf{Cond: cond, Then: $4, Else: $6}
      }
   | TkKeywordIf exp TkKeywordThen stmt
      {
