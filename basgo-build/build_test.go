@@ -220,6 +220,12 @@ var testTable = []buildTest{
 
 	{`10 print "abc" : if 1 then print 1:print 2:print 3 else print 4:print 5:print 6`, "", "abc\n1\n2\n3\n", false},
 	{`10 print "abc" : if 0 then print 1:print 2:print 3 else print 4:print 5:print 6`, "", "abc\n4\n5\n6\n", false},
+
+	{`10 input a : print a`, "2\n", "2\n", false},
+	{`10 input a! : print a!`, "2.1\n", "2.1\n", false},
+	{`10 input a# : print a#`, "2.1\n", "2.1\n", false},
+	{`10 input a% : print a%`, "2\n", "2\n", false},
+	{`10 input a$ : print a$`, "abc\n", "abc\n", false},
 }
 
 func TestBuild(t *testing.T) {

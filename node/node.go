@@ -419,6 +419,10 @@ func (n *NodeInput) Show(printf FuncPrintf) {
 	printf("[%s %s]", n.Name(), n.Variable)
 }
 
+const InputString = "inputString()"
+const InputInteger = "inputInteger()"
+const InputFloat = "inputFloat()"
+
 // Build generates code
 func (n *NodeInput) Build(options *BuildOptions, outputf FuncPrintf) {
 	outputf("// ")
@@ -430,11 +434,11 @@ func (n *NodeInput) Build(options *BuildOptions, outputf FuncPrintf) {
 	t := VarType(n.Variable) // a$ => string
 	switch t {
 	case TypeString:
-		code = "inputString()"
+		code = InputString
 	case TypeInteger:
-		code = "inputInteger()"
+		code = InputInteger
 	case TypeFloat:
-		code = "inputFloat()"
+		code = InputFloat
 	default:
 		msg := fmt.Sprintf("NodeInput.Build: unknown var '%s' type: %d", n.Variable, t)
 		log.Printf(msg)

@@ -64,6 +64,7 @@ func compile(input io.Reader, outputf node.FuncPrintf) (int, int) {
 
 	header := `
 package main
+
 `
 	mainOpen := `
 func main() {
@@ -101,7 +102,11 @@ func main() {
 
 	outputf(header)
 	writeImport(options.Headers, outputf)
+
+	outputf("var stdin = bufio.NewReader(os.Stdin) // stdin used by INPUT lib\n")
+
 	outputf(mainOpen)
+
 	writeVar(options.Vars, outputf)
 	outputf(buf.String())
 
@@ -131,34 +136,39 @@ func boolToInt(v bool) int {
 }
 `
 
-	funcInput := `
-func inputString() string {
-	r := bufio.NewReader(os.Stdin)
-	line, err := r.ReadString('\n')
+	funcInputFmt := `
+func %s string {
+
+	buf, isPrefix, err := stdin.ReadLine()
 	if err != nil {
-		log.Printf("input error: %%v", err)
+		log.Printf("input error: %%%%v", err)
 	}
-	return line 
+	if isPrefix {
+		log.Printf("input too big has been truncated")
+	}
+
+	return string(buf)
 }
 
-func inputInt() int {
+func %s int {
         str := strings.TrimSpace(inputString())
 	v, err := strconv.Atoi(str)
 	if err != nil {
-		log.Printf("integer error: %%v", err)
+		log.Printf("integer error: %%%%v", err)
 	}
 	return v 
 }
 
-func inputFloat() float64 {
+func %s float64 {
         str := strings.TrimSpace(inputString())
 	v, err := strconv.ParseFloat(str, 64)
 	if err != nil {
-		log.Printf("float error: %%v", err)
+		log.Printf("float error: %%%%v", err)
 	}
 	return v 
 }
 `
+	funcInput := fmt.Sprintf(funcInputFmt, node.InputString, node.InputInteger, node.InputFloat)
 
 	outputf(funcBoolToInt)
 	outputf(funcInput)
