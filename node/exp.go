@@ -441,6 +441,32 @@ func (e *NodeExpLen) FindUsedVars(vars map[string]struct{}) {
 	}
 }
 
+// NodeExpRnd holds value
+type NodeExpRnd struct {
+}
+
+// Type returns type
+func (e *NodeExpRnd) Type() int {
+	return TypeFloat
+}
+
+// String returns value
+func (e *NodeExpRnd) String() string {
+	return "RND"
+}
+
+// Exp returns value
+func (e *NodeExpRnd) Exp(options *BuildOptions) string {
+	options.Headers["math/rand"] = struct{}{}
+	options.Rnd = true
+	return "rnd.Float64()"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpRnd) FindUsedVars(vars map[string]struct{}) {
+	// do nothing
+}
+
 // NodeExpNot holds value
 type NodeExpNot struct {
 	Value NodeExp

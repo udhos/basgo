@@ -121,6 +121,7 @@ func Reset() {
 %token <tok> TkKeywordPrint
 %token <typeRem> TkKeywordRem
 %token <tok> TkKeywordReturn
+%token <tok> TkKeywordRnd
 %token <tok> TkKeywordRun
 %token <tok> TkKeywordSave
 %token <tok> TkKeywordStep
@@ -679,6 +680,7 @@ exp: TkNumber { $$ = &node.NodeExpNumber{Value:$1} }
        $$ = &node.NodeExpLE{Left:$1, Right:$3}
      }
    | TkKeywordLen exp { $$ = &node.NodeExpLen{Value:$2} }
+   | TkKeywordRnd { $$ = &node.NodeExpRnd{} }
    ;
 
 %%
@@ -787,6 +789,7 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 		case TkKeywordImp: // do not store
 		case TkKeywordOr: // do not store
 		case TkKeywordXor: // do not store
+		case TkKeywordRnd: // do not store
 		case TkKeywordThen: // do not store
 		default:
 			log.Printf("InputLex.Lex: FIXME token value [%s] not stored for parser actions\n", t.Value)

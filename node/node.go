@@ -44,6 +44,7 @@ type BuildOptions struct {
 	Headers     map[string]struct{}
 	Vars        map[string]struct{}
 	LineNumbers map[string]LineNumber // numbers used by GOTO, GOSUB etc
+	Rnd         bool                  // using RND
 }
 
 // RenameVar renames a.b$ => str_a_b

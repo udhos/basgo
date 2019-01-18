@@ -107,6 +107,10 @@ func main() {
 
 	outputf(mainOpen)
 
+	if options.Rnd {
+		outputf("rnd := rand.New(rand.NewSource(99)) // FIXME non-fixed seed\n")
+	}
+
 	writeVar(options.Vars, outputf)
 	outputf(buf.String())
 
