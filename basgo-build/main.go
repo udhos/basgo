@@ -44,12 +44,18 @@ func compile(input io.Reader, outputf node.FuncPrintf) (int, int) {
 
 	log.Printf("%s: checking lines used/defined", basgoLabel)
 
+	var undefLines int
+
 	for n, ln := range lineNumbersTab {
 		//log.Printf("%s: line %s used=%v defined=%v", basgoLabel, n, ln.Used, ln.Defined)
 		if ln.Used && !ln.Defined {
+			undefLines++
 			log.Printf("%s: line %s used but not defined", basgoLabel, n)
-			return 0, 1000
 		}
+	}
+
+	if undefLines != 0 {
+		return 0, 1000 + undefLines
 	}
 
 	log.Printf("%s: sorting lines", basgoLabel)
