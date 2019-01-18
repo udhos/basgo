@@ -279,7 +279,7 @@ func (n *NodeEnd) FindUsedVars(vars map[string]struct{}) {
 	// do nothing
 }
 
-// NodeGoto is end
+// NodeGoto is goto
 type NodeGoto struct {
 	Line string
 }
@@ -302,6 +302,58 @@ func (n *NodeGoto) Build(options *BuildOptions, outputf FuncPrintf) {
 // FindUsedVars finds used vars
 func (n *NodeGoto) FindUsedVars(vars map[string]struct{}) {
 	// do nothing
+}
+
+// NodeIf is IF
+type NodeIf struct {
+	Cond NodeExp
+	Then Node
+	Else Node
+}
+
+// Name returns the name of the node
+func (n *NodeIf) Name() string {
+	return "IF"
+}
+
+// Show displays the node
+func (n *NodeIf) Show(printf FuncPrintf) {
+	printf("[")
+	printf(n.Name())
+	printf(" <")
+	printf(n.Cond.String())
+	printf("> THEN <")
+	n.Then.Show(printf)
+	printf("> ELSE <")
+	n.Else.Show(printf)
+	printf(">]")
+}
+
+// Build generates code
+func (n *NodeIf) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// %s %s THEN ", n.Name(), n.Cond.String())
+	n.Then.Show(outputf)
+	outputf(" ELSE ")
+	n.Else.Show(outputf)
+	outputf("\n")
+
+	outputf("if 0!=(%s) {\n", n.Cond.Exp(options))
+	n.Then.Build(options, outputf)
+
+	_, isEmpty := n.Else.(*NodeEmpty)
+	if !isEmpty {
+		outputf("} else {")
+		n.Else.Build(options, outputf)
+	}
+
+	outputf("}\n")
+}
+
+// FindUsedVars finds used vars
+func (n *NodeIf) FindUsedVars(vars map[string]struct{}) {
+	n.Cond.FindUsedVars(vars)
+	n.Then.FindUsedVars(vars)
+	n.Else.FindUsedVars(vars)
 }
 
 // NodeList lists lines

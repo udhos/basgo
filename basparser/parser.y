@@ -59,6 +59,7 @@ func Reset() {
 %type <typeLine> line
 %type <typeStmtList> statements
 %type <typeStmt> stmt
+%type <typeStmt> stmt_goto
 %type <typeStmt> assign
 %type <typeExpressions> expressions
 %type <typeExp> exp
@@ -187,13 +188,9 @@ statements: stmt
      }
   ;
 
-stmt: /* empty */
-     { $$ = &node.NodeEmpty{} }
-  | TkKeywordEnd
-     { $$ = &node.NodeEnd{} }
-  | TkKeywordGoto TkNumber
-     { 
-       n := $2
+stmt_goto: TkNumber
+    {
+       n := $1
        ln, found := LineNumbers[n]
        if found {
          // set used, keep defined unchanged
@@ -204,7 +201,47 @@ stmt: /* empty */
          LineNumbers[n] = node.LineNumber{Used: true}
        }
        $$ = &node.NodeGoto{Line: n}
+    }
+  ;
+
+stmt: /* empty */
+     { $$ = &node.NodeEmpty{} }
+  | TkKeywordEnd
+     { $$ = &node.NodeEnd{} }
+  | TkKeywordIf exp TkKeywordThen stmt_goto
+     {
+       cond := $2
+       if !node.TypeNumeric(cond.Type()) {
+           yylex.Error("IF condition must be boolean")
+       }
+       $$ = &node.NodeIf{Cond: cond, Then: $4, Else: &node.NodeEmpty{}}
      }
+  | TkKeywordIf exp TkKeywordThen stmt
+     {
+       cond := $2
+       if !node.TypeNumeric(cond.Type()) {
+           yylex.Error("IF condition must be boolean")
+       }
+       $$ = &node.NodeIf{Cond: cond, Then: $4, Else: &node.NodeEmpty{}}
+     }
+  | TkKeywordIf exp TkKeywordThen stmt TkKeywordElse stmt_goto
+     {
+       cond := $2
+       if !node.TypeNumeric(cond.Type()) {
+           yylex.Error("IF condition must be boolean")
+       }
+       $$ = &node.NodeIf{Cond: cond, Then: $4, Else: $6}
+     }
+  | TkKeywordIf exp TkKeywordThen stmt TkKeywordElse stmt
+     {
+       cond := $2
+       if !node.TypeNumeric(cond.Type()) {
+           yylex.Error("IF condition must be boolean")
+       }
+       $$ = &node.NodeIf{Cond: cond, Then: $4, Else: $6}
+     }
+  | TkKeywordGoto stmt_goto
+     { $$ = $2 }
   | TkKeywordLet assign
      { $$ = $2 }
   | assign
@@ -685,7 +722,9 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 		case TkBackSlash: // do not store
 		case TkPow: // do not store
 		case TkKeywordEnd: // do not store
+		case TkKeywordElse: // do not store
 		case TkKeywordGoto: // do not store
+		case TkKeywordIf: // do not store
 		case TkKeywordLen: // do not store
 		case TkKeywordLet: // do not store
 		case TkKeywordList: // do not store
@@ -697,6 +736,7 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 		case TkKeywordImp: // do not store
 		case TkKeywordOr: // do not store
 		case TkKeywordXor: // do not store
+		case TkKeywordThen: // do not store
 		default:
 			log.Printf("InputLex.Lex: FIXME token value [%s] not stored for parser actions\n", t.Value)
 	}
