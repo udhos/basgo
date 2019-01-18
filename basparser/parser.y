@@ -19,7 +19,7 @@ import (
 var (
 	Root []node.Node
 	lineList []node.Node
-	nodeList []node.Node
+	nodeListStack [][]node.Node // support nested node lists
 	expList []node.NodeExp
 	LineNumbers = map[string]node.LineNumber{} // used by GOTO GOSUB etc
 )
@@ -156,11 +156,27 @@ line_list: line
      }
   ;
 
-line: statements
+statements_push:
      {
-        $$ = &node.LineImmediate{Nodes:$1}
+        // create new nested node list
+        // because an IF node can hold a nested list of nodes
+        nodeListStack = append(nodeListStack, []node.Node{})
      }
-  | TkNumber statements
+     ;
+
+statements_pop:
+     {
+        // drop nested node list
+	last := len(nodeListStack) - 1
+	nodeListStack = nodeListStack[:last]
+     }
+     ;
+
+line: statements_push statements statements_pop
+     {
+	$$ = &node.LineImmediate{Nodes:$2}
+     }
+  | TkNumber statements_push statements statements_pop
      {
        n := $1
        ln, found := LineNumbers[n]
@@ -172,19 +188,21 @@ line: statements
          // set defined, unset used
          LineNumbers[n] = node.LineNumber{Defined: true}
        }
-       $$ = &node.LineNumbered{LineNumber:n, Nodes:$2}
+       $$ = &node.LineNumbered{LineNumber:n, Nodes:$3}
      }
   ;
 
 statements: stmt
      {
-        nodeList = []node.Node{$1} // reset node list
-	$$ = nodeList
+	last := len(nodeListStack) - 1
+	nodeListStack[last] = []node.Node{$1} // init node list
+	$$ = nodeListStack[last]
      }
   | statements TkColon stmt
      {
-        nodeList = append(nodeList, $3)
-        $$ = nodeList
+	last := len(nodeListStack) - 1
+	nodeListStack[last] = append(nodeListStack[last], $3)
+        $$ = nodeListStack[last]
      }
   ;
 
