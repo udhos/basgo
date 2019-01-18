@@ -310,8 +310,8 @@ func (n *NodeGoto) FindUsedVars(vars map[string]struct{}) {
 // NodeIf is IF
 type NodeIf struct {
 	Cond NodeExp
-	Then Node
-	Else Node
+	Then []Node
+	Else []Node
 }
 
 // Name returns the name of the node
@@ -325,28 +325,54 @@ func (n *NodeIf) Show(printf FuncPrintf) {
 	printf(n.Name())
 	printf(" <")
 	printf(n.Cond.String())
-	printf("> THEN <")
-	n.Then.Show(printf)
-	printf("> ELSE <")
-	n.Else.Show(printf)
-	printf(">]")
+	printf("> THEN ")
+	for _, t := range n.Then {
+		printf("<")
+		t.Show(printf)
+		printf(">")
+	}
+	printf(" ELSE ")
+	for _, t := range n.Else {
+		printf("<")
+		t.Show(printf)
+		printf(">")
+	}
+	printf("]")
 }
 
 // Build generates code
 func (n *NodeIf) Build(options *BuildOptions, outputf FuncPrintf) {
 	outputf("// %s %s THEN ", n.Name(), n.Cond.String())
-	n.Then.Show(outputf)
+	for _, t := range n.Then {
+		t.Show(outputf)
+	}
 	outputf(" ELSE ")
-	n.Else.Show(outputf)
+	for _, t := range n.Else {
+		t.Show(outputf)
+	}
 	outputf("\n")
 
 	outputf("if 0!=(%s) {\n", n.Cond.Exp(options))
-	n.Then.Build(options, outputf)
 
-	_, isEmpty := n.Else.(*NodeEmpty)
-	if !isEmpty {
+	for _, t := range n.Then {
+		t.Build(options, outputf)
+	}
+
+	var hasElse bool
+
+	for _, t := range n.Else {
+		if _, empty := t.(*NodeEmpty); !empty {
+			hasElse = true // found non-empty node under ELSE
+			break
+		}
+	}
+
+	if hasElse {
 		outputf("} else {\n")
-		n.Else.Build(options, outputf)
+
+		for _, t := range n.Else {
+			t.Build(options, outputf)
+		}
 	}
 
 	outputf("}\n")
@@ -355,8 +381,12 @@ func (n *NodeIf) Build(options *BuildOptions, outputf FuncPrintf) {
 // FindUsedVars finds used vars
 func (n *NodeIf) FindUsedVars(vars map[string]struct{}) {
 	n.Cond.FindUsedVars(vars)
-	n.Then.FindUsedVars(vars)
-	n.Else.FindUsedVars(vars)
+	for _, t := range n.Then {
+		t.FindUsedVars(vars)
+	}
+	for _, t := range n.Else {
+		t.FindUsedVars(vars)
+	}
 }
 
 // NodeList lists lines

@@ -58,6 +58,7 @@ func Reset() {
 %type <typeLineList> line_list
 %type <typeLine> line
 %type <typeStmtList> statements
+%type <typeStmtList> statements_aux
 %type <typeStmt> stmt
 %type <typeStmt> stmt_goto
 %type <typeStmt> assign
@@ -172,11 +173,17 @@ statements_pop:
      }
      ;
 
-line: statements_push statements statements_pop
+statements_aux: statements_push statements statements_pop
      {
-	$$ = &node.LineImmediate{Nodes:$2}
+        $$ = $2
      }
-  | TkNumber statements_push statements statements_pop
+     ;
+
+line: statements_aux
+     {
+	$$ = &node.LineImmediate{Nodes:$1}
+     }
+  | TkNumber statements_aux
      {
        n := $1
        ln, found := LineNumbers[n]
@@ -188,7 +195,7 @@ line: statements_push statements statements_pop
          // set defined, unset used
          LineNumbers[n] = node.LineNumber{Defined: true}
        }
-       $$ = &node.LineNumbered{LineNumber:n, Nodes:$3}
+       $$ = &node.LineNumbered{LineNumber:n, Nodes:$2}
      }
   ;
 
@@ -237,7 +244,7 @@ stmt: /* empty */
        if !node.TypeNumeric(cond.Type()) {
            yylex.Error("IF condition must be boolean")
        }
-       $$ = &node.NodeIf{Cond: cond, Then: $4, Else: &node.NodeEmpty{}}
+       $$ = &node.NodeIf{Cond: cond, Then: []node.Node{$4}, Else: []node.Node{&node.NodeEmpty{}}}
      }
   | TkKeywordIf exp then_or_goto stmt_goto TkKeywordElse stmt_goto
      {
@@ -245,33 +252,33 @@ stmt: /* empty */
        if !node.TypeNumeric(cond.Type()) {
            yylex.Error("IF condition must be boolean")
        }
-       $$ = &node.NodeIf{Cond: cond, Then: $4, Else: $6}
+       $$ = &node.NodeIf{Cond: cond, Then: []node.Node{$4}, Else: []node.Node{$6}}
      }
-  | TkKeywordIf exp then_or_goto stmt_goto TkKeywordElse stmt
+  | TkKeywordIf exp then_or_goto stmt_goto TkKeywordElse statements_aux
      {
        cond := $2
        if !node.TypeNumeric(cond.Type()) {
            yylex.Error("IF condition must be boolean")
        }
-       $$ = &node.NodeIf{Cond: cond, Then: $4, Else: $6}
+       $$ = &node.NodeIf{Cond: cond, Then: []node.Node{$4}, Else: $6}
      }
-  | TkKeywordIf exp TkKeywordThen stmt
+  | TkKeywordIf exp TkKeywordThen statements_aux
      {
        cond := $2
        if !node.TypeNumeric(cond.Type()) {
            yylex.Error("IF condition must be boolean")
        }
-       $$ = &node.NodeIf{Cond: cond, Then: $4, Else: &node.NodeEmpty{}}
+       $$ = &node.NodeIf{Cond: cond, Then: $4, Else: []node.Node{&node.NodeEmpty{}}}
      }
-  | TkKeywordIf exp TkKeywordThen stmt TkKeywordElse stmt_goto
+  | TkKeywordIf exp TkKeywordThen statements_aux TkKeywordElse stmt_goto
      {
        cond := $2
        if !node.TypeNumeric(cond.Type()) {
            yylex.Error("IF condition must be boolean")
        }
-       $$ = &node.NodeIf{Cond: cond, Then: $4, Else: $6}
+       $$ = &node.NodeIf{Cond: cond, Then: $4, Else: []node.Node{$6}}
      }
-  | TkKeywordIf exp TkKeywordThen stmt TkKeywordElse stmt
+  | TkKeywordIf exp TkKeywordThen statements_aux TkKeywordElse statements_aux
      {
        cond := $2
        if !node.TypeNumeric(cond.Type()) {
