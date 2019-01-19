@@ -8,6 +8,8 @@
 
 # Run the Compiler
 
+Status: the compiler currently can handle very simple programs.
+
     basgo-build < program.bas > program.go
     go run program.go
 
@@ -17,6 +19,8 @@
     go run game.go
 
 # Run the Interpreter
+
+Status: the interpreter currently can only parse simple programs, but is unable to execute anything.
 
     # interpreter interactively reads from stdin
     basgo-run
