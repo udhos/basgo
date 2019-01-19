@@ -169,7 +169,7 @@ func %s int {
         str := strings.TrimSpace(inputString())
 	v, err := strconv.Atoi(str)
 	if err != nil {
-		log.Printf("integer error: %%%%v", err)
+		log.Printf("input: integer '%%%%s' error: %%%%v", str, err)
 	}
 	return v 
 }
@@ -178,7 +178,7 @@ func %s float64 {
         str := strings.TrimSpace(inputString())
 	v, err := strconv.ParseFloat(str, 64)
 	if err != nil {
-		log.Printf("float error: %%%%v", err)
+		log.Printf("input: float '%%%%s' error: %%%%v", str, err)
 	}
 	return v 
 }
