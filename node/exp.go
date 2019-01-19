@@ -477,6 +477,7 @@ func (e *NodeExpLen) FindUsedVars(options *BuildOptions) {
 
 // NodeExpRnd holds value
 type NodeExpRnd struct {
+	Value NodeExp
 }
 
 // Type returns type
@@ -494,7 +495,8 @@ func (e *NodeExpRnd) Exp(options *BuildOptions) string {
 	options.Headers["time"] = struct{}{}
 	options.Headers["math/rand"] = struct{}{}
 	options.Rnd = true
-	return "rnd.Float64()"
+
+	return "randomFloat64(" + e.Value.Exp(options) + ")"
 }
 
 // FindUsedVars finds used vars

@@ -110,10 +110,16 @@ func main() {
 		outputf("var stdin = bufio.NewReader(os.Stdin) // stdin used by INPUT lib\n")
 	}
 
+	if options.Rnd {
+		outputf("var rnd *rand.Rand // used by RND lib\n")
+		outputf("var rndLast float64 // used by RND lib\n")
+	}
+
 	outputf(mainOpen)
 
 	if options.Rnd {
-		outputf("rnd := rand.New(rand.NewSource(time.Now().UnixNano())) // rnd used by RND lib\n")
+		outputf("rnd = rand.New(rand.NewSource(time.Now().UnixNano())) // used by RND lib\n")
+		outputf("rndLast = rnd.Float64() // used by RND lib\n")
 	}
 
 	writeVar(options.Vars, outputf)
@@ -121,7 +127,7 @@ func main() {
 
 	outputf(mainClose)
 
-	lib(outputf, options.Input)
+	lib(outputf, options.Input, options.Rnd)
 
 	return status, errors
 }
@@ -134,7 +140,7 @@ func inputHeaders(h map[string]struct{}) {
 	h["strings"] = struct{}{}
 }
 
-func lib(outputf node.FuncPrintf, input bool) {
+func lib(outputf node.FuncPrintf, input, rnd bool) {
 
 	funcBoolToInt := `
 func boolToInt(v bool) int {
@@ -182,6 +188,18 @@ func %s float64 {
 	if input {
 		funcInput := fmt.Sprintf(funcInputFmt, node.InputString, node.InputInteger, node.InputFloat)
 		outputf(funcInput)
+	}
+
+	if rnd {
+		funcRnd := `
+func randomFloat64(v float64) float64 {
+	if v > 0 {
+		rndLast = rnd.Float64() // generate new number
+	}
+	return rndLast
+}
+`
+		outputf(funcRnd)
 	}
 }
 

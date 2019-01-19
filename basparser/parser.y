@@ -701,7 +701,15 @@ exp: TkNumber { $$ = &node.NodeExpNumber{Value:$1} }
        $$ = &node.NodeExpInt{Value:e}
      }
    | TkKeywordLen exp { $$ = &node.NodeExpLen{Value:$2} }
-   | TkKeywordRnd { $$ = &node.NodeExpRnd{} }
+   | TkKeywordRnd { $$ = &node.NodeExpRnd{Value:&node.NodeExpNumber{Value:"1"}} }
+   | TkKeywordRnd exp
+     {
+       e := $2
+       if !node.TypeNumeric(e.Type()) {
+           yylex.Error("RND expression must be numeric")
+       }
+       $$ = &node.NodeExpRnd{Value:e}
+     }
    ;
 
 %%
