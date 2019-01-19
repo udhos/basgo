@@ -18,15 +18,19 @@ import (
 // parser auxiliary variables
 var (
 	Root []node.Node
-	lineList []node.Node
-	nodeListStack [][]node.Node // support nested node lists
-	expList []node.NodeExp
 	LineNumbers = map[string]node.LineNumber{} // used by GOTO GOSUB etc
+	LibInput bool
+
+	nodeListStack [][]node.Node // support nested node lists
+	lineList []node.Node
+	expList []node.NodeExp
 )
 
 func Reset() {
 	Root = []node.Node{}
+	LibInput = false
 	LineNumbers = map[string]node.LineNumber{} // used by GOTO GOSUB etc
+	nodeListStack = [][]node.Node{}
 }
 
 %}
@@ -289,6 +293,7 @@ stmt: /* empty */
      }
   | TkKeywordInput TkIdentifier
      {
+        LibInput = true
         $$ = &node.NodeInput{Variable: $2}
      }
   | TkKeywordGoto stmt_goto

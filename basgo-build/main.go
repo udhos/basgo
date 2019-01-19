@@ -34,7 +34,7 @@ func compile(input io.Reader, outputf node.FuncPrintf) (int, int) {
 
 	log.Printf("%s: parsing", basgoLabel)
 
-	lineNumbersTab, nodes, status, errors := parse(input, outputf)
+	libInput, lineNumbersTab, nodes, status, errors := parse(input, outputf)
 
 	if status != 0 || errors != 0 {
 		return status, errors
@@ -77,9 +77,12 @@ func main() {
 		Headers:     map[string]struct{}{},
 		Vars:        map[string]struct{}{},
 		LineNumbers: lineNumbersTab,
+		Input:       libInput,
 	}
 
-	libHeaders(options.Headers) // add packages used by lib() below
+	if options.Input {
+		inputHeaders(options.Headers)
+	}
 
 	log.Printf("%s: scanning used vars", basgoLabel)
 
@@ -103,7 +106,9 @@ func main() {
 	outputf(header)
 	writeImport(options.Headers, outputf)
 
-	outputf("var stdin = bufio.NewReader(os.Stdin) // stdin used by INPUT lib\n")
+	if options.Input {
+		outputf("var stdin = bufio.NewReader(os.Stdin) // stdin used by INPUT lib\n")
+	}
 
 	outputf(mainOpen)
 
@@ -116,12 +121,12 @@ func main() {
 
 	outputf(mainClose)
 
-	lib(outputf)
+	lib(outputf, options.Input)
 
 	return status, errors
 }
 
-func libHeaders(h map[string]struct{}) {
+func inputHeaders(h map[string]struct{}) {
 	h["bufio"] = struct{}{}
 	h["log"] = struct{}{}
 	h["os"] = struct{}{}
@@ -129,7 +134,7 @@ func libHeaders(h map[string]struct{}) {
 	h["strings"] = struct{}{}
 }
 
-func lib(outputf node.FuncPrintf) {
+func lib(outputf node.FuncPrintf, input bool) {
 
 	funcBoolToInt := `
 func boolToInt(v bool) int {
@@ -172,10 +177,12 @@ func %s float64 {
 	return v 
 }
 `
-	funcInput := fmt.Sprintf(funcInputFmt, node.InputString, node.InputInteger, node.InputFloat)
-
 	outputf(funcBoolToInt)
-	outputf(funcInput)
+
+	if input {
+		funcInput := fmt.Sprintf(funcInputFmt, node.InputString, node.InputInteger, node.InputFloat)
+		outputf(funcInput)
+	}
 }
 
 func writeImport(headers map[string]struct{}, outputf node.FuncPrintf) {
@@ -212,12 +219,12 @@ func writeVar(vars map[string]struct{}, outputf node.FuncPrintf) {
 	}
 }
 
-func parse(input io.Reader, outputf node.FuncPrintf) (map[string]node.LineNumber, []node.Node, int, int) {
+func parse(input io.Reader, outputf node.FuncPrintf) (bool, map[string]node.LineNumber, []node.Node, int, int) {
 	debug := false
 	byteInput := bufio.NewReader(input)
 	lex := basparser.NewInputLex(byteInput, debug)
 	basparser.Reset()
 	status := basparser.InputParse(lex)
 
-	return basparser.LineNumbers, basparser.Root, status, lex.Errors()
+	return basparser.LibInput, basparser.LineNumbers, basparser.Root, status, lex.Errors()
 }
