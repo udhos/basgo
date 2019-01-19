@@ -71,8 +71,9 @@ const (
 	TkKeywordFor    = iota // FOR
 	TkKeywordGosub  = iota // GOSUB
 	TkKeywordGoto   = iota // GOTO
-	TkKeywordInput  = iota // INPUT
 	TkKeywordIf     = iota // IF
+	TkKeywordInput  = iota // INPUT
+	TkKeywordInt    = iota // INT
 	TkKeywordLen    = iota // LEN
 	TkKeywordLet    = iota // LET
 	TkKeywordList   = iota // LIST
@@ -117,6 +118,7 @@ var tabKeywords = []struct {
 	{TkKeywordIf, "IF"},
 	{TkKeywordImp, "IMP"},
 	{TkKeywordInput, "INPUT"},
+	{TkKeywordInt, "INT"},
 	{TkKeywordLen, "LEN"},
 	{TkKeywordLet, "LET"},
 	{TkKeywordList, "LIST"},
@@ -196,6 +198,7 @@ var tabType = []string{
 	"GOTO",
 	"IF",
 	"INPUT",
+	"INT",
 	"LEN",
 	"LET",
 	"LIST",

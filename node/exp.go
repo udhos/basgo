@@ -411,6 +411,40 @@ func (e *NodeExpGroup) FindUsedVars(options *BuildOptions) {
 	e.Value.FindUsedVars(options)
 }
 
+// NodeExpInt holds value
+type NodeExpInt struct {
+	Value NodeExp
+}
+
+// Type returns type
+func (e *NodeExpInt) Type() int {
+	return TypeInteger
+}
+
+// String returns value
+func (e *NodeExpInt) String() string {
+	return "INT(" + e.Value.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpInt) Exp(options *BuildOptions) string {
+	return "(" + floorInt(options, e.Value) + ")"
+}
+
+func floorInt(options *BuildOptions, e NodeExp) string {
+	s := e.Exp(options)
+	if e.Type() != TypeInteger {
+		options.Headers["math"] = struct{}{}
+		return toInt("math.Floor(" + s + ") /* <- floorInt(non-int) */")
+	}
+	return s
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpInt) FindUsedVars(options *BuildOptions) {
+	e.Value.FindUsedVars(options)
+}
+
 // NodeExpLen holds value
 type NodeExpLen struct {
 	Value NodeExp
