@@ -226,6 +226,7 @@ var testTable = []buildTest{
 	{`10 input a# : print a#`, "2.1\n", "2.1\n", false},
 	{`10 input a% : print a%`, "2\n", "2\n", false},
 	{`10 input a$ : print a$`, "abc\n", "abc\n", false},
+	{`10 input a:input b:print a" "b;`, "2\n3\n", "2 3", false},
 
 	{`10 a="":print a`, "", "", true},
 	{`10 a%="":print a%`, "", "", true},
