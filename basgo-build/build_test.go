@@ -248,9 +248,13 @@ var testTable = []buildTest{
 	{`10 a#=a:print a#`, "", "0\n", false},
 	{`10 a#=a%:print a#`, "", "0\n", false},
 
-	{`10 a=45:print A`, "", "45\n", false},
 	{`10 a%=5.1:print a%`, "", "5\n", false},
 	{`10 a%=5.9:print a%`, "", "6\n", false},
+
+	{`10 a=45:print A`, "", "45\n", false},
+	{`10 A=45:print a`, "", "45\n", false},
+	{`10 input a:print A;`, "23\n", "23", false},
+	{`10 input A:print a;`, "23\n", "23", false},
 }
 
 func TestBuild(t *testing.T) {

@@ -476,7 +476,7 @@ func (n *NodeInput) Build(options *BuildOptions, outputf FuncPrintf) {
 
 	v := RenameVar(n.Variable) // a$ => str_a
 
-	if _, varUsed := options.Vars[n.Variable]; varUsed {
+	if options.VarIsUsed(n.Variable) {
 		outputf("%s = %s\n", v, code)
 		return
 	}
