@@ -245,6 +245,8 @@ stmt: /* empty */
      { $$ = &node.NodeEmpty{} }
   | TkKeywordEnd
      { $$ = &node.NodeEnd{} }
+  | TkKeywordStop
+     { $$ = &node.NodeEnd{} }
   | TkKeywordIf exp then_or_goto stmt_goto
      {
        cond := $2
