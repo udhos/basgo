@@ -530,7 +530,7 @@ func (n *NodeRem) Show(printf FuncPrintf) {
 
 // Build generates code
 func (n *NodeRem) Build(options *BuildOptions, outputf FuncPrintf) {
-	outputf("// REM: '%s'", n.Value)
+	outputf("// REM: '%s'\n", n.Value)
 }
 
 // FindUsedVars finds used vars
