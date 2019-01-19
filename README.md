@@ -6,15 +6,20 @@
     cd basgo
     ./build.sh
 
-# Run the Interpreter
-
-    # interpreter interactively reads from stdin
-    basgo-run
-
 # Run the Compiler
 
     basgo-build < program.bas > program.go
     go run program.go
+
+## Example
+
+    basgo-build < examples/game.bas > game.go
+    go run game.go
+
+# Run the Interpreter
+
+    # interpreter interactively reads from stdin
+    basgo-run
 
 # References
 
