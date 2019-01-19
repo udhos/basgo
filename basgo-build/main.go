@@ -113,7 +113,7 @@ func main() {
 	outputf(mainOpen)
 
 	if options.Rnd {
-		outputf("rnd := rand.New(rand.NewSource(99)) // FIXME non-fixed seed\n")
+		outputf("rnd := rand.New(rand.NewSource(time.Now().UnixNano())) // rnd used by RND lib\n")
 	}
 
 	writeVar(options.Vars, outputf)

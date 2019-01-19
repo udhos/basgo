@@ -457,6 +457,7 @@ func (e *NodeExpRnd) String() string {
 
 // Exp returns value
 func (e *NodeExpRnd) Exp(options *BuildOptions) string {
+	options.Headers["time"] = struct{}{}
 	options.Headers["math/rand"] = struct{}{}
 	options.Rnd = true
 	return "rnd.Float64()"
