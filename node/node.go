@@ -46,6 +46,7 @@ type BuildOptions struct {
 	LineNumbers map[string]LineNumber // numbers used by GOTO, GOSUB etc
 	Rnd         bool                  // using lib RND
 	Input       bool                  // using lib INPUT
+	Left        bool                  // using lib LEFT
 }
 
 func (o *BuildOptions) VarSetUsed(name string) {

@@ -127,7 +127,7 @@ func main() {
 
 	outputf(mainClose)
 
-	lib(outputf, options.Input, options.Rnd)
+	lib(outputf, options.Input, options.Rnd, options.Left)
 
 	return status, errors
 }
@@ -140,7 +140,7 @@ func inputHeaders(h map[string]struct{}) {
 	h["strings"] = struct{}{}
 }
 
-func lib(outputf node.FuncPrintf, input, rnd bool) {
+func lib(outputf node.FuncPrintf, input, rnd, left bool) {
 
 	funcBoolToInt := `
 func boolToInt(v bool) int {
@@ -200,6 +200,21 @@ func randomFloat64(v float64) float64 {
 }
 `
 		outputf(funcRnd)
+	}
+
+	if left {
+		funcLeft := `
+func stringLeft(s string, size int) string {
+	if size < 1 {
+		return ""
+	}
+	if size > len(s) {
+		return s
+	}
+	return s[:size]
+}
+`
+		outputf(funcLeft)
 	}
 }
 

@@ -118,6 +118,7 @@ func Reset() {
 %token <tok> TkKeywordIf
 %token <tok> TkKeywordInput
 %token <tok> TkKeywordInt
+%token <tok> TkKeywordLeft
 %token <tok> TkKeywordLen
 %token <tok> TkKeywordLet
 %token <tok> TkKeywordList
@@ -700,6 +701,18 @@ exp: TkNumber { $$ = &node.NodeExpNumber{Value:$1} }
        }
        $$ = &node.NodeExpInt{Value:e}
      }
+   | TkKeywordLeft TkParLeft exp TkComma exp TkParRight
+     {
+       e1 := $3
+       e2 := $5
+       if e1.Type() != node.TypeString {
+           yylex.Error("LEFT$ value must be string")
+       }
+       if !node.TypeNumeric(e2.Type()) {
+           yylex.Error("LEFT$ size must be numeric")
+       }
+       $$ = &node.NodeExpLeft{Value:e1, Size:e2}
+     }
    | TkKeywordLen exp { $$ = &node.NodeExpLen{Value:$2} }
    | TkKeywordRnd { $$ = &node.NodeExpRnd{Value:&node.NodeExpNumber{Value:"1"}} }
    | TkKeywordRnd exp
@@ -808,6 +821,7 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 		case TkKeywordIf: // do not store
 		case TkKeywordInput: // do not store
 		case TkKeywordInt: // do not store
+		case TkKeywordLeft: // do not store
 		case TkKeywordLen: // do not store
 		case TkKeywordLet: // do not store
 		case TkKeywordList: // do not store
