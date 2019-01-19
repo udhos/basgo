@@ -320,6 +320,10 @@ stmt: /* empty */
      {
         $$ = &node.NodePrint{Expressions: $2}
      }
+  | TkKeywordPrint expressions TkComma
+     {
+        $$ = &node.NodePrint{Expressions: $2, Tab: true}
+     }
   | TkKeywordRem
      { $$ = &node.NodeRem{Value: $1} }
   ;

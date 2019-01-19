@@ -255,6 +255,7 @@ func (n *NodeAssign) FindUsedVars(options *BuildOptions) {
 // NodePrint is print
 type NodePrint struct {
 	Newline     bool
+	Tab         bool
 	Expressions []NodeExp
 }
 
@@ -270,6 +271,9 @@ func (n *NodePrint) Show(printf FuncPrintf) {
 		printf(" <")
 		printf(e.String())
 		printf(">")
+	}
+	if n.Tab {
+		printf(" TAB")
 	}
 	if n.Newline {
 		printf(" NEWLINE")
@@ -287,8 +291,12 @@ func (n *NodePrint) Build(options *BuildOptions, outputf FuncPrintf) {
 		outputf("fmt.Print(%s)\n", e.Exp(options))
 	}
 
+	if n.Tab {
+		outputf(`fmt.Print("        ") // PRINT tab due to ending comma\n`)
+	}
+
 	if n.Newline {
-		outputf("fmt.Println()\n")
+		outputf("fmt.Println() // PRINT newline not suppressed\n")
 	}
 
 	options.Headers["fmt"] = struct{}{} // used package
