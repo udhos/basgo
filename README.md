@@ -27,6 +27,8 @@ Status: the interpreter currently can only parse simple programs, but is unable 
 
 # References
 
+http://www.vintage-basic.net/games.html - BASIC Computer Games
+
 https://hwiegman.home.xs4all.nl/gw-man/ - GW-BASIC User's Guide
 
 http://www.antonis.de/qbebooks/gwbasman/ - GW-BASIC User's Guide
