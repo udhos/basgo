@@ -524,7 +524,7 @@ func (e *NodeExpRnd) Exp(options *BuildOptions) string {
 	options.Headers["math/rand"] = struct{}{}
 	options.Rnd = true
 
-	return "randomFloat64(" + e.Value.Exp(options) + ")"
+	return "randomFloat64(" + forceFloat(options, e.Value) + ")"
 }
 
 // FindUsedVars finds used vars
