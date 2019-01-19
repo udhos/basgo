@@ -317,7 +317,14 @@ stmt: /* empty */
 
 assign: TkIdentifier TkEqual exp
      {
-        $$ = &node.NodeAssign{Left: $1, Right: $3}
+	i := $1
+	e := $3
+	ti := node.VarType(i)
+	te := e.Type()
+	if !node.TypeCompare(ti, te) {
+           yylex.Error("Assignment type mismatch")
+	}
+        $$ = &node.NodeAssign{Left: i, Right: e}
      }
   ;
 

@@ -226,6 +226,26 @@ var testTable = []buildTest{
 	{`10 input a# : print a#`, "2.1\n", "2.1\n", false},
 	{`10 input a% : print a%`, "2\n", "2\n", false},
 	{`10 input a$ : print a$`, "abc\n", "abc\n", false},
+
+	{`10 a=""`, "", "", true},
+	{`10 a%=""`, "", "", true},
+	{`10 a!=""`, "", "", true},
+	{`10 a#=""`, "", "", true},
+	{`10 a$=""`, "", "", false},
+	{`10 a$=1`, "", "", true},
+
+	{`10 a=print:print a`, "", "", true},
+	{`10 a=let:print a`, "", "", true},
+	{`10 print=1`, "", "", true},
+	{`10 let=1`, "", "", true},
+	{`10 rnd=1`, "", "", true},
+
+	{`10 a=a%:print a`, "", "0\n", false},
+	{`10 a=a#:print a`, "", "0\n", false},
+	{`10 a%=a:print a%`, "", "0\n", false},
+	{`10 a%=a#:print a%`, "", "0\n", false},
+	{`10 a#=a:print a#`, "", "0\n", false},
+	{`10 a#=a%:print a#`, "", "0\n", false},
 }
 
 func TestBuild(t *testing.T) {
@@ -262,23 +282,22 @@ func TestBuild(t *testing.T) {
 			// build error expected
 			if status == 0 && errors == 0 {
 				t.Errorf("unexpected build success")
+				return
 			}
 			continue
 		} else {
 			// build error NOT expected
 			if status != 0 {
 				t.Errorf("unexpected build status=%d", status)
+				return
 			}
 			if errors != 0 {
 				t.Errorf("unexpected build errors=%d", errors)
+				return
 			}
 		}
 
 		w.Close()
-
-		if status != 0 || errors != 0 {
-			continue
-		}
 
 		cmd := exec.Command("go", "run", tmp)
 		cmd.Stdin = strings.NewReader(data.input)
@@ -287,12 +306,13 @@ func TestBuild(t *testing.T) {
 		errExec := cmd.Run()
 		if errExec != nil {
 			t.Errorf("go run %s: %v", tmp, errExec)
-			continue
+			return
 		}
 		result := output.String()
 		t.Logf("output: %q\n", result)
 		if result != data.output {
 			t.Errorf("unexpected output: got=%q expected=%q", result, data.output)
+			return
 		}
 	}
 

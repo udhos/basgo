@@ -212,10 +212,26 @@ func (n *NodeAssign) Build(options *BuildOptions, outputf FuncPrintf) {
 	n.Show(outputf)
 	outputf("\n")
 
+	ti := VarType(n.Left)
+	te := n.Right.Type()
+
+	v := RenameVar(n.Left)
+	e := n.Right.Exp(options)
+
+	switch {
+	case ti == TypeFloat && te == TypeInteger:
+		e = toFloat(e)
+	case ti == TypeInteger && te == TypeFloat:
+		options.Headers["math"] = struct{}{}
+		e = toInt("math.Round(" + e + ")")
+	}
+
+	code := fmt.Sprintf("%s = %s", v, e)
+
 	if _, found := options.Vars[n.Left]; found {
-		outputf("%s = %s\n", RenameVar(n.Left), n.Right.Exp(options))
+		outputf(code + "\n")
 	} else {
-		outputf("// %s = %s // suppressed \n", RenameVar(n.Left), n.Right.Exp(options))
+		outputf("// %s // suppressed\n", code)
 	}
 }
 
