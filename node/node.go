@@ -47,8 +47,18 @@ type BuildOptions struct {
 	Rnd         bool                  // using RND
 }
 
-// RenameVar renames a.b$ => str_a_b
+func (o *BuildOptions) VarSetUsed(name string) {
+	o.Vars[strings.ToLower(name)] = struct{}{}
+}
+
+func (o *BuildOptions) VarIsUsed(name string) bool {
+	_, used := o.Vars[strings.ToLower(name)]
+	return used
+}
+
+// RenameVar renames a.B$ => str_a_b
 func RenameVar(name string) string {
+	name = strings.ToLower(name)
 	name = strings.Replace(name, ".", "_", -1)
 	last := len(name) - 1
 	if last < 0 {
@@ -87,7 +97,7 @@ type Node interface {
 	Show(printf FuncPrintf)
 	Name() string
 	Build(options *BuildOptions, outputf FuncPrintf)
-	FindUsedVars(vars map[string]struct{})
+	FindUsedVars(options *BuildOptions)
 }
 
 // LineNumbered is numbered line
@@ -124,9 +134,9 @@ func (n *LineNumbered) Build(options *BuildOptions, outputf FuncPrintf) {
 }
 
 // FindUsedVars finds used vars
-func (n *LineNumbered) FindUsedVars(vars map[string]struct{}) {
+func (n *LineNumbered) FindUsedVars(options *BuildOptions) {
 	for _, n := range n.Nodes {
-		n.FindUsedVars(vars)
+		n.FindUsedVars(options)
 	}
 }
 
@@ -156,7 +166,7 @@ func (n *LineImmediate) Build(options *BuildOptions, outputf FuncPrintf) {
 }
 
 // FindUsedVars finds used vars
-func (n *LineImmediate) FindUsedVars(vars map[string]struct{}) {
+func (n *LineImmediate) FindUsedVars(options *BuildOptions) {
 	// do nothing
 }
 
@@ -180,7 +190,7 @@ func (n *NodeEmpty) Build(options *BuildOptions, outputf FuncPrintf) {
 }
 
 // FindUsedVars finds used vars
-func (n *NodeEmpty) FindUsedVars(vars map[string]struct{}) {
+func (n *NodeEmpty) FindUsedVars(options *BuildOptions) {
 	// do nothing
 }
 
@@ -228,16 +238,16 @@ func (n *NodeAssign) Build(options *BuildOptions, outputf FuncPrintf) {
 
 	code := fmt.Sprintf("%s = %s", v, e)
 
-	if _, found := options.Vars[n.Left]; found {
+	if options.VarIsUsed(n.Left) {
 		outputf(code + "\n")
 	} else {
-		outputf("// %s // suppressed\n", code)
+		outputf("// %s // suppressed: '%s' not used\n", code, n.Left)
 	}
 }
 
 // FindUsedVars finds used vars
-func (n *NodeAssign) FindUsedVars(vars map[string]struct{}) {
-	n.Right.FindUsedVars(vars)
+func (n *NodeAssign) FindUsedVars(options *BuildOptions) {
+	n.Right.FindUsedVars(options)
 }
 
 // NodePrint is print
@@ -283,9 +293,9 @@ func (n *NodePrint) Build(options *BuildOptions, outputf FuncPrintf) {
 }
 
 // FindUsedVars finds used vars
-func (n *NodePrint) FindUsedVars(vars map[string]struct{}) {
+func (n *NodePrint) FindUsedVars(options *BuildOptions) {
 	for _, e := range n.Expressions {
-		e.FindUsedVars(vars)
+		e.FindUsedVars(options)
 	}
 }
 
@@ -310,7 +320,7 @@ func (n *NodeEnd) Build(options *BuildOptions, outputf FuncPrintf) {
 }
 
 // FindUsedVars finds used vars
-func (n *NodeEnd) FindUsedVars(vars map[string]struct{}) {
+func (n *NodeEnd) FindUsedVars(options *BuildOptions) {
 	// do nothing
 }
 
@@ -335,7 +345,7 @@ func (n *NodeGoto) Build(options *BuildOptions, outputf FuncPrintf) {
 }
 
 // FindUsedVars finds used vars
-func (n *NodeGoto) FindUsedVars(vars map[string]struct{}) {
+func (n *NodeGoto) FindUsedVars(options *BuildOptions) {
 	// do nothing
 }
 
@@ -411,13 +421,13 @@ func (n *NodeIf) Build(options *BuildOptions, outputf FuncPrintf) {
 }
 
 // FindUsedVars finds used vars
-func (n *NodeIf) FindUsedVars(vars map[string]struct{}) {
-	n.Cond.FindUsedVars(vars)
+func (n *NodeIf) FindUsedVars(options *BuildOptions) {
+	n.Cond.FindUsedVars(options)
 	for _, t := range n.Then {
-		t.FindUsedVars(vars)
+		t.FindUsedVars(options)
 	}
 	for _, t := range n.Else {
-		t.FindUsedVars(vars)
+		t.FindUsedVars(options)
 	}
 }
 
@@ -474,7 +484,7 @@ func (n *NodeInput) Build(options *BuildOptions, outputf FuncPrintf) {
 }
 
 // FindUsedVars finds used vars
-func (n *NodeInput) FindUsedVars(vars map[string]struct{}) {
+func (n *NodeInput) FindUsedVars(options *BuildOptions) {
 	// INPUT does not actually use var
 }
 
@@ -498,7 +508,7 @@ func (n *NodeList) Build(options *BuildOptions, outputf FuncPrintf) {
 }
 
 // FindUsedVars finds used vars
-func (n *NodeList) FindUsedVars(vars map[string]struct{}) {
+func (n *NodeList) FindUsedVars(options *BuildOptions) {
 	// do nothing
 }
 
@@ -523,6 +533,6 @@ func (n *NodeRem) Build(options *BuildOptions, outputf FuncPrintf) {
 }
 
 // FindUsedVars finds used vars
-func (n *NodeRem) FindUsedVars(vars map[string]struct{}) {
+func (n *NodeRem) FindUsedVars(options *BuildOptions) {
 	// do nothing
 }

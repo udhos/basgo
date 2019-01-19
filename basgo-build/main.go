@@ -84,7 +84,7 @@ func main() {
 	log.Printf("%s: scanning used vars", basgoLabel)
 
 	for _, n := range nodes {
-		n.FindUsedVars(options.Vars)
+		n.FindUsedVars(&options)
 	}
 
 	log.Printf("%s: issuing code", basgoLabel)

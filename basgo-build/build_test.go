@@ -227,12 +227,12 @@ var testTable = []buildTest{
 	{`10 input a% : print a%`, "2\n", "2\n", false},
 	{`10 input a$ : print a$`, "abc\n", "abc\n", false},
 
-	{`10 a=""`, "", "", true},
-	{`10 a%=""`, "", "", true},
-	{`10 a!=""`, "", "", true},
-	{`10 a#=""`, "", "", true},
-	{`10 a$=""`, "", "", false},
-	{`10 a$=1`, "", "", true},
+	{`10 a="":print a`, "", "", true},
+	{`10 a%="":print a%`, "", "", true},
+	{`10 a!="":print a!`, "", "", true},
+	{`10 a#="":print a#`, "", "", true},
+	{`10 a$="":print a$`, "", "\n", false},
+	{`10 a$=1:print a$`, "", "", true},
 
 	{`10 a=print:print a`, "", "", true},
 	{`10 a=let:print a`, "", "", true},
@@ -246,6 +246,8 @@ var testTable = []buildTest{
 	{`10 a%=a#:print a%`, "", "0\n", false},
 	{`10 a#=a:print a#`, "", "0\n", false},
 	{`10 a#=a%:print a#`, "", "0\n", false},
+
+	{`10 a=45:print A`, "", "45\n", false},
 }
 
 func TestBuild(t *testing.T) {
