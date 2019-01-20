@@ -252,6 +252,40 @@ func (n *NodeAssign) FindUsedVars(options *BuildOptions) {
 	n.Right.FindUsedVars(options)
 }
 
+// NodeOnGoto is ongoto
+type NodeOnGoto struct {
+	Cond  NodeExp
+	Lines []string
+}
+
+// Name returns the name of the node
+func (n *NodeOnGoto) Name() string {
+	return "ON-GOTO"
+}
+
+// Show displays the node
+func (n *NodeOnGoto) Show(printf FuncPrintf) {
+	printf("[" + n.Name() + " ")
+	printf(n.Cond.String())
+	printf(" %q]", n.Lines)
+}
+
+// Build generates code
+func (n *NodeOnGoto) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ON %s GOTO %q\n", n.Cond.String(), n.Lines)
+
+	outputf("switch %s {\n", forceInt(options, n.Cond))
+	for i, num := range n.Lines {
+		outputf("case %d: goto line%s\n", i+1, num)
+	}
+	outputf("}\n")
+}
+
+// FindUsedVars finds used vars
+func (n *NodeOnGoto) FindUsedVars(options *BuildOptions) {
+	n.Cond.FindUsedVars(options)
+}
+
 // NodePrint is print
 type NodePrint struct {
 	Newline     bool

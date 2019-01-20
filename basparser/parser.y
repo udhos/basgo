@@ -24,6 +24,7 @@ var (
 	nodeListStack [][]node.Node // support nested node lists
 	lineList []node.Node
 	expList []node.NodeExp
+	numberList []string
 )
 
 func Reset() {
@@ -52,6 +53,8 @@ func Reset() {
 	typeString string
 	typeIdentifier string
 	typeRawLine string
+	typeNumberList []string
+	typeLineNumber string
 
 	tok int
 }
@@ -68,6 +71,8 @@ func Reset() {
 %type <typeStmt> assign
 %type <typeExpressions> expressions
 %type <typeExp> exp
+%type <typeNumberList> number_list
+%type <typeLineNumber> use_line_number
 
 // same for terminals
 
@@ -124,6 +129,7 @@ func Reset() {
 %token <tok> TkKeywordList
 %token <tok> TkKeywordLoad
 %token <tok> TkKeywordNext
+%token <tok> TkKeywordOn
 %token <tok> TkKeywordPrint
 %token <typeRem> TkKeywordRem
 %token <tok> TkKeywordReturn
@@ -220,19 +226,9 @@ statements: stmt
      }
   ;
 
-stmt_goto: TkNumber
+stmt_goto: use_line_number
     {
-       n := $1
-       ln, found := LineNumbers[n]
-       if found {
-         // set used, keep defined unchanged
-         ln.Used = true
-         LineNumbers[n] = ln
-       } else {
-         // set used, unset defined
-         LineNumbers[n] = node.LineNumber{Used: true}
-       }
-       $$ = &node.NodeGoto{Line: n}
+       $$ = &node.NodeGoto{Line: $1}
     }
   ;
 
@@ -326,6 +322,43 @@ stmt: /* empty */
      }
   | TkKeywordRem
      { $$ = &node.NodeRem{Value: $1} }
+  | TkKeywordOn exp TkKeywordGoto number_list
+     {
+       cond := $2
+       lines := $4
+       if !node.TypeNumeric(cond.Type()) {
+           yylex.Error("ON-GOTO condition must be numeric")
+       }
+       $$ = &node.NodeOnGoto{Cond: cond, Lines: lines}
+     }
+  ;
+
+use_line_number: TkNumber
+    {
+       n := $1
+       ln, found := LineNumbers[n]
+       if found {
+         // set used, keep defined unchanged
+         ln.Used = true
+         LineNumbers[n] = ln
+       } else {
+         // set used, unset defined
+         LineNumbers[n] = node.LineNumber{Used: true}
+       }
+       $$ = n
+    }
+  ;
+
+number_list: use_line_number
+     {
+        numberList = []string{$1} // reset line list
+	$$ = numberList
+     }
+  | number_list TkComma use_line_number
+     {
+        numberList = append(numberList, $3)
+        $$ = numberList
+     }
   ;
 
 assign: TkIdentifier TkEqual exp
@@ -832,6 +865,7 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 		case TkKeywordLet: // do not store
 		case TkKeywordList: // do not store
 		case TkKeywordMod: // do not store
+		case TkKeywordOn: // do not store
 		case TkKeywordPrint: // do not store
 		case TkKeywordNot: // do not store
 		case TkKeywordAnd: // do not store

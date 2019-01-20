@@ -80,6 +80,7 @@ const (
 	TkKeywordList   = iota // LIST
 	TkKeywordLoad   = iota // LOAD
 	TkKeywordNext   = iota // NEXT
+	TkKeywordOn     = iota // ON
 	TkKeywordPrint  = iota // PRINT
 	TkKeywordRem    = iota // REM
 	TkKeywordReturn = iota // RETURN
@@ -128,6 +129,7 @@ var tabKeywords = []struct {
 	{TkKeywordMod, "MOD"},
 	{TkKeywordNext, "NEXT"},
 	{TkKeywordNot, "NOT"},
+	{TkKeywordOn, "ON"},
 	{TkKeywordOr, "OR"},
 	{TkKeywordPrint, "PRINT"},
 	{TkKeywordRem, "REM"},
@@ -207,6 +209,7 @@ var tabType = []string{
 	"LIST",
 	"LOAD",
 	"NEXT",
+	"ON",
 	"PRINT",
 	"REM",
 	"RETURN",
