@@ -409,19 +409,17 @@ func (n *NodeFor) FindUsedVars(options *BuildOptions) {
 
 // NodeNext is next
 type NodeNext struct {
-	Variable string
+	Variables []string
 }
 
 // Name returns the name of the node
 func (n *NodeNext) Name() string {
-	return "FOR"
+	return "NEXT"
 }
 
 // Show displays the node
 func (n *NodeNext) Show(printf FuncPrintf) {
-	printf("[" + n.Name())
-	printf(" (" + n.Variable)
-	printf(")]")
+	printf("[%s %q]", n.Name(), n.Variables)
 }
 
 // Build generates code
@@ -433,7 +431,9 @@ func (n *NodeNext) Build(options *BuildOptions, outputf FuncPrintf) {
 
 // FindUsedVars finds used vars
 func (n *NodeNext) FindUsedVars(options *BuildOptions) {
-	options.VarSetUsed(n.Variable)
+	for _, v := range n.Variables {
+		options.VarSetUsed(v)
+	}
 }
 
 // NodeGoto is goto

@@ -34,6 +34,7 @@ var (
 	lineList []node.Node
 	expList []node.NodeExp
 	numberList []string
+	identList []string
 )
 
 func Reset() {
@@ -65,6 +66,7 @@ func Reset() {
 	typeRawLine string
 	typeNumberList []string
 	typeLineNumber string
+	typeIdentList []string
 
 	tok int
 }
@@ -83,6 +85,7 @@ func Reset() {
 %type <typeExp> exp
 %type <typeNumberList> number_list
 %type <typeLineNumber> use_line_number
+%type <typeIdentList> ident_list
 
 // same for terminals
 
@@ -298,14 +301,16 @@ stmt: /* empty */
 	Result.CountNextAnon++
         $$ = &node.NodeNext{}
      }
-  | TkKeywordNext TkIdentifier
+  | TkKeywordNext ident_list
      {
-        ident := $2
-	if !node.TypeNumeric(node.VarType(ident)) {
-           yylex.Error("NEXT variable must be numeric")
+        list := $2
+	for _, ident := range list {
+	   if !node.TypeNumeric(node.VarType(ident)) {
+              yylex.Error("NEXT variable must be numeric")
+	   }
 	}
 	Result.CountNextIdent++
-        $$ = &node.NodeNext{Variable: ident}
+        $$ = &node.NodeNext{Variables: list}
      }
   | TkKeywordIf exp then_or_goto stmt_goto
      {
@@ -415,13 +420,25 @@ use_line_number: TkNumber
 
 number_list: use_line_number
      {
-        numberList = []string{$1} // reset line list
+        numberList = []string{$1} // reset list
 	$$ = numberList
      }
   | number_list TkComma use_line_number
      {
         numberList = append(numberList, $3)
         $$ = numberList
+     }
+  ;
+
+ident_list: TkIdentifier
+     {
+        identList = []string{$1} // reset list
+	$$ = identList
+     }
+  | ident_list TkComma TkIdentifier
+     {
+        identList = append(identList, $3)
+        $$ = identList
      }
   ;
 
