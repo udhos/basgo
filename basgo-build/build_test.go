@@ -266,13 +266,17 @@ var testTable = []buildTest{
 	{`10 print int 2.9`, "", "2\n", OK},
 	{`10 print int ""`, "", "", WRONG},
 
+	{`10 print left$("abc",-1)`, "", "\n", OK},
 	{`10 print left$("abc",0)`, "", "\n", OK},
 	{`10 print left$("abc",1)`, "", "a\n", OK},
 	{`10 print left$("abc",2)`, "", "ab\n", OK},
 	{`10 print left$("abc",3)`, "", "abc\n", OK},
+	{`10 print left$("abc",4)`, "", "abc\n", OK},
 	{`10 print left$("abc",1.1)`, "", "a\n", OK},
+	{`10 print left$("abc",.6+.5)`, "", "a\n", OK},
 	{`10 print left$("abc",2.9)`, "", "abc\n", OK},
 	{`10 print left$("abc","")`, "", "", WRONG},
+	{`10 print left$("abc",a$)`, "", "", WRONG},
 	{`10 print left$(1,1)`, "", "", WRONG},
 
 	{`10 print 1:end:print 2`, "", "1\n", OK},
