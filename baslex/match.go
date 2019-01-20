@@ -201,11 +201,11 @@ func digit(b byte) bool {
 }
 
 func blank(b byte) bool {
-	return b == ' ' || b == '\t'
+	return b == ' ' || b == '\t' || b == '\r'
 }
 
 func eol(b byte) bool {
-	return b == '\r' || b == '\n'
+	return b == '\n'
 }
 
 // push back byte
