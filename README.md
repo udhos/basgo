@@ -1,6 +1,18 @@
 # basgo
 
+# Requirements
+
+In order to build the 'basgo-build' compiler, a recent version of Go is required.
+
+If your system lacks Go, this recipe will install a current release of Go:
+
+    git clone https://github.com/udhos/update-golang
+    cd update-golang
+    sudo ./update-golang.sh
+
 # Install
+
+The recipe below will install 'basgo-build' under "~/go/bin".
 
     git clone https://github.com/udhos/basgo
     cd basgo
@@ -11,12 +23,12 @@
 Status: the compiler currently can handle very simple programs.
 
     basgo-build < program.bas > program.go
-    go run program.go
+    go run program.go                      ;# builds and runs program.go
 
 ## Example
 
     basgo-build < examples/game.bas > game.go
-    go run game.go
+    go run game.go                            ;# builds and runs game.go
 
 # Run the Interpreter
 
