@@ -368,6 +368,74 @@ func (n *NodeEnd) FindUsedVars(options *BuildOptions) {
 	// do nothing
 }
 
+// NodeFor is for
+type NodeFor struct {
+	Index    int
+	Variable string
+	First    NodeExp
+	Last     NodeExp
+	Step     NodeExp
+}
+
+// Name returns the name of the node
+func (n *NodeFor) Name() string {
+	return "FOR"
+}
+
+// Show displays the node
+func (n *NodeFor) Show(printf FuncPrintf) {
+	printf("[" + n.Name())
+	printf(" " + n.Variable)
+	printf(" = " + n.First.String())
+	printf(" TO " + n.Last.String())
+	printf(" STEP " + n.Step.String())
+	printf("]")
+}
+
+// Build generates code
+func (n *NodeFor) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+}
+
+// FindUsedVars finds used vars
+func (n *NodeFor) FindUsedVars(options *BuildOptions) {
+	options.VarSetUsed(n.Variable)
+	n.First.FindUsedVars(options)
+	n.Last.FindUsedVars(options)
+	n.Step.FindUsedVars(options)
+}
+
+// NodeNext is next
+type NodeNext struct {
+	Variable string
+}
+
+// Name returns the name of the node
+func (n *NodeNext) Name() string {
+	return "FOR"
+}
+
+// Show displays the node
+func (n *NodeNext) Show(printf FuncPrintf) {
+	printf("[" + n.Name())
+	printf(" (" + n.Variable)
+	printf(")]")
+}
+
+// Build generates code
+func (n *NodeNext) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+}
+
+// FindUsedVars finds used vars
+func (n *NodeNext) FindUsedVars(options *BuildOptions) {
+	options.VarSetUsed(n.Variable)
+}
+
 // NodeGoto is goto
 type NodeGoto struct {
 	Line string

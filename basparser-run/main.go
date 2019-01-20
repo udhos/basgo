@@ -18,14 +18,15 @@ func main() {
 	lex := basparser.NewInputLex(input, debug)
 	basparser.Reset()
 	status := basparser.InputParse(lex)
+	nodes := basparser.Result.Root
 
 	log.Printf("%s: reading from stdin...done", me)
 
 	log.Printf("%s: status=%d errors=%d", me, status, lex.Errors())
 
-	log.Printf("%s: syntax tree lines=%d:", me, len(basparser.Root))
+	log.Printf("%s: syntax tree lines=%d:", me, len(nodes))
 
-	for i, n := range basparser.Root {
+	for i, n := range nodes {
 		fmt.Printf("%s: input line %d: ", me, i)
 		n.Show(fmt.Printf)
 	}

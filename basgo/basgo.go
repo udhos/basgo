@@ -81,6 +81,7 @@ func (b *Basgo) execLine(printf funcPrintf, r *bufio.Reader, line string) error 
 	input := bufio.NewReader(strings.NewReader(line))
 	lex := basparser.NewInputLex(input, debug)
 	status := basparser.InputParse(lex)
+	nodes := basparser.Result.Root
 
 	if status != 0 {
 		err := fmt.Errorf("execLine: parser error status: %d", status)
@@ -94,7 +95,7 @@ func (b *Basgo) execLine(printf funcPrintf, r *bufio.Reader, line string) error 
 		return err
 	}
 
-	for _, n := range basparser.Root {
+	for _, n := range nodes {
 		b.scanSingleLine(printf, n, line)
 	}
 

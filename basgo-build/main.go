@@ -34,7 +34,10 @@ func compile(input io.Reader, outputf node.FuncPrintf) (int, int) {
 
 	log.Printf("%s: parsing", basgoLabel)
 
-	libInput, lineNumbersTab, nodes, status, errors := parse(input, outputf)
+	result, status, errors := parse(input, outputf)
+	libInput := result.LibInput
+	lineNumbersTab := result.LineNumbers
+	nodes := result.Root
 
 	if status != 0 || errors != 0 {
 		return status, errors
@@ -60,7 +63,7 @@ func compile(input io.Reader, outputf node.FuncPrintf) (int, int) {
 
 	log.Printf("%s: sorting lines", basgoLabel)
 
-	sort.Sort(node.ByLineNumber(nodes))
+	sort.Sort(node.ByLineNumber(result.Root))
 
 	header := `
 package main
@@ -120,6 +123,18 @@ func main() {
 	if options.Rnd {
 		outputf("rnd = rand.New(rand.NewSource(time.Now().UnixNano())) // used by RND lib\n")
 		outputf("rndLast = rnd.Float64() // used by RND lib\n")
+	}
+
+	if result.CountNextAnon > 0 {
+		// create variable for tracking last FOR for NEXT-novar
+		outputf("var for_last int // last active FOR\n")
+	}
+	if result.CountNextIdent > 0 {
+		// create variables for tracking last FOR for NEXT-var
+		for _, f := range result.ForTable {
+			v := node.RenameVar(f.Variable)
+			outputf("var for_%s int // last FOR for NEXT %s\n", v, f.Variable)
+		}
 	}
 
 	writeVar(options.Vars, outputf)
@@ -252,12 +267,12 @@ func writeVar(vars map[string]struct{}, outputf node.FuncPrintf) {
 	}
 }
 
-func parse(input io.Reader, outputf node.FuncPrintf) (bool, map[string]node.LineNumber, []node.Node, int, int) {
+func parse(input io.Reader, outputf node.FuncPrintf) (basparser.ParserResult, int, int) {
 	debug := false
 	byteInput := bufio.NewReader(input)
 	lex := basparser.NewInputLex(byteInput, debug)
 	basparser.Reset()
 	status := basparser.InputParse(lex)
 
-	return basparser.LibInput, basparser.LineNumbers, basparser.Root, status, lex.Errors()
+	return basparser.Result, status, lex.Errors()
 }

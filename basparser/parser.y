@@ -15,11 +15,20 @@ import (
 	"github.com/udhos/basgo/node"
 )
 
+type ParserResult struct {
+	Root []node.Node
+	LineNumbers map[string]node.LineNumber // used by GOTO GOSUB etc
+	LibInput bool
+	ForTable []*node.NodeFor
+	CountNextIdent int // counter: NEXT var
+	CountNextAnon int // counter: NEXT
+}
+
 // parser auxiliary variables
 var (
-	Root []node.Node
-	LineNumbers = map[string]node.LineNumber{} // used by GOTO GOSUB etc
-	LibInput bool
+	Result = ParserResult{
+		LineNumbers: map[string]node.LineNumber{},
+	}
 
 	nodeListStack [][]node.Node // support nested node lists
 	lineList []node.Node
@@ -28,9 +37,10 @@ var (
 )
 
 func Reset() {
-	Root = []node.Node{}
-	LibInput = false
-	LineNumbers = map[string]node.LineNumber{} // used by GOTO GOSUB etc
+	Result = ParserResult{
+		LineNumbers: map[string]node.LineNumber{},
+	}
+
 	nodeListStack = [][]node.Node{}
 }
 
@@ -152,7 +162,7 @@ prog: line_list TkEOF
          list := $1
          captureRawLine("EOF", list, $2) // only last line
          
-	 Root = $1 // save for caller
+	 Result.Root = $1 // save for caller
      }
   ;
 
@@ -199,14 +209,14 @@ line: statements_aux
   | TkNumber statements_aux
      {
        n := $1
-       ln, found := LineNumbers[n]
+       ln, found := Result.LineNumbers[n]
        if found {
          // set defined, keep used unchanged
          ln.Defined = true
-         LineNumbers[n] = ln
+         Result.LineNumbers[n] = ln
        } else {
          // set defined, unset used
-         LineNumbers[n] = node.LineNumber{Defined: true}
+         Result.LineNumbers[n] = node.LineNumber{Defined: true}
        }
        $$ = &node.LineNumbered{LineNumber:n, Nodes:$2}
      }
@@ -243,6 +253,60 @@ stmt: /* empty */
      { $$ = &node.NodeEnd{} }
   | TkKeywordStop
      { $$ = &node.NodeEnd{} }
+  | TkKeywordFor TkIdentifier TkEqual exp TkKeywordTo exp
+     {
+	ident := $2
+	first := $4
+	last := $6
+	if !node.TypeNumeric(node.VarType(ident)) {
+           yylex.Error("FOR variable must be numeric")
+	}
+        if !node.TypeNumeric(first.Type()) {
+           yylex.Error("FOR first value must be numeric")
+        }
+        if !node.TypeNumeric(last.Type()) {
+           yylex.Error("FOR last value must be numeric")
+        }
+        f := &node.NodeFor{Index: len(Result.ForTable), Variable: ident, First: first, Last: last, Step: &node.NodeExpNumber{Value: "1"}}
+	Result.ForTable = append(Result.ForTable, f)
+        $$ = f
+     }
+  | TkKeywordFor TkIdentifier TkEqual exp TkKeywordTo exp TkKeywordStep exp
+     {
+	ident := $2
+	first := $4
+	last := $6
+	step := $8
+	if !node.TypeNumeric(node.VarType(ident)) {
+           yylex.Error("FOR variable must be numeric")
+	}
+        if !node.TypeNumeric(first.Type()) {
+           yylex.Error("FOR first value must be numeric")
+        }
+        if !node.TypeNumeric(last.Type()) {
+           yylex.Error("FOR last value must be numeric")
+        }
+        if !node.TypeNumeric(step.Type()) {
+           yylex.Error("FOR step value must be numeric")
+        }
+        f := &node.NodeFor{Index: len(Result.ForTable), Variable: ident, First: first, Last: last, Step: step}
+	Result.ForTable = append(Result.ForTable, f)
+        $$ = f
+     }
+  | TkKeywordNext
+     {
+	Result.CountNextAnon++
+        $$ = &node.NodeNext{}
+     }
+  | TkKeywordNext TkIdentifier
+     {
+        ident := $2
+	if !node.TypeNumeric(node.VarType(ident)) {
+           yylex.Error("NEXT variable must be numeric")
+	}
+	Result.CountNextIdent++
+        $$ = &node.NodeNext{Variable: ident}
+     }
   | TkKeywordIf exp then_or_goto stmt_goto
      {
        cond := $2
@@ -293,7 +357,7 @@ stmt: /* empty */
      }
   | TkKeywordInput TkIdentifier
      {
-        LibInput = true
+        Result.LibInput = true
         $$ = &node.NodeInput{Variable: $2}
      }
   | TkKeywordGoto stmt_goto
@@ -336,14 +400,14 @@ stmt: /* empty */
 use_line_number: TkNumber
     {
        n := $1
-       ln, found := LineNumbers[n]
+       ln, found := Result.LineNumbers[n]
        if found {
          // set used, keep defined unchanged
          ln.Used = true
-         LineNumbers[n] = ln
+         Result.LineNumbers[n] = ln
        } else {
          // set used, unset defined
-         LineNumbers[n] = node.LineNumber{Used: true}
+         Result.LineNumbers[n] = node.LineNumber{Used: true}
        }
        $$ = n
     }
@@ -856,6 +920,7 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 		case TkPow: // do not store
 		case TkKeywordEnd: // do not store
 		case TkKeywordElse: // do not store
+		case TkKeywordFor: // do not store
 		case TkKeywordGoto: // do not store
 		case TkKeywordIf: // do not store
 		case TkKeywordInput: // do not store
@@ -865,6 +930,7 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 		case TkKeywordLet: // do not store
 		case TkKeywordList: // do not store
 		case TkKeywordMod: // do not store
+		case TkKeywordNext: // do not store
 		case TkKeywordOn: // do not store
 		case TkKeywordPrint: // do not store
 		case TkKeywordNot: // do not store
@@ -874,7 +940,9 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 		case TkKeywordOr: // do not store
 		case TkKeywordXor: // do not store
 		case TkKeywordRnd: // do not store
+		case TkKeywordStep: // do not store
 		case TkKeywordThen: // do not store
+		case TkKeywordTo: // do not store
 		default:
 			log.Printf("InputLex.Lex: FIXME token value [%s] not stored for parser actions\n", t.Value)
 	}
