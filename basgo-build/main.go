@@ -125,23 +125,6 @@ func main() {
 		outputf("rndLast = rnd.Float64() // used by RND lib\n")
 	}
 
-	if result.CountNextAnon > 0 {
-		// create variable for tracking last FOR for NEXT-novar
-		outputf("for_last := -1 // last FOR for NEXT-novar (-1 means none)\n")
-	}
-	if result.CountNextIdent > 0 {
-		// create variables for tracking last FOR for NEXT-var
-		dedup := map[string]struct{}{}
-		for _, f := range result.ForTable {
-			if _, dup := dedup[f.Variable]; dup {
-				continue
-			}
-			dedup[f.Variable] = struct{}{}
-			v := node.RenameVar(f.Variable)
-			outputf("for_%s := -1 // last FOR for NEXT-var %s (-1 means none)\n", v, f.Variable)
-		}
-	}
-
 	writeVar(options.Vars, outputf)
 	outputf(buf.String())
 

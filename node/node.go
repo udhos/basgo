@@ -47,6 +47,8 @@ type BuildOptions struct {
 	Rnd         bool                  // using lib RND
 	Input       bool                  // using lib INPUT
 	Left        bool                  // using lib LEFT
+	NextAnon    bool                  // has NEXT non-var
+	NextIdent   bool                  // has NEXT var
 }
 
 func (o *BuildOptions) VarSetUsed(name string) {
@@ -218,6 +220,20 @@ func (n *NodeAssign) Show(printf FuncPrintf) {
 	printf("]")
 }
 
+func assignCode(options *BuildOptions, v1, v2 string, t1, t2 int) string {
+	switch {
+	case t1 == TypeFloat && t2 == TypeInteger:
+		v2 = toFloat(v2)
+	case t1 == TypeInteger && t2 == TypeFloat:
+		options.Headers["math"] = struct{}{}
+		v2 = toInt("math.Round(" + v2 + ")")
+	}
+
+	code := fmt.Sprintf("%s = %s", v1, v2)
+
+	return code
+}
+
 // Build generates code
 func (n *NodeAssign) Build(options *BuildOptions, outputf FuncPrintf) {
 	outputf("// ")
@@ -230,15 +246,7 @@ func (n *NodeAssign) Build(options *BuildOptions, outputf FuncPrintf) {
 	v := RenameVar(n.Left)
 	e := n.Right.Exp(options)
 
-	switch {
-	case ti == TypeFloat && te == TypeInteger:
-		e = toFloat(e)
-	case ti == TypeInteger && te == TypeFloat:
-		options.Headers["math"] = struct{}{}
-		e = toInt("math.Round(" + e + ")")
-	}
-
-	code := fmt.Sprintf("%s = %s", v, e)
+	code := assignCode(options, v, e, ti, te)
 
 	if options.VarIsUsed(n.Left) {
 		outputf(code + "\n")
@@ -397,6 +405,17 @@ func (n *NodeFor) Build(options *BuildOptions, outputf FuncPrintf) {
 	outputf("// ")
 	n.Show(outputf)
 	outputf("\n")
+
+	v := RenameVar(n.Variable)
+	first := n.First.Exp(options)
+	typeV := VarType(n.Variable)
+	typeFirst := n.First.Type()
+
+	code := assignCode(options, v, first, typeV, typeFirst)
+
+	outputf("%s // FOR %d initialization\n", code, n.Index)
+
+	outputf("for_loop_%d:\n", n.Index)
 }
 
 // FindUsedVars finds used vars

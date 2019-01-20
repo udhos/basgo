@@ -20,8 +20,6 @@ type ParserResult struct {
 	LineNumbers map[string]node.LineNumber // used by GOTO GOSUB etc
 	LibInput bool
 	ForTable []*node.NodeFor
-	CountNextIdent int // counter: NEXT var
-	CountNextAnon int // counter: NEXT
 }
 
 // parser auxiliary variables
@@ -298,7 +296,6 @@ stmt: /* empty */
      }
   | TkKeywordNext
      {
-	Result.CountNextAnon++
         $$ = &node.NodeNext{}
      }
   | TkKeywordNext ident_list
@@ -309,7 +306,6 @@ stmt: /* empty */
               yylex.Error("NEXT variable must be numeric")
 	   }
 	}
-	Result.CountNextIdent++
         $$ = &node.NodeNext{Variables: list}
      }
   | TkKeywordIf exp then_or_goto stmt_goto
