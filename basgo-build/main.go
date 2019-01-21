@@ -112,7 +112,21 @@ func main() {
 	}
 
 	outputf(header)
+
+	if len(options.Data) > 0 {
+		options.Headers["log"] = struct{}{}
+	}
+
 	writeImport(options.Headers, outputf)
+
+	if len(options.Data) > 0 {
+		outputf("var dataPos int // READ-DATA cursor\n")
+		outputf("var data = []interface{}{\n")
+		for _, d := range options.Data {
+			outputf("%s,\n", d)
+		}
+		outputf("}\n")
+	}
 
 	if options.Input {
 		outputf("var stdin = bufio.NewReader(os.Stdin) // stdin used by INPUT lib\n")
@@ -135,7 +149,7 @@ func main() {
 
 	outputf(mainClose)
 
-	lib(outputf, options.Input, options.Rnd, options.Left)
+	lib(outputf, options.Input, options.Rnd, options.Left, options.Data)
 
 	return status, errors
 }
@@ -148,7 +162,7 @@ func inputHeaders(h map[string]struct{}) {
 	h["strings"] = struct{}{}
 }
 
-func lib(outputf node.FuncPrintf, input, rnd, left bool) {
+func lib(outputf node.FuncPrintf, input, rnd, left bool, data []string) {
 
 	funcBoolToInt := `
 func boolToInt(v bool) int {
@@ -223,6 +237,55 @@ func stringLeft(s string, size int) string {
 }
 `
 		outputf(funcLeft)
+	}
+
+	if len(data) > 0 {
+		funcData := `
+func readDataString(name string) string {
+	if dataPos >= len(data) {
+		log.Fatalf("readDataString overflow error: var=%%s pos=%%d\n", name, dataPos)
+	}
+	d := data[dataPos]
+	dataPos++
+	v, t := d.(string)
+	if t {
+		return v
+	}
+	log.Fatalf("readDataString type error: var=%%s pos=%%d\n", name, dataPos)
+	return v
+}
+func readDataInteger(name string) int {
+	if dataPos >= len(data) {
+		log.Fatalf("readDataInteger overflow error: var=%%s pos=%%d\n", name, dataPos)
+	}
+	d := data[dataPos]
+	dataPos++
+	v, t := d.(int)
+	if t {
+		return v
+	}
+	log.Fatalf("readDataInteger type error: var=%%s pos=%%d\n", name, dataPos)
+	return v
+}
+func readDataFloat(name string) float64 {
+	if dataPos >= len(data) {
+		log.Fatalf("readDataFloat overflow error: var=%%s pos=%%d\n", name, dataPos)
+	}
+	d := data[dataPos]
+	dataPos++
+	v, t := d.(float64)
+	if t {
+		return v
+	}
+	v1, t1 := d.(int)
+	if t1 {
+		return float64(v1)
+	}
+	log.Fatalf("readDataFloat type error: var=%%s pos=%%d\n", name, dataPos)
+	return v
+}
+`
+		outputf(funcData)
 	}
 }
 

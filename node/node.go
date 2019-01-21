@@ -47,6 +47,7 @@ type BuildOptions struct {
 	Rnd         bool                  // using lib RND
 	Input       bool                  // using lib INPUT
 	Left        bool                  // using lib LEFT
+	Data        []string              // DATA for READ
 }
 
 func (o *BuildOptions) VarSetUsed(name string) {
@@ -282,6 +283,11 @@ func (n *NodeData) Build(options *BuildOptions, outputf FuncPrintf) {
 	outputf("// ")
 	n.Show(outputf)
 	outputf("\n")
+
+	for _, e := range n.Expressions {
+		s := e.Exp(options)
+		options.Data = append(options.Data, s)
+	}
 }
 
 // FindUsedVars finds used vars
@@ -719,6 +725,30 @@ func (n *NodeRead) Build(options *BuildOptions, outputf FuncPrintf) {
 	outputf("// ")
 	n.Show(outputf)
 	outputf("\n")
+
+	for _, v := range n.Variables {
+		vv := RenameVar(v)
+		t := VarType(v)
+		var code string
+		switch t {
+		case TypeString:
+			code = fmt.Sprintf(`%s = readDataString("%s")`, vv, v)
+		case TypeInteger:
+			code = fmt.Sprintf(`%s = readDataInteger("%s")`, vv, v)
+		case TypeFloat:
+			code = fmt.Sprintf(`%s = readDataFloat("%s")`, vv, v)
+		default:
+			msg := fmt.Sprintf("NodeRead.Build: unsupported var %s type: %d", v, t)
+			log.Printf(msg)
+			code = fmt.Sprintf("println(%s)\n", msg)
+		}
+
+		if options.VarIsUsed(v) {
+			outputf(code + "\n")
+		} else {
+			outputf("// %s // suppressed: '%s' not used\n", code, v)
+		}
+	}
 }
 
 // FindUsedVars finds used vars

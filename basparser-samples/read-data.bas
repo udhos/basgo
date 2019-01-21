@@ -1,3 +1,5 @@
-10 read a
+10 read a, b$, c
 20 print a
-30 data 1
+20 print b$
+20 print c
+30 data 1, "2", 3.3
