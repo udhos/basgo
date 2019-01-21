@@ -113,13 +113,13 @@ func main() {
 
 	outputf(header)
 
-	if len(options.Data) > 0 {
+	if result.LibReadData {
 		options.Headers["log"] = struct{}{}
 	}
 
 	writeImport(options.Headers, outputf)
 
-	if len(options.Data) > 0 {
+	if result.LibReadData {
 		outputf("var dataPos int // READ-DATA cursor\n")
 		outputf("var data = []interface{}{\n")
 		for _, d := range options.Data {
@@ -149,7 +149,7 @@ func main() {
 
 	outputf(mainClose)
 
-	lib(outputf, options.Input, options.Rnd, options.Left, options.Data)
+	lib(outputf, options.Input, options.Rnd, options.Left, result.LibReadData)
 
 	return status, errors
 }
@@ -162,7 +162,7 @@ func inputHeaders(h map[string]struct{}) {
 	h["strings"] = struct{}{}
 }
 
-func lib(outputf node.FuncPrintf, input, rnd, left bool, data []string) {
+func lib(outputf node.FuncPrintf, input, rnd, left bool, libReadData bool) {
 
 	funcBoolToInt := `
 func boolToInt(v bool) int {
@@ -239,7 +239,7 @@ func stringLeft(s string, size int) string {
 		outputf(funcLeft)
 	}
 
-	if len(data) > 0 {
+	if libReadData {
 		funcData := `
 func readDataString(name string) string {
 	if dataPos >= len(data) {

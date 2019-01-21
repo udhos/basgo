@@ -20,6 +20,7 @@ type ParserResult struct {
 	Root []node.Node
 	LineNumbers map[string]node.LineNumber // used by GOTO GOSUB etc
 	LibInput bool
+	LibReadData bool
 	ForStack []*node.NodeFor
 	CountFor int
 	CountNext int
@@ -263,7 +264,10 @@ stmt: /* empty */
   | TkKeywordStop
      { $$ = &node.NodeEnd{} }
   | TkKeywordData const_list
-     { $$ = &node.NodeData{Expressions: $2} }
+     {
+        Result.LibReadData = true
+        $$ = &node.NodeData{Expressions: $2}
+     }
   | TkKeywordFor TkIdentifier TkEqual exp TkKeywordTo exp
      {
 	ident := $2
@@ -426,7 +430,10 @@ stmt: /* empty */
         $$ = &node.NodePrint{Expressions: $2, Tab: true}
      }
   | TkKeywordRead ident_list
-     { $$ = &node.NodeRead{Variables: $2} }
+     {
+        Result.LibReadData = true
+        $$ = &node.NodeRead{Variables: $2}
+     }
   | TkKeywordRem
      { $$ = &node.NodeRem{Value: $1} }
   | TkKeywordOn exp TkKeywordGoto number_list
