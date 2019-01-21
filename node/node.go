@@ -732,11 +732,11 @@ func (n *NodeRead) Build(options *BuildOptions, outputf FuncPrintf) {
 		var code string
 		switch t {
 		case TypeString:
-			code = fmt.Sprintf(`%s = readDataString("%s")`, vv, v)
+			code = fmt.Sprintf(`%s = readDataString("%s")`, vv, vv)
 		case TypeInteger:
-			code = fmt.Sprintf(`%s = readDataInteger("%s")`, vv, v)
+			code = fmt.Sprintf(`%s = readDataInteger("%s")`, vv, vv)
 		case TypeFloat:
-			code = fmt.Sprintf(`%s = readDataFloat("%s")`, vv, v)
+			code = fmt.Sprintf(`%s = readDataFloat("%s")`, vv, vv)
 		default:
 			msg := fmt.Sprintf("NodeRead.Build: unsupported var %s type: %d", v, t)
 			log.Printf(msg)
