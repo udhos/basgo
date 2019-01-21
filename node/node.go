@@ -47,8 +47,6 @@ type BuildOptions struct {
 	Rnd         bool                  // using lib RND
 	Input       bool                  // using lib INPUT
 	Left        bool                  // using lib LEFT
-	NextAnon    bool                  // has NEXT non-var
-	NextIdent   bool                  // has NEXT var
 }
 
 func (o *BuildOptions) VarSetUsed(name string) {
@@ -224,7 +222,7 @@ func (n *NodeAssign) Show(printf FuncPrintf) {
 	printf("]")
 }
 
-func assignCode(options *BuildOptions, v1, v2 string, t1, t2 int) string {
+func assignCode(options *BuildOptions, op string, v1, v2 string, t1, t2 int) string {
 	switch {
 	case t1 == TypeFloat && t2 == TypeInteger:
 		v2 = toFloat(v2)
@@ -233,7 +231,7 @@ func assignCode(options *BuildOptions, v1, v2 string, t1, t2 int) string {
 		v2 = toInt("math.Round(" + v2 + ")")
 	}
 
-	code := fmt.Sprintf("%s = %s", v1, v2)
+	code := fmt.Sprintf("%s %s %s", v1, op, v2)
 
 	return code
 }
@@ -250,7 +248,7 @@ func (n *NodeAssign) Build(options *BuildOptions, outputf FuncPrintf) {
 	v := RenameVar(n.Left)
 	e := n.Right.Exp(options)
 
-	code := assignCode(options, v, e, ti, te)
+	code := assignCode(options, "=", v, e, ti, te)
 
 	if options.VarIsUsed(n.Left) {
 		outputf(code + "\n")
@@ -415,12 +413,24 @@ func (n *NodeFor) Build(options *BuildOptions, outputf FuncPrintf) {
 	first := n.First.Exp(options)
 	typeV := VarType(n.Variable)
 	typeFirst := n.First.Type()
-
-	code := assignCode(options, v, first, typeV, typeFirst)
-
+	code := assignCode(options, "=", v, first, typeV, typeFirst)
 	outputf("%s // FOR %d initialization\n", code, n.Index)
 
+	last := n.Last.Exp(options)
+	typeLast := n.Last.Type()
+	codeGT := assignCode(options, ">", v, last, typeV, typeLast)
+	codeLT := assignCode(options, "<", v, last, typeV, typeLast)
+
 	outputf("for_loop_%d:\n", n.Index)
+	outputf("if (%s) >= 0 { // FOR step non-negative?\n", n.Step.Exp(options))
+	outputf("  if %s {\n", codeGT)
+	outputf("    goto for_exit_%d\n", n.Index)
+	outputf("  }\n")
+	outputf("} else {\n")
+	outputf("  if %s {\n", codeLT)
+	outputf("    goto for_exit_%d\n", n.Index)
+	outputf("  }\n")
+	outputf("}\n")
 }
 
 // FindUsedVars finds used vars
@@ -434,7 +444,7 @@ func (n *NodeFor) FindUsedVars(options *BuildOptions) {
 // NodeNext is next
 type NodeNext struct {
 	Variables []string
-	Indices   []int // FOR and NEXT are linked thru the same index
+	Fors      []*NodeFor
 }
 
 // Name returns the name of the node
@@ -444,7 +454,7 @@ func (n *NodeNext) Name() string {
 
 // Show displays the node
 func (n *NodeNext) Show(printf FuncPrintf) {
-	printf("[%s vars=%q indices=%v]", n.Name(), n.Variables, n.Indices)
+	printf("[%s vars=%q fors_size=%d]", n.Name(), n.Variables, len(n.Fors))
 }
 
 // Build generates code
@@ -452,6 +462,19 @@ func (n *NodeNext) Build(options *BuildOptions, outputf FuncPrintf) {
 	outputf("// ")
 	n.Show(outputf)
 	outputf("\n")
+
+	for _, f := range n.Fors {
+
+		v := RenameVar(f.Variable)
+		step := f.Step.Exp(options)
+		typeV := VarType(f.Variable)
+		typeStep := f.Step.Type()
+		code := assignCode(options, "+=", v, step, typeV, typeStep)
+		outputf("%s // FOR %d step\n", code, f.Index)
+
+		outputf("goto for_loop_%d\n", f.Index)
+		outputf("for_exit_%d:\n", f.Index)
+	}
 }
 
 // FindUsedVars finds used vars

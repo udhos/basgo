@@ -294,6 +294,21 @@ var testTable = []buildTest{
 	{"10 on 4 goto 20,30,40\n20 print 20:end\n30 print 30:end\n40 print 40", "", "20\n", OK},
 	{"10 a=1:on a goto 30\n20 print 20:end\n30 print 30", "", "30\n", OK},
 	{"10 a=1.1:on a goto 30\n20 print 20:end\n30 print 30", "", "30\n", OK},
+
+	{"10 for a=1 to 3:print a;:next", "", "123", OK},
+	{"10 for a=1 to 3:print a;:next a", "", "123", OK},
+	{"10 for a=1 to 3:print a;:next b", "", "123", WRONG},
+	{"10 for a=4 to 0 step -2:print a;:next a", "", "420", OK},
+	{"10 for a=1 to 3 step 2:print a;:next a", "", "13", OK},
+	{"10 for a%=1 to 3 step 2:print a%;:next", "", "13", OK},
+	{"10 b%=1:for a=b% to 3 step 2:print a;:next", "", "13", OK},
+	{"10 b%=1:c%=3:for a=b% to c% step 2:print a;:next", "", "13", OK},
+	{"10 b%=1:c%=3:d%=2:for a=b% to c% step d%:print a;:next", "", "13", OK},
+	{"10 b=1:c=3:d=2:for a%=b to c step d:print a%;:next", "", "13", OK},
+	{"10 for a=1 to 3:for b=4 to 5:print a,b;:next:next", "", "141524253435", OK},
+	{"10 for a=1 to 3:for b=4 to 5:print a,b;:next b,a", "", "141524253435", OK},
+	{"10 for a=1 to 3:for b=4 to 5:print a,b;:next a,b", "", "", WRONG},
+	{"10 for a=1 to 3:for b=4 to 5:print a,b;:next", "", "", WRONG},
 }
 
 func TestBuild(t *testing.T) {

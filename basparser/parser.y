@@ -301,21 +301,21 @@ stmt: /* empty */
      }
   | TkKeywordNext
      {
-	index := -1
+	var f *node.NodeFor
 	stackTop := len(Result.ForStack)-1
 	if stackTop < 0 {
            yylex.Error("NEXT without FOR")
 	} else {
-           index = Result.ForStack[stackTop].Index
+           f = Result.ForStack[stackTop]
 	   Result.ForStack = Result.ForStack[:stackTop] // pop
 	}
 	Result.CountNext++
-        $$ = &node.NodeNext{Indices: []int{index}}
+        $$ = &node.NodeNext{Fors: []*node.NodeFor{f}}
      }
   | TkKeywordNext ident_list
      {
         list := $2
-        indexList := []int{}
+        forList := []*node.NodeFor{}
 	for _, ident := range list {
 	   if !node.TypeNumeric(node.VarType(ident)) {
               yylex.Error("NEXT variable must be numeric: "+ident)
@@ -329,7 +329,7 @@ stmt: /* empty */
            }
 
            f := Result.ForStack[stackTop]
-           indexList = append(indexList,f.Index)
+           forList = append(forList,f)
            Result.ForStack = Result.ForStack[:stackTop] // pop
 
            if !node.VarMatch(f.Variable, ident) {
@@ -339,7 +339,7 @@ stmt: /* empty */
 
 	   Result.CountNext++
 	}
-        $$ = &node.NodeNext{Variables: list, Indices: indexList}
+        $$ = &node.NodeNext{Variables: list, Fors: forList}
      }
   | TkKeywordIf exp then_or_goto stmt_goto
      {

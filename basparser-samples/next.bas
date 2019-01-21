@@ -3,6 +3,7 @@
 30 x=x+1 : print "loop1:" x
 40 next b,a
 
-50 for b = 1 to 2
-60 x=x+1 : print "loop2:" x
-70 next
+50 s = 2
+60 for b% = 1 to 4 step s
+70 x=x+1 : print "loop2:" x
+80 next
