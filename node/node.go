@@ -262,6 +262,33 @@ func (n *NodeAssign) FindUsedVars(options *BuildOptions) {
 	n.Right.FindUsedVars(options)
 }
 
+// NodeData is data
+type NodeData struct {
+	Expressions []NodeExp
+}
+
+// Name returns the name of the node
+func (n *NodeData) Name() string {
+	return "DATA"
+}
+
+// Show displays the node
+func (n *NodeData) Show(printf FuncPrintf) {
+	printf("[%s %q]", n.Name(), n.Expressions)
+}
+
+// Build generates code
+func (n *NodeData) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+}
+
+// FindUsedVars finds used vars
+func (n *NodeData) FindUsedVars(options *BuildOptions) {
+	// DATA allows only constans expressions - no vars
+}
+
 // NodeOnGoto is ongoto
 type NodeOnGoto struct {
 	Cond  NodeExp
@@ -670,6 +697,33 @@ func (n *NodeList) Build(options *BuildOptions, outputf FuncPrintf) {
 // FindUsedVars finds used vars
 func (n *NodeList) FindUsedVars(options *BuildOptions) {
 	// do nothing
+}
+
+// NodeRead is read
+type NodeRead struct {
+	Variables []string
+}
+
+// Name returns the name of the node
+func (n *NodeRead) Name() string {
+	return "READ"
+}
+
+// Show displays the node
+func (n *NodeRead) Show(printf FuncPrintf) {
+	printf("[%s %q]", n.Name(), n.Variables)
+}
+
+// Build generates code
+func (n *NodeRead) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+}
+
+// FindUsedVars finds used vars
+func (n *NodeRead) FindUsedVars(options *BuildOptions) {
+	// assign value to var does not use it
 }
 
 // NodeRem is rem

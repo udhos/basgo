@@ -66,6 +66,7 @@ const (
 
 	TkKeywordCls    = iota // CLS
 	TkKeywordCont   = iota // CONT
+	TkKeywordData   = iota // DATA
 	TkKeywordElse   = iota // ELSE
 	TkKeywordEnd    = iota // END
 	TkKeywordFor    = iota // FOR
@@ -82,6 +83,7 @@ const (
 	TkKeywordNext   = iota // NEXT
 	TkKeywordOn     = iota // ON
 	TkKeywordPrint  = iota // PRINT
+	TkKeywordRead   = iota // READ
 	TkKeywordRem    = iota // REM
 	TkKeywordReturn = iota // RETURN
 	TkKeywordRnd    = iota // RND
@@ -111,6 +113,7 @@ var tabKeywords = []struct {
 	{TkKeywordAnd, "AND"},
 	{TkKeywordCls, "CLS"},
 	{TkKeywordCont, "CONT"},
+	{TkKeywordData, "DATA"},
 	{TkKeywordElse, "ELSE"},
 	{TkKeywordEnd, "END"},
 	{TkKeywordEqv, "EQV"},
@@ -132,6 +135,7 @@ var tabKeywords = []struct {
 	{TkKeywordOn, "ON"},
 	{TkKeywordOr, "OR"},
 	{TkKeywordPrint, "PRINT"},
+	{TkKeywordRead, "READ"},
 	{TkKeywordRem, "REM"},
 	{TkKeywordReturn, "RETURN"},
 	{TkKeywordRnd, "RND"},
@@ -195,6 +199,7 @@ var tabType = []string{
 
 	"CLS",
 	"CONT",
+	"DATA",
 	"ELSE",
 	"END",
 	"FOR",
@@ -211,6 +216,7 @@ var tabType = []string{
 	"NEXT",
 	"ON",
 	"PRINT",
+	"READ",
 	"REM",
 	"RETURN",
 	"RND",

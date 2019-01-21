@@ -34,6 +34,7 @@ var (
 	nodeListStack [][]node.Node // support nested node lists
 	lineList []node.Node
 	expList []node.NodeExp
+	constList []node.NodeExp
 	numberList []string
 	identList []string
 )
@@ -84,9 +85,11 @@ func Reset() {
 %type <typeStmt> assign
 %type <typeExpressions> expressions
 %type <typeExp> exp
+%type <typeExp> one_const
 %type <typeNumberList> number_list
 %type <typeLineNumber> use_line_number
 %type <typeIdentList> ident_list
+%type <typeExpressions> const_list
 
 // same for terminals
 
@@ -129,6 +132,7 @@ func Reset() {
 
 %token <tok> TkKeywordCls
 %token <tok> TkKeywordCont
+%token <tok> TkKeywordData
 %token <tok> TkKeywordElse
 %token <tok> TkKeywordEnd
 %token <tok> TkKeywordFor
@@ -145,6 +149,7 @@ func Reset() {
 %token <tok> TkKeywordNext
 %token <tok> TkKeywordOn
 %token <tok> TkKeywordPrint
+%token <tok> TkKeywordRead
 %token <typeRem> TkKeywordRem
 %token <tok> TkKeywordReturn
 %token <tok> TkKeywordRnd
@@ -257,6 +262,8 @@ stmt: /* empty */
      { $$ = &node.NodeEnd{} }
   | TkKeywordStop
      { $$ = &node.NodeEnd{} }
+  | TkKeywordData const_list
+     { $$ = &node.NodeData{Expressions: $2} }
   | TkKeywordFor TkIdentifier TkEqual exp TkKeywordTo exp
      {
 	ident := $2
@@ -418,6 +425,8 @@ stmt: /* empty */
      {
         $$ = &node.NodePrint{Expressions: $2, Tab: true}
      }
+  | TkKeywordRead ident_list
+     { $$ = &node.NodeRead{Variables: $2} }
   | TkKeywordRem
      { $$ = &node.NodeRem{Value: $1} }
   | TkKeywordOn exp TkKeywordGoto number_list
@@ -471,6 +480,18 @@ ident_list: TkIdentifier
      }
   ;
 
+const_list: one_const
+     {
+        constList = []node.NodeExp{$1} // reset list
+	$$ = constList
+     }
+  | const_list TkComma one_const
+     {
+        constList = append(constList, $3)
+        $$ = constList
+     }
+  ;
+
 assign: TkIdentifier TkEqual exp
      {
 	i := $1
@@ -509,7 +530,7 @@ expressions: exp
 	}
     ;
 
-exp: TkNumber { $$ = &node.NodeExpNumber{Value:$1} }
+one_const: TkNumber { $$ = &node.NodeExpNumber{Value:$1} }
    | TkFloat 
      {
        n := &node.NodeExpFloat{}
@@ -528,6 +549,10 @@ exp: TkNumber { $$ = &node.NodeExpNumber{Value:$1} }
        $$ = n
      }
    | TkString { $$ = &node.NodeExpString{Value:$1} }
+   ;
+
+ exp: one_const
+      { $$ = $1 }
    | TkIdentifier { $$ = &node.NodeExpIdentifier{Value:$1} }
    | exp TkPlus exp
      {
@@ -964,6 +989,7 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 		case TkDiv: // do not store
 		case TkBackSlash: // do not store
 		case TkPow: // do not store
+		case TkKeywordData: // do not store
 		case TkKeywordEnd: // do not store
 		case TkKeywordElse: // do not store
 		case TkKeywordFor: // do not store
@@ -985,6 +1011,7 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 		case TkKeywordImp: // do not store
 		case TkKeywordOr: // do not store
 		case TkKeywordXor: // do not store
+		case TkKeywordRead: // do not store
 		case TkKeywordRnd: // do not store
 		case TkKeywordStep: // do not store
 		case TkKeywordThen: // do not store
