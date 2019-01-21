@@ -309,6 +309,8 @@ var testTable = []buildTest{
 	{"10 for a=1 to 3:for b=4 to 5:print a,b;:next b,a", "", "141524253435", OK},
 	{"10 for a=1 to 3:for b=4 to 5:print a,b;:next a,b", "", "", WRONG},
 	{"10 for a=1 to 3:for b=4 to 5:print a,b;:next", "", "", WRONG},
+	{"10 for a=1 to 3 step -1:print a;:next", "", "", OK},
+	{"10 for a=3 to 1 step 1:print a;:next", "", "", OK},
 }
 
 func TestBuild(t *testing.T) {
