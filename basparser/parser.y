@@ -10,6 +10,7 @@ import (
 	"io"
 	"strconv"
         "log"
+	//"strings"
 
 	"github.com/udhos/basgo/baslex"
 	"github.com/udhos/basgo/node"
@@ -19,7 +20,9 @@ type ParserResult struct {
 	Root []node.Node
 	LineNumbers map[string]node.LineNumber // used by GOTO GOSUB etc
 	LibInput bool
-	ForTable []*node.NodeFor
+	ForStack []*node.NodeFor
+	CountFor int
+	CountNext int
 }
 
 // parser auxiliary variables
@@ -268,8 +271,9 @@ stmt: /* empty */
         if !node.TypeNumeric(last.Type()) {
            yylex.Error("FOR last value must be numeric")
         }
-        f := &node.NodeFor{Index: len(Result.ForTable), Variable: ident, First: first, Last: last, Step: &node.NodeExpNumber{Value: "1"}}
-	Result.ForTable = append(Result.ForTable, f)
+        f := &node.NodeFor{Index: Result.CountFor, Variable: ident, First: first, Last: last, Step: &node.NodeExpNumber{Value: "1"}}
+	Result.CountFor++
+	Result.ForStack = append(Result.ForStack, f) // push
         $$ = f
      }
   | TkKeywordFor TkIdentifier TkEqual exp TkKeywordTo exp TkKeywordStep exp
@@ -290,23 +294,52 @@ stmt: /* empty */
         if !node.TypeNumeric(step.Type()) {
            yylex.Error("FOR step value must be numeric")
         }
-        f := &node.NodeFor{Index: len(Result.ForTable), Variable: ident, First: first, Last: last, Step: step}
-	Result.ForTable = append(Result.ForTable, f)
+        f := &node.NodeFor{Index: Result.CountFor, Variable: ident, First: first, Last: last, Step: step}
+	Result.CountFor++
+	Result.ForStack = append(Result.ForStack, f) // push
         $$ = f
      }
   | TkKeywordNext
      {
-        $$ = &node.NodeNext{}
+	index := -1
+	stackTop := len(Result.ForStack)-1
+	if stackTop < 0 {
+           yylex.Error("NEXT without FOR")
+	} else {
+           index = Result.ForStack[stackTop].Index
+	   Result.ForStack = Result.ForStack[:stackTop] // pop
+	}
+	Result.CountNext++
+        $$ = &node.NodeNext{Indices: []int{index}}
      }
   | TkKeywordNext ident_list
      {
         list := $2
+        indexList := []int{}
 	for _, ident := range list {
 	   if !node.TypeNumeric(node.VarType(ident)) {
-              yylex.Error("NEXT variable must be numeric")
+              yylex.Error("NEXT variable must be numeric: "+ident)
+              continue
 	   }
+
+           stackTop := len(Result.ForStack)-1
+           if stackTop < 0 {
+              yylex.Error(fmt.Sprintf("NEXT '%s' without FOR", ident))
+              continue
+           }
+
+           f := Result.ForStack[stackTop]
+           indexList = append(indexList,f.Index)
+           Result.ForStack = Result.ForStack[:stackTop] // pop
+
+           if !node.VarMatch(f.Variable, ident) {
+              yylex.Error(fmt.Sprintf("FOR var %s mismatches NEXT var %s", f.Variable, ident))
+              continue
+           }
+
+	   Result.CountNext++
 	}
-        $$ = &node.NodeNext{Variables: list}
+        $$ = &node.NodeNext{Variables: list, Indices: indexList}
      }
   | TkKeywordIf exp then_or_goto stmt_goto
      {

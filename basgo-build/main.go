@@ -43,6 +43,11 @@ func compile(input io.Reader, outputf node.FuncPrintf) (int, int) {
 		return status, errors
 	}
 
+	if result.CountFor != result.CountNext {
+		log.Printf("%s: FOR count=%d NEXT count=%d", basgoLabel, result.CountFor, result.CountNext)
+		return status, 1000
+	}
+
 	log.Printf("%s: FIXME WRITEME replace duplicate lines", basgoLabel)
 
 	log.Printf("%s: checking lines used/defined", basgoLabel)
@@ -58,7 +63,7 @@ func compile(input io.Reader, outputf node.FuncPrintf) (int, int) {
 	}
 
 	if undefLines != 0 {
-		return 0, 1000 + undefLines
+		return 0, 2000 + undefLines
 	}
 
 	log.Printf("%s: sorting lines", basgoLabel)

@@ -60,6 +60,10 @@ func (o *BuildOptions) VarIsUsed(name string) bool {
 	return used
 }
 
+func VarMatch(s1, s2 string) bool {
+	return strings.ToLower(s1) == strings.ToLower(s2)
+}
+
 // RenameVar renames a.B$ => str_a_b
 func RenameVar(name string) string {
 	name = strings.ToLower(name)
@@ -378,7 +382,7 @@ func (n *NodeEnd) FindUsedVars(options *BuildOptions) {
 
 // NodeFor is for
 type NodeFor struct {
-	Index    int
+	Index    int // FOR and NEXT are linked thru the same index
 	Variable string
 	First    NodeExp
 	Last     NodeExp
@@ -397,6 +401,7 @@ func (n *NodeFor) Show(printf FuncPrintf) {
 	printf(" = " + n.First.String())
 	printf(" TO " + n.Last.String())
 	printf(" STEP " + n.Step.String())
+	printf(" Index=%d", n.Index)
 	printf("]")
 }
 
@@ -429,6 +434,7 @@ func (n *NodeFor) FindUsedVars(options *BuildOptions) {
 // NodeNext is next
 type NodeNext struct {
 	Variables []string
+	Indices   []int // FOR and NEXT are linked thru the same index
 }
 
 // Name returns the name of the node
@@ -438,7 +444,7 @@ func (n *NodeNext) Name() string {
 
 // Show displays the node
 func (n *NodeNext) Show(printf FuncPrintf) {
-	printf("[%s %q]", n.Name(), n.Variables)
+	printf("[%s vars=%q indices=%v]", n.Name(), n.Variables, n.Indices)
 }
 
 // Build generates code
