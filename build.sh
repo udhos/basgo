@@ -24,7 +24,8 @@ go install golang.org/x/tools/go/analysis/passes/shadow/cmd/shadow
 
 #go get golang.org/x/tools/cmd/goyacc
 go get modernc.org/goyacc          ;# supports %precedence
-goyacc -o ./basparser/parser.go -p Input ./basparser/parser.y
+#goyacc -o ./basparser/parser.go -p Input ./basparser/parser.y
+go generate ./basparser ;# see ./basparser/generate.go
 
 build ./baslex
 build ./baslex-run
