@@ -13,7 +13,7 @@ type buildTest struct {
 	source     string
 	input      string
 	output     string
-	buildError bool
+	buildError int
 }
 
 const sourceGoto = `
@@ -32,8 +32,9 @@ const outputGoto = `1
 `
 
 const (
-	OK    = false
-	WRONG = true
+	OK      = iota
+	WRONG   = iota
+	RUNTIME = iota
 )
 
 var testTable = []buildTest{
@@ -311,6 +312,19 @@ var testTable = []buildTest{
 	{"10 for a=1 to 3:for b=4 to 5:print a,b;:next", "", "", WRONG},
 	{"10 for a=1 to 3 step -1:print a;:next", "", "", OK},
 	{"10 for a=3 to 1 step 1:print a;:next", "", "", OK},
+
+	{`10 data`, "", "", WRONG},
+	{`10 read`, "", "", WRONG},
+	{`10 data a:print a;`, "", "", WRONG},
+	{`10 read a:print a;`, "", "", RUNTIME},
+	{`10 data 3:read 3`, "", "", WRONG},
+	{`10 data a:read a:print a;`, "", "", WRONG},
+	{`10 data 3:read a:print a;`, "", "3", OK},
+	{`10 data 3:read a,b:print a,b;`, "", "", RUNTIME},
+	{`10 data "3":read a$:print a$;`, "", "3", OK},
+	{`10 data 3:read a$:print a$;`, "", "", RUNTIME},
+	{`10 data 3,"4":read a,b$:print a,b$;`, "", "34", OK},
+	{`10 data 3,"4":read a:print a;`, "", "3", OK},
 }
 
 func TestBuild(t *testing.T) {
@@ -341,9 +355,11 @@ func TestBuild(t *testing.T) {
 
 		status, errors := compile(r, printf)
 
+		w.Close()
+
 		t.Logf("status=%d errors=%d\n", status, errors)
 
-		if data.buildError {
+		if data.buildError == WRONG {
 			// build error expected
 			if status == 0 && errors == 0 {
 				t.Errorf("unexpected build success")
@@ -362,17 +378,26 @@ func TestBuild(t *testing.T) {
 			}
 		}
 
-		w.Close()
-
 		cmd := exec.Command("go", "run", tmp)
 		cmd.Stdin = strings.NewReader(data.input)
 		output := bytes.Buffer{}
 		cmd.Stdout = &output
 		errExec := cmd.Run()
-		if errExec != nil {
-			t.Errorf("go run %s: %v", tmp, errExec)
-			return
+
+		if data.buildError == RUNTIME {
+			// RUNTIME error expected
+			if errExec == nil {
+				t.Errorf("unexpected RUNTIME success")
+				return
+			}
+		} else {
+			// RUNTIME error NOT expected
+			if errExec != nil {
+				t.Errorf("unexpected RUNTIME error: go run %s: %v", tmp, errExec)
+				return
+			}
 		}
+
 		result := output.String()
 		t.Logf("output: %q\n", result)
 		if result != data.output {
