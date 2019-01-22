@@ -550,7 +550,7 @@ array_index_exp_list: exp
 			yylex.Error("Array index must be numeric")
 		}
 		last := len(expListStack) - 1
-		expListStack[last] = append(expListStack[last], $3)
+		expListStack[last] = append(expListStack[last], e)
 	        $$ = expListStack[last]
 	}
     ;
