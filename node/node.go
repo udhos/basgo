@@ -312,7 +312,7 @@ func (n *NodeData) Build(options *BuildOptions, outputf FuncPrintf) {
 
 // FindUsedVars finds used vars
 func (n *NodeData) FindUsedVars(options *BuildOptions) {
-	// DATA allows only constans expressions - no vars
+	// DATA allows only constant expressions - no vars
 }
 
 // NodeOnGoto is ongoto
