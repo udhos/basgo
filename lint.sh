@@ -10,15 +10,18 @@ lint() {
 
 	echo working: "$pkg"
 
+	go vet -vettool=$(which shadow) "$pkg"
 	gosimple "$pkg"
 	golint "$pkg"
 	staticcheck "$pkg"
 }
 
+go install golang.org/x/tools/go/analysis/passes/shadow/cmd/shadow
+
 lint ./baslex
 lint ./baslex-run
 lint ./node
-#lint ./basparser
+lint ./basparser
 lint ./basparser-run
 lint ./basgo
 lint ./basgo-run
