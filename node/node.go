@@ -8,11 +8,13 @@ import (
 	"strings"
 )
 
+// LineNumber track used+undefined line numbers
 type LineNumber struct {
 	Used    bool // GOTO 10, GOSUB 10 etc
 	Defined bool // 10 print
 }
 
+// ByLineNumber helper type to sort lines by number
 type ByLineNumber []Node
 
 func (a ByLineNumber) Len() int      { return len(a) }
@@ -40,6 +42,7 @@ func (a ByLineNumber) Less(i, j int) bool {
 // FuncPrintf is func type for printf
 type FuncPrintf func(format string, v ...interface{}) (int, error)
 
+// BuildOptions holds state required for issuing Go code
 type BuildOptions struct {
 	Headers     map[string]struct{}
 	Vars        map[string]struct{}
@@ -51,15 +54,18 @@ type BuildOptions struct {
 	Data        []string              // DATA for READ
 }
 
+// VarSetUsed sets variable as used
 func (o *BuildOptions) VarSetUsed(name string) {
 	o.Vars[strings.ToLower(name)] = struct{}{}
 }
 
+// VarIsUsed checks whether variable is used
 func (o *BuildOptions) VarIsUsed(name string) bool {
 	_, used := o.Vars[strings.ToLower(name)]
 	return used
 }
 
+// ArraySetUsed sets array as used
 func (o *BuildOptions) ArraySetUsed(name string, dimensions int) {
 	o.UsedArrays[strings.ToLower(name)] = dimensions
 }
@@ -74,6 +80,7 @@ func (o *BuildOptions) ArrayIsUsed(name string, dimensions int) int {
 }
 */
 
+// VarMatch matches names of two variables
 func VarMatch(s1, s2 string) bool {
 	return strings.ToLower(s1) == strings.ToLower(s2)
 }
@@ -659,9 +666,12 @@ func (n *NodeInput) Show(printf FuncPrintf) {
 	printf("[%s %s]", n.Name(), n.Variable)
 }
 
-const InputString = "inputString()"
-const InputInteger = "inputInteger()"
-const InputFloat = "inputFloat()"
+// FIXME move source code to external file?
+const (
+	InputString  = "inputString()"  // InputString FIXME move source code to external file?
+	InputInteger = "inputInteger()" // InputInteger FIXME move source code to external file?
+	InputFloat   = "inputFloat()"   // InputFloat FIXME move source code to external file?
+)
 
 // Build generates code
 func (n *NodeInput) Build(options *BuildOptions, outputf FuncPrintf) {

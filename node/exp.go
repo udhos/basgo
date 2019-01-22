@@ -129,7 +129,7 @@ func (e *NodeExpIdentifier) FindUsedVars(options *BuildOptions) {
 	options.VarSetUsed(e.Value)
 }
 
-// NodeExpIdentifier holds value
+// NodeExpArray holds value
 type NodeExpArray struct {
 	Name    string
 	Indexes []NodeExp
@@ -747,6 +747,7 @@ func (e *NodeExpXor) FindUsedVars(options *BuildOptions) {
 	e.Right.FindUsedVars(options)
 }
 
+// NodeExpBinary helper interface
 type NodeExpBinary interface {
 	Values() (left, right NodeExp)
 }
