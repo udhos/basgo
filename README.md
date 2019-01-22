@@ -1,4 +1,4 @@
-# basgo
+# basgo compiles BASIC-lang to Golang
 
 # Requirements
 
