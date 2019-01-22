@@ -32,12 +32,15 @@ var (
 		LineNumbers: map[string]node.LineNumber{},
 	}
 
-	nodeListStack [][]node.Node // support nested node lists
+	nodeListStack [][]node.Node // support nested node lists (1)
 	lineList []node.Node
-	expList []node.NodeExp
+	expListStack [][]node.NodeExp // support nested exp lists (2)
 	constList []node.NodeExp
 	numberList []string
 	identList []string
+
+	// (1) stmt IF-THEN can nest list of stmt: THEN CLS:IF:CLS
+	// (2) exp can nest list of exp: array(exp,exp,exp)
 )
 
 func Reset() {
@@ -84,7 +87,8 @@ func Reset() {
 %type <typeStmt> stmt
 %type <typeStmt> stmt_goto
 %type <typeStmt> assign
-%type <typeExpressions> expressions
+%type <typeExpressions> print_expressions
+%type <typeExpressions> print_expressions_aux
 %type <typeExp> exp
 %type <typeExp> one_const
 %type <typeNumberList> number_list
@@ -417,15 +421,15 @@ stmt: /* empty */
      { 
         $$ = &node.NodePrint{Newline: true}
      }
-  | TkKeywordPrint expressions
+  | TkKeywordPrint print_expressions_aux
      {
         $$ = &node.NodePrint{Expressions: $2, Newline: true}
      }
-  | TkKeywordPrint expressions TkSemicolon
+  | TkKeywordPrint print_expressions_aux TkSemicolon
      {
         $$ = &node.NodePrint{Expressions: $2}
      }
-  | TkKeywordPrint expressions TkComma
+  | TkKeywordPrint print_expressions_aux TkComma
      {
         $$ = &node.NodePrint{Expressions: $2, Tab: true}
      }
@@ -446,6 +450,28 @@ stmt: /* empty */
        $$ = &node.NodeOnGoto{Cond: cond, Lines: lines}
      }
   ;
+
+expressions_push:
+     {
+        // create new nested exp list
+        // because an exp can hold a nested list of exp
+        expListStack = append(expListStack, []node.NodeExp{})
+     }
+     ;
+
+expressions_pop:
+     {
+        // drop nested exp list
+	last := len(expListStack) - 1
+	expListStack = expListStack[:last]
+     }
+     ;
+
+print_expressions_aux: expressions_push print_expressions expressions_pop
+     {
+        $$ = $2
+     }
+     ;
 
 use_line_number: TkNumber
     {
@@ -512,28 +538,32 @@ assign: TkIdentifier TkEqual exp
      }
   ;
 
-expressions: exp
+print_expressions: exp
 	{
-        	expList = []node.NodeExp{$1} // reset
-	        $$ = expList
+		last := len(expListStack) - 1
+        	expListStack[last] = []node.NodeExp{$1} // reset
+	        $$ = expListStack[last]
 	}
     |
-        expressions exp
+        print_expressions exp
         {
-		expList = append(expList, $2)
-		$$ = expList
+		last := len(expListStack) - 1
+		expListStack[last] = append(expListStack[last], $2)
+	        $$ = expListStack[last]
 	}
     |
-        expressions TkComma exp
+        print_expressions TkComma exp
         {
-		expList = append(expList, $3)
-		$$ = expList
+		last := len(expListStack) - 1
+		expListStack[last] = append(expListStack[last], $3)
+	        $$ = expListStack[last]
 	}
     |
-        expressions TkSemicolon exp
+        print_expressions TkSemicolon exp
         {
-		expList = append(expList, $3)
-		$$ = expList
+		last := len(expListStack) - 1
+		expListStack[last] = append(expListStack[last], $3)
+	        $$ = expListStack[last]
 	}
     ;
 
