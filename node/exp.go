@@ -1,8 +1,8 @@
 package node
 
 import (
-	//"log"
 	"fmt"
+	"log"
 	//"bufio"
 	//"strconv"
 )
@@ -127,6 +127,45 @@ func (e *NodeExpIdentifier) Exp(options *BuildOptions) string {
 // FindUsedVars finds used vars
 func (e *NodeExpIdentifier) FindUsedVars(options *BuildOptions) {
 	options.VarSetUsed(e.Value)
+}
+
+// NodeExpIdentifier holds value
+type NodeExpArray struct {
+	Name    string
+	Indexes []NodeExp
+}
+
+// Type returns type
+func (e *NodeExpArray) Type() int {
+	return VarType(e.Name)
+}
+
+// String returns value
+func (e *NodeExpArray) String() string {
+	str := e.Name + "(" + e.Indexes[0].String()
+	for i := 1; i < len(e.Indexes); i++ {
+		str += "," + e.Indexes[i].String()
+	}
+	str += ")"
+	return str
+}
+
+// Exp returns value
+func (e *NodeExpArray) Exp(options *BuildOptions) string {
+	str := RenameVar(e.Name)
+	for _, i := range e.Indexes {
+		str += "[" + i.Exp(options) + "]"
+	}
+	return str
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpArray) FindUsedVars(options *BuildOptions) {
+	//options.VarSetUsed(e.Name)
+	log.Printf("NodeExpArray.FindUsedVars: FIXME set array as used: %s", e.String())
+	for _, i := range e.Indexes {
+		i.FindUsedVars(options)
+	}
 }
 
 // NodeExpPlus holds value

@@ -88,6 +88,7 @@ func Reset() {
 %type <typeStmt> stmt_goto
 %type <typeStmt> assign
 %type <typeExpressions> print_expressions
+%type <typeExpressions> array_index_exp_list
 %type <typeExp> exp
 %type <typeExp> one_const
 %type <typeNumberList> number_list
@@ -531,6 +532,29 @@ assign: TkIdentifier TkEqual exp
      }
   ;
 
+array_index_exp_list: exp
+	{
+		e := $1
+		if !node.TypeNumeric(e.Type()) {
+			yylex.Error("Array index must be numeric")
+		}
+		last := len(expListStack) - 1
+        	expListStack[last] = []node.NodeExp{e} // reset
+	        $$ = expListStack[last]
+	}
+    |
+        array_index_exp_list TkComma exp
+        {
+		e := $3
+		if !node.TypeNumeric(e.Type()) {
+			yylex.Error("Array index must be numeric")
+		}
+		last := len(expListStack) - 1
+		expListStack[last] = append(expListStack[last], $3)
+	        $$ = expListStack[last]
+	}
+    ;
+
 print_expressions: exp
 	{
 		last := len(expListStack) - 1
@@ -581,9 +605,23 @@ one_const: TkNumber { $$ = &node.NodeExpNumber{Value:$1} }
    | TkString { $$ = &node.NodeExpString{Value:$1} }
    ;
 
- exp: one_const
+bracket_left: TkParLeft
+              |
+              TkBracketLeft
+              ;
+
+bracket_right: TkParRight
+              |
+              TkBracketRight
+              ;
+
+exp: one_const
       { $$ = $1 }
    | TkIdentifier { $$ = &node.NodeExpIdentifier{Value:$1} }
+   | TkIdentifier bracket_left expressions_push array_index_exp_list expressions_pop bracket_right
+     {
+        $$ = &node.NodeExpArray{Name: $1, Indexes:$4}
+     }
    | exp TkPlus exp
      {
        if $1.Type() == node.TypeString && $3.Type() != node.TypeString {
