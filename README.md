@@ -3,6 +3,15 @@
 
 # basgo compiles BASIC-lang to Golang
 
+* [Requirements](#requirements)
+* [Install](#install)
+* [Run the Compiler](#run-the-compiler)
+  * [Example](#example)
+* [Run the Interpreter](#run-the-interpreter)
+* [References](#references)
+
+Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc.go)
+
 # Requirements
 
 In order to build the 'basgo-build' compiler, a recent version of Go is required.
