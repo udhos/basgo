@@ -84,6 +84,7 @@ func main() {
 	options := node.BuildOptions{
 		Headers:     map[string]struct{}{},
 		Vars:        map[string]struct{}{},
+		UsedArrays:  map[string]int{},
 		LineNumbers: lineNumbersTab,
 		Input:       libInput,
 	}
@@ -145,6 +146,7 @@ func main() {
 	}
 
 	writeVar(options.Vars, outputf)
+	writeArrays(&options, outputf)
 	outputf(buf.String())
 
 	outputf(mainClose)
@@ -299,24 +301,48 @@ func writeImport(headers map[string]struct{}, outputf node.FuncPrintf) {
 	}
 }
 
+func writeArrays(options *node.BuildOptions, outputf node.FuncPrintf) {
+	if len(options.UsedArrays) < 1 {
+		return
+	}
+	outputf("var (\n")
+	for v, d := range options.UsedArrays {
+		a := node.RenameArray(v)
+		t := node.VarType(v)
+		tt := typeName(v, t)
+		var indices string
+		for i := 0; i < d; i++ {
+			indices += "[11]"
+		}
+		arrayType := indices + tt
+		outputf("  %s %s // array [%s]\n", a, arrayType, v)
+	}
+	outputf(")\n")
+}
+
+func typeName(name string, t int) string {
+	var tt string
+	switch t {
+	case node.TypeString:
+		tt = "string"
+	case node.TypeInteger:
+		tt = "int"
+	case node.TypeFloat:
+		tt = "float64"
+	default:
+		log.Printf("typeName: unknown var %s type: %d", name, t)
+		tt = "TYPE_UNKNOWN_writeVar"
+	}
+	return tt
+}
+
 func writeVar(vars map[string]struct{}, outputf node.FuncPrintf) {
 	if len(vars) > 0 {
 		outputf("var (\n")
 		for v := range vars {
 			vv := node.RenameVar(v)
 			t := node.VarType(v)
-			var tt string
-			switch t {
-			case node.TypeString:
-				tt = "string"
-			case node.TypeInteger:
-				tt = "int"
-			case node.TypeFloat:
-				tt = "float64"
-			default:
-				log.Printf("writeVar: unknown var %s/%s type: %d", v, vv, t)
-				tt = "TYPE_UNKNOWN_writeVar"
-			}
+			tt := typeName(v, t)
 			outputf("  %s %s // [%s]\n", vv, tt, v)
 		}
 		outputf(")\n")

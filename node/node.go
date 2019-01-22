@@ -43,6 +43,7 @@ type FuncPrintf func(format string, v ...interface{}) (int, error)
 type BuildOptions struct {
 	Headers     map[string]struct{}
 	Vars        map[string]struct{}
+	UsedArrays  map[string]int
 	LineNumbers map[string]LineNumber // numbers used by GOTO, GOSUB etc
 	Rnd         bool                  // using lib RND
 	Input       bool                  // using lib INPUT
@@ -59,8 +60,27 @@ func (o *BuildOptions) VarIsUsed(name string) bool {
 	return used
 }
 
+func (o *BuildOptions) ArraySetUsed(name string, dimensions int) {
+	o.UsedArrays[strings.ToLower(name)] = dimensions
+}
+
+/*
+func (o *BuildOptions) ArrayIsUsed(name string, dimensions int) int {
+	dimensions, used := o.UsedArrays[strings.ToLower(name)]
+	if used {
+		return dimensions
+	}
+	return -1
+}
+*/
+
 func VarMatch(s1, s2 string) bool {
 	return strings.ToLower(s1) == strings.ToLower(s2)
+}
+
+// RenameArray renames a.B$ => array_str_a_b
+func RenameArray(name string) string {
+	return "array_" + RenameVar(name)
 }
 
 // RenameVar renames a.B$ => str_a_b

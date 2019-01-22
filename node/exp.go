@@ -2,7 +2,7 @@ package node
 
 import (
 	"fmt"
-	"log"
+	//"log"
 	//"bufio"
 	//"strconv"
 )
@@ -152,17 +152,16 @@ func (e *NodeExpArray) String() string {
 
 // Exp returns value
 func (e *NodeExpArray) Exp(options *BuildOptions) string {
-	str := RenameVar(e.Name)
+	str := RenameArray(e.Name)
 	for _, i := range e.Indexes {
-		str += "[" + i.Exp(options) + "]"
+		str += "[" + forceInt(options, i) + "]"
 	}
 	return str
 }
 
 // FindUsedVars finds used vars
 func (e *NodeExpArray) FindUsedVars(options *BuildOptions) {
-	//options.VarSetUsed(e.Name)
-	log.Printf("NodeExpArray.FindUsedVars: FIXME set array as used: %s", e.String())
+	options.ArraySetUsed(e.Name, len(e.Indexes))
 	for _, i := range e.Indexes {
 		i.FindUsedVars(options)
 	}
