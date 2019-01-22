@@ -88,7 +88,6 @@ func Reset() {
 %type <typeStmt> stmt_goto
 %type <typeStmt> assign
 %type <typeExpressions> print_expressions
-%type <typeExpressions> print_expressions_aux
 %type <typeExp> exp
 %type <typeExp> one_const
 %type <typeNumberList> number_list
@@ -421,17 +420,17 @@ stmt: /* empty */
      { 
         $$ = &node.NodePrint{Newline: true}
      }
-  | TkKeywordPrint print_expressions_aux
+  | TkKeywordPrint expressions_push print_expressions expressions_pop
      {
-        $$ = &node.NodePrint{Expressions: $2, Newline: true}
+        $$ = &node.NodePrint{Expressions: $3, Newline: true}
      }
-  | TkKeywordPrint print_expressions_aux TkSemicolon
+  | TkKeywordPrint expressions_push print_expressions TkSemicolon expressions_pop
      {
-        $$ = &node.NodePrint{Expressions: $2}
+        $$ = &node.NodePrint{Expressions: $3}
      }
-  | TkKeywordPrint print_expressions_aux TkComma
+  | TkKeywordPrint expressions_push print_expressions TkComma expressions_pop
      {
-        $$ = &node.NodePrint{Expressions: $2, Tab: true}
+        $$ = &node.NodePrint{Expressions: $3, Tab: true}
      }
   | TkKeywordRead ident_list
      {
@@ -464,12 +463,6 @@ expressions_pop:
         // drop nested exp list
 	last := len(expListStack) - 1
 	expListStack = expListStack[:last]
-     }
-     ;
-
-print_expressions_aux: expressions_push print_expressions expressions_pop
-     {
-        $$ = $2
      }
      ;
 
