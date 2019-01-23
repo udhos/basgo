@@ -1025,6 +1025,7 @@ type InputLex struct {
 	lex *baslex.Lex
 	debug bool
 	syntaxErrorCount int
+	lastToken baslex.Token // save token for parser error reporting
 }
 
 func (l *InputLex) Errors() int {
@@ -1038,6 +1039,8 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 	}
 
 	t := l.lex.Next()
+
+	l.lastToken = t // save token for parser error reporting
 
 	// ATTENTION: t.ID is in lex token space
 
@@ -1120,6 +1123,9 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 
 func (l *InputLex) Error(s string) {
 	l.syntaxErrorCount++
-	log.Printf("InputLex.Error: count=%d basicLine=%s inputLine=%d column=%d: %s\n", l.syntaxErrorCount, lastLineNum, l.lex.Line(), l.lex.Column(), s)
+	log.Printf("InputLex.Error: %s", s)
+	log.Printf("InputLex.Error: last token: %s [%s]", l.lastToken.Type(), l.lastToken.Value)
+	log.Printf("InputLex.Error: basicLine=%s inputLine=%d column=%d", lastLineNum, l.lex.Line(), l.lex.Column())
+	log.Printf("InputLex.Error: errors=%d", l.syntaxErrorCount)
 }
 
