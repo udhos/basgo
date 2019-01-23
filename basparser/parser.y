@@ -63,6 +63,7 @@ func Reset() {
 
 	typeExpressions []node.NodeExp
 	typeExp node.NodeExp
+	typeExpArray *node.NodeExpArray
 
 	typeRem string
 	typeNumber string
@@ -91,6 +92,7 @@ func Reset() {
 %type <typeExpressions> array_index_exp_list
 %type <typeExp> exp
 %type <typeExp> one_const
+%type <typeExpArray> array_exp
 %type <typeNumberList> number_list
 %type <typeLineNumber> use_line_number
 %type <typeIdentList> ident_list
@@ -530,6 +532,17 @@ assign: TkIdentifier TkEqual exp
 	}
         $$ = &node.NodeAssign{Left: i, Right: e}
      }
+  | array_exp TkEqual exp
+     {
+	a := $1
+	e := $3
+	ta := a.Type()
+	te := e.Type()
+	if !node.TypeCompare(ta, te) {
+           yylex.Error("Array assignment type mismatch")
+	}
+        $$ = &node.NodeAssignArray{Left: a, Right: e}
+     }
   ;
 
 array_index_exp_list: exp
@@ -615,12 +628,18 @@ bracket_right: TkParRight
               TkBracketRight
               ;
 
+array_exp: TkIdentifier bracket_left expressions_push array_index_exp_list expressions_pop bracket_right
+   {
+     $$ = &node.NodeExpArray{Name: $1, Indexes:$4}
+   }
+   ;
+
 exp: one_const
       { $$ = $1 }
    | TkIdentifier { $$ = &node.NodeExpIdentifier{Value:$1} }
-   | TkIdentifier bracket_left expressions_push array_index_exp_list expressions_pop bracket_right
+   | array_exp
      {
-        $$ = &node.NodeExpArray{Name: $1, Indexes:$4}
+        $$ = $1
      }
    | exp TkPlus exp
      {

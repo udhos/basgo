@@ -70,15 +70,14 @@ func (o *BuildOptions) ArraySetUsed(name string, dimensions int) {
 	o.UsedArrays[strings.ToLower(name)] = dimensions
 }
 
-/*
-func (o *BuildOptions) ArrayIsUsed(name string, dimensions int) int {
+// ArrayIsUsed checks whether array is used
+func (o *BuildOptions) ArrayIsUsed(name string) int {
 	dimensions, used := o.UsedArrays[strings.ToLower(name)]
 	if used {
 		return dimensions
 	}
 	return -1
 }
-*/
 
 // VarMatch matches names of two variables
 func VarMatch(s1, s2 string) bool {
@@ -287,6 +286,57 @@ func (n *NodeAssign) Build(options *BuildOptions, outputf FuncPrintf) {
 
 // FindUsedVars finds used vars
 func (n *NodeAssign) FindUsedVars(options *BuildOptions) {
+	n.Right.FindUsedVars(options)
+}
+
+// NodeAssignArray is array assignment
+type NodeAssignArray struct {
+	Left  *NodeExpArray
+	Right NodeExp
+}
+
+// Name returns the name of the node
+func (n *NodeAssignArray) Name() string {
+	return "LET"
+}
+
+// Show displays the node
+func (n *NodeAssignArray) Show(printf FuncPrintf) {
+	printf("[")
+	printf(n.Name())
+	printf(" ")
+	printf(n.Left.String())
+	printf("=")
+	printf(n.Right.String())
+	printf("]")
+}
+
+// Build generates code
+func (n *NodeAssignArray) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+
+	ta := n.Left.Type()
+	te := n.Right.Type()
+
+	a := n.Left.Exp(options)
+	e := n.Right.Exp(options)
+
+	code := assignCode(options, "=", a, e, ta, te)
+
+	dimensions := options.ArrayIsUsed(n.Left.Name)
+
+	if dimensions > 0 {
+		outputf(code + "\n")
+	} else {
+		outputf("// %s // suppressed: array '%s' not used\n", code, n.Left)
+	}
+}
+
+// FindUsedVars finds used vars
+func (n *NodeAssignArray) FindUsedVars(options *BuildOptions) {
+	n.Left.FindUsedVars(options)
 	n.Right.FindUsedVars(options)
 }
 
