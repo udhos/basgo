@@ -102,6 +102,8 @@ func Reset() {
 %type <typeLineNumber> use_line_number
 %type <typeIdentList> ident_list
 %type <typeExpressions> const_list
+%type <typeExp> one_var
+%type <typeExpressions> var_list
 
 // same for terminals
 
@@ -446,10 +448,10 @@ stmt: /* empty */
      {
         $$ = &node.NodePrint{Expressions: $3, Tab: true}
      }
-  | TkKeywordRead ident_list
+  | TkKeywordRead expressions_push var_list expressions_pop
      {
         Result.LibReadData = true
-        $$ = &node.NodeRead{Variables: $2}
+        $$ = &node.NodeRead{Variables: $3}
      }
   | TkKeywordRem
      { $$ = &node.NodeRem{Value: $1} }
@@ -519,6 +521,31 @@ ident_list: TkIdentifier
         $$ = identList
      }
   ;
+
+one_var: TkIdentifier
+     {
+        log.Printf("parser.y one_var FIXME LHS identifier should NOT be marked as used in its FindVars method")
+        $$ = &node.NodeExpIdentifier{Value:$1}
+     }
+     | array_exp
+     {
+        $$ = $1 // node.NodeExpArray
+     }
+     ;
+
+var_list: one_var
+	{
+		last := len(expListStack) - 1
+        	expListStack[last] = []node.NodeExp{$1} // reset
+	        $$ = expListStack[last]
+	}
+        | var_list TkComma one_var
+        {
+		last := len(expListStack) - 1
+		expListStack[last] = append(expListStack[last], $3)
+	        $$ = expListStack[last]
+	}
+        ;
 
 const_list: one_const
      {

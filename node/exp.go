@@ -107,7 +107,9 @@ func (e *NodeExpString) FindUsedVars(options *BuildOptions) {
 }
 
 // NodeExpIdentifier holds value
-type NodeExpIdentifier struct{ Value string }
+type NodeExpIdentifier struct {
+	Value string
+}
 
 // Type returns type
 func (e *NodeExpIdentifier) Type() int {

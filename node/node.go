@@ -798,7 +798,7 @@ func (n *NodeList) FindUsedVars(options *BuildOptions) {
 
 // NodeRead is read
 type NodeRead struct {
-	Variables []string
+	Variables []NodeExp
 }
 
 // Name returns the name of the node
@@ -808,7 +808,12 @@ func (n *NodeRead) Name() string {
 
 // Show displays the node
 func (n *NodeRead) Show(printf FuncPrintf) {
-	printf("[%s %q]", n.Name(), n.Variables)
+	printf("[%s", n.Name())
+	for _, v := range n.Variables {
+		printf(" ")
+		printf(v.String())
+	}
+	printf("]")
 }
 
 // Build generates code
@@ -817,9 +822,10 @@ func (n *NodeRead) Build(options *BuildOptions, outputf FuncPrintf) {
 	n.Show(outputf)
 	outputf("\n")
 
-	for _, v := range n.Variables {
-		vv := RenameVar(v)
-		t := VarType(v)
+	for _, e := range n.Variables {
+		v := e.String()      // cosmetic error reporting
+		vv := e.Exp(options) // go code
+		t := e.Type()
 		var code string
 		switch t {
 		case TypeString:
@@ -834,10 +840,22 @@ func (n *NodeRead) Build(options *BuildOptions, outputf FuncPrintf) {
 			code = fmt.Sprintf("println(%s)\n", msg)
 		}
 
-		if options.VarIsUsed(v) {
-			outputf(code + "\n")
+		var used bool
+
+		switch ee := e.(type) {
+		case *NodeExpIdentifier:
+			used = options.VarIsUsed(ee.Value)
+		case *NodeExpArray:
+			d := ArrayIsUsed(options.UsedArrays, ee.Name)
+			used = d > 0
+		default:
+			log.Printf("NodeRead.Build: unexpected '%s' non-var non-array: %v", v, e)
+		}
+
+		if used {
+			outputf(code+" // READ %s\n", v)
 		} else {
-			outputf("// %s // suppressed: '%s' not used\n", code, v)
+			outputf("// %s // READ suppressed: '%s' not used\n", code, v)
 		}
 	}
 }
