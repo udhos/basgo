@@ -100,7 +100,6 @@ func Reset() {
 %type <typeExpArray> array_exp
 %type <typeNumberList> number_list
 %type <typeLineNumber> use_line_number
-%type <typeIdentList> ident_list
 %type <typeExpressions> const_list
 %type <typeExp> one_var
 %type <typeExpressions> var_list
@@ -287,12 +286,12 @@ stmt: /* empty */
         Result.LibReadData = true
         $$ = &node.NodeData{Expressions: $2}
      }
-  | TkKeywordFor TkIdentifier TkEqual exp TkKeywordTo exp
+  | TkKeywordFor one_var TkEqual exp TkKeywordTo exp
      {
 	ident := $2
 	first := $4
 	last := $6
-	if !node.TypeNumeric(node.VarType(ident)) {
+	if !node.TypeNumeric(ident.Type()) {
            yylex.Error("FOR variable must be numeric")
 	}
         if !node.TypeNumeric(first.Type()) {
@@ -306,13 +305,13 @@ stmt: /* empty */
 	Result.ForStack = append(Result.ForStack, f) // push
         $$ = f
      }
-  | TkKeywordFor TkIdentifier TkEqual exp TkKeywordTo exp TkKeywordStep exp
+  | TkKeywordFor one_var TkEqual exp TkKeywordTo exp TkKeywordStep exp
      {
 	ident := $2
 	first := $4
 	last := $6
 	step := $8
-	if !node.TypeNumeric(node.VarType(ident)) {
+	if !node.TypeNumeric(ident.Type()) {
            yylex.Error("FOR variable must be numeric")
 	}
         if !node.TypeNumeric(first.Type()) {
@@ -342,19 +341,19 @@ stmt: /* empty */
 	Result.CountNext++
         $$ = &node.NodeNext{Fors: []*node.NodeFor{f}}
      }
-  | TkKeywordNext ident_list
+  | TkKeywordNext expressions_push var_list expressions_pop
      {
-        list := $2
+        list := $3
         forList := []*node.NodeFor{}
 	for _, ident := range list {
-	   if !node.TypeNumeric(node.VarType(ident)) {
-              yylex.Error("NEXT variable must be numeric: "+ident)
+	   if !node.TypeNumeric(ident.Type()) {
+              yylex.Error("NEXT variable must be numeric: "+ident.String())
               continue
 	   }
 
            stackTop := len(Result.ForStack)-1
            if stackTop < 0 {
-              yylex.Error(fmt.Sprintf("NEXT '%s' without FOR", ident))
+              yylex.Error(fmt.Sprintf("NEXT '%s' without FOR", ident.String()))
               continue
            }
 
@@ -362,8 +361,8 @@ stmt: /* empty */
            forList = append(forList,f)
            Result.ForStack = Result.ForStack[:stackTop] // pop
 
-           if !node.VarMatch(f.Variable, ident) {
-              yylex.Error(fmt.Sprintf("FOR var %s mismatches NEXT var %s", f.Variable, ident))
+           if !node.VarMatch(f.Variable.String(), ident.String()) {
+              yylex.Error(fmt.Sprintf("FOR var %s mismatches NEXT var %s", f.Variable.String(), ident.String()))
               continue
            }
 
@@ -510,18 +509,6 @@ number_list: use_line_number
      }
   ;
 
-ident_list: TkIdentifier
-     {
-        identList = []string{$1} // reset list
-	$$ = identList
-     }
-  | ident_list TkComma TkIdentifier
-     {
-        identList = append(identList, $3)
-        $$ = identList
-     }
-  ;
-
 one_var: TkIdentifier
      {
         log.Printf("parser.y one_var FIXME LHS identifier should NOT be marked as used in its FindVars method")
@@ -536,7 +523,7 @@ one_var: TkIdentifier
 var_list: one_var
 	{
 		last := len(expListStack) - 1
-        	expListStack[last] = []node.NodeExp{$1} // reset
+        	expListStack[last] = []node.NodeExp{$1} // reset var_list
 	        $$ = expListStack[last]
 	}
         | var_list TkComma one_var
@@ -590,7 +577,7 @@ array_index_exp_list: exp
 			yylex.Error("Array index must be numeric")
 		}
 		last := len(expListStack) - 1
-        	expListStack[last] = []node.NodeExp{e} // reset
+        	expListStack[last] = []node.NodeExp{e} // reset array_index_exp_list
 	        $$ = expListStack[last]
 	}
     |
@@ -609,7 +596,7 @@ array_index_exp_list: exp
 print_expressions: exp
 	{
 		last := len(expListStack) - 1
-        	expListStack[last] = []node.NodeExp{$1} // reset
+        	expListStack[last] = []node.NodeExp{$1} // reset print_expressions
 	        $$ = expListStack[last]
 	}
     |
@@ -674,7 +661,7 @@ array_exp: TkIdentifier bracket_left expressions_push array_index_exp_list expre
       if err != nil {
          yylex.Error("error using array: " + err.Error())
       }
-      $$ = &node.NodeExpArray{Name: name, Indexes:indices}
+      $$ = &node.NodeExpArray{Name: name,Indices: indices}
    }
    ;
 

@@ -134,7 +134,7 @@ func (e *NodeExpIdentifier) FindUsedVars(options *BuildOptions) {
 // NodeExpArray holds value
 type NodeExpArray struct {
 	Name    string
-	Indexes []NodeExp
+	Indices []NodeExp
 }
 
 // Type returns type
@@ -144,9 +144,9 @@ func (e *NodeExpArray) Type() int {
 
 // String returns value
 func (e *NodeExpArray) String() string {
-	str := e.Name + "(" + e.Indexes[0].String()
-	for i := 1; i < len(e.Indexes); i++ {
-		str += "," + e.Indexes[i].String()
+	str := e.Name + "(" + e.Indices[0].String()
+	for i := 1; i < len(e.Indices); i++ {
+		str += "," + e.Indices[i].String()
 	}
 	str += ")"
 	return str
@@ -155,7 +155,7 @@ func (e *NodeExpArray) String() string {
 // Exp returns value
 func (e *NodeExpArray) Exp(options *BuildOptions) string {
 	str := RenameArray(e.Name)
-	for _, i := range e.Indexes {
+	for _, i := range e.Indices {
 		str += "[" + forceInt(options, i) + "]"
 	}
 	return str
@@ -163,8 +163,8 @@ func (e *NodeExpArray) Exp(options *BuildOptions) string {
 
 // FindUsedVars finds used vars
 func (e *NodeExpArray) FindUsedVars(options *BuildOptions) {
-	//options.ArraySetUsed(e.Name, len(e.Indexes))
-	for _, i := range e.Indexes {
+	//options.ArraySetUsed(e.Name, len(e.Indices))
+	for _, i := range e.Indices {
 		i.FindUsedVars(options)
 	}
 }

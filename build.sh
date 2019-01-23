@@ -1,8 +1,7 @@
 #!/bin/bash
 
-die() {
-	echo 2>&1 $0: $#
-	exit 
+msg() {
+	echo 2>&1 "$0": $@
 }
 
 build() {
@@ -10,7 +9,7 @@ build() {
 
 	gofmt -s -w "$pkg"
 	go fix "$pkg"
-	go vet -vettool=$(which shadow) "$pkg"
+	go vet -vettool="$(which shadow)" "$pkg"
 
 	#hash gosimple >/dev/null && gosimple "$pkg"
 	#hash golint >/dev/null && golint "$pkg"
@@ -34,5 +33,7 @@ build ./basparser
 build ./basparser-run
 build ./basgo
 build ./basgo-run
+
+msg PLEASE STAND BY: tests for basgo-build may take some minutes
 build ./basgo-build
 

@@ -345,6 +345,13 @@ var testTable = []buildTest{
 	{`10 data 2:read a(1):print a(1)`, "", "2\n", OK},
 	{`10 data "3":read a$(1,2):print a$(1,2)`, "", "3\n", OK},
 	{`10 data 2,3:read a(1),b:print a(1),b`, "", "23\n", OK},
+
+	{`10 for a(1)=1 to 3:print a(1);:next a(1)`, "", "123", OK},
+	{`10 for a(1)=1 to 3:print a(1);:next`, "", "123", OK},
+	{`10 for a(1,2)=1 to 3:print a(1,2);:next a(1,2)`, "", "123", OK},
+	{`10 for a(1,2)=1 to 3:print a(1,2);:next`, "", "123", OK},
+	{`10 for a(1)=1 to 3:print a(1);:next a(2)`, "", "", WRONG},
+	{`10 for a(1,2)=1 to 3:print a(1,2);:next a(1,1)`, "", "", WRONG},
 }
 
 func TestBuild(t *testing.T) {

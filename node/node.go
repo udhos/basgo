@@ -502,7 +502,7 @@ func (n *NodeEnd) FindUsedVars(options *BuildOptions) {
 // NodeFor is for
 type NodeFor struct {
 	Index    int // FOR and NEXT are linked thru the same index
-	Variable string
+	Variable NodeExp
 	First    NodeExp
 	Last     NodeExp
 	Step     NodeExp
@@ -516,7 +516,7 @@ func (n *NodeFor) Name() string {
 // Show displays the node
 func (n *NodeFor) Show(printf FuncPrintf) {
 	printf("[" + n.Name())
-	printf(" " + n.Variable)
+	printf(" " + n.Variable.String())
 	printf(" = " + n.First.String())
 	printf(" TO " + n.Last.String())
 	printf(" STEP " + n.Step.String())
@@ -530,9 +530,9 @@ func (n *NodeFor) Build(options *BuildOptions, outputf FuncPrintf) {
 	n.Show(outputf)
 	outputf("\n")
 
-	v := RenameVar(n.Variable)
+	v := n.Variable.Exp(options)
 	first := n.First.Exp(options)
-	typeV := VarType(n.Variable)
+	typeV := n.Variable.Type()
 	typeFirst := n.First.Type()
 	code := assignCode(options, "=", v, first, typeV, typeFirst)
 	outputf("%s // FOR %d initialization\n", code, n.Index)
@@ -556,7 +556,19 @@ func (n *NodeFor) Build(options *BuildOptions, outputf FuncPrintf) {
 
 // FindUsedVars finds used vars
 func (n *NodeFor) FindUsedVars(options *BuildOptions) {
-	options.VarSetUsed(n.Variable)
+
+	switch v := n.Variable.(type) {
+	case *NodeExpIdentifier:
+		options.VarSetUsed(v.Value)
+	case *NodeExpArray:
+		err := ArraySetUsed(options.UsedArrays, v.Name, len(v.Indices))
+		if err != nil {
+			log.Printf("NodeFor.FindUsedVars: ArraySetUsed: %s: %v", v.String(), err)
+		}
+	default:
+		log.Printf("NodeFor.FindUsedVars: unexpected %s node: %v", v.String(), n.Variable)
+	}
+
 	n.First.FindUsedVars(options)
 	n.Last.FindUsedVars(options)
 	n.Step.FindUsedVars(options)
@@ -564,7 +576,7 @@ func (n *NodeFor) FindUsedVars(options *BuildOptions) {
 
 // NodeNext is next
 type NodeNext struct {
-	Variables []string
+	Variables []NodeExp
 	Fors      []*NodeFor
 }
 
@@ -575,7 +587,7 @@ func (n *NodeNext) Name() string {
 
 // Show displays the node
 func (n *NodeNext) Show(printf FuncPrintf) {
-	printf("[%s vars=%q fors_size=%d]", n.Name(), n.Variables, len(n.Fors))
+	printf("[%s vars_size=%d fors_size=%d]", n.Name(), len(n.Variables), len(n.Fors))
 }
 
 // Build generates code
@@ -586,9 +598,9 @@ func (n *NodeNext) Build(options *BuildOptions, outputf FuncPrintf) {
 
 	for _, f := range n.Fors {
 
-		v := RenameVar(f.Variable)
+		v := f.Variable.Exp(options)
 		step := f.Step.Exp(options)
-		typeV := VarType(f.Variable)
+		typeV := f.Variable.Type()
 		typeStep := f.Step.Type()
 		code := assignCode(options, "+=", v, step, typeV, typeStep)
 		outputf("%s // FOR %d step\n", code, f.Index)
@@ -600,8 +612,18 @@ func (n *NodeNext) Build(options *BuildOptions, outputf FuncPrintf) {
 
 // FindUsedVars finds used vars
 func (n *NodeNext) FindUsedVars(options *BuildOptions) {
-	for _, v := range n.Variables {
-		options.VarSetUsed(v)
+	for _, i := range n.Variables {
+		switch v := i.(type) {
+		case *NodeExpIdentifier:
+			options.VarSetUsed(v.Value)
+		case *NodeExpArray:
+			err := ArraySetUsed(options.UsedArrays, v.Name, len(v.Indices))
+			if err != nil {
+				log.Printf("NodeFor.FindUsedVars: ArraySetUsed: %s: %v", v.String(), err)
+			}
+		default:
+			log.Printf("NodeFor.FindUsedVars: unexpected %s node: %v", v.String(), i)
+		}
 	}
 }
 

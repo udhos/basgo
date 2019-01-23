@@ -69,6 +69,6 @@ https://godoc.org/modernc.org/golex - lex/flex-like utility
 
 https://github.com/skx/gobasic/ - BASIC interpreter in Golang
 
-hangman.bas = FOR a(1)=1 TO ..., READ a(1), DIM a(1)
+DIM, GOSUB, WHILE
 
 END
