@@ -38,6 +38,7 @@ var (
 	constList []node.NodeExp
 	numberList []string
 	identList []string
+	lastLineNum string // basic line number for parser error reporting
 
 	// (1) stmt IF-THEN can nest list of stmt: THEN CLS:IF:CLS
 	// (2) exp can nest list of exp: array(exp,exp,exp)
@@ -83,6 +84,7 @@ func Reset() {
 
 %type <typeLineList> line_list
 %type <typeLine> line
+%type <typeNumber> line_num
 %type <typeStmtList> statements
 %type <typeStmtList> statements_aux
 %type <typeStmt> stmt
@@ -218,11 +220,17 @@ statements_aux: statements_push statements statements_pop
      }
      ;
 
+line_num: TkNumber
+     {
+       lastLineNum = $1 // save for parser error reporting
+       $$ = $1
+     };
+
 line: statements_aux
      {
 	$$ = &node.LineImmediate{Nodes:$1}
      }
-  | TkNumber statements_aux
+  | line_num statements_aux
      {
        n := $1
        ln, found := Result.LineNumbers[n]
@@ -1112,6 +1120,6 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 
 func (l *InputLex) Error(s string) {
 	l.syntaxErrorCount++
-	log.Printf("InputLex.Error: count=%d line=%d column=%d: %s\n", l.syntaxErrorCount, l.lex.Line(), l.lex.Column(), s)
+	log.Printf("InputLex.Error: count=%d basicLine=%s inputLine=%d column=%d: %s\n", l.syntaxErrorCount, lastLineNum, l.lex.Line(), l.lex.Column(), s)
 }
 
