@@ -161,7 +161,7 @@ func (e *NodeExpArray) Exp(options *BuildOptions) string {
 
 // FindUsedVars finds used vars
 func (e *NodeExpArray) FindUsedVars(options *BuildOptions) {
-	options.ArraySetUsed(e.Name, len(e.Indexes))
+	//options.ArraySetUsed(e.Name, len(e.Indexes))
 	for _, i := range e.Indexes {
 		i.FindUsedVars(options)
 	}

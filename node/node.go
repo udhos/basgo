@@ -66,13 +66,24 @@ func (o *BuildOptions) VarIsUsed(name string) bool {
 }
 
 // ArraySetUsed sets array as used
-func (o *BuildOptions) ArraySetUsed(name string, dimensions int) {
-	o.UsedArrays[strings.ToLower(name)] = dimensions
+func ArraySetUsed(tab map[string]int, name string, dimensions int) error {
+	low := strings.ToLower(name)
+
+	d, used := tab[low]
+	if used {
+		if d != dimensions {
+			return fmt.Errorf("array '%s' used with new dimensions %d, old ones were %d", name, dimensions, d)
+		}
+		return nil
+	}
+
+	tab[low] = dimensions
+	return nil
 }
 
 // ArrayIsUsed checks whether array is used
-func (o *BuildOptions) ArrayIsUsed(name string) int {
-	dimensions, used := o.UsedArrays[strings.ToLower(name)]
+func ArrayIsUsed(tab map[string]int, name string) int {
+	dimensions, used := tab[strings.ToLower(name)]
 	if used {
 		return dimensions
 	}
@@ -325,7 +336,7 @@ func (n *NodeAssignArray) Build(options *BuildOptions, outputf FuncPrintf) {
 
 	code := assignCode(options, "=", a, e, ta, te)
 
-	dimensions := options.ArrayIsUsed(n.Left.Name)
+	dimensions := ArrayIsUsed(options.UsedArrays, n.Left.Name)
 
 	if dimensions > 0 {
 		outputf(code + "\n")

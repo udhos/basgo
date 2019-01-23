@@ -24,12 +24,14 @@ type ParserResult struct {
 	ForStack []*node.NodeFor
 	CountFor int
 	CountNext int
+	ArrayTable map[string]int
 }
 
 // parser auxiliary variables
 var (
 	Result = ParserResult{
 		LineNumbers: map[string]node.LineNumber{},
+		ArrayTable: map[string]int{},
 	}
 
 	nodeListStack [][]node.Node // support nested node lists (1)
@@ -47,6 +49,7 @@ var (
 func Reset() {
 	Result = ParserResult{
 		LineNumbers: map[string]node.LineNumber{},
+		ArrayTable: map[string]int{},
 	}
 
 	nodeListStack = [][]node.Node{}
@@ -638,7 +641,13 @@ bracket_right: TkParRight
 
 array_exp: TkIdentifier bracket_left expressions_push array_index_exp_list expressions_pop bracket_right
    {
-     $$ = &node.NodeExpArray{Name: $1, Indexes:$4}
+      name := $1
+      indices := $4
+      err := node.ArraySetUsed(Result.ArrayTable, name, len(indices))
+      if err != nil {
+         yylex.Error("error using array: " + err.Error())
+      }
+      $$ = &node.NodeExpArray{Name: name, Indexes:indices}
    }
    ;
 

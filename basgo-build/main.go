@@ -84,7 +84,7 @@ func main() {
 	options := node.BuildOptions{
 		Headers:     map[string]struct{}{},
 		Vars:        map[string]struct{}{},
-		UsedArrays:  map[string]int{},
+		UsedArrays:  result.ArrayTable,
 		LineNumbers: lineNumbersTab,
 		Input:       libInput,
 	}
