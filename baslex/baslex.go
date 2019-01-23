@@ -67,6 +67,7 @@ const (
 	TkKeywordCls    = iota // CLS
 	TkKeywordCont   = iota // CONT
 	TkKeywordData   = iota // DATA
+	TkKeywordDim    = iota // DIM
 	TkKeywordElse   = iota // ELSE
 	TkKeywordEnd    = iota // END
 	TkKeywordFor    = iota // FOR
@@ -114,6 +115,7 @@ var tabKeywords = []struct {
 	{TkKeywordCls, "CLS"},
 	{TkKeywordCont, "CONT"},
 	{TkKeywordData, "DATA"},
+	{TkKeywordDim, "DIM"},
 	{TkKeywordElse, "ELSE"},
 	{TkKeywordEnd, "END"},
 	{TkKeywordEqv, "EQV"},
@@ -200,6 +202,7 @@ var tabType = []string{
 	"CLS",
 	"CONT",
 	"DATA",
+	"DIM",
 	"ELSE",
 	"END",
 	"FOR",

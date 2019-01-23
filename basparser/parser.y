@@ -97,10 +97,14 @@ func Reset() {
 %type <typeExpressions> array_index_exp_list
 %type <typeExp> exp
 %type <typeExp> one_const
+%type <typeExp> one_const_num
 %type <typeExpArray> array_exp
+%type <typeExpArray> one_dim
 %type <typeNumberList> number_list
 %type <typeLineNumber> use_line_number
 %type <typeExpressions> const_list
+%type <typeExpressions> const_list_num
+%type <typeExpressions> dim_list
 %type <typeExp> one_var
 %type <typeExpressions> var_list
 
@@ -146,6 +150,7 @@ func Reset() {
 %token <tok> TkKeywordCls
 %token <tok> TkKeywordCont
 %token <tok> TkKeywordData
+%token <tok> TkKeywordDim
 %token <tok> TkKeywordElse
 %token <tok> TkKeywordEnd
 %token <tok> TkKeywordFor
@@ -275,6 +280,34 @@ then_or_goto: TkKeywordThen
            TkKeywordGoto
            ;
 
+one_dim: TkIdentifier bracket_left const_list_num bracket_right
+	{
+        	name := $1
+        	indices := $3
+		/*
+        	err := node.ArraySetDeclared(Result.ArrayTable, name, len(indices))
+        	if err != nil {
+	           yylex.Error("error declaring array: " + err.Error())
+        	}
+		*/
+      		$$ = &node.NodeExpArray{Name: name, Indices: indices}
+        }
+        ;
+
+dim_list: one_dim
+	{
+		last := len(expListStack) - 1
+        	expListStack[last] = []node.NodeExp{$1} // reset dim_list
+	        $$ = expListStack[last]
+	}
+        | dim_list TkComma one_dim
+        {
+		last := len(expListStack) - 1
+		expListStack[last] = append(expListStack[last], $3)
+	        $$ = expListStack[last]
+	}
+        ;
+
 stmt: /* empty */
      { $$ = &node.NodeEmpty{} }
   | TkKeywordEnd
@@ -285,6 +318,11 @@ stmt: /* empty */
      {
         Result.LibReadData = true
         $$ = &node.NodeData{Expressions: $2}
+     }
+  | TkKeywordDim expressions_push dim_list expressions_pop
+     {
+        //$$ = &node.NodeDim{Variables: $3}
+        $$ = &node.NodeEmpty{}
      }
   | TkKeywordFor one_var TkEqual exp TkKeywordTo exp
      {
@@ -546,6 +584,18 @@ const_list: one_const
      }
   ;
 
+const_list_num: one_const_num
+     {
+        constList = []node.NodeExp{$1} // reset list
+	$$ = constList
+     }
+  | const_list_num TkComma one_const_num
+     {
+        constList = append(constList, $3)
+        $$ = constList
+     }
+  ;
+
 assign: TkIdentifier TkEqual exp
      {
 	i := $1
@@ -622,8 +672,8 @@ print_expressions: exp
 	}
     ;
 
-one_const: TkNumber { $$ = &node.NodeExpNumber{Value:$1} }
-   | TkFloat 
+one_const_num: TkNumber { $$ = &node.NodeExpNumber{Value:$1} }
+   | TkFloat
      {
        n := &node.NodeExpFloat{}
        v := $1
@@ -640,6 +690,9 @@ one_const: TkNumber { $$ = &node.NodeExpNumber{Value:$1} }
        }
        $$ = n
      }
+   ;
+
+one_const: one_const_num { $$ = $1 }
    | TkString { $$ = &node.NodeExpString{Value:$1} }
    ;
 
@@ -1111,6 +1164,7 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 		case TkBackSlash: // do not store
 		case TkPow: // do not store
 		case TkKeywordData: // do not store
+		case TkKeywordDim: // do not store
 		case TkKeywordEnd: // do not store
 		case TkKeywordElse: // do not store
 		case TkKeywordFor: // do not store
