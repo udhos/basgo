@@ -47,6 +47,44 @@ type ArraySymbol struct {
 	DeclaredDimensions []string // DIM
 }
 
+func (a ArraySymbol) ArrayType(name string) string {
+	t := VarType(name)
+	tt := TypeName(name, t)
+
+	var indices string
+
+	declared := len(a.DeclaredDimensions)
+	if declared > 0 {
+		for _, d := range a.DeclaredDimensions {
+			indices += "[" + d + "+1]"
+		}
+	} else {
+		for i := 0; i < a.UsedDimensions; i++ {
+			indices += "[11]"
+		}
+	}
+
+	arrayType := indices + tt
+
+	return arrayType
+}
+
+func TypeName(name string, t int) string {
+	var tt string
+	switch t {
+	case TypeString:
+		tt = "string"
+	case TypeInteger:
+		tt = "int"
+	case TypeFloat:
+		tt = "float64"
+	default:
+		log.Printf("node.TypeName: unknown var %s type: %d", name, t)
+		tt = "node_TypeName_TYPE_UNKNOWN"
+	}
+	return tt
+}
+
 // BuildOptions holds state required for issuing Go code
 type BuildOptions struct {
 	Headers     map[string]struct{}
@@ -87,8 +125,15 @@ func ArraySetDeclared(tab map[string]ArraySymbol, name string, dimensions []stri
 		}
 	}
 	if declared {
-		// cannot redeclare
-		return fmt.Errorf("array '%s' redeclared", name)
+		// cannot redeclare dimensions
+		if len(a.DeclaredDimensions) != len(dimensions) {
+			return fmt.Errorf("array '%s' redeclared with new dimensions %d, old ones were %d", name, len(dimensions), len(a.DeclaredDimensions))
+		}
+		for i, d := range dimensions {
+			if d != a.DeclaredDimensions[i] {
+				return fmt.Errorf("array '%s' redeclared dimension %d as %s, old one was %s", name, i, d, a.DeclaredDimensions[i])
+			}
+		}
 	}
 
 	a.DeclaredDimensions = dimensions
@@ -427,6 +472,58 @@ func (n *NodeData) Build(options *BuildOptions, outputf FuncPrintf) {
 // FindUsedVars finds used vars
 func (n *NodeData) FindUsedVars(options *BuildOptions) {
 	// DATA allows only constant expressions - no vars
+}
+
+// NodeDim is dim
+type NodeDim struct {
+	Arrays []NodeExp
+}
+
+// Name returns the name of the node
+func (n *NodeDim) Name() string {
+	return "DIM"
+}
+
+// Show displays the node
+func (n *NodeDim) Show(printf FuncPrintf) {
+	printf("[%s ", n.Name())
+	for _, a := range n.Arrays {
+		printf(a.String())
+	}
+	printf("]")
+}
+
+// Build generates code
+func (n *NodeDim) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+
+	for _, e := range n.Arrays {
+		arrayExp, isArray := e.(*NodeExpArray)
+		if !isArray {
+			msg := fmt.Sprintf("NodeDim.Build: unexpected non-array: %v %s", e, e.String())
+			log.Printf(msg)
+			outputf("// %s\n", msg)
+			continue
+		}
+		v := arrayExp.Name
+		arr, found := options.Arrays[v]
+		if !found {
+			msg := fmt.Sprintf("NodeDim.Build: array not found: %s", v)
+			log.Printf(msg)
+			outputf("// %s\n", msg)
+			continue
+		}
+		name := RenameArray(v)
+		arrayType := arr.ArrayType(v)
+		outputf("%s = %s{} // DIM reset array [%s]\n", name, arrayType, v)
+	}
+}
+
+// FindUsedVars finds used vars
+func (n *NodeDim) FindUsedVars(options *BuildOptions) {
+	// DIM allows only constant expressions - no vars
 }
 
 // NodeOnGoto is ongoto

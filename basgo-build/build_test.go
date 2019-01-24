@@ -352,6 +352,25 @@ var testTable = []buildTest{
 	{`10 for a(1,2)=1 to 3:print a(1,2);:next`, "", "123", OK},
 	{`10 for a(1)=1 to 3:print a(1);:next a(2)`, "", "", WRONG},
 	{`10 for a(1,2)=1 to 3:print a(1,2);:next a(1,1)`, "", "", WRONG},
+
+	{`10 dim a():print a()`, "", "", WRONG},
+	{`10 dim a(""):print a("")`, "", "2\n", WRONG},
+	{`10 dim a(b):a(b)=2:print a(b)`, "", "", WRONG},
+	{`10 dim a(0):a(0)=2:print a(0)`, "", "2\n", OK},
+	{`10 dim a(1):a(0)=2:print a(0)`, "", "2\n", OK},
+	{`10 dim a(1):a(1)=2:print a(1)`, "", "2\n", OK},
+	{`10 dim a(1),b(2):a(1)=2:print a(1),b(2)`, "", "20\n", OK},
+	{`10 dim a(20):a(20)=2:print a(20)`, "", "2\n", OK},
+	{`10 dim a(20):a(21)=2:print a(21)`, "", "", RUNTIME},
+	{`10 dim a(20,30):a(20,30)=2:print a(20,30)`, "", "2\n", OK},
+	{`10 dim a(1):a(1,1)=2:print a(1):a(1,1)`, "", "2\n", WRONG},
+	{`10 a(1)=2:dim a(1):print a(1)`, "", "0\n", OK},
+	{`10 a(1)=2:dim a(2):print a(1)`, "", "0\n", OK},
+	{`10 a(1)=2:dim a(1,1):print a(1),a(1,1)`, "", "", WRONG},
+	{`10 dim a(1):dim a(1):a(1)=2:print a(1)`, "", "2\n", OK},
+	{`10 dim a(1):dim a(2):a(1)=2:print a(1)`, "", "", WRONG},
+	{`10 dim a(1,1):dim a(1,1):a(1,1)=2:print a(1,1)`, "", "2\n", OK},
+	{`10 a(1,1)=2:dim a(1,1):print a(1,1)`, "", "0\n", OK},
 }
 
 func TestBuild(t *testing.T) {

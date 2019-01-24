@@ -305,58 +305,29 @@ func writeArrays(options *node.BuildOptions, outputf node.FuncPrintf) {
 	if len(options.Arrays) < 1 {
 		return
 	}
+
 	outputf("var (\n")
 	for v, arr := range options.Arrays {
 		a := node.RenameArray(v)
-		t := node.VarType(v)
-		tt := typeName(v, t)
-
-		var indices string
-
-		declared := len(arr.DeclaredDimensions)
-		if declared > 0 {
-			for _, d := range arr.DeclaredDimensions {
-				indices += "[" + d + "]"
-			}
-		} else {
-			for i := 0; i < arr.UsedDimensions; i++ {
-				indices += "[11]"
-			}
-		}
-
-		arrayType := indices + tt
+		arrayType := arr.ArrayType(v)
 		outputf("  %s %s // array [%s]\n", a, arrayType, v)
 	}
 	outputf(")\n")
 }
 
-func typeName(name string, t int) string {
-	var tt string
-	switch t {
-	case node.TypeString:
-		tt = "string"
-	case node.TypeInteger:
-		tt = "int"
-	case node.TypeFloat:
-		tt = "float64"
-	default:
-		log.Printf("typeName: unknown var %s type: %d", name, t)
-		tt = "TYPE_UNKNOWN_writeVar"
-	}
-	return tt
-}
-
 func writeVar(vars map[string]struct{}, outputf node.FuncPrintf) {
-	if len(vars) > 0 {
-		outputf("var (\n")
-		for v := range vars {
-			vv := node.RenameVar(v)
-			t := node.VarType(v)
-			tt := typeName(v, t)
-			outputf("  %s %s // [%s]\n", vv, tt, v)
-		}
-		outputf(")\n")
+	if len(vars) < 1 {
+		return
 	}
+
+	outputf("var (\n")
+	for v := range vars {
+		vv := node.RenameVar(v)
+		t := node.VarType(v)
+		tt := node.TypeName(v, t)
+		outputf("  %s %s // var [%s]\n", vv, tt, v)
+	}
+	outputf(")\n")
 }
 
 func parse(input io.Reader, outputf node.FuncPrintf) (basparser.ParserResult, int, int) {

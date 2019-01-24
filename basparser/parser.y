@@ -324,8 +324,7 @@ stmt: /* empty */
      }
   | TkKeywordDim expressions_push dim_list expressions_pop
      {
-        //$$ = &node.NodeDim{Variables: $3}
-        $$ = &node.NodeEmpty{}
+        $$ = &node.NodeDim{Arrays: $3}
      }
   | TkKeywordFor one_var TkEqual exp TkKeywordTo exp
      {
@@ -1203,9 +1202,9 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 
 func (l *InputLex) Error(s string) {
 	l.syntaxErrorCount++
-	log.Printf("InputLex.Error: %s", s)
-	log.Printf("InputLex.Error: last token: %s [%s]", l.lastToken.Type(), l.lastToken.Value)
-	log.Printf("InputLex.Error: basicLine=%s inputLine=%d column=%d", lastLineNum, l.lex.Line(), l.lex.Column())
-	log.Printf("InputLex.Error: errors=%d", l.syntaxErrorCount)
+	log.Printf("InputLex.Error: PARSER: %s", s)
+	log.Printf("InputLex.Error: PARSER: last token: %s [%s]", l.lastToken.Type(), l.lastToken.Value)
+	log.Printf("InputLex.Error: PARSER: basicLine=%s inputLine=%d column=%d", lastLineNum, l.lex.Line(), l.lex.Column())
+	log.Printf("InputLex.Error: PARSER: errors=%d", l.syntaxErrorCount)
 }
 
