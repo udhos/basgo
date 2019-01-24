@@ -509,7 +509,7 @@ func (n *NodeDim) Build(options *BuildOptions, outputf FuncPrintf) {
 			continue
 		}
 		v := arrayExp.Name
-		arr, found := options.Arrays[v]
+		arr, found := options.Arrays[strings.ToLower(v)]
 		if !found {
 			msg := fmt.Sprintf("NodeDim.Build: array not found: %s", v)
 			log.Printf(msg)

@@ -95,9 +95,11 @@ const (
 	TkKeywordStep    = iota // STEP
 	TkKeywordStop    = iota // STOP
 	TkKeywordSystem  = iota // SYSTEM
+	TkKeywordTab     = iota // TAB
 	TkKeywordThen    = iota // THEN
 	TkKeywordTime    = iota // TIME$
 	TkKeywordTo      = iota // TO
+	TkKeywordUsing   = iota // USING
 
 	TkIdentifier = iota // Identifier (variable)
 )
@@ -150,9 +152,11 @@ var tabKeywords = []struct {
 	{TkKeywordStep, "STEP"},
 	{TkKeywordStop, "STOP"},
 	{TkKeywordSystem, "SYSTEM"},
+	{TkKeywordTab, "TAB"},
 	{TkKeywordThen, "THEN"},
 	{TkKeywordTime, "TIME$"},
 	{TkKeywordTo, "TO"},
+	{TkKeywordUsing, "USING"},
 	{TkKeywordXor, "XOR"},
 }
 
@@ -234,9 +238,11 @@ var tabType = []string{
 	"STEP",
 	"STOP",
 	"SYSTEM",
+	"TAB",
 	"THEN",
 	"TIME$",
 	"TO",
+	"USING",
 
 	"IDENTIFIER",
 }

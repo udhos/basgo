@@ -5,6 +5,7 @@ import (
 	//"log"
 	//"bufio"
 	//"strconv"
+	"strings"
 )
 
 // Types
@@ -83,6 +84,11 @@ func (e *NodeExpFloat) FindUsedVars(options *BuildOptions) {
 	// do nothing
 }
 
+func NewNodeExpString(s string) *NodeExpString {
+	q := `"`
+	return &NodeExpString{Value: strings.TrimSuffix(strings.TrimPrefix(s, q), q)}
+}
+
 // NodeExpString holds value
 type NodeExpString struct{ Value string }
 
@@ -99,18 +105,22 @@ func (e *NodeExpString) String() string {
 // Exp returns value
 func (e *NodeExpString) Exp(options *BuildOptions) string {
 
-	// append " if missing
-	if e.Value == "\"" {
-		return ""
-	}
-	last := len(e.Value) - 1
-	if last >= 0 {
-		if e.Value[last] != '"' {
-			return e.Value + "\""
+	/*
+		// append " if missing
+		if e.Value == "\"" {
+			return ""
 		}
-	}
+		last := len(e.Value) - 1
+		if last >= 0 {
+			if e.Value[last] != '"' {
+				return e.Value + "\""
+			}
+		}
+	*/
 
-	return e.Value
+	q := `"`
+	v := q + strings.Replace(e.Value, `\`, `\\`, -1) + q
+	return v
 }
 
 // FindUsedVars finds used vars

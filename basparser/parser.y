@@ -179,9 +179,11 @@ func Reset() {
 %token <tok> TkKeywordStep
 %token <tok> TkKeywordStop
 %token <tok> TkKeywordSystem
+%token <tok> TkKeywordTab
 %token <tok> TkKeywordThen
 %token <tok> TkKeywordTime
 %token <tok> TkKeywordTo
+%token <tok> TkKeywordUsing
 
 %token <typeIdentifier> TkIdentifier
 
@@ -702,7 +704,7 @@ one_const_num: TkNumber { $$ = &node.NodeExpNumber{Value:$1} }
    ;
 
 one_const: one_const_num { $$ = $1 }
-   | TkString { $$ = &node.NodeExpString{Value:$1} }
+   | TkString { $$ = node.NewNodeExpString($1) }
    ;
 
 bracket_left: TkParLeft
