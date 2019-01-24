@@ -29,7 +29,7 @@ func main() {
 	log.Printf("%s: syntax tree lines=%d:", me, len(nodes))
 
 	for i, n := range nodes {
-		fmt.Printf("%s: input line %d: ", me, i)
+		fmt.Printf("%s: input line %d: ", me, i+1)
 		n.Show(fmt.Printf)
 	}
 }
