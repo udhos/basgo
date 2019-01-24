@@ -7,6 +7,7 @@
 * [Install](#install)
 * [Run the Compiler](#run-the-compiler)
   * [Example](#example)
+  * [Sample \- Hello World](#sample---hello-world)
 * [Run the Interpreter](#run-the-interpreter)
 * [References](#references)
 
@@ -41,6 +42,14 @@ Status: the compiler currently can handle very simple programs.
 
     basgo-build < examples/game.bas > game.go
     go run game.go                            ;# builds and runs game.go
+
+## Sample - Hello World
+
+    $ echo '10 print "hello world!"' | basgo-build > a.go
+    $
+    $ go run a.go
+    hello world!
+    $
 
 # Run the Interpreter
 
