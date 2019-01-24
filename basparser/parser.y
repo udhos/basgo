@@ -1198,6 +1198,7 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 		case TkKeywordRestore: // do not store
 		case TkKeywordRnd: // do not store
 		case TkKeywordStep: // do not store
+		case TkKeywordStop: // do not store
 		case TkKeywordThen: // do not store
 		case TkKeywordTo: // do not store
 		default:
