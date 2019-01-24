@@ -84,7 +84,7 @@ func main() {
 	options := node.BuildOptions{
 		Headers:     map[string]struct{}{},
 		Vars:        map[string]struct{}{},
-		UsedArrays:  result.ArrayTable,
+		Arrays:      result.ArrayTable,
 		LineNumbers: lineNumbersTab,
 		Input:       libInput,
 	}
@@ -302,18 +302,28 @@ func writeImport(headers map[string]struct{}, outputf node.FuncPrintf) {
 }
 
 func writeArrays(options *node.BuildOptions, outputf node.FuncPrintf) {
-	if len(options.UsedArrays) < 1 {
+	if len(options.Arrays) < 1 {
 		return
 	}
 	outputf("var (\n")
-	for v, d := range options.UsedArrays {
+	for v, arr := range options.Arrays {
 		a := node.RenameArray(v)
 		t := node.VarType(v)
 		tt := typeName(v, t)
+
 		var indices string
-		for i := 0; i < d; i++ {
-			indices += "[11]"
+
+		declared := len(arr.DeclaredDimensions)
+		if declared > 0 {
+			for _, d := range arr.DeclaredDimensions {
+				indices += "[" + d + "]"
+			}
+		} else {
+			for i := 0; i < arr.UsedDimensions; i++ {
+				indices += "[11]"
+			}
 		}
+
 		arrayType := indices + tt
 		outputf("  %s %s // array [%s]\n", a, arrayType, v)
 	}

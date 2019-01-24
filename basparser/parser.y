@@ -24,19 +24,19 @@ type ParserResult struct {
 	ForStack []*node.NodeFor
 	CountFor int
 	CountNext int
-	ArrayTable map[string]int
+	ArrayTable map[string]node.ArraySymbol
 }
 
 // parser auxiliary variables
 var (
 	Result = ParserResult{
 		LineNumbers: map[string]node.LineNumber{},
-		ArrayTable: map[string]int{},
+		ArrayTable: map[string]node.ArraySymbol{},
 	}
 
 	nodeListStack [][]node.Node // support nested node lists (1)
-	lineList []node.Node
 	expListStack [][]node.NodeExp // support nested exp lists (2)
+	lineList []node.Node
 	constList []node.NodeExp
 	numberList []string
 	identList []string
@@ -49,10 +49,11 @@ var (
 func Reset() {
 	Result = ParserResult{
 		LineNumbers: map[string]node.LineNumber{},
-		ArrayTable: map[string]int{},
+		ArrayTable: map[string]node.ArraySymbol{},
 	}
 
 	nodeListStack = [][]node.Node{}
+	expListStack = [][]node.NodeExp{}
 }
 
 %}
@@ -284,12 +285,14 @@ one_dim: TkIdentifier bracket_left const_list_num bracket_right
 	{
         	name := $1
         	indices := $3
-		/*
-        	err := node.ArraySetDeclared(Result.ArrayTable, name, len(indices))
+		strList := []string{}
+		for _, e := range indices {
+			strList = append(strList, e.String())
+		}
+        	err := node.ArraySetDeclared(Result.ArrayTable, name, strList)
         	if err != nil {
 	           yylex.Error("error declaring array: " + err.Error())
         	}
-		*/
       		$$ = &node.NodeExpArray{Name: name, Indices: indices}
         }
         ;

@@ -42,11 +42,16 @@ func (a ByLineNumber) Less(i, j int) bool {
 // FuncPrintf is func type for printf
 type FuncPrintf func(format string, v ...interface{}) (int, error)
 
+type ArraySymbol struct {
+	UsedDimensions     int      // used
+	DeclaredDimensions []string // DIM
+}
+
 // BuildOptions holds state required for issuing Go code
 type BuildOptions struct {
 	Headers     map[string]struct{}
 	Vars        map[string]struct{}
-	UsedArrays  map[string]int
+	Arrays      map[string]ArraySymbol
 	LineNumbers map[string]LineNumber // numbers used by GOTO, GOSUB etc
 	Rnd         bool                  // using lib RND
 	Input       bool                  // using lib INPUT
@@ -65,29 +70,70 @@ func (o *BuildOptions) VarIsUsed(name string) bool {
 	return used
 }
 
-// ArraySetUsed sets array as used
-func ArraySetUsed(tab map[string]int, name string, dimensions int) error {
+// ArraySetDeclared sets array as decçared
+func ArraySetDeclared(tab map[string]ArraySymbol, name string, dimensions []string) error {
 	low := strings.ToLower(name)
 
-	d, used := tab[low]
+	var used, declared bool
+	a, found := tab[low]
+	if found {
+		used = a.UsedDimensions > 0
+		declared = len(a.DeclaredDimensions) > 0
+	}
 	if used {
-		if d != dimensions {
-			return fmt.Errorf("array '%s' used with new dimensions %d, old ones were %d", name, dimensions, d)
+		// cannot change used dimensions
+		if a.UsedDimensions != len(dimensions) {
+			return fmt.Errorf("array '%s' used with new dimensions %d, old ones were %d", name, len(dimensions), a.UsedDimensions)
 		}
-		return nil
+	}
+	if declared {
+		// cannot redeclare
+		return fmt.Errorf("array '%s' redeclared", name)
 	}
 
-	tab[low] = dimensions
+	a.DeclaredDimensions = dimensions
+	tab[low] = a
+
+	return nil
+}
+
+// ArraySetUsed sets array as used
+func ArraySetUsed(tab map[string]ArraySymbol, name string, dimensions int) error {
+	low := strings.ToLower(name)
+
+	var used, declared bool
+	a, found := tab[low]
+	if found {
+		used = a.UsedDimensions > 0
+		declared = len(a.DeclaredDimensions) > 0
+	}
+	if used {
+		// cannot change used dimensions
+		if a.UsedDimensions != dimensions {
+			return fmt.Errorf("array '%s' used with new dimensions %d, old ones were %d", name, dimensions, a.UsedDimensions)
+		}
+	}
+	if declared {
+		// cannot change declared dimensions
+		d := len(a.DeclaredDimensions)
+		if d != dimensions {
+			return fmt.Errorf("array '%s' used with new dimensions %d, declared ones were %d", name, dimensions, d)
+		}
+	}
+
+	a.UsedDimensions = dimensions
+	tab[low] = a
+
 	return nil
 }
 
 // ArrayIsUsed checks whether array is used
-func ArrayIsUsed(tab map[string]int, name string) int {
-	dimensions, used := tab[strings.ToLower(name)]
-	if used {
-		return dimensions
+func ArrayIsUsed(tab map[string]ArraySymbol, name string) bool {
+	a, found := tab[strings.ToLower(name)]
+	if !found {
+		return false
 	}
-	return -1
+	return a.UsedDimensions > 0
 }
 
 // VarMatch matches names of two variables
@@ -336,9 +382,9 @@ func (n *NodeAssignArray) Build(options *BuildOptions, outputf FuncPrintf) {
 
 	code := assignCode(options, "=", a, e, ta, te)
 
-	dimensions := ArrayIsUsed(options.UsedArrays, n.Left.Name)
+	used := ArrayIsUsed(options.Arrays, n.Left.Name)
 
-	if dimensions > 0 {
+	if used {
 		outputf(code + "\n")
 	} else {
 		outputf("// %s // suppressed: array '%s' not used\n", code, n.Left)
@@ -561,7 +607,7 @@ func (n *NodeFor) FindUsedVars(options *BuildOptions) {
 	case *NodeExpIdentifier:
 		options.VarSetUsed(v.Value)
 	case *NodeExpArray:
-		err := ArraySetUsed(options.UsedArrays, v.Name, len(v.Indices))
+		err := ArraySetUsed(options.Arrays, v.Name, len(v.Indices))
 		if err != nil {
 			log.Printf("NodeFor.FindUsedVars: ArraySetUsed: %s: %v", v.String(), err)
 		}
@@ -617,7 +663,7 @@ func (n *NodeNext) FindUsedVars(options *BuildOptions) {
 		case *NodeExpIdentifier:
 			options.VarSetUsed(v.Value)
 		case *NodeExpArray:
-			err := ArraySetUsed(options.UsedArrays, v.Name, len(v.Indices))
+			err := ArraySetUsed(options.Arrays, v.Name, len(v.Indices))
 			if err != nil {
 				log.Printf("NodeFor.FindUsedVars: ArraySetUsed: %s: %v", v.String(), err)
 			}
@@ -868,8 +914,7 @@ func (n *NodeRead) Build(options *BuildOptions, outputf FuncPrintf) {
 		case *NodeExpIdentifier:
 			used = options.VarIsUsed(ee.Value)
 		case *NodeExpArray:
-			d := ArrayIsUsed(options.UsedArrays, ee.Name)
-			used = d > 0
+			used = ArrayIsUsed(options.Arrays, ee.Name)
 		default:
 			log.Printf("NodeRead.Build: unexpected '%s' non-var non-array: %v", v, e)
 		}
