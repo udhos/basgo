@@ -170,6 +170,7 @@ func Reset() {
 %token <tok> TkKeywordPrint
 %token <tok> TkKeywordRead
 %token <typeRem> TkKeywordRem
+%token <tok> TkKeywordRestore
 %token <tok> TkKeywordReturn
 %token <tok> TkKeywordRnd
 %token <tok> TkKeywordRun
@@ -494,6 +495,11 @@ stmt: /* empty */
      }
   | TkKeywordRem
      { $$ = &node.NodeRem{Value: $1} }
+  | TkKeywordRestore
+     {
+       Result.LibReadData = true
+       $$ = &node.NodeRestore{}
+     }
   | TkKeywordOn exp TkKeywordGoto number_list
      {
        cond := $2
@@ -1189,6 +1195,7 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 		case TkKeywordOr: // do not store
 		case TkKeywordXor: // do not store
 		case TkKeywordRead: // do not store
+		case TkKeywordRestore: // do not store
 		case TkKeywordRnd: // do not store
 		case TkKeywordStep: // do not store
 		case TkKeywordThen: // do not store

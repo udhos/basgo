@@ -1029,6 +1029,29 @@ func (n *NodeRead) FindUsedVars(options *BuildOptions) {
 	// assign value to var does not use it
 }
 
+// NodeRestore is restore
+type NodeRestore struct{}
+
+// Name returns the name of the node
+func (n *NodeRestore) Name() string {
+	return "RESTORE"
+}
+
+// Show displays the node
+func (n *NodeRestore) Show(printf FuncPrintf) {
+	printf("[" + n.Name() + "]")
+}
+
+// Build generates code
+func (n *NodeRestore) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("dataPos = 0 // RESTORE\n")
+}
+
+// FindUsedVars finds used vars
+func (n *NodeRestore) FindUsedVars(options *BuildOptions) {
+	// do nothing
+}
+
 // NodeRem is rem
 type NodeRem struct {
 	Value string
