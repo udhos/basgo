@@ -165,6 +165,7 @@ func Reset() {
 %token <tok> TkKeywordLet
 %token <tok> TkKeywordList
 %token <tok> TkKeywordLoad
+%token <tok> TkKeywordMid
 %token <tok> TkKeywordNext
 %token <tok> TkKeywordOn
 %token <tok> TkKeywordPrint
@@ -1067,6 +1068,22 @@ exp: one_const
        $$ = &node.NodeExpLeft{Value:e1, Size:e2}
      }
    | TkKeywordLen exp { $$ = &node.NodeExpLen{Value:$2} }
+   | TkKeywordMid TkParLeft exp TkComma exp TkComma exp TkParRight
+     {
+       e1 := $3
+       e2 := $5
+       e3 := $7
+       if e1.Type() != node.TypeString {
+           yylex.Error("MID$ value must be string")
+       }
+       if !node.TypeNumeric(e2.Type()) {
+           yylex.Error("MID$ begin must be numeric")
+       }
+       if !node.TypeNumeric(e3.Type()) {
+           yylex.Error("MID$ size must be numeric")
+       }
+       $$ = &node.NodeExpMid{Value:e1, Begin:e2, Size:e3}
+     }
    | TkKeywordRnd { $$ = &node.NodeExpRnd{Value:&node.NodeExpNumber{Value:"1"}} }
    | TkKeywordRnd exp
      {
@@ -1184,6 +1201,7 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 		case TkKeywordLen: // do not store
 		case TkKeywordLet: // do not store
 		case TkKeywordList: // do not store
+		case TkKeywordMid: // do not store
 		case TkKeywordMod: // do not store
 		case TkKeywordNext: // do not store
 		case TkKeywordOn: // do not store

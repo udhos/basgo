@@ -525,6 +525,36 @@ func (e *NodeExpLeft) FindUsedVars(options *BuildOptions) {
 	e.Size.FindUsedVars(options)
 }
 
+// NodeExpMid holds value
+type NodeExpMid struct {
+	Value NodeExp
+	Begin NodeExp
+	Size  NodeExp
+}
+
+// Type returns type
+func (e *NodeExpMid) Type() int {
+	return TypeString
+}
+
+// String returns value
+func (e *NodeExpMid) String() string {
+	return "MID(" + e.Value.String() + "," + e.Begin.String() + "," + e.Size.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpMid) Exp(options *BuildOptions) string {
+	options.Mid = true
+	return "stringMid(" + e.Value.Exp(options) + "," + forceInt(options, e.Begin) + "," + forceInt(options, e.Size) + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpMid) FindUsedVars(options *BuildOptions) {
+	e.Value.FindUsedVars(options)
+	e.Begin.FindUsedVars(options)
+	e.Size.FindUsedVars(options)
+}
+
 // NodeExpLen holds value
 type NodeExpLen struct {
 	Value NodeExp

@@ -151,7 +151,7 @@ func main() {
 
 	outputf(mainClose)
 
-	lib(outputf, options.Input, options.Rnd, options.Left, result.LibReadData)
+	lib(outputf, options.Input, options.Rnd, options.Left, result.LibReadData, options.Mid)
 
 	return status, errors
 }
@@ -164,7 +164,7 @@ func inputHeaders(h map[string]struct{}) {
 	h["strings"] = struct{}{}
 }
 
-func lib(outputf node.FuncPrintf, input, rnd, left bool, libReadData bool) {
+func lib(outputf node.FuncPrintf, input, rnd, left, libReadData, mid bool) {
 
 	funcBoolToInt := `
 func boolToInt(v bool) int {
@@ -239,6 +239,29 @@ func stringLeft(s string, size int) string {
 }
 `
 		outputf(funcLeft)
+	}
+
+	if mid {
+		funcMid := `
+func stringMid(s string, begin, size int) string {
+	if size < 1 {
+		return ""
+	}
+	begin--
+	if begin >= len(s) {
+		return ""
+	}
+	if begin < 0 {
+		begin = 0
+	} 
+	avail := len(s) - begin
+	if size > avail {
+		size = avail
+	}
+	return s[begin:begin+size]
+}
+`
+		outputf(funcMid)
 	}
 
 	if libReadData {

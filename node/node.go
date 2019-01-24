@@ -94,6 +94,7 @@ type BuildOptions struct {
 	Rnd         bool                  // using lib RND
 	Input       bool                  // using lib INPUT
 	Left        bool                  // using lib LEFT
+	Mid         bool                  // using lib MID
 	Data        []string              // DATA for READ
 }
 

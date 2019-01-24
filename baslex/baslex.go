@@ -81,6 +81,7 @@ const (
 	TkKeywordLet     = iota // LET
 	TkKeywordList    = iota // LIST
 	TkKeywordLoad    = iota // LOAD
+	TkKeywordMid     = iota // MID$
 	TkKeywordNext    = iota // NEXT
 	TkKeywordOn      = iota // ON
 	TkKeywordPrint   = iota // PRINT
@@ -132,6 +133,7 @@ var tabKeywords = []struct {
 	{TkKeywordLet, "LET"},
 	{TkKeywordList, "LIST"},
 	{TkKeywordLoad, "LOAD"},
+	{TkKeywordMid, "MID$"},
 	{TkKeywordMod, "MOD"},
 	{TkKeywordNext, "NEXT"},
 	{TkKeywordNot, "NOT"},
@@ -218,6 +220,7 @@ var tabType = []string{
 	"LET",
 	"LIST",
 	"LOAD",
+	"MID$",
 	"NEXT",
 	"ON",
 	"PRINT",

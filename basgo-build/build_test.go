@@ -380,6 +380,21 @@ var testTable = []buildTest{
 	{`10 restore`, "", "", OK},
 	{`10 data 2,3:read a:print a:read a:print a`, "", "2\n3\n", OK},
 	{`10 data 2,3:read a:print a:restore:read a:print a`, "", "2\n2\n", OK},
+
+	{`10 print mid$(1,1,1)`, "", "", WRONG},
+	{`10 print mid$("abc","",1)`, "", "", WRONG},
+	{`10 print mid$("abc",1,"")`, "", "", WRONG},
+	{`10 print mid$("abc",1,1);`, "", "a", OK},
+	{`10 print mid$("abc",1,2);`, "", "ab", OK},
+	{`10 print mid$("abc",1,3);`, "", "abc", OK},
+	{`10 print mid$("abc",2,1);`, "", "b", OK},
+	{`10 print mid$("abc",2,2);`, "", "bc", OK},
+	{`10 print mid$("abc",3,1);`, "", "c", OK},
+	{`10 print mid$("abc",1,0);`, "", "", OK},
+	{`10 print mid$("abc",2,0);`, "", "", OK},
+	{`10 print mid$("abc",3,0);`, "", "", OK},
+	{`10 print mid$("abc",4,1);`, "", "", OK},
+	{`10 print mid$("abc",0,1);`, "", "a", OK},
 }
 
 func TestBuild(t *testing.T) {
