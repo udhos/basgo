@@ -41,6 +41,11 @@ var testTable = []buildTest{
 	{"", "", "", OK},       // empty program
 	{"ugh", "", "", WRONG}, // invalid program
 
+	{`10 print ""`, "", "\n", OK},
+	{`10 print "`, "", "\n", OK},
+	{`10 print "hello`, "", "hello\n", OK},
+	{`10 print "hello  `, "", "hello  \n", OK},
+
 	{"10 print 1+2", "", "3\n", OK},
 	{"10 print 1.1+2", "", "3.1\n", OK},
 	{"10 print 1.1+2.2", "", "3.3\n", OK},
