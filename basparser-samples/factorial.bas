@@ -5,7 +5,6 @@
 50 gosub 100
 60 print "Done: ", x, "! = ", y
 70 end
-
 100 rem Factorial for x is returned in y
 110 rem Input: x
 120 rem Output: y
