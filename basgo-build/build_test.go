@@ -232,6 +232,8 @@ var testTable = []buildTest{
 	{`10 print "abc" : if 1 then print 1:print 2:print 3 else print 4:print 5:print 6`, "", "abc\n1\n2\n3\n", OK},
 	{`10 print "abc" : if 0 then print 1:print 2:print 3 else print 4:print 5:print 6`, "", "abc\n4\n5\n6\n", OK},
 
+	{`10 for a=1 to 2:if a>1 then next`, "", "", OK},
+
 	{`10 input a : print a`, "2\n", "2\n", OK},
 	{`10 input a! : print a!`, "2.1\n", "2.1\n", OK},
 	{`10 input a# : print a#`, "2.1\n", "2.1\n", OK},
