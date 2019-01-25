@@ -23,6 +23,7 @@ type ParserResult struct {
 	LibReadData bool
 	LibGosubReturn bool
 	LibVal bool
+	LibRight bool
 	ForStack []*node.NodeFor
 	WhileStack []*node.NodeWhile
 	CountFor int
@@ -180,6 +181,7 @@ func Reset() {
 %token <typeRem> TkKeywordRem
 %token <tok> TkKeywordRestore
 %token <tok> TkKeywordReturn
+%token <tok> TkKeywordRight
 %token <tok> TkKeywordRnd
 %token <tok> TkKeywordRun
 %token <tok> TkKeywordSave
@@ -1133,6 +1135,19 @@ exp: one_const
            yylex.Error("LEFT$ size must be numeric")
        }
        $$ = &node.NodeExpLeft{Value:e1, Size:e2}
+     }
+   | TkKeywordRight TkParLeft exp TkComma exp TkParRight
+     {
+       e1 := $3
+       e2 := $5
+       if e1.Type() != node.TypeString {
+           yylex.Error("RIGHT$ value must be string")
+       }
+       if !node.TypeNumeric(e2.Type()) {
+           yylex.Error("RIGHT$ size must be numeric")
+       }
+       Result.LibRight = true
+       $$ = &node.NodeExpRight{Value:e1, Size:e2}
      }
    | TkKeywordLen TkParLeft exp TkParRight  { $$ = &node.NodeExpLen{Value:$3} }
    | TkKeywordMid TkParLeft exp TkComma exp TkComma exp TkParRight

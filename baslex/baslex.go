@@ -89,6 +89,7 @@ const (
 	TkKeywordRem     = iota // REM
 	TkKeywordRestore = iota // RESTORE
 	TkKeywordReturn  = iota // RETURN
+	TkKeywordRight   = iota // RIGHT$
 	TkKeywordRnd     = iota // RND
 	TkKeywordRun     = iota // RUN
 	TkKeywordSave    = iota // SAVE
@@ -150,6 +151,7 @@ var tabKeywords = []struct {
 	{TkKeywordRem, "REM"},
 	{TkKeywordRestore, "RESTORE"},
 	{TkKeywordReturn, "RETURN"},
+	{TkKeywordRight, "RIGHT$"},
 	{TkKeywordRnd, "RND"},
 	{TkKeywordRun, "RUN"},
 	{TkKeywordSave, "SAVE"},
@@ -240,6 +242,7 @@ var tabType = []string{
 	"REM",
 	"RESTORE",
 	"RETURN",
+	"RIGHT$",
 	"RND",
 	"RUN",
 	"SAVE",

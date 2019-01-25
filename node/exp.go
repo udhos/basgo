@@ -532,7 +532,7 @@ func (e *NodeExpLeft) Type() int {
 
 // String returns value
 func (e *NodeExpLeft) String() string {
-	return "LEFT(" + e.Value.String() + "," + e.Size.String() + ")"
+	return "LEFT$(" + e.Value.String() + "," + e.Size.String() + ")"
 }
 
 // Exp returns value
@@ -543,6 +543,33 @@ func (e *NodeExpLeft) Exp(options *BuildOptions) string {
 
 // FindUsedVars finds used vars
 func (e *NodeExpLeft) FindUsedVars(options *BuildOptions) {
+	e.Value.FindUsedVars(options)
+	e.Size.FindUsedVars(options)
+}
+
+// NodeExpLeft holds value
+type NodeExpRight struct {
+	Value NodeExp
+	Size  NodeExp
+}
+
+// Type returns type
+func (e *NodeExpRight) Type() int {
+	return TypeString
+}
+
+// String returns value
+func (e *NodeExpRight) String() string {
+	return "RIGHT$(" + e.Value.String() + "," + e.Size.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpRight) Exp(options *BuildOptions) string {
+	return "stringRight(" + e.Value.Exp(options) + "," + forceInt(options, e.Size) + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpRight) FindUsedVars(options *BuildOptions) {
 	e.Value.FindUsedVars(options)
 	e.Size.FindUsedVars(options)
 }
@@ -561,7 +588,7 @@ func (e *NodeExpMid) Type() int {
 
 // String returns value
 func (e *NodeExpMid) String() string {
-	return "MID(" + e.Value.String() + "," + e.Begin.String() + "," + e.Size.String() + ")"
+	return "MID$(" + e.Value.String() + "," + e.Begin.String() + "," + e.Size.String() + ")"
 }
 
 // Exp returns value

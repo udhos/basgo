@@ -426,6 +426,19 @@ var testTable = []buildTest{
 	{`10 print val("1"+"1");`, "", "11", OK},
 	{`10 print val("1"+".1");`, "", "1.1", OK},
 	{`10 print 1+val("1"+".1");`, "", "2.1", OK},
+
+	{`10 print right$("abc",-1)`, "", "\n", OK},
+	{`10 print right$("abc",0)`, "", "\n", OK},
+	{`10 print right$("abc",1)`, "", "c\n", OK},
+	{`10 print right$("abc",2)`, "", "bc\n", OK},
+	{`10 print right$("abc",3)`, "", "abc\n", OK},
+	{`10 print right$("abc",4)`, "", "abc\n", OK},
+	{`10 print right$("abc",1.1)`, "", "c\n", OK},
+	{`10 print right$("abc",.6+.5)`, "", "c\n", OK},
+	{`10 print right$("abc",2.9)`, "", "abc\n", OK},
+	{`10 print right$("abc","")`, "", "", WRONG},
+	{`10 print right$("abc",a$)`, "", "", WRONG},
+	{`10 print right$(1,1)`, "", "", WRONG},
 }
 
 const sourceGosub = `
