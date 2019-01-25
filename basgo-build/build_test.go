@@ -395,7 +395,34 @@ var testTable = []buildTest{
 	{`10 print mid$("abc",3,0);`, "", "", OK},
 	{`10 print mid$("abc",4,1);`, "", "", OK},
 	{`10 print mid$("abc",0,1);`, "", "a", OK},
+
+	{`10 gosub 20`, "", "", WRONG},
+	{`10 return`, "", "", RUNTIME},
+	{"10 gosub 20\n20 end", "", "", OK},
+	{"10 gosub 20\n20 print 3", "", "3\n", OK},
+	{"10 print 1;:gosub 20:print 2;:end\n20 print 3;:return", "", "132", OK},
+	{sourceGosub, "", "1234567", OK},
 }
+
+const sourceGosub = `
+100 print 1;
+110 gosub 200
+120 print 7;
+130 end
+
+200 print 2;
+210 gosub 300
+220 print 6;
+230 return
+
+300 print 3;
+310 gosub 400
+320 print 5;
+330 return
+
+400 print 4;
+410 return
+`
 
 func TestBuild(t *testing.T) {
 

@@ -95,7 +95,9 @@ type BuildOptions struct {
 	Input       bool                  // using lib INPUT
 	Left        bool                  // using lib LEFT
 	Mid         bool                  // using lib MID
-	Data        []string              // DATA for READ
+	CountGosub  int
+	CountReturn int
+	Data        []string // DATA for READ
 }
 
 // VarSetUsed sets variable as used
@@ -771,6 +773,41 @@ func (n *NodeNext) FindUsedVars(options *BuildOptions) {
 	}
 }
 
+// NodeGosub is gosub
+type NodeGosub struct {
+	Index int
+	Line  string
+}
+
+// Name returns the name of the node
+func (n *NodeGosub) Name() string {
+	return "GOSUB"
+}
+
+// Show displays the node
+func (n *NodeGosub) Show(printf FuncPrintf) {
+	printf("[" + n.Name() + " " + n.Line + "]")
+}
+
+// Build generates code
+func (n *NodeGosub) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+
+	outputf("gosubStack = append(gosubStack, %d) // gosub push return index\n", n.Index)
+	outputf("goto line%s // %s %s Index=%d\n", n.Line, n.Name(), n.Line, n.Index)
+
+	if options.CountReturn > 0 {
+		outputf("gosub_return_%d:\n", n.Index)
+	}
+}
+
+// FindUsedVars finds used vars
+func (n *NodeGosub) FindUsedVars(options *BuildOptions) {
+	// do nothing
+}
+
 // NodeGoto is goto
 type NodeGoto struct {
 	Line string
@@ -1075,5 +1112,45 @@ func (n *NodeRem) Build(options *BuildOptions, outputf FuncPrintf) {
 
 // FindUsedVars finds used vars
 func (n *NodeRem) FindUsedVars(options *BuildOptions) {
+	// do nothing
+}
+
+// NodeReturn is return
+type NodeReturn struct{}
+
+// Name returns the name of the node
+func (n *NodeReturn) Name() string {
+	return "RETURN"
+}
+
+// Show displays the node
+func (n *NodeReturn) Show(printf FuncPrintf) {
+	printf("[" + n.Name() + "]")
+}
+
+// Build generates code
+func (n *NodeReturn) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+
+	outputf("if len(gosubStack) < 1 {\n")
+	outputf(`   panic("RETURN without GOSUB")`)
+	outputf("}\n")
+
+	outputf("{\n")
+	outputf("last := len(gosubStack) - 1\n")
+	outputf("index := gosubStack[last] // top\n")
+	outputf("gosubStack = gosubStack[:last] // pop\n")
+	outputf("switch index {\n")
+	for i := 0; i < options.CountGosub; i++ {
+		outputf("case %d: goto gosub_return_%d\n", i, i)
+	}
+	outputf("}\n")
+	outputf("}\n")
+}
+
+// FindUsedVars finds used vars
+func (n *NodeReturn) FindUsedVars(options *BuildOptions) {
 	// do nothing
 }

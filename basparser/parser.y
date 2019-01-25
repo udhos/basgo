@@ -21,10 +21,13 @@ type ParserResult struct {
 	LineNumbers map[string]node.LineNumber // used by GOTO GOSUB etc
 	LibInput bool
 	LibReadData bool
+	LibGosubReturn bool
 	ForStack []*node.NodeFor
 	CountFor int
 	CountNext int
 	ArrayTable map[string]node.ArraySymbol
+	CountGosub int
+	CountReturn int
 }
 
 // parser auxiliary variables
@@ -467,6 +470,13 @@ stmt: /* empty */
         Result.LibInput = true
         $$ = &node.NodeInput{Variable: $2}
      }
+  | TkKeywordGosub use_line_number
+     {
+        Result.LibGosubReturn = true
+        g := &node.NodeGosub{Index: Result.CountGosub, Line: $2}
+        Result.CountGosub++
+        $$ = g
+     }
   | TkKeywordGoto stmt_goto
      { $$ = $2 }
   | TkKeywordLet assign
@@ -502,6 +512,12 @@ stmt: /* empty */
      {
        Result.LibReadData = true
        $$ = &node.NodeRestore{}
+     }
+  | TkKeywordReturn
+     {
+       Result.LibGosubReturn = true
+       Result.CountReturn++
+       $$ = &node.NodeReturn{}
      }
   | TkKeywordOn exp TkKeywordGoto number_list
      {
@@ -1195,6 +1211,7 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 		case TkKeywordEnd: // do not store
 		case TkKeywordElse: // do not store
 		case TkKeywordFor: // do not store
+		case TkKeywordGosub: // do not store
 		case TkKeywordGoto: // do not store
 		case TkKeywordIf: // do not store
 		case TkKeywordInput: // do not store
@@ -1216,6 +1233,7 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 		case TkKeywordXor: // do not store
 		case TkKeywordRead: // do not store
 		case TkKeywordRestore: // do not store
+		case TkKeywordReturn: // do not store
 		case TkKeywordRnd: // do not store
 		case TkKeywordStep: // do not store
 		case TkKeywordStop: // do not store

@@ -87,6 +87,8 @@ func main() {
 		Arrays:      result.ArrayTable,
 		LineNumbers: lineNumbersTab,
 		Input:       libInput,
+		CountGosub:  result.CountGosub,
+		CountReturn: result.CountReturn,
 	}
 
 	if options.Input {
@@ -139,6 +141,10 @@ func main() {
 	}
 
 	outputf(mainOpen)
+
+	if result.LibGosubReturn {
+		outputf("gosubStack := []int{} // used by GOSUB/RETURN lib\n")
+	}
 
 	if options.Rnd {
 		outputf("rnd = rand.New(rand.NewSource(time.Now().UnixNano())) // used by RND lib\n")
