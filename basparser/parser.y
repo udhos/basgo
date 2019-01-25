@@ -1134,7 +1134,7 @@ exp: one_const
        }
        $$ = &node.NodeExpLeft{Value:e1, Size:e2}
      }
-   | TkKeywordLen exp { $$ = &node.NodeExpLen{Value:$2} }
+   | TkKeywordLen TkParLeft exp TkParRight  { $$ = &node.NodeExpLen{Value:$3} }
    | TkKeywordMid TkParLeft exp TkComma exp TkComma exp TkParRight
      {
        e1 := $3
@@ -1160,9 +1160,9 @@ exp: one_const
        }
        $$ = &node.NodeExpRnd{Value:e}
      }
-   | TkKeywordVal exp
+   | TkKeywordVal TkParLeft exp TkParRight
      {
-       str := $2
+       str := $3
        if str.Type() != node.TypeString {
            yylex.Error("VAL expression must be string")
        }
