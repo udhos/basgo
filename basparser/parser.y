@@ -330,6 +330,8 @@ stmt: /* empty */
      { $$ = &node.NodeEnd{} }
   | TkKeywordStop
      { $$ = &node.NodeEnd{} }
+  | TkKeywordSystem
+     { $$ = &node.NodeEnd{} }
   | TkKeywordData const_list
      {
         Result.LibReadData = true
