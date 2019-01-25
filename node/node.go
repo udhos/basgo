@@ -1155,6 +1155,35 @@ func (n *NodeReturn) FindUsedVars(options *BuildOptions) {
 	// do nothing
 }
 
+// NodeSwap is swap
+type NodeSwap struct {
+	Var1 NodeExp
+	Var2 NodeExp
+}
+
+// Name returns the name of the node
+func (n *NodeSwap) Name() string {
+	return "SWAP"
+}
+
+// Show displays the node
+func (n *NodeSwap) Show(printf FuncPrintf) {
+	printf("[%s %s,%s]", n.Name(), n.Var1.String(), n.Var2.String)
+}
+
+// Build generates code
+func (n *NodeSwap) Build(options *BuildOptions, outputf FuncPrintf) {
+	v1 := n.Var1.Exp(options)
+	v2 := n.Var2.Exp(options)
+	outputf("%s,%s = %s,%s // SWAP\n", v1, v2, v2, v1)
+}
+
+// FindUsedVars finds used vars
+func (n *NodeSwap) FindUsedVars(options *BuildOptions) {
+	n.Var1.FindUsedVars(options)
+	n.Var2.FindUsedVars(options)
+}
+
 // NodeWend is wend
 type NodeWend struct {
 	While *NodeWhile

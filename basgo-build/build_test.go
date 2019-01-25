@@ -409,6 +409,14 @@ var testTable = []buildTest{
 	{`10 print 1;:while a<3:print a;:a=a+1`, "", "", WRONG},
 	{`10 while 0`, "", "", WRONG},
 	{`10 wend`, "", "", WRONG},
+
+	{`10 swap`, "", "", WRONG},
+	{`10 swap a:print a`, "", "", WRONG},
+	{`10 swap a,b$:print a,b$`, "", "", WRONG},
+	{`10 swap a,b%:print a,b%`, "", "", WRONG},
+	{`10 a=1:b=2:swap a,b:print a,b;`, "", "21", OK},
+	{`10 a=1.1:b=2.2:swap a,b:print a,b;`, "", "2.21.1", OK},
+	{`10 a$="a":b$="b":swap a$,b$:print a$,b$;`, "", "ba", OK},
 }
 
 const sourceGosub = `

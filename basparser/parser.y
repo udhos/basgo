@@ -184,6 +184,7 @@ func Reset() {
 %token <tok> TkKeywordSave
 %token <tok> TkKeywordStep
 %token <tok> TkKeywordStop
+%token <tok> TkKeywordSwap
 %token <tok> TkKeywordSystem
 %token <tok> TkKeywordTab
 %token <tok> TkKeywordThen
@@ -556,6 +557,15 @@ stmt: /* empty */
 	}
 	Result.CountWend++
         $$ = &node.NodeWend{While: while}
+     }
+  | TkKeywordSwap one_var TkComma one_var
+     {
+	v1 := $2
+	v2 := $4
+	if v1.Type() != v2.Type() {
+           yylex.Error("SWAP type mismatch")
+	}
+        $$ = &node.NodeSwap{Var1: v1, Var2: v2}
      }
   ;
 
