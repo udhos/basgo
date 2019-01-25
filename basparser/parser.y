@@ -1068,10 +1068,16 @@ exp: one_const
      }
    | exp TkEqual exp
      {
-       if !node.TypeCompare($1.Type(), $3.Type()) {
-           yylex.Error("TkEqual type mismatch")
+       e1 := $1
+       e2 := $3
+       t1 := e1.Type()
+       t2 := e2.Type()
+       if !node.TypeCompare(t1, t2) {
+           yylex.Error("TkEqual type mismatch: " + 
+		fmt.Sprintf("%s = %s | ", e1.String(), e2.String()) +
+		fmt.Sprintf("%s = %s", node.TypeLabel(t1), node.TypeLabel(t2)))
        }
-       $$ = &node.NodeExpEqual{Left:$1, Right:$3}
+       $$ = &node.NodeExpEqual{Left:e1, Right:e2}
      }
    | exp TkUnequal exp
      {

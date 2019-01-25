@@ -16,6 +16,18 @@ const (
 	TypeInteger = iota
 )
 
+func TypeLabel(t int) string {
+	switch t {
+	case TypeString:
+		return "STRING"
+	case TypeFloat:
+		return "FLOAT"
+	case TypeInteger:
+		return "INTEGER"
+	}
+	return "UNKNOWN"
+}
+
 // TypeNumeric reports whether type is numeric.
 func TypeNumeric(t int) bool {
 	return t == TypeFloat || t == TypeInteger
