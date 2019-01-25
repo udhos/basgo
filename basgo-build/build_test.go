@@ -417,6 +417,15 @@ var testTable = []buildTest{
 	{`10 a=1:b=2:swap a,b:print a,b;`, "", "21", OK},
 	{`10 a=1.1:b=2.2:swap a,b:print a,b;`, "", "2.21.1", OK},
 	{`10 a$="a":b$="b":swap a$,b$:print a$,b$;`, "", "ba", OK},
+
+	{`10 print val();`, "", "", WRONG},
+	{`10 print val(0);`, "", "", WRONG},
+	{`10 print val("");`, "", "0", OK},
+	{`10 print val("1");`, "", "1", OK},
+	{`10 print val("1.1");`, "", "1.1", OK},
+	{`10 print val("1"+"1");`, "", "11", OK},
+	{`10 print val("1"+".1");`, "", "1.1", OK},
+	{`10 print 1+val("1"+".1");`, "", "2.1", OK},
 }
 
 const sourceGosub = `

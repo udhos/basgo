@@ -100,6 +100,12 @@ func main() {
 		inputHeaders(options.Headers)
 	}
 
+	if result.LibVal {
+		options.Headers["log"] = struct{}{}
+		options.Headers["strings"] = struct{}{}
+		options.Headers["strconv"] = struct{}{}
+	}
+
 	log.Printf("%s: scanning used vars", basgoLabel)
 
 	for _, n := range nodes {
@@ -162,7 +168,7 @@ func main() {
 
 	outputf(mainClose)
 
-	lib(outputf, options.Input, options.Rnd, options.Left, result.LibReadData, options.Mid)
+	lib(outputf, options.Input, options.Rnd, options.Left, result.LibReadData, options.Mid, result.LibVal)
 
 	return status, errors
 }
@@ -175,7 +181,7 @@ func inputHeaders(h map[string]struct{}) {
 	h["strings"] = struct{}{}
 }
 
-func lib(outputf node.FuncPrintf, input, rnd, left, libReadData, mid bool) {
+func lib(outputf node.FuncPrintf, input, rnd, left, libReadData, mid, val bool) {
 
 	funcBoolToInt := `
 func boolToInt(v bool) int {
@@ -250,6 +256,20 @@ func stringLeft(s string, size int) string {
 }
 `
 		outputf(funcLeft)
+	}
+
+	if val {
+		funcVal := `
+func stringToFloat(s string) float64 {
+        s = strings.TrimSpace(s)
+	v, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		log.Printf("value for number: '%%%%s' error: %%%%v", s, err)
+	}
+	return v 
+}
+`
+		outputf(funcVal)
 	}
 
 	if mid {

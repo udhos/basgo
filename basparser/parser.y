@@ -22,6 +22,7 @@ type ParserResult struct {
 	LibInput bool
 	LibReadData bool
 	LibGosubReturn bool
+	LibVal bool
 	ForStack []*node.NodeFor
 	WhileStack []*node.NodeWhile
 	CountFor int
@@ -191,6 +192,7 @@ func Reset() {
 %token <tok> TkKeywordTime
 %token <tok> TkKeywordTo
 %token <tok> TkKeywordUsing
+%token <tok> TkKeywordVal
 %token <tok> TkKeywordWend
 %token <tok> TkKeywordWhile
 
@@ -1151,6 +1153,15 @@ exp: one_const
            yylex.Error("RND expression must be numeric")
        }
        $$ = &node.NodeExpRnd{Value:e}
+     }
+   | TkKeywordVal exp
+     {
+       str := $2
+       if str.Type() != node.TypeString {
+           yylex.Error("VAL expression must be string")
+       }
+       Result.LibVal = true
+       $$ = &node.NodeExpVal{Value:str}
      }
    ;
 

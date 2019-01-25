@@ -1006,3 +1006,28 @@ func (e *NodeExpLE) FindUsedVars(options *BuildOptions) {
 	e.Left.FindUsedVars(options)
 	e.Right.FindUsedVars(options)
 }
+
+// NodeExpVal holds value
+type NodeExpVal struct {
+	Value NodeExp
+}
+
+// Type returns type
+func (e *NodeExpVal) Type() int {
+	return TypeFloat
+}
+
+// String returns value
+func (e *NodeExpVal) String() string {
+	return "VAL(" + e.Value.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpVal) Exp(options *BuildOptions) string {
+	return "stringToFloat(" + e.Value.Exp(options) + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpVal) FindUsedVars(options *BuildOptions) {
+	e.Value.FindUsedVars(options)
+}
