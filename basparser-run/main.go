@@ -25,6 +25,7 @@ func main() {
 	log.Printf("%s: status=%d errors=%d", me, status, lex.Errors())
 
 	log.Printf("%s: FOR count=%d NEXT count=%d", me, basparser.Result.CountFor, basparser.Result.CountNext)
+	log.Printf("%s: WHILE count=%d WEND count=%d", me, basparser.Result.CountWhile, basparser.Result.CountWend)
 
 	log.Printf("%s: syntax tree lines=%d:", me, len(nodes))
 

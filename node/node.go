@@ -1154,3 +1154,69 @@ func (n *NodeReturn) Build(options *BuildOptions, outputf FuncPrintf) {
 func (n *NodeReturn) FindUsedVars(options *BuildOptions) {
 	// do nothing
 }
+
+// NodeWend is wend
+type NodeWend struct {
+	While *NodeWhile
+}
+
+// Name returns the name of the node
+func (n *NodeWend) Name() string {
+	return "WEND"
+}
+
+// Show displays the node
+func (n *NodeWend) Show(printf FuncPrintf) {
+	printf("[%s index=%d]", n.While.Index)
+}
+
+// Build generates code
+func (n *NodeWend) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+
+	outputf("goto while_loop_%d\n", n.While.Index)
+	outputf("wend_exit_%d:\n", n.While.Index)
+}
+
+// FindUsedVars finds used vars
+func (n *NodeWend) FindUsedVars(options *BuildOptions) {
+	// do nothing
+}
+
+// NodeWhile is while
+type NodeWhile struct {
+	Index int // WHILE and WEND are linked thru the same index
+	Cond  NodeExp
+}
+
+// Name returns the name of the node
+func (n *NodeWhile) Name() string {
+	return "WHILE"
+}
+
+// Show displays the node
+func (n *NodeWhile) Show(printf FuncPrintf) {
+	printf("[" + n.Name())
+	printf(" " + n.Cond.String())
+	printf(" Index=%d", n.Index)
+	printf("]")
+}
+
+// Build generates code
+func (n *NodeWhile) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+
+	outputf("while_loop_%d:\n", n.Index)
+	outputf("if 0==(%s) {\n", n.Cond.Exp(options))
+	outputf("  goto wend_exit_%d\n", n.Index)
+	outputf("}\n")
+}
+
+// FindUsedVars finds used vars
+func (n *NodeWhile) FindUsedVars(options *BuildOptions) {
+	n.Cond.FindUsedVars(options)
+}

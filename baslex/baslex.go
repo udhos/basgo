@@ -100,6 +100,8 @@ const (
 	TkKeywordTime    = iota // TIME$
 	TkKeywordTo      = iota // TO
 	TkKeywordUsing   = iota // USING
+	TkKeywordWend    = iota // WEND
+	TkKeywordWhile   = iota // WHILE
 
 	TkIdentifier = iota // Identifier (variable)
 )
@@ -157,6 +159,8 @@ var tabKeywords = []struct {
 	{TkKeywordTime, "TIME$"},
 	{TkKeywordTo, "TO"},
 	{TkKeywordUsing, "USING"},
+	{TkKeywordWend, "WEND"},
+	{TkKeywordWhile, "WHILE"},
 	{TkKeywordXor, "XOR"},
 }
 
@@ -243,6 +247,8 @@ var tabType = []string{
 	"TIME$",
 	"TO",
 	"USING",
+	"WEND",
+	"WHILE",
 
 	"IDENTIFIER",
 }

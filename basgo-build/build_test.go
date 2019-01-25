@@ -402,6 +402,13 @@ var testTable = []buildTest{
 	{"10 gosub 20\n20 print 3", "", "3\n", OK},
 	{"10 print 1;:gosub 20:print 2;:end\n20 print 3;:return", "", "132", OK},
 	{sourceGosub, "", "1234567", OK},
+
+	{`10 print 1;:while a<3:print a;:a=a+1:wend`, "", "1012", OK},
+	{`10 print 1;:while 0:print a;:a=a+1:wend`, "", "1", OK},
+	{`10 print 1;:while "":print a;:a=a+1:wend`, "", "1012", WRONG},
+	{`10 print 1;:while a<3:print a;:a=a+1`, "", "", WRONG},
+	{`10 while 0`, "", "", WRONG},
+	{`10 wend`, "", "", WRONG},
 }
 
 const sourceGosub = `

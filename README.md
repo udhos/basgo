@@ -78,6 +78,4 @@ https://godoc.org/modernc.org/golex - lex/flex-like utility
 
 https://github.com/skx/gobasic/ - BASIC interpreter in Golang
 
-WHILE
-
 END

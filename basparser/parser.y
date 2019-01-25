@@ -23,11 +23,14 @@ type ParserResult struct {
 	LibReadData bool
 	LibGosubReturn bool
 	ForStack []*node.NodeFor
+	WhileStack []*node.NodeWhile
 	CountFor int
 	CountNext int
 	ArrayTable map[string]node.ArraySymbol
 	CountGosub int
 	CountReturn int
+	CountWhile int
+	CountWend int
 }
 
 // parser auxiliary variables
@@ -187,6 +190,8 @@ func Reset() {
 %token <tok> TkKeywordTime
 %token <tok> TkKeywordTo
 %token <tok> TkKeywordUsing
+%token <tok> TkKeywordWend
+%token <tok> TkKeywordWhile
 
 %token <typeIdentifier> TkIdentifier
 
@@ -527,6 +532,30 @@ stmt: /* empty */
            yylex.Error("ON-GOTO condition must be numeric")
        }
        $$ = &node.NodeOnGoto{Cond: cond, Lines: lines}
+     }
+  | TkKeywordWhile exp
+     {
+       cond := $2
+       if !node.TypeNumeric(cond.Type()) {
+           yylex.Error("WHILE condition must be boolean")
+       }
+       while := &node.NodeWhile{Cond: cond, Index: Result.CountWhile}
+       Result.CountWhile++
+       Result.WhileStack = append(Result.WhileStack, while) // push
+       $$ = while
+     }
+  | TkKeywordWend
+     {
+	var while *node.NodeWhile
+	last := len(Result.WhileStack)-1
+	if last < 0 {
+           yylex.Error("WEND without WHILE")
+	} else {
+           while = Result.WhileStack[last]
+	   Result.WhileStack = Result.WhileStack[:last] // pop
+	}
+	Result.CountWend++
+        $$ = &node.NodeWend{While: while}
      }
   ;
 
@@ -1189,58 +1218,6 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 			lval.typeRawLine = l.lex.RawLine()
 		case TkEOF:
 			lval.typeRawLine = l.lex.RawLine()
-		case TkEqual: // do not store
-		case TkUnequal: // do not store
-		case TkLT: // do not store
-		case TkGT: // do not store
-		case TkLE: // do not store
-		case TkGE: // do not store
-		case TkParLeft: // do not store
-		case TkParRight: // do not store
-		case TkColon: // do not store
-		case TkComma: // do not store
-		case TkSemicolon: // do not store
-		case TkPlus: // do not store
-		case TkMinus: // do not store
-		case TkMult: // do not store
-		case TkDiv: // do not store
-		case TkBackSlash: // do not store
-		case TkPow: // do not store
-		case TkKeywordData: // do not store
-		case TkKeywordDim: // do not store
-		case TkKeywordEnd: // do not store
-		case TkKeywordElse: // do not store
-		case TkKeywordFor: // do not store
-		case TkKeywordGosub: // do not store
-		case TkKeywordGoto: // do not store
-		case TkKeywordIf: // do not store
-		case TkKeywordInput: // do not store
-		case TkKeywordInt: // do not store
-		case TkKeywordLeft: // do not store
-		case TkKeywordLen: // do not store
-		case TkKeywordLet: // do not store
-		case TkKeywordList: // do not store
-		case TkKeywordMid: // do not store
-		case TkKeywordMod: // do not store
-		case TkKeywordNext: // do not store
-		case TkKeywordOn: // do not store
-		case TkKeywordPrint: // do not store
-		case TkKeywordNot: // do not store
-		case TkKeywordAnd: // do not store
-		case TkKeywordEqv: // do not store
-		case TkKeywordImp: // do not store
-		case TkKeywordOr: // do not store
-		case TkKeywordXor: // do not store
-		case TkKeywordRead: // do not store
-		case TkKeywordRestore: // do not store
-		case TkKeywordReturn: // do not store
-		case TkKeywordRnd: // do not store
-		case TkKeywordStep: // do not store
-		case TkKeywordStop: // do not store
-		case TkKeywordThen: // do not store
-		case TkKeywordTo: // do not store
-		default:
-			log.Printf("InputLex.Lex: FIXME token value [%s] not stored for parser actions\n", t.Value)
 	}
 
 	return id
