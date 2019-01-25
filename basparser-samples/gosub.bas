@@ -1,7 +1,7 @@
 10 print 1
 20 gosub 100
 30 print 5
-30 end
+40 end
 
 100 print 2
 110 gosub 1000
