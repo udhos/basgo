@@ -1196,7 +1196,7 @@ func (n *NodeWend) Name() string {
 
 // Show displays the node
 func (n *NodeWend) Show(printf FuncPrintf) {
-	printf("[%s index=%d]", n.While.Index)
+	printf("[%s index=%d]", n.Name(), n.While.Index)
 }
 
 // Build generates code
