@@ -116,23 +116,7 @@ func (e *NodeExpString) String() string {
 
 // Exp returns value
 func (e *NodeExpString) Exp(options *BuildOptions) string {
-
-	/*
-		// append " if missing
-		if e.Value == "\"" {
-			return ""
-		}
-		last := len(e.Value) - 1
-		if last >= 0 {
-			if e.Value[last] != '"' {
-				return e.Value + "\""
-			}
-		}
-	*/
-
-	q := `"`
-	v := q + strings.Replace(e.Value, `\`, `\\`, -1) + q
-	return v
+	return "`" + e.Value + "`"
 }
 
 // FindUsedVars finds used vars
