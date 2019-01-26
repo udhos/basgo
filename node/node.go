@@ -879,18 +879,7 @@ func (n *NodeIf) Build(options *BuildOptions, outputf FuncPrintf) {
 	}
 	outputf("\n")
 
-	outputf("if 0==(%s) {\n", n.Cond.Exp(options))
-	outputf("  goto if_else_%d\n", n.Index)
-	outputf("}\n")
-
-	for _, t := range n.Then {
-		t.Build(options, outputf)
-	}
-
-	outputf("goto if_exit_%d\n", n.Index)
-
 	var hasElse bool
-
 	for _, t := range n.Else {
 		if _, empty := t.(*NodeEmpty); !empty {
 			hasElse = true // found non-empty node under ELSE
@@ -898,9 +887,21 @@ func (n *NodeIf) Build(options *BuildOptions, outputf FuncPrintf) {
 		}
 	}
 
-	outputf("if_else_%d:\n", n.Index)
+	outputf("if 0==(%s) {\n", n.Cond.Exp(options))
+	if hasElse {
+		outputf("  goto if_else_%d\n", n.Index)
+	} else {
+		outputf("  goto if_exit_%d\n", n.Index)
+	}
+	outputf("}\n")
+
+	for _, t := range n.Then {
+		t.Build(options, outputf)
+	}
 
 	if hasElse {
+		outputf("goto if_exit_%d\n", n.Index)
+		outputf("if_else_%d:\n", n.Index)
 		for _, t := range n.Else {
 			t.Build(options, outputf)
 		}
