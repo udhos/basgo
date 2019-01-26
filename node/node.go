@@ -869,7 +869,7 @@ func (n *NodeIf) Show(printf FuncPrintf) {
 
 // Build generates code
 func (n *NodeIf) Build(options *BuildOptions, outputf FuncPrintf) {
-	outputf("// %s Index=%d %s THEN ", n.Index, n.Name(), n.Cond.String())
+	outputf("// %s Index=%d %s THEN ", n.Name(), n.Index, n.Cond.String())
 	for _, t := range n.Then {
 		t.Show(outputf)
 	}
