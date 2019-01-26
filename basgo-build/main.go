@@ -279,7 +279,8 @@ func stringToFloat(s string) float64 {
         s = strings.TrimSpace(s)
 	v, err := strconv.ParseFloat(s, 64)
 	if err != nil {
-		log.Printf("value for number: '%%%%s' error: %%%%v", s, err)
+		m := "value for number: '" + s + "' error: " + err.Error()
+		log.Printf(m)
 	}
 	return v 
 }
