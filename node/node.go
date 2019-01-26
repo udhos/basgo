@@ -835,9 +835,10 @@ func (n *NodeGoto) FindUsedVars(options *BuildOptions) {
 
 // NodeIf is IF
 type NodeIf struct {
-	Cond NodeExp
-	Then []Node
-	Else []Node
+	Index int
+	Cond  NodeExp
+	Then  []Node
+	Else  []Node
 }
 
 // Name returns the name of the node
@@ -868,7 +869,7 @@ func (n *NodeIf) Show(printf FuncPrintf) {
 
 // Build generates code
 func (n *NodeIf) Build(options *BuildOptions, outputf FuncPrintf) {
-	outputf("// %s %s THEN ", n.Name(), n.Cond.String())
+	outputf("// %s Index=%d %s THEN ", n.Index, n.Name(), n.Cond.String())
 	for _, t := range n.Then {
 		t.Show(outputf)
 	}
@@ -878,11 +879,15 @@ func (n *NodeIf) Build(options *BuildOptions, outputf FuncPrintf) {
 	}
 	outputf("\n")
 
-	outputf("if 0!=(%s) {\n", n.Cond.Exp(options))
+	outputf("if 0==(%s) {\n", n.Cond.Exp(options))
+	outputf("  goto if_else_%d\n", n.Index)
+	outputf("}\n")
 
 	for _, t := range n.Then {
 		t.Build(options, outputf)
 	}
+
+	outputf("goto if_exit_%d\n", n.Index)
 
 	var hasElse bool
 
@@ -893,15 +898,15 @@ func (n *NodeIf) Build(options *BuildOptions, outputf FuncPrintf) {
 		}
 	}
 
-	if hasElse {
-		outputf("} else {\n")
+	outputf("if_else_%d:\n", n.Index)
 
+	if hasElse {
 		for _, t := range n.Else {
 			t.Build(options, outputf)
 		}
 	}
 
-	outputf("}\n")
+	outputf("if_exit_%d:\n", n.Index)
 }
 
 // FindUsedVars finds used vars

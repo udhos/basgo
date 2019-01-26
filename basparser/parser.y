@@ -33,6 +33,7 @@ type ParserResult struct {
 	CountReturn int
 	CountWhile int
 	CountWend int
+	CountIf int
 }
 
 // parser auxiliary variables
@@ -435,7 +436,8 @@ stmt: /* empty */
        if !node.TypeNumeric(cond.Type()) {
            yylex.Error("IF condition must be boolean")
        }
-       $$ = &node.NodeIf{Cond: cond, Then: []node.Node{$4}, Else: []node.Node{&node.NodeEmpty{}}}
+       Result.CountIf++
+       $$ = &node.NodeIf{Index:Result.CountIf, Cond: cond, Then: []node.Node{$4}, Else: []node.Node{&node.NodeEmpty{}}}
      }
   | TkKeywordIf exp then_or_goto stmt_goto TkKeywordElse stmt_goto
      {
@@ -443,7 +445,8 @@ stmt: /* empty */
        if !node.TypeNumeric(cond.Type()) {
            yylex.Error("IF condition must be boolean")
        }
-       $$ = &node.NodeIf{Cond: cond, Then: []node.Node{$4}, Else: []node.Node{$6}}
+       Result.CountIf++
+       $$ = &node.NodeIf{Index:Result.CountIf, Cond: cond, Then: []node.Node{$4}, Else: []node.Node{$6}}
      }
   | TkKeywordIf exp then_or_goto stmt_goto TkKeywordElse statements_aux
      {
@@ -451,7 +454,8 @@ stmt: /* empty */
        if !node.TypeNumeric(cond.Type()) {
            yylex.Error("IF condition must be boolean")
        }
-       $$ = &node.NodeIf{Cond: cond, Then: []node.Node{$4}, Else: $6}
+       Result.CountIf++
+       $$ = &node.NodeIf{Index:Result.CountIf, Cond: cond, Then: []node.Node{$4}, Else: $6}
      }
   | TkKeywordIf exp TkKeywordThen statements_aux
      {
@@ -459,7 +463,8 @@ stmt: /* empty */
        if !node.TypeNumeric(cond.Type()) {
            yylex.Error("IF condition must be boolean")
        }
-       $$ = &node.NodeIf{Cond: cond, Then: $4, Else: []node.Node{&node.NodeEmpty{}}}
+       Result.CountIf++
+       $$ = &node.NodeIf{Index:Result.CountIf, Cond: cond, Then: $4, Else: []node.Node{&node.NodeEmpty{}}}
      }
   | TkKeywordIf exp TkKeywordThen statements_aux TkKeywordElse stmt_goto
      {
@@ -467,7 +472,8 @@ stmt: /* empty */
        if !node.TypeNumeric(cond.Type()) {
            yylex.Error("IF condition must be boolean")
        }
-       $$ = &node.NodeIf{Cond: cond, Then: $4, Else: []node.Node{$6}}
+       Result.CountIf++
+       $$ = &node.NodeIf{Index:Result.CountIf, Cond: cond, Then: $4, Else: []node.Node{$6}}
      }
   | TkKeywordIf exp TkKeywordThen statements_aux TkKeywordElse statements_aux
      {
@@ -475,7 +481,8 @@ stmt: /* empty */
        if !node.TypeNumeric(cond.Type()) {
            yylex.Error("IF condition must be boolean")
        }
-       $$ = &node.NodeIf{Cond: cond, Then: $4, Else: $6}
+       Result.CountIf++
+       $$ = &node.NodeIf{Index:Result.CountIf, Cond: cond, Then: $4, Else: $6}
      }
   | TkKeywordInput TkIdentifier
      {
