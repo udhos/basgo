@@ -1087,3 +1087,113 @@ func (e *NodeExpVal) Exp(options *BuildOptions) string {
 func (e *NodeExpVal) FindUsedVars(options *BuildOptions) {
 	e.Value.FindUsedVars(options)
 }
+
+// NodeExpTab holds value
+type NodeExpTab struct {
+	Value NodeExp
+}
+
+// Type returns type
+func (e *NodeExpTab) Type() int {
+	return TypeString
+}
+
+// String returns value
+func (e *NodeExpTab) String() string {
+	return "TAB(" + e.Value.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpTab) Exp(options *BuildOptions) string {
+	return `stringRepeat(" ",` + forceInt(options, e.Value) + "-1)"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpTab) FindUsedVars(options *BuildOptions) {
+	e.Value.FindUsedVars(options)
+}
+
+// NodeExpSpc holds value
+type NodeExpSpc struct {
+	Value NodeExp
+}
+
+// Type returns type
+func (e *NodeExpSpc) Type() int {
+	return TypeString
+}
+
+// String returns value
+func (e *NodeExpSpc) String() string {
+	return "SPC(" + e.Value.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpSpc) Exp(options *BuildOptions) string {
+	return `stringRepeat(" ",` + forceInt(options, e.Value) + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpSpc) FindUsedVars(options *BuildOptions) {
+	e.Value.FindUsedVars(options)
+}
+
+// NodeExpSpace holds value
+type NodeExpSpace struct {
+	Value NodeExp
+}
+
+// Type returns type
+func (e *NodeExpSpace) Type() int {
+	return TypeString
+}
+
+// String returns value
+func (e *NodeExpSpace) String() string {
+	return "SPACE$(" + e.Value.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpSpace) Exp(options *BuildOptions) string {
+	return `stringRepeat(" ",` + forceInt(options, e.Value) + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpSpace) FindUsedVars(options *BuildOptions) {
+	e.Value.FindUsedVars(options)
+}
+
+// NodeExpFuncString holds value
+type NodeExpFuncString struct {
+	Value NodeExp
+	Char  NodeExp
+}
+
+// Type returns type
+func (e *NodeExpFuncString) Type() int {
+	return TypeString
+}
+
+// String returns value
+func (e *NodeExpFuncString) String() string {
+	return "STRING$(" + e.Value.String() + "," + e.Char.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpFuncString) Exp(options *BuildOptions) string {
+	if TypeNumeric(e.Char.Type()) {
+		str := "string([]byte{byte(" + forceInt(options, e.Char) + ")})"
+		return "stringRepeat(" + str + "," + forceInt(options, e.Value) + ")"
+	}
+
+	options.Left = true
+
+	left := "stringLeft(" + e.Char.Exp(options) + ",1)"
+
+	return `stringRepeat(` + left + `,` + forceInt(options, e.Value) + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpFuncString) FindUsedVars(options *BuildOptions) {
+	e.Value.FindUsedVars(options)
+}

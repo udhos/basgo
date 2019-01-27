@@ -93,9 +93,12 @@ const (
 	TkKeywordRnd     = iota // RND
 	TkKeywordRun     = iota // RUN
 	TkKeywordSave    = iota // SAVE
+	TkKeywordSpace   = iota // SPACE$
+	TkKeywordSpc     = iota // SPC
 	TkKeywordStep    = iota // STEP
 	TkKeywordStop    = iota // STOP
 	TkKeywordStr     = iota // STR$
+	TkKeywordString  = iota // STRING$
 	TkKeywordSwap    = iota // SWAP
 	TkKeywordSystem  = iota // SYSTEM
 	TkKeywordTab     = iota // TAB
@@ -156,9 +159,12 @@ var tabKeywords = []struct {
 	{TkKeywordRnd, "RND"},
 	{TkKeywordRun, "RUN"},
 	{TkKeywordSave, "SAVE"},
+	{TkKeywordSpace, "SPACE$"},
+	{TkKeywordSpc, "SPC"},
 	{TkKeywordStep, "STEP"},
 	{TkKeywordStop, "STOP"},
 	{TkKeywordStr, "STR$"},
+	{TkKeywordString, "STRING$"},
 	{TkKeywordSwap, "SWAP"},
 	{TkKeywordSystem, "SYSTEM"},
 	{TkKeywordTab, "TAB"},
@@ -248,9 +254,12 @@ var tabType = []string{
 	"RND",
 	"RUN",
 	"SAVE",
+	"SPACE$",
+	"SPC",
 	"STEP",
 	"STOP",
 	"STR$",
+	"STRING$",
 	"SWAP",
 	"SYSTEM",
 	"TAB",

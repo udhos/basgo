@@ -24,6 +24,7 @@ type ParserResult struct {
 	LibGosubReturn bool
 	LibVal bool
 	LibRight bool
+	LibRepeat bool
 	ForStack []*node.NodeFor
 	WhileStack []*node.NodeWhile
 	CountFor int
@@ -186,9 +187,12 @@ func Reset() {
 %token <tok> TkKeywordRnd
 %token <tok> TkKeywordRun
 %token <tok> TkKeywordSave
+%token <tok> TkKeywordSpace
+%token <tok> TkKeywordSpc
 %token <tok> TkKeywordStep
 %token <tok> TkKeywordStop
 %token <tok> TkKeywordStr
+%token <tok> TkKeywordString
 %token <tok> TkKeywordSwap
 %token <tok> TkKeywordSystem
 %token <tok> TkKeywordTab
@@ -1199,6 +1203,47 @@ exp: one_const
        }
        Result.LibVal = true
        $$ = &node.NodeExpVal{Value:str}
+     }
+   | TkKeywordTab TkParLeft exp TkParRight
+     {
+       num := $3
+       if !node.TypeNumeric(num.Type()) {
+           yylex.Error("TAB expression must be numeric")
+       }
+       Result.LibRepeat = true
+       $$ = &node.NodeExpTab{Value:num}
+     }
+   | TkKeywordSpc TkParLeft exp TkParRight
+     {
+       num := $3
+       if !node.TypeNumeric(num.Type()) {
+           yylex.Error("SPC expression must be numeric")
+       }
+       $$ = &node.NodeExpSpc{Value:num}
+       Result.LibRepeat = true
+     }
+   | TkKeywordSpace TkParLeft exp TkParRight
+     {
+       num := $3
+       if !node.TypeNumeric(num.Type()) {
+           yylex.Error("SPACE$ expression must be numeric")
+       }
+       Result.LibRepeat = true
+       $$ = &node.NodeExpSpace{Value:num}
+     }
+   | TkKeywordString TkParLeft exp TkComma exp TkParRight
+     {
+       num := $3
+       char := $5
+       if !node.TypeNumeric(num.Type()) {
+           yylex.Error("STRING$ expression must be numeric")
+       }
+       t := char.Type()
+       if !node.TypeNumeric(t) && t != node.TypeString  {
+           yylex.Error("STRING$ char must be numeric or string")
+       }
+       Result.LibRepeat = true
+       $$ = &node.NodeExpFuncString{Value:num, Char: char}
      }
    ;
 

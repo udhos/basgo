@@ -449,6 +449,25 @@ var testTable = []buildTest{
 	{`10 print right$("abc","")`, "", "", WRONG},
 	{`10 print right$("abc",a$)`, "", "", WRONG},
 	{`10 print right$(1,1)`, "", "", WRONG},
+
+	{`10 print "a"+tab(0)+"b";`, "", "ab", OK},
+	{`10 print "a"+tab(1)+"b";`, "", "ab", OK},
+	{`10 print "a"+tab(2)+"b";`, "", "a b", OK},
+	{`10 print "a"+tab(3)+"b";`, "", "a  b", OK},
+
+	{`10 print "a"+spc(0)+"b";`, "", "ab", OK},
+	{`10 print "a"+spc(1)+"b";`, "", "a b", OK},
+	{`10 print "a"+spc(2)+"b";`, "", "a  b", OK},
+
+	{`10 print "a"+space$(0)+"b";`, "", "ab", OK},
+	{`10 print "a"+space$(1)+"b";`, "", "a b", OK},
+	{`10 print "a"+space$(2)+"b";`, "", "a  b", OK},
+
+	{`10 print "a"+string$(0,"1")+"b";`, "", "ab", OK},
+	{`10 print "a"+string$(1,"1")+"b";`, "", "a1b", OK},
+	{`10 print "a"+string$(2,"1")+"b";`, "", "a11b", OK},
+	{`10 print "a"+string$(2,"21")+"b";`, "", "a22b", OK},
+	{`10 print "a"+string$(2,32)+"b";`, "", "a  b", OK},
 }
 
 const sourceGosub = `

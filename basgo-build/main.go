@@ -106,6 +106,11 @@ func main() {
 		options.Headers["strconv"] = struct{}{}
 	}
 
+	if result.LibRepeat {
+		options.Headers["log"] = struct{}{}
+		options.Headers["strings"] = struct{}{}
+	}
+
 	log.Printf("%s: scanning used vars", basgoLabel)
 
 	for _, n := range nodes {
@@ -168,7 +173,7 @@ func main() {
 
 	outputf(mainClose)
 
-	lib(outputf, options.Input, options.Rnd, options.Left, result.LibReadData, options.Mid, result.LibVal, result.LibRight)
+	lib(outputf, options.Input, options.Rnd, options.Left, result.LibReadData, options.Mid, result.LibVal, result.LibRight, result.LibRepeat)
 
 	return status, errors
 }
@@ -181,7 +186,7 @@ func inputHeaders(h map[string]struct{}) {
 	h["strings"] = struct{}{}
 }
 
-func lib(outputf node.FuncPrintf, input, rnd, left, libReadData, mid, val, right bool) {
+func lib(outputf node.FuncPrintf, input, rnd, left, libReadData, mid, val, right, repeat bool) {
 
 	funcBoolToInt := `
 func boolToInt(v bool) int {
@@ -271,6 +276,19 @@ func stringRight(s string, size int) string {
 }
 `
 		outputf(funcRight)
+	}
+
+	if repeat {
+		funcRepeat := `
+func stringRepeat(s string, count int) string {
+	if count < 0 {
+		log.Printf("repeat string negative count")
+		count = 0
+	}
+	return strings.Repeat(s, count)
+}
+`
+		outputf(funcRepeat)
 	}
 
 	if val {
