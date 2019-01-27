@@ -1030,6 +1030,39 @@ func (e *NodeExpLE) FindUsedVars(options *BuildOptions) {
 	e.Right.FindUsedVars(options)
 }
 
+// NodeExpStr holds value
+type NodeExpStr struct {
+	Value NodeExp
+}
+
+// Type returns type
+func (e *NodeExpStr) Type() int {
+	return TypeString
+}
+
+// String returns value
+func (e *NodeExpStr) String() string {
+	return "STR$(" + e.Value.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpStr) Exp(options *BuildOptions) string {
+	options.Headers["strconv"] = struct{}{}
+
+	v := e.Value.Exp(options)
+
+	if e.Value.Type() == TypeInteger {
+		return "strconv.Itoa(" + v + ")"
+	} else {
+		return "strconv.FormatFloat(" + v + ", 'f', -1, 64)"
+	}
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpStr) FindUsedVars(options *BuildOptions) {
+	e.Value.FindUsedVars(options)
+}
+
 // NodeExpVal holds value
 type NodeExpVal struct {
 	Value NodeExp

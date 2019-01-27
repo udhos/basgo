@@ -188,6 +188,7 @@ func Reset() {
 %token <tok> TkKeywordSave
 %token <tok> TkKeywordStep
 %token <tok> TkKeywordStop
+%token <tok> TkKeywordStr
 %token <tok> TkKeywordSwap
 %token <tok> TkKeywordSystem
 %token <tok> TkKeywordTab
@@ -1181,6 +1182,14 @@ exp: one_const
            yylex.Error("RND expression must be numeric")
        }
        $$ = &node.NodeExpRnd{Value:e}
+     }
+   | TkKeywordStr TkParLeft exp TkParRight
+     {
+       num := $3
+       if !node.TypeNumeric(num.Type()) {
+           yylex.Error("STR$ expression must be numeric")
+       }
+       $$ = &node.NodeExpStr{Value:num}
      }
    | TkKeywordVal TkParLeft exp TkParRight
      {
