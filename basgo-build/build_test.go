@@ -46,6 +46,15 @@ var testTable = []buildTest{
 	{`10 print "hello`, "", "hello\n", OK},
 	{`10 print "hello  `, "", "hello  \n", OK},
 
+	{`10 print a-int(1.1);`, "", "-1", OK},
+	{`10 print a+int(1.1);`, "", "1", OK},
+	{`10 print a*int(1.1);`, "", "0", OK},
+	{`10 print a/int(1.1);`, "", "0", OK},
+	{`10 print int(1.1)-a;`, "", "1", OK},
+	{`10 print int(1.1)+a;`, "", "1", OK},
+	{`10 print int(1.1)*a;`, "", "0", OK},
+	{`10 a=1:print int(1.1)/a;`, "", "1", OK},
+
 	{"10 print 1+2", "", "3\n", OK},
 	{"10 print 1.1+2", "", "3.1\n", OK},
 	{"10 print 1.1+2.2", "", "3.3\n", OK},
@@ -53,7 +62,7 @@ var testTable = []buildTest{
 	{`10 print 1+"b"`, "", "", WRONG},
 
 	{"10 print 1-2", "", "-1\n", OK},
-	{"10 print 1.1-2", "", "-0.9\n", OK},
+	{"10 print 1.2-2", "", "-0.8\n", OK},
 	{"10 print 1.1-2.2", "", "-1.1\n", OK},
 	{`10 print "a"-"b"`, "", "", WRONG},
 
@@ -85,11 +94,11 @@ var testTable = []buildTest{
 	{`10 print "a" ^ "b"`, "", "", WRONG},
 
 	{`10 print +10`, "", "10\n", OK},
-	{`10 print +(2.2-1)`, "", "1.2\n", OK},
+	{`10 print +(2.1-1)`, "", "1.1\n", OK},
 	{`10 print +"a"`, "", "", WRONG},
 
 	{`10 print -10`, "", "-10\n", OK},
-	{`10 print -(2.2-1)`, "", "-1.2\n", OK},
+	{`10 print -(2.1-1)`, "", "-1.1\n", OK},
 	{`10 print -"a"`, "", "", WRONG},
 
 	{`10 print (22)`, "", "22\n", OK},

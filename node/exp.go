@@ -217,6 +217,19 @@ func combineType(t1, t2 int) int {
 	return TypeUnknown
 }
 
+// Promotes Integer to Float if needed
+func combineNumeric(options *BuildOptions, e1, e2 NodeExp) (string, string) {
+	t1 := e1.Type()
+	t2 := e2.Type()
+	if t1 == TypeInteger && t2 == TypeFloat {
+		return forceFloat(options, e1), e2.Exp(options)
+	}
+	if t1 == TypeFloat && t2 == TypeInteger {
+		return e1.Exp(options), forceFloat(options, e2)
+	}
+	return e1.Exp(options), e2.Exp(options)
+}
+
 // String returns value
 func (e *NodeExpPlus) String() string {
 	return "(" + e.Left.String() + ") + (" + e.Right.String() + ")"
@@ -224,7 +237,8 @@ func (e *NodeExpPlus) String() string {
 
 // Exp returns value
 func (e *NodeExpPlus) Exp(options *BuildOptions) string {
-	return "(" + e.Left.Exp(options) + ")+(" + e.Right.Exp(options) + ")"
+	left, right := combineNumeric(options, e.Left, e.Right)
+	return "(" + left + ")+(" + right + ")"
 }
 
 // FindUsedVars finds used vars
@@ -251,7 +265,8 @@ func (e *NodeExpMinus) String() string {
 
 // Exp returns value
 func (e *NodeExpMinus) Exp(options *BuildOptions) string {
-	return "(" + e.Left.Exp(options) + ")-(" + e.Right.Exp(options) + ")"
+	left, right := combineNumeric(options, e.Left, e.Right)
+	return "(" + left + ")-(" + right + ")"
 }
 
 // FindUsedVars finds used vars
@@ -309,7 +324,8 @@ func (e *NodeExpMult) String() string {
 
 // Exp returns value
 func (e *NodeExpMult) Exp(options *BuildOptions) string {
-	return "(" + e.Left.Exp(options) + ")*(" + e.Right.Exp(options) + ")"
+	left, right := combineNumeric(options, e.Left, e.Right)
+	return "(" + left + ")*(" + right + ")"
 }
 
 // FindUsedVars finds used vars
