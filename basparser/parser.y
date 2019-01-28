@@ -25,6 +25,8 @@ type ParserResult struct {
 	LibVal bool
 	LibRight bool
 	LibRepeat bool
+	LibAsc bool
+	LibBool bool
 	ForStack []*node.NodeFor
 	WhileStack []*node.NodeWhile
 	CountFor int
@@ -158,6 +160,8 @@ func Reset() {
 %precedence UnaryPlus // fictitious
 %precedence UnaryMinus // fictitious
 
+%token <tok> TkKeywordAsc
+%token <tok> TkKeywordChr
 %token <tok> TkKeywordCls
 %token <tok> TkKeywordCont
 %token <tok> TkKeywordData
@@ -1091,6 +1095,7 @@ exp: one_const
 		fmt.Sprintf("%s = %s | ", e1.String(), e2.String()) +
 		fmt.Sprintf("%s = %s", node.TypeLabel(t1), node.TypeLabel(t2)))
        }
+       Result.LibBool = true
        $$ = &node.NodeExpEqual{Left:e1, Right:e2}
      }
    | exp TkUnequal exp
@@ -1098,6 +1103,7 @@ exp: one_const
        if !node.TypeCompare($1.Type(), $3.Type()) {
            yylex.Error("TkUnequal type mismatch")
        }
+       Result.LibBool = true
        $$ = &node.NodeExpUnequal{Left:$1, Right:$3}
      }
    | exp TkGT exp
@@ -1105,6 +1111,7 @@ exp: one_const
        if !node.TypeCompare($1.Type(), $3.Type()) {
            yylex.Error("TkGT type mismatch")
        }
+       Result.LibBool = true
        $$ = &node.NodeExpGT{Left:$1, Right:$3}
      }
    | exp TkLT exp
@@ -1112,6 +1119,7 @@ exp: one_const
        if !node.TypeCompare($1.Type(), $3.Type()) {
            yylex.Error("TkLT type mismatch")
        }
+       Result.LibBool = true
        $$ = &node.NodeExpLT{Left:$1, Right:$3}
      }
    | exp TkGE exp
@@ -1119,6 +1127,7 @@ exp: one_const
        if !node.TypeCompare($1.Type(), $3.Type()) {
            yylex.Error("TkGE type mismatch")
        }
+       Result.LibBool = true
        $$ = &node.NodeExpGE{Left:$1, Right:$3}
      }
    | exp TkLE exp
@@ -1126,6 +1135,7 @@ exp: one_const
        if !node.TypeCompare($1.Type(), $3.Type()) {
            yylex.Error("TkLE type mismatch")
        }
+       Result.LibBool = true
        $$ = &node.NodeExpLE{Left:$1, Right:$3}
      }
    | TkKeywordInt exp
@@ -1244,6 +1254,23 @@ exp: one_const
        }
        Result.LibRepeat = true
        $$ = &node.NodeExpFuncString{Value:num, Char: char}
+     }
+   | TkKeywordAsc TkParLeft exp TkParRight
+     {
+       str := $3
+       if str.Type() != node.TypeString {
+           yylex.Error("ASC expression must be string")
+       }
+       Result.LibAsc = true
+       $$ = &node.NodeExpAsc{Value:str}
+     }
+   | TkKeywordChr TkParLeft exp TkParRight
+     {
+       num := $3
+       if !node.TypeNumeric(num.Type()) {
+           yylex.Error("CHR$ expression must be numeric")
+       }
+       $$ = &node.NodeExpChr{Value:num}
      }
    ;
 

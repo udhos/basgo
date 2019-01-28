@@ -8,7 +8,7 @@ func TestTabKeywords(t *testing.T) {
 	// should be +1
 	// however these 7 keywords don't belong to keyword block:
 	// REM EQV IMP NOT AND OR XOR
-	size := TkKeywordWhile - TkKeywordCls + 8
+	size := TkKeywordWhile - TkKeywordAsc + 8
 	if len(tabKeywords) != size {
 		t.Errorf("mismatch keywords table size: table=%d tokens=%d", len(tabKeywords), size)
 	}

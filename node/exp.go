@@ -1197,3 +1197,53 @@ func (e *NodeExpFuncString) Exp(options *BuildOptions) string {
 func (e *NodeExpFuncString) FindUsedVars(options *BuildOptions) {
 	e.Value.FindUsedVars(options)
 }
+
+// NodeExpAsc holds value
+type NodeExpAsc struct {
+	Value NodeExp
+}
+
+// Type returns type
+func (e *NodeExpAsc) Type() int {
+	return TypeInteger
+}
+
+// String returns value
+func (e *NodeExpAsc) String() string {
+	return "ASC(" + e.Value.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpAsc) Exp(options *BuildOptions) string {
+	return "firstByte(" + e.Value.Exp(options) + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpAsc) FindUsedVars(options *BuildOptions) {
+	e.Value.FindUsedVars(options)
+}
+
+// NodeExpChr holds value
+type NodeExpChr struct {
+	Value NodeExp
+}
+
+// Type returns type
+func (e *NodeExpChr) Type() int {
+	return TypeString
+}
+
+// String returns value
+func (e *NodeExpChr) String() string {
+	return "CHR$(" + e.Value.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpChr) Exp(options *BuildOptions) string {
+	return "string(" + forceInt(options, e.Value) + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpChr) FindUsedVars(options *BuildOptions) {
+	e.Value.FindUsedVars(options)
+}

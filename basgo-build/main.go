@@ -111,6 +111,10 @@ func main() {
 		options.Headers["strings"] = struct{}{}
 	}
 
+	if result.LibAsc {
+		options.Headers["log"] = struct{}{}
+	}
+
 	log.Printf("%s: scanning used vars", basgoLabel)
 
 	for _, n := range nodes {
@@ -173,7 +177,7 @@ func main() {
 
 	outputf(mainClose)
 
-	lib(outputf, options.Input, options.Rnd, options.Left, result.LibReadData, options.Mid, result.LibVal, result.LibRight, result.LibRepeat)
+	lib(outputf, options.Input, options.Rnd, options.Left, result.LibReadData, options.Mid, result.LibVal, result.LibRight, result.LibRepeat, result.LibAsc, result.LibBool)
 
 	return status, errors
 }
@@ -186,9 +190,11 @@ func inputHeaders(h map[string]struct{}) {
 	h["strings"] = struct{}{}
 }
 
-func lib(outputf node.FuncPrintf, input, rnd, left, libReadData, mid, val, right, repeat bool) {
+func lib(outputf node.FuncPrintf, input, rnd, left, libReadData, mid, val, right, repeat, asc, libBool bool) {
 
-	funcBoolToInt := `
+	if libBool {
+
+		funcBoolToInt := `
 func boolToInt(v bool) int {
 	if v {
 		return -1
@@ -196,6 +202,8 @@ func boolToInt(v bool) int {
 	return 0
 }
 `
+		outputf(funcBoolToInt)
+	}
 
 	funcInputFmt := `
 func %s string {
@@ -229,7 +237,6 @@ func %s float64 {
 	return v 
 }
 `
-	outputf(funcBoolToInt)
 
 	if input {
 		funcInput := fmt.Sprintf(funcInputFmt, node.InputString, node.InputInteger, node.InputFloat)
@@ -304,6 +311,19 @@ func stringToFloat(s string) float64 {
 }
 `
 		outputf(funcVal)
+	}
+
+	if asc {
+		funcAsc := `
+func firstByte(s string) int {
+	if len(s) < 1 {
+		log.Printf("ASC: firstByte: empty string")
+		return 0
+	}
+	return int(s[0])
+}
+`
+		outputf(funcAsc)
 	}
 
 	if mid {

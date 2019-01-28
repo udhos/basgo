@@ -464,10 +464,21 @@ var testTable = []buildTest{
 	{`10 print "a"+space$(2)+"b";`, "", "a  b", OK},
 
 	{`10 print "a"+string$(0,"1")+"b";`, "", "ab", OK},
+	{`10 print "a"+string$(1,"")+"b";`, "", "ab", OK},
 	{`10 print "a"+string$(1,"1")+"b";`, "", "a1b", OK},
 	{`10 print "a"+string$(2,"1")+"b";`, "", "a11b", OK},
 	{`10 print "a"+string$(2,"21")+"b";`, "", "a22b", OK},
 	{`10 print "a"+string$(2,32)+"b";`, "", "a  b", OK},
+
+	{`10 print chr$(32);`, "", " ", OK},
+	{`10 print chr$(0);`, "", string([]byte{0}), OK},
+
+	{`10 print asc(" ");`, "", "32", OK},
+	{`10 print asc(" a");`, "", "32", OK},
+	{`10 print asc("");`, "", "0", OK},
+
+	{`10 print chr$(asc("a"))="a";`, "", "-1", OK},
+	{`10 print asc(chr$(32))=32;`, "", "-1", OK},
 }
 
 const sourceGosub = `
