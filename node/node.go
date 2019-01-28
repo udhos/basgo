@@ -923,7 +923,9 @@ func (n *NodeIf) FindUsedVars(options *BuildOptions) {
 
 // NodeInput handles input
 type NodeInput struct {
-	Variable string
+	Variable     string
+	PromptString NodeExp
+	AddQuestion  bool
 }
 
 // Name returns the name of the node
@@ -933,7 +935,7 @@ func (n *NodeInput) Name() string {
 
 // Show displays the node
 func (n *NodeInput) Show(printf FuncPrintf) {
-	printf("[%s %s]", n.Name(), n.Variable)
+	printf("[%s var=%s prompt=%s question=%v]", n.Name(), n.Variable, n.PromptString, n.AddQuestion)
 }
 
 // FIXME move source code to external file?
@@ -948,6 +950,17 @@ func (n *NodeInput) Build(options *BuildOptions, outputf FuncPrintf) {
 	outputf("// ")
 	n.Show(outputf)
 	outputf("\n")
+
+	options.Headers["fmt"] = struct{}{} // used package
+
+	if prompt, hasPrompt := n.PromptString.(*NodeExpString); hasPrompt {
+		str := prompt.Exp(options)
+		outputf("fmt.Print(" + str + ") // INPUT prompt string\n")
+	}
+
+	if n.AddQuestion {
+		outputf("fmt.Print(`? `) // INPUT question mark not suppressed\n")
+	}
 
 	var code string
 

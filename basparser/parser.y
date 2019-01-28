@@ -111,6 +111,7 @@ func Reset() {
 %type <typeExp> exp
 %type <typeExp> one_const
 %type <typeExp> one_const_num
+%type <typeExp> one_const_str
 %type <typeExpArray> array_exp
 %type <typeExpArray> one_dim
 %type <typeNumberList> number_list
@@ -496,7 +497,17 @@ stmt: /* empty */
   | TkKeywordInput TkIdentifier
      {
         Result.LibInput = true
-        $$ = &node.NodeInput{Variable: $2}
+        $$ = &node.NodeInput{Variable: $2, AddQuestion: true}
+     }
+  | TkKeywordInput one_const_str TkComma TkIdentifier
+     {
+        Result.LibInput = true
+        $$ = &node.NodeInput{PromptString:$2, Variable: $4}
+     }
+  | TkKeywordInput one_const_str TkSemicolon TkIdentifier
+     {
+        Result.LibInput = true
+        $$ = &node.NodeInput{PromptString:$2, Variable: $4, AddQuestion: true}
      }
   | TkKeywordGosub use_line_number
      {
@@ -780,8 +791,10 @@ one_const_num: TkNumber { $$ = &node.NodeExpNumber{Value:$1} }
      }
    ;
 
+one_const_str:  TkString { $$ = node.NewNodeExpString($1) } ;
+
 one_const: one_const_num { $$ = $1 }
-   | TkString { $$ = node.NewNodeExpString($1) }
+   | one_const_str
    ;
 
 bracket_left: TkParLeft
