@@ -22,6 +22,9 @@ const (
 	stString     = iota
 	stNumber     = iota
 	stFloat      = iota
+	stFloatE     = iota
+	stFloatEE    = iota
+	stFloatEEE   = iota
 	stName       = iota
 	stLT         = iota
 	stGT         = iota
@@ -48,6 +51,9 @@ var tabState = []funcState{
 	matchString,
 	matchNumber,
 	matchFloat,
+	matchFloatE,
+	matchFloatEE,
+	matchFloatEEE,
 	matchName,
 	matchLT,
 	matchGT,
@@ -188,7 +194,6 @@ func matchBlank(l *Lex, b byte) Token {
 	}
 
 	invalid := fmt.Sprintf("INVALID: byte=%d: '%c'", b, b)
-	//log.Printf("matchBlank: %s", invalid)
 	return l.saveLocationEmpty(Token{ID: TkErrInvalid, Value: invalid})
 }
 
@@ -282,6 +287,9 @@ func matchNumber(l *Lex, b byte) Token {
 	case b == '.':
 		l.state = stFloat // switch from number to float
 		return l.save(b)
+	case b == 'e', b == 'E':
+		l.state = stFloatE // switch from number to floatE
+		return l.save(b)
 	}
 
 	// push back non-digit
@@ -294,6 +302,59 @@ func matchNumber(l *Lex, b byte) Token {
 }
 
 func matchFloat(l *Lex, b byte) Token {
+
+	switch {
+	case digit(b):
+		return l.save(b)
+	case b == 'e', b == 'E':
+		l.state = stFloatE // switch from float to floatE
+		return l.save(b)
+	}
+
+	// push back non-digit
+	if errUnread := unread(l); errUnread != nil {
+		return l.saveLocationEmpty(Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)})
+	}
+	l.state = stBlank // blank state will deliver next token
+
+	return l.consume(Token{ID: TkFloat})
+}
+
+// expect digit, -, +
+func matchFloatE(l *Lex, b byte) Token {
+
+	switch {
+	case digit(b):
+		l.state = stFloatEEE // switch from floatE to floatEEE
+		return l.save(b)
+	case b == '-', b == '+':
+		l.state = stFloatEE // switch from floatE to floatEE
+		return l.save(b)
+	}
+
+	// push back non-digit
+	if errUnread := unread(l); errUnread != nil {
+		return l.saveLocationEmpty(Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)})
+	}
+	l.state = stBlank // blank state will deliver next token
+
+	return l.consume(Token{ID: TkFloat})
+}
+
+// only digit is accepted, non-digit is error
+func matchFloatEE(l *Lex, b byte) Token {
+
+	if digit(b) {
+		l.state = stFloatEEE // switch to floatEEE
+		return l.save(b)
+	}
+
+	invalid := fmt.Sprintf("matchFloatEE: INVALID: byte=%d: '%c'", b, b)
+	return l.saveLocationEmpty(Token{ID: TkErrInvalid, Value: invalid})
+}
+
+// only digit is accepted, non-digit finishes
+func matchFloatEEE(l *Lex, b byte) Token {
 
 	if digit(b) {
 		return l.save(b)

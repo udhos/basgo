@@ -777,6 +777,13 @@ one_const_num: TkNumber { $$ = &node.NodeExpNumber{Value:$1} }
        n := &node.NodeExpFloat{}
        v := $1
        if v != "." {
+ 
+         // 1e => 1e0
+         last := len(v) - 1
+         if v[last] == 'e' || v[last] == 'E' {
+           v += "0"
+         }
+
          var errParse error
          n.Value, errParse = strconv.ParseFloat(v, 64)
          if errParse != nil {
