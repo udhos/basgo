@@ -1461,3 +1461,40 @@ func (e *NodeExpTan) Exp(options *BuildOptions) string {
 func (e *NodeExpTan) FindUsedVars(options *BuildOptions) {
 	e.Value.FindUsedVars(options)
 }
+
+// NodeExpFuncCall holds value
+type NodeExpFuncCall struct {
+	Name       string
+	Parameters []NodeExp
+}
+
+// Type returns type
+func (e *NodeExpFuncCall) Type() int {
+	return VarType(e.Name)
+}
+
+// String returns value
+func (e *NodeExpFuncCall) String() string {
+	return "FN:" + e.Name + "()"
+}
+
+// Exp returns value
+func (e *NodeExpFuncCall) Exp(options *BuildOptions) string {
+	name := RenameFunc(e.Name)
+	call := name + "("
+	if len(e.Parameters) > 0 {
+		call += e.Parameters[0].Exp(options)
+		for i := 1; i < len(e.Parameters); i++ {
+			call += "," + e.Parameters[i].Exp(options)
+		}
+	}
+	call += ") /* <-- call DEF FN func */ "
+	return call
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpFuncCall) FindUsedVars(options *BuildOptions) {
+	for _, p := range e.Parameters {
+		p.FindUsedVars(options)
+	}
+}

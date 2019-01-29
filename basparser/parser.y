@@ -114,6 +114,7 @@ func Reset() {
 %type <typeStmt> assign
 %type <typeExpressions> print_expressions
 %type <typeExpressions> array_index_exp_list
+%type <typeExpressions> call_exp_list
 %type <typeExp> exp
 %type <typeExp> one_const_any
 %type <typeExp> one_const_noneg
@@ -123,6 +124,7 @@ func Reset() {
 %type <typeExp> one_const_float
 %type <typeExp> one_const_str
 %type <typeExpArray> array_exp
+%type <typeExp> array_or_call
 %type <typeExpArray> one_dim
 %type <typeNumberList> number_list
 %type <typeLineNumber> use_line_number
@@ -909,9 +911,72 @@ array_exp: TkIdentifier bracket_left expressions_push array_index_exp_list expre
    }
    ;
 
+array_or_call: TkIdentifier TkBracketLeft expressions_push array_index_exp_list expressions_pop TkBracketRight
+   {
+      // square bracket is array-only
+      name := $1
+      indices := $4
+      err := node.ArraySetUsed(Result.ArrayTable, name, len(indices))
+      if err != nil {
+         yylex.Error("error using array: " + err.Error())
+      }
+      $$ = &node.NodeExpArray{Name: name,Indices: indices}
+   }
+   | TkIdentifier TkParLeft expressions_push call_exp_list expressions_pop TkParRight
+   {
+      //
+      // round bracket is either array or function call
+      //
+      var n node.NodeExp
+      list := $4
+      name := $1
+      if node.IsFuncName(name) {
+         //
+         // function call
+         //
+         err := node.FuncSetUsed(Result.FuncTable, name, list)
+         if err != nil {
+            yylex.Error("error using DEF FN: " + err.Error())
+         }
+         n = &node.NodeExpFuncCall{Name: name,Parameters: list}
+      } else {
+         //
+         // array
+         //
+         indices := $4
+         for _, i := range indices {
+            if !node.TypeNumeric(i.Type()) {
+               yylex.Error("array index must be numeric")
+            }
+         }
+         err := node.ArraySetUsed(Result.ArrayTable, name, len(indices))
+         if err != nil {
+            yylex.Error("error using array: " + err.Error())
+         }
+         n = &node.NodeExpArray{Name: name,Indices: list}
+      }
+      $$ = n
+   }
+   ;
+
+call_exp_list: exp
+	{
+		last := len(expListStack) - 1
+        	expListStack[last] = []node.NodeExp{$1} // reset call_exp_list
+	        $$ = expListStack[last]
+	}
+    |
+        call_exp_list TkComma exp
+        {
+		last := len(expListStack) - 1
+		expListStack[last] = append(expListStack[last], $3)
+	        $$ = expListStack[last]
+	}
+    ;
+
 exp: one_const_noneg { $$ = $1 }
    | TkIdentifier { $$ = &node.NodeExpIdentifier{Value:$1} }
-   | array_exp { $$ = $1 }
+   | array_or_call { $$ = $1 }
    | exp TkPlus exp
      {
        if $1.Type() == node.TypeString && $3.Type() != node.TypeString {

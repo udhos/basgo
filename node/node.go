@@ -6,6 +6,7 @@ import (
 	//"bufio"
 	"strconv"
 	"strings"
+	"unicode"
 )
 
 // LineNumber track used+undefined line numbers
@@ -41,9 +42,6 @@ func (a ByLineNumber) Less(i, j int) bool {
 
 // FuncPrintf is func type for printf
 type FuncPrintf func(format string, v ...interface{}) (int, error)
-
-type FuncSymbol struct {
-}
 
 type ArraySymbol struct {
 	UsedDimensions     int      // used
@@ -114,9 +112,59 @@ func (o *BuildOptions) VarIsUsed(name string) bool {
 	return used
 }
 
+type FuncSymbol struct {
+	Func *NodeDefFn
+	Used bool
+}
+
+// fna => true
+// fn1 => false
+// fn  => false
+func IsFuncName(name string) bool {
+	if len(name) < 3 {
+		return false
+	}
+	if !strings.HasPrefix(strings.ToLower(name), "fn") {
+		return false
+	}
+	return unicode.IsLetter(rune(name[2]))
+}
+
 func FuncSetDeclared(tab map[string]FuncSymbol, f *NodeDefFn) error {
-	log.Printf("FuncSetDeclared: FIXME WRITEME")
+	name := f.FuncName
+	_, found := FuncGet(tab, name)
+	if found {
+		return fmt.Errorf("can't redeclare DEF FN '%s'", name)
+	}
+	tab[strings.ToLower(name)] = FuncSymbol{Func: f}
 	return nil
+}
+
+func FuncSetUsed(tab map[string]FuncSymbol, name string, parameters []NodeExp) error {
+	symb, found := FuncGet(tab, name)
+	if !found {
+		return fmt.Errorf("can't use non-declared DEF FN func '%s'", name)
+	}
+	if len(symb.Func.Variables) != len(parameters) {
+		return fmt.Errorf("wrong arg count for DEF FN '%s': declared=%d used=%d", name, len(symb.Func.Variables), len(parameters))
+	}
+	for i, p := range parameters {
+		s1 := symb.Func.Variables[i].String()
+		s2 := p.String()
+		t1 := symb.Func.Variables[i].Type()
+		t2 := p.Type()
+		if !TypeCompare(t1, t2) {
+			return fmt.Errorf("arg type mismatch for DEF FN '%s': arg=%d declaration=%s(%s) call=%s(%s)", name, i, TypeLabel(t1), s1, TypeLabel(t2), s2)
+		}
+	}
+	symb.Used = true
+	tab[strings.ToLower(name)] = symb // overwrite
+	return nil
+}
+
+func FuncGet(tab map[string]FuncSymbol, name string) (FuncSymbol, bool) {
+	symb, found := tab[strings.ToLower(name)]
+	return symb, found
 }
 
 // ArraySetDeclared sets array as decçared
