@@ -391,6 +391,17 @@ stmt: /* empty */
         i := $2
         list := $4
         e := $7
+
+        dedupVar := map[string]struct{}{}
+	for _, v := range list {
+                vName := v.String()
+		if _, found := dedupVar[vName]; found {
+                        yylex.Error("DEF FN dup var: " + vName)
+			break
+		}
+                dedupVar[vName] = struct{}{}
+	}
+        
 	if !node.TypeCompare(node.VarType(i), e.Type()) {
            yylex.Error("DEF FN type mismatch")
 	}
