@@ -1335,3 +1335,28 @@ func (e *NodeExpTimer) Exp(options *BuildOptions) string {
 // FindUsedVars finds used vars
 func (e *NodeExpTimer) FindUsedVars(options *BuildOptions) {
 }
+
+// NodeExpAbs holds value
+type NodeExpAbs struct {
+	Value NodeExp
+}
+
+// Type returns type
+func (e *NodeExpAbs) Type() int {
+	return TypeFloat
+}
+
+// String returns value
+func (e *NodeExpAbs) String() string {
+	return "ABS(" + e.Value.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpAbs) Exp(options *BuildOptions) string {
+	return "math.Abs(" + forceFloat(options, e.Value) + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpAbs) FindUsedVars(options *BuildOptions) {
+	e.Value.FindUsedVars(options)
+}

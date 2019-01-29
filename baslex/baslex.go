@@ -64,6 +64,7 @@ const (
 	UnaryPlus    = iota // fictitious
 	UnaryMinus   = iota // fictitious
 
+	TkKeywordAbs     = iota // ABS
 	TkKeywordAsc     = iota // ASC
 	TkKeywordChr     = iota // CHR$
 	TkKeywordCls     = iota // CLS
@@ -128,6 +129,7 @@ var tabKeywords = []struct {
 	TokenID int
 	Name    string
 }{
+	{TkKeywordAbs, "ABS"},
 	{TkKeywordAnd, "AND"},
 	{TkKeywordAsc, "ASC"},
 	{TkKeywordChr, "CHR$"},
@@ -233,6 +235,7 @@ var tabType = []string{
 	"UNARY-PLUS",
 	"UNARY-MINUS",
 
+	"ABS",
 	"ASC",
 	"CHR$",
 	"CLS",

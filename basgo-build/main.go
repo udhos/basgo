@@ -120,6 +120,10 @@ func main() {
 		options.Headers["fmt"] = struct{}{}
 	}
 
+	if result.LibMath {
+		options.Headers["math"] = struct{}{}
+	}
+
 	log.Printf("%s: scanning used vars", basgoLabel)
 
 	for _, n := range nodes {

@@ -28,6 +28,7 @@ type ParserResult struct {
 	LibAsc bool
 	LibBool bool
 	LibTime bool
+	LibMath bool
 	ForStack []*node.NodeFor
 	WhileStack []*node.NodeWhile
 	CountFor int
@@ -162,6 +163,7 @@ func Reset() {
 %precedence UnaryPlus // fictitious
 %precedence UnaryMinus // fictitious
 
+%token <tok> TkKeywordAbs
 %token <tok> TkKeywordAsc
 %token <tok> TkKeywordChr
 %token <tok> TkKeywordCls
@@ -1306,6 +1308,15 @@ exp: one_const
    | TkKeywordTimer {
        Result.LibTime = true
        $$ = &node.NodeExpTimer{}
+     }
+   | TkKeywordAbs TkParLeft exp TkParRight
+     {
+       num := $3
+       if !node.TypeNumeric(num.Type()) {
+           yylex.Error("ABS expression must be numeric")
+       }
+       Result.LibMath = true
+       $$ = &node.NodeExpAbs{Value:num}
      }
    ;
 
