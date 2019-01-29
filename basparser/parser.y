@@ -706,12 +706,7 @@ number_list: use_line_number
      }
   ;
 
-single_var: TkIdentifier
-     {
-        log.Printf("parser.y one_var FIXME LHS identifier should NOT be marked as used in its FindVars method")
-        $$ = &node.NodeExpIdentifier{Value:$1}
-     }
-     ;
+single_var: TkIdentifier { $$ = &node.NodeExpIdentifier{Value:$1} } ;
 
 single_var_list: single_var
 	{
