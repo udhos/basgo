@@ -335,6 +335,11 @@ one_dim: TkIdentifier bracket_left const_list_num_noneg bracket_right
 	{
         	name := $1
         	indices := $3
+
+		if node.IsFuncName(name) {
+	           yylex.Error("DIM array name can't start with DEF FN prefix: " + name)
+		}
+
 		strList := []string{}
 		for _, e := range indices {
 			strList = append(strList, e.String())
