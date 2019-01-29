@@ -52,8 +52,10 @@ var testTable = []buildTest{
 	{`10 print sqr(9);`, "", "3", OK},
 	{`10 print sqr(-1);`, "", "NaN", OK},
 
+	{`10 def fna() = 3:print fna();`, "", "3", OK},
 	{`10 def fna$(a$) = a$+a$:print fna$("1");`, "", "11", OK},
 	{`10 def fna(a) = a+a:print fna(1);`, "", "2", OK},
+	{`10 b=2:def fna(a) = a+b:print fna(3);`, "", "5", OK},
 
 	{`10 print len(time$);`, "", "8", OK},
 	{`10 print len(date$);`, "", "10", OK},

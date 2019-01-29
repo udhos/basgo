@@ -922,6 +922,18 @@ array_or_call: TkIdentifier TkBracketLeft expressions_push array_index_exp_list 
       }
       $$ = &node.NodeExpArray{Name: name,Indices: indices}
    }
+   | TkIdentifier TkParLeft TkParRight
+   {
+      //
+      // function call
+      //
+      name := $1
+      err := node.FuncSetUsed(Result.FuncTable, name, nil)
+      if err != nil {
+         yylex.Error("error using DEF FN: " + err.Error())
+      }
+      $$ = &node.NodeExpFuncCall{Name: name}
+   }
    | TkIdentifier TkParLeft expressions_push call_exp_list expressions_pop TkParRight
    {
       //

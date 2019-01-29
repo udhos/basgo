@@ -593,6 +593,31 @@ func (n *NodeDefFn) Build(options *BuildOptions, outputf FuncPrintf) {
 
 // FindUsedVars finds used vars
 func (n *NodeDefFn) FindUsedVars(options *BuildOptions) {
+
+	// find used vars
+
+	tmp := &BuildOptions{
+		Vars:   map[string]struct{}{},
+		Arrays: map[string]ArraySymbol{},
+	}
+
+	n.Body.FindUsedVars(tmp)
+
+	// remove func args from used vars
+
+	for _, arg := range n.Variables {
+		delete(tmp.Vars, arg.String())
+	}
+
+	// return used vars
+
+	for k, v := range tmp.Vars {
+		options.Vars[k] = v
+	}
+
+	for k, v := range tmp.Arrays {
+		options.Arrays[k] = v
+	}
 }
 
 // NodeDim is dim
