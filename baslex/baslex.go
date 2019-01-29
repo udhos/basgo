@@ -69,6 +69,7 @@ const (
 	TkKeywordChr     = iota // CHR$
 	TkKeywordCls     = iota // CLS
 	TkKeywordCont    = iota // CONT
+	TkKeywordCos     = iota // COS
 	TkKeywordData    = iota // DATA
 	TkKeywordDate    = iota // DATE$
 	TkKeywordDim     = iota // DIM
@@ -97,8 +98,10 @@ const (
 	TkKeywordRnd     = iota // RND
 	TkKeywordRun     = iota // RUN
 	TkKeywordSave    = iota // SAVE
+	TkKeywordSin     = iota // SIN
 	TkKeywordSpace   = iota // SPACE$
 	TkKeywordSpc     = iota // SPC
+	TkKeywordSqr     = iota // SQR
 	TkKeywordStep    = iota // STEP
 	TkKeywordStop    = iota // STOP
 	TkKeywordStr     = iota // STR$
@@ -106,6 +109,7 @@ const (
 	TkKeywordSwap    = iota // SWAP
 	TkKeywordSystem  = iota // SYSTEM
 	TkKeywordTab     = iota // TAB
+	TkKeywordTan     = iota // TAN
 	TkKeywordThen    = iota // THEN
 	TkKeywordTime    = iota // TIME$
 	TkKeywordTimer   = iota // TIMER
@@ -135,6 +139,7 @@ var tabKeywords = []struct {
 	{TkKeywordChr, "CHR$"},
 	{TkKeywordCls, "CLS"},
 	{TkKeywordCont, "CONT"},
+	{TkKeywordCos, "COS"},
 	{TkKeywordData, "DATA"},
 	{TkKeywordDate, "DATE$"},
 	{TkKeywordDim, "DIM"},
@@ -168,8 +173,10 @@ var tabKeywords = []struct {
 	{TkKeywordRnd, "RND"},
 	{TkKeywordRun, "RUN"},
 	{TkKeywordSave, "SAVE"},
+	{TkKeywordSin, "SIN"},
 	{TkKeywordSpace, "SPACE$"},
 	{TkKeywordSpc, "SPC"},
+	{TkKeywordSqr, "SQR"},
 	{TkKeywordStep, "STEP"},
 	{TkKeywordStop, "STOP"},
 	{TkKeywordStr, "STR$"},
@@ -177,6 +184,7 @@ var tabKeywords = []struct {
 	{TkKeywordSwap, "SWAP"},
 	{TkKeywordSystem, "SYSTEM"},
 	{TkKeywordTab, "TAB"},
+	{TkKeywordTan, "TAN"},
 	{TkKeywordThen, "THEN"},
 	{TkKeywordTime, "TIME$"},
 	{TkKeywordTimer, "TIMER"},
@@ -240,6 +248,7 @@ var tabType = []string{
 	"CHR$",
 	"CLS",
 	"CONT",
+	"COS",
 	"DATA",
 	"DATE",
 	"DIM",
@@ -268,8 +277,10 @@ var tabType = []string{
 	"RND",
 	"RUN",
 	"SAVE",
+	"SIN",
 	"SPACE$",
 	"SPC",
+	"SQR",
 	"STEP",
 	"STOP",
 	"STR$",
@@ -277,6 +288,7 @@ var tabType = []string{
 	"SWAP",
 	"SYSTEM",
 	"TAB",
+	"TAN",
 	"THEN",
 	"TIME$",
 	"TIMER",

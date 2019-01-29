@@ -172,6 +172,7 @@ func Reset() {
 %token <tok> TkKeywordChr
 %token <tok> TkKeywordCls
 %token <tok> TkKeywordCont
+%token <tok> TkKeywordCos
 %token <tok> TkKeywordData
 %token <tok> TkKeywordDate
 %token <tok> TkKeywordDim
@@ -200,8 +201,10 @@ func Reset() {
 %token <tok> TkKeywordRnd
 %token <tok> TkKeywordRun
 %token <tok> TkKeywordSave
+%token <tok> TkKeywordSin
 %token <tok> TkKeywordSpace
 %token <tok> TkKeywordSpc
+%token <tok> TkKeywordSqr
 %token <tok> TkKeywordStep
 %token <tok> TkKeywordStop
 %token <tok> TkKeywordStr
@@ -209,6 +212,7 @@ func Reset() {
 %token <tok> TkKeywordSwap
 %token <tok> TkKeywordSystem
 %token <tok> TkKeywordTab
+%token <tok> TkKeywordTan
 %token <tok> TkKeywordThen
 %token <tok> TkKeywordTime
 %token <tok> TkKeywordTimer
@@ -1337,6 +1341,42 @@ exp: one_const_noneg
        }
        Result.LibMath = true
        $$ = &node.NodeExpAbs{Value:num}
+     }
+   | TkKeywordCos TkParLeft exp TkParRight
+     {
+       num := $3
+       if !node.TypeNumeric(num.Type()) {
+           yylex.Error("COS expression must be numeric")
+       }
+       Result.LibMath = true
+       $$ = &node.NodeExpCos{Value:num}
+     }
+   | TkKeywordSin TkParLeft exp TkParRight
+     {
+       num := $3
+       if !node.TypeNumeric(num.Type()) {
+           yylex.Error("SIN expression must be numeric")
+       }
+       Result.LibMath = true
+       $$ = &node.NodeExpSin{Value:num}
+     }
+   | TkKeywordSqr TkParLeft exp TkParRight
+     {
+       num := $3
+       if !node.TypeNumeric(num.Type()) {
+           yylex.Error("SQR expression must be numeric")
+       }
+       Result.LibMath = true
+       $$ = &node.NodeExpSqr{Value:num}
+     }
+   | TkKeywordTan TkParLeft exp TkParRight
+     {
+       num := $3
+       if !node.TypeNumeric(num.Type()) {
+           yylex.Error("TAN expression must be numeric")
+       }
+       Result.LibMath = true
+       $$ = &node.NodeExpTan{Value:num}
      }
    ;
 

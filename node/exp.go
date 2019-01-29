@@ -1361,3 +1361,103 @@ func (e *NodeExpAbs) Exp(options *BuildOptions) string {
 func (e *NodeExpAbs) FindUsedVars(options *BuildOptions) {
 	e.Value.FindUsedVars(options)
 }
+
+// NodeExpCos holds value
+type NodeExpCos struct {
+	Value NodeExp
+}
+
+// Type returns type
+func (e *NodeExpCos) Type() int {
+	return TypeFloat
+}
+
+// String returns value
+func (e *NodeExpCos) String() string {
+	return "COS"
+}
+
+// Exp returns value
+func (e *NodeExpCos) Exp(options *BuildOptions) string {
+	return "math.Cos(" + forceFloat(options, e.Value) + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpCos) FindUsedVars(options *BuildOptions) {
+	e.Value.FindUsedVars(options)
+}
+
+// NodeExpSin holds value
+type NodeExpSin struct {
+	Value NodeExp
+}
+
+// Type returns type
+func (e *NodeExpSin) Type() int {
+	return TypeFloat
+}
+
+// String returns value
+func (e *NodeExpSin) String() string {
+	return "SIN"
+}
+
+// Exp returns value
+func (e *NodeExpSin) Exp(options *BuildOptions) string {
+	return "math.Sin(" + forceFloat(options, e.Value) + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpSin) FindUsedVars(options *BuildOptions) {
+	e.Value.FindUsedVars(options)
+}
+
+// NodeExpSqr holds value
+type NodeExpSqr struct {
+	Value NodeExp
+}
+
+// Type returns type
+func (e *NodeExpSqr) Type() int {
+	return TypeFloat
+}
+
+// String returns value
+func (e *NodeExpSqr) String() string {
+	return "SQR"
+}
+
+// Exp returns value
+func (e *NodeExpSqr) Exp(options *BuildOptions) string {
+	return "math.Sqrt(" + forceFloat(options, e.Value) + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpSqr) FindUsedVars(options *BuildOptions) {
+	e.Value.FindUsedVars(options)
+}
+
+// NodeExpTan holds value
+type NodeExpTan struct {
+	Value NodeExp
+}
+
+// Type returns type
+func (e *NodeExpTan) Type() int {
+	return TypeFloat
+}
+
+// String returns value
+func (e *NodeExpTan) String() string {
+	return "TAN"
+}
+
+// Exp returns value
+func (e *NodeExpTan) Exp(options *BuildOptions) string {
+	return "math.Tan(" + forceFloat(options, e.Value) + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpTan) FindUsedVars(options *BuildOptions) {
+	e.Value.FindUsedVars(options)
+}

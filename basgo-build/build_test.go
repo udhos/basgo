@@ -46,6 +46,12 @@ var testTable = []buildTest{
 	{`10 print "hello`, "", "hello\n", OK},
 	{`10 print "hello  `, "", "hello  \n", OK},
 
+	{`10 print sin(0);`, "", "0", OK},
+	{`10 print cos(0);`, "", "1", OK},
+	{`10 print tan(0);`, "", "0", OK},
+	{`10 print sqr(9);`, "", "3", OK},
+	{`10 print sqr(-1);`, "", "NaN", OK},
+
 	{`10 print len(time$);`, "", "8", OK},
 	{`10 print len(date$);`, "", "10", OK},
 	{`10 t=timer:print (t>=0) and (t<86400);`, "", "-1", OK},
