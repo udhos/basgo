@@ -243,6 +243,12 @@ var testTable = []buildTest{
 	{`10 print "a" <= ""`, "", "0\n", OK},
 	{`10 print 0 <= ""`, "", "", WRONG},
 
+	{`10 print a!<a%;`, "", "0", OK},
+	{`10 print a!<=a%;`, "", "-1", OK},
+	{`10 print a!=a%;`, "", "-1", OK},
+	{`10 print a!>=a%;`, "", "-1", OK},
+	{`10 print a!<>a%;`, "", "0", OK},
+
 	{`10 goto 20`, "", "", WRONG},
 	{sourceGoto, "", outputGoto, OK},
 

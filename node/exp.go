@@ -873,7 +873,8 @@ func (e *NodeExpEqual) Exp(options *BuildOptions) string {
 
 func compareOp(e NodeExpBinary, options *BuildOptions, golangOp string) string {
 	left, right := e.Values()
-	return boolToInt("(" + left.Exp(options) + ")" + golangOp + "(" + right.Exp(options) + ")")
+	strLeft, strRight := combineNumeric(options, left, right)
+	return boolToInt("(" + strLeft + ")" + golangOp + "(" + strRight + ")")
 }
 
 func boolToInt(s string) string {
