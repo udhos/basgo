@@ -579,6 +579,17 @@ func (n *NodeDefFn) Build(options *BuildOptions, outputf FuncPrintf) {
 		}
 	}
 
+	var body string
+	bodyType := n.Body.Type()
+	switch {
+	case t == TypeInteger && bodyType == TypeFloat:
+		body = forceInt(options, n.Body)
+	case t == TypeFloat && bodyType == TypeInteger:
+		body = forceFloat(options, n.Body)
+	default:
+		body = n.Body.Exp(options)
+	}
+
 	outputf(name)
 	outputf(" := func(")
 	outputf(varList)
@@ -586,7 +597,7 @@ func (n *NodeDefFn) Build(options *BuildOptions, outputf FuncPrintf) {
 	outputf(tt)
 	outputf(" {\n")
 	outputf(" return ")
-	outputf(n.Body.Exp(options))
+	outputf(body)
 	outputf("\n")
 	outputf("}\n")
 }

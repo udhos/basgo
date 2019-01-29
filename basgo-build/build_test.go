@@ -63,6 +63,8 @@ var testTable = []buildTest{
 	{`10 b=2:def fna(a) = a+b:print fna(3);`, "", "5", OK},
 	{`10 b=2:def fna(a,b) = a+b:print fna(5,5);:print b;`, "", "102", OK},
 	{`10 b=2:c=3::def fna(a,b) = a+b+c:print fna(5,5);:print b;`, "", "132", OK},
+	{`10 b=2:def fna() = int(b): print fna();`, "", "2", OK},
+	{`10 b=2:def fna%() = b: print fna%();`, "", "2", OK},
 
 	{`10 print len(time$);`, "", "8", OK},
 	{`10 print len(date$);`, "", "10", OK},
