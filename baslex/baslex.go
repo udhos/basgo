@@ -69,6 +69,7 @@ const (
 	TkKeywordCls     = iota // CLS
 	TkKeywordCont    = iota // CONT
 	TkKeywordData    = iota // DATA
+	TkKeywordDate    = iota // DATE$
 	TkKeywordDim     = iota // DIM
 	TkKeywordElse    = iota // ELSE
 	TkKeywordEnd     = iota // END
@@ -106,6 +107,7 @@ const (
 	TkKeywordTab     = iota // TAB
 	TkKeywordThen    = iota // THEN
 	TkKeywordTime    = iota // TIME$
+	TkKeywordTimer   = iota // TIMER
 	TkKeywordTo      = iota // TO
 	TkKeywordUsing   = iota // USING
 	TkKeywordVal     = iota // VAL
@@ -132,6 +134,7 @@ var tabKeywords = []struct {
 	{TkKeywordCls, "CLS"},
 	{TkKeywordCont, "CONT"},
 	{TkKeywordData, "DATA"},
+	{TkKeywordDate, "DATE$"},
 	{TkKeywordDim, "DIM"},
 	{TkKeywordElse, "ELSE"},
 	{TkKeywordEnd, "END"},
@@ -174,6 +177,7 @@ var tabKeywords = []struct {
 	{TkKeywordTab, "TAB"},
 	{TkKeywordThen, "THEN"},
 	{TkKeywordTime, "TIME$"},
+	{TkKeywordTimer, "TIMER"},
 	{TkKeywordTo, "TO"},
 	{TkKeywordUsing, "USING"},
 	{TkKeywordVal, "VAL"},
@@ -234,6 +238,7 @@ var tabType = []string{
 	"CLS",
 	"CONT",
 	"DATA",
+	"DATE",
 	"DIM",
 	"ELSE",
 	"END",
@@ -271,6 +276,7 @@ var tabType = []string{
 	"TAB",
 	"THEN",
 	"TIME$",
+	"TIMER",
 	"TO",
 	"USING",
 	"VAL",

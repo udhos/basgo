@@ -1263,3 +1263,75 @@ func (e *NodeExpChr) Exp(options *BuildOptions) string {
 func (e *NodeExpChr) FindUsedVars(options *BuildOptions) {
 	e.Value.FindUsedVars(options)
 }
+
+// NodeExpDate holds value
+type NodeExpDate struct {
+	Value NodeExp
+}
+
+// Type returns type
+func (e *NodeExpDate) Type() int {
+	return TypeString
+}
+
+// String returns value
+func (e *NodeExpDate) String() string {
+	return "DATE$"
+}
+
+// Exp returns value
+func (e *NodeExpDate) Exp(options *BuildOptions) string {
+	return "timeDate()"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpDate) FindUsedVars(options *BuildOptions) {
+}
+
+// NodeExpTime holds value
+type NodeExpTime struct {
+	Value NodeExp
+}
+
+// Type returns type
+func (e *NodeExpTime) Type() int {
+	return TypeString
+}
+
+// String returns value
+func (e *NodeExpTime) String() string {
+	return "TIME$"
+}
+
+// Exp returns value
+func (e *NodeExpTime) Exp(options *BuildOptions) string {
+	return "timeTime()"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpTime) FindUsedVars(options *BuildOptions) {
+}
+
+// NodeExpTimer holds value
+type NodeExpTimer struct {
+	Value NodeExp
+}
+
+// Type returns type
+func (e *NodeExpTimer) Type() int {
+	return TypeFloat
+}
+
+// String returns value
+func (e *NodeExpTimer) String() string {
+	return "TIMER"
+}
+
+// Exp returns value
+func (e *NodeExpTimer) Exp(options *BuildOptions) string {
+	return "timeTimer()"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpTimer) FindUsedVars(options *BuildOptions) {
+}

@@ -27,6 +27,7 @@ type ParserResult struct {
 	LibRepeat bool
 	LibAsc bool
 	LibBool bool
+	LibTime bool
 	ForStack []*node.NodeFor
 	WhileStack []*node.NodeWhile
 	CountFor int
@@ -166,6 +167,7 @@ func Reset() {
 %token <tok> TkKeywordCls
 %token <tok> TkKeywordCont
 %token <tok> TkKeywordData
+%token <tok> TkKeywordDate
 %token <tok> TkKeywordDim
 %token <tok> TkKeywordElse
 %token <tok> TkKeywordEnd
@@ -203,6 +205,7 @@ func Reset() {
 %token <tok> TkKeywordTab
 %token <tok> TkKeywordThen
 %token <tok> TkKeywordTime
+%token <tok> TkKeywordTimer
 %token <tok> TkKeywordTo
 %token <tok> TkKeywordUsing
 %token <tok> TkKeywordVal
@@ -801,7 +804,7 @@ one_const_num: TkNumber { $$ = &node.NodeExpNumber{Value:$1} }
 one_const_str:  TkString { $$ = node.NewNodeExpString($1) } ;
 
 one_const: one_const_num { $$ = $1 }
-   | one_const_str
+   | one_const_str { $$ = $1 }
    ;
 
 bracket_left: TkParLeft
@@ -1291,6 +1294,18 @@ exp: one_const
            yylex.Error("CHR$ expression must be numeric")
        }
        $$ = &node.NodeExpChr{Value:num}
+     }
+   | TkKeywordDate {
+       Result.LibTime = true
+       $$ = &node.NodeExpDate{}
+     }
+   | TkKeywordTime {
+       Result.LibTime = true
+       $$ = &node.NodeExpTime{}
+     }
+   | TkKeywordTimer {
+       Result.LibTime = true
+       $$ = &node.NodeExpTimer{}
      }
    ;
 

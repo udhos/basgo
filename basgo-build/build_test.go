@@ -46,6 +46,10 @@ var testTable = []buildTest{
 	{`10 print "hello`, "", "hello\n", OK},
 	{`10 print "hello  `, "", "hello  \n", OK},
 
+	{`10 print len(time$);`, "", "8", OK},
+	{`10 print len(date$);`, "", "10", OK},
+	{`10 t=timer:print (t>=0) and (t<86400);`, "", "-1", OK},
+
 	{`10 print 0e;`, "", "0", OK},
 	{`10 print 1e;`, "", "1", OK},
 	{`10 print .1e;`, "", "0.1", OK},
@@ -356,6 +360,7 @@ var testTable = []buildTest{
 	{`10 data 3:read a$:print a$;`, "", "", RUNTIME},
 	{`10 data 3,"4":read a,b$:print a,b$;`, "", "34", OK},
 	{`10 data 3,"4":read a:print a;`, "", "3", OK},
+	{`10 data 3,"4",5,"6":read a,b$,c,d$:print a,b$,c,d$;`, "", "3456", OK},
 
 	{`10 print a()`, "", "0\n", WRONG},
 	{`10 print a("")`, "", "0\n", WRONG},

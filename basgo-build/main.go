@@ -115,6 +115,11 @@ func main() {
 		options.Headers["log"] = struct{}{}
 	}
 
+	if result.LibTime {
+		options.Headers["time"] = struct{}{}
+		options.Headers["fmt"] = struct{}{}
+	}
+
 	log.Printf("%s: scanning used vars", basgoLabel)
 
 	for _, n := range nodes {
@@ -177,7 +182,7 @@ func main() {
 
 	outputf(mainClose)
 
-	lib(outputf, options.Input, options.Rnd, options.Left, result.LibReadData, options.Mid, result.LibVal, result.LibRight, result.LibRepeat, result.LibAsc, result.LibBool)
+	lib(outputf, options.Input, options.Rnd, options.Left, result.LibReadData, options.Mid, result.LibVal, result.LibRight, result.LibRepeat, result.LibAsc, result.LibBool, result.LibTime)
 
 	return status, errors
 }
@@ -190,7 +195,29 @@ func inputHeaders(h map[string]struct{}) {
 	h["strings"] = struct{}{}
 }
 
-func lib(outputf node.FuncPrintf, input, rnd, left, libReadData, mid, val, right, repeat, asc, libBool bool) {
+func lib(outputf node.FuncPrintf, input, rnd, left, libReadData, mid, val, right, repeat, asc, libBool, libTime bool) {
+
+	if libTime {
+
+		funcTime := `
+func timeDate() string {
+	y, m, d := time.Now().Date()
+	return fmt.Sprintf("%%02d-%%02d-%%04d", m, d, y)
+}
+func timeTime() string {
+	h, m, s := time.Now().Clock()
+	return fmt.Sprintf("%%02d:%%02d:%%02d", h, m, s)
+}
+func timeTimer() float64 {
+        now := time.Now()
+        y, m, d := now.Date()
+        midnight := time.Date(y, m, d, 0, 0, 0, 0, now.Location())
+        elapsed := now.Sub(midnight)
+        return elapsed.Seconds()
+}
+`
+		outputf(funcTime)
+	}
 
 	if libBool {
 
