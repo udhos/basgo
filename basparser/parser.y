@@ -378,6 +378,9 @@ stmt: /* empty */
      {
         i := $2
         e := $6
+	if !node.IsFuncName(i) {
+           yylex.Error("DEF FN bad function name: " + i)
+	}
 	if !node.TypeCompare(node.VarType(i), e.Type()) {
            yylex.Error("DEF FN type mismatch")
 	}
@@ -393,6 +396,10 @@ stmt: /* empty */
         i := $2
         list := $4
         e := $7
+
+	if !node.IsFuncName(i) {
+           yylex.Error("DEF FN bad function name: " + i)
+	}
 
         dedupVar := map[string]struct{}{}
 	for _, v := range list {

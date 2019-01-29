@@ -52,11 +52,17 @@ var testTable = []buildTest{
 	{`10 print sqr(9);`, "", "3", OK},
 	{`10 print sqr(-1);`, "", "NaN", OK},
 
+	{`10 def fa() = 1:print fa()`, "", "", WRONG},
+	{`10 def fn() = 1:print fn()`, "", "", WRONG},
+	{`10 def fn2() = 1:print fn2()`, "", "", WRONG},
 	{`10 def fna() = 3:print fna();`, "", "3", OK},
+	{`10 def fna2() = 3:print fna2();`, "", "3", OK},
 	{`10 def fna$(a$) = a$+a$:print fna$("1");`, "", "11", OK},
 	{`10 def fna(a) = a+a:print fna(1);`, "", "2", OK},
+	{`10 b=2:def fna() = b+b:print fna();`, "", "4", OK},
 	{`10 b=2:def fna(a) = a+b:print fna(3);`, "", "5", OK},
 	{`10 b=2:def fna(a,b) = a+b:print fna(5,5);:print b;`, "", "102", OK},
+	{`10 b=2:c=3::def fna(a,b) = a+b+c:print fna(5,5);:print b;`, "", "132", OK},
 
 	{`10 print len(time$);`, "", "8", OK},
 	{`10 print len(date$);`, "", "10", OK},
