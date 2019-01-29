@@ -111,15 +111,19 @@ func Reset() {
 %type <typeExpressions> print_expressions
 %type <typeExpressions> array_index_exp_list
 %type <typeExp> exp
-%type <typeExp> one_const
-%type <typeExp> one_const_num
+%type <typeExp> one_const_any
+%type <typeExp> one_const_noneg
+%type <typeExp> one_const_num_any
+%type <typeExp> one_const_num_noneg
+%type <typeExp> one_const_int
+%type <typeExp> one_const_float
 %type <typeExp> one_const_str
 %type <typeExpArray> array_exp
 %type <typeExpArray> one_dim
 %type <typeNumberList> number_list
 %type <typeLineNumber> use_line_number
-%type <typeExpressions> const_list
-%type <typeExpressions> const_list_num
+%type <typeExpressions> const_list_any
+%type <typeExpressions> const_list_num_noneg
 %type <typeExpressions> dim_list
 %type <typeExp> one_var
 %type <typeExpressions> var_list
@@ -314,7 +318,7 @@ then_or_goto: TkKeywordThen
            TkKeywordGoto
            ;
 
-one_dim: TkIdentifier bracket_left const_list_num bracket_right
+one_dim: TkIdentifier bracket_left const_list_num_noneg bracket_right
 	{
         	name := $1
         	indices := $3
@@ -352,7 +356,7 @@ stmt: /* empty */
      { $$ = &node.NodeEnd{} }
   | TkKeywordSystem
      { $$ = &node.NodeEnd{} }
-  | TkKeywordData const_list
+  | TkKeywordData const_list_any
      {
         Result.LibReadData = true
         $$ = &node.NodeData{Expressions: $2}
@@ -676,24 +680,24 @@ var_list: one_var
 	}
         ;
 
-const_list: one_const
+const_list_any: one_const_any
      {
         constList = []node.NodeExp{$1} // reset list
 	$$ = constList
      }
-  | const_list TkComma one_const
+  | const_list_any TkComma one_const_any
      {
         constList = append(constList, $3)
         $$ = constList
      }
   ;
 
-const_list_num: one_const_num
+const_list_num_noneg: one_const_num_noneg
      {
         constList = []node.NodeExp{$1} // reset list
 	$$ = constList
      }
-  | const_list_num TkComma one_const_num
+  | const_list_num_noneg TkComma one_const_num_noneg
      {
         constList = append(constList, $3)
         $$ = constList
@@ -776,8 +780,8 @@ print_expressions: exp
 	}
     ;
 
-one_const_num: TkNumber { $$ = &node.NodeExpNumber{Value:$1} }
-   | TkFloat
+one_const_int: TkNumber { $$ = &node.NodeExpNumber{Value:$1} }
+one_const_float: TkFloat
      {
        n := &node.NodeExpFloat{}
        v := $1
@@ -803,9 +807,25 @@ one_const_num: TkNumber { $$ = &node.NodeExpNumber{Value:$1} }
      }
    ;
 
-one_const_str:  TkString { $$ = node.NewNodeExpString($1) } ;
+one_const_num_any: one_const_int { $$ = $1 }
+   | TkPlus one_const_int { $$ = &node.NodeExpUnaryPlus{Value:$2} }
+   | TkMinus one_const_int { $$ = &node.NodeExpUnaryMinus{Value:$2} }
+   | one_const_float { $$ = $1 }
+   | TkPlus one_const_float { $$ = &node.NodeExpUnaryPlus{Value:$2} }
+   | TkMinus one_const_float { $$ = &node.NodeExpUnaryMinus{Value:$2} }
+   ;
 
-one_const: one_const_num { $$ = $1 }
+one_const_num_noneg: one_const_int { $$ = $1 }
+   | one_const_float { $$ = $1 }
+   ;
+
+one_const_str: TkString { $$ = node.NewNodeExpString($1) } ;
+
+one_const_any: one_const_num_any { $$ = $1 }
+   | one_const_str { $$ = $1 }
+   ;
+
+one_const_noneg: one_const_num_noneg { $$ = $1 }
    | one_const_str { $$ = $1 }
    ;
 
@@ -831,7 +851,7 @@ array_exp: TkIdentifier bracket_left expressions_push array_index_exp_list expre
    }
    ;
 
-exp: one_const
+exp: one_const_noneg
       { $$ = $1 }
    | TkIdentifier { $$ = &node.NodeExpIdentifier{Value:$1} }
    | array_exp

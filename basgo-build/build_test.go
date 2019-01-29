@@ -370,6 +370,8 @@ var testTable = []buildTest{
 	{`10 data 3,"4":read a,b$:print a,b$;`, "", "34", OK},
 	{`10 data 3,"4":read a:print a;`, "", "3", OK},
 	{`10 data 3,"4",5,"6":read a,b$,c,d$:print a,b$,c,d$;`, "", "3456", OK},
+	{`10 data 1,-2,3,-4:read a,b,c,d:print a,b,c,d;`, "", "1-23-4", OK},
+	{`10 data 1.1,-2.1,3.1,-4.1:read a,b,c,d:print a,b,c,d;`, "", "1.1-2.13.1-4.1", OK},
 
 	{`10 print a()`, "", "0\n", WRONG},
 	{`10 print a("")`, "", "0\n", WRONG},
@@ -401,6 +403,7 @@ var testTable = []buildTest{
 	{`10 dim a():print a()`, "", "", WRONG},
 	{`10 dim a(""):print a("")`, "", "2\n", WRONG},
 	{`10 dim a(b):a(b)=2:print a(b)`, "", "", WRONG},
+	{`10 dim a(-1):a(-1)=2:print a(-1)`, "", "", WRONG},
 	{`10 dim a(0):a(0)=2:print a(0)`, "", "2\n", OK},
 	{`10 dim a(1):a(0)=2:print a(0)`, "", "2\n", OK},
 	{`10 dim a(1):a(1)=2:print a(1)`, "", "2\n", OK},
