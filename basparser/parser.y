@@ -39,6 +39,7 @@ type ParserResult struct {
 	CountWhile int
 	CountWend int
 	CountIf int
+	FuncTable map[string]node.FuncSymbol
 }
 
 // parser auxiliary variables
@@ -46,12 +47,14 @@ var (
 	Result = ParserResult{
 		LineNumbers: map[string]node.LineNumber{},
 		ArrayTable: map[string]node.ArraySymbol{},
+		FuncTable: map[string]node.FuncSymbol{},
 	}
 
 	nodeListStack [][]node.Node // support nested node lists (1)
 	expListStack [][]node.NodeExp // support nested exp lists (2)
 	lineList []node.Node
 	constList []node.NodeExp
+	varList []node.NodeExp
 	numberList []string
 	identList []string
 	lastLineNum string // basic line number for parser error reporting
@@ -64,6 +67,7 @@ func Reset() {
 	Result = ParserResult{
 		LineNumbers: map[string]node.LineNumber{},
 		ArrayTable: map[string]node.ArraySymbol{},
+		FuncTable: map[string]node.FuncSymbol{},
 	}
 
 	nodeListStack = [][]node.Node{}
@@ -126,7 +130,9 @@ func Reset() {
 %type <typeExpressions> const_list_num_noneg
 %type <typeExpressions> dim_list
 %type <typeExp> one_var
+%type <typeExp> single_var
 %type <typeExpressions> var_list
+%type <typeExpressions> single_var_list
 
 // same for terminals
 
@@ -175,6 +181,7 @@ func Reset() {
 %token <tok> TkKeywordCos
 %token <tok> TkKeywordData
 %token <tok> TkKeywordDate
+%token <tok> TkKeywordDef
 %token <tok> TkKeywordDim
 %token <tok> TkKeywordElse
 %token <tok> TkKeywordEnd
@@ -364,6 +371,35 @@ stmt: /* empty */
      {
         Result.LibReadData = true
         $$ = &node.NodeData{Expressions: $2}
+     }
+  | TkKeywordDef TkIdentifier TkParLeft TkParRight TkEqual exp
+     {
+        i := $2
+        e := $6
+	if !node.TypeCompare(node.VarType(i), e.Type()) {
+           yylex.Error("DEF FN type mismatch")
+	}
+        n := &node.NodeDefFn{FuncName: i, Body: e}
+       	err := node.FuncSetDeclared(Result.FuncTable, n)
+        if err != nil {
+           yylex.Error("error declaring DEF FN func: " + err.Error())
+        }
+        $$ = n
+     }
+  | TkKeywordDef TkIdentifier TkParLeft single_var_list TkParRight TkEqual exp
+     {
+        i := $2
+        list := $4
+        e := $7
+	if !node.TypeCompare(node.VarType(i), e.Type()) {
+           yylex.Error("DEF FN type mismatch")
+	}
+        n := &node.NodeDefFn{FuncName: i, Variables: list, Body: e}
+       	err := node.FuncSetDeclared(Result.FuncTable, n)
+        if err != nil {
+           yylex.Error("error declaring DEF FN func: " + err.Error())
+        }
+        $$ = n
      }
   | TkKeywordDim expressions_push dim_list expressions_pop
      {
@@ -659,15 +695,27 @@ number_list: use_line_number
      }
   ;
 
-one_var: TkIdentifier
+single_var: TkIdentifier
      {
         log.Printf("parser.y one_var FIXME LHS identifier should NOT be marked as used in its FindVars method")
         $$ = &node.NodeExpIdentifier{Value:$1}
      }
-     | array_exp
-     {
-        $$ = $1 // node.NodeExpArray
-     }
+     ;
+
+single_var_list: single_var
+	{
+        	varList = []node.NodeExp{$1} // reset single_var_list
+	        $$ = varList
+	}
+        | single_var_list TkComma single_var
+        {
+		varList = append(varList, $3)
+	        $$ = varList
+	}
+        ;
+
+one_var: single_var { $$ = $1 }
+     | array_exp { $$ = $1 /* node.NodeExpArray */ }
      ;
 
 var_list: one_var
@@ -855,13 +903,9 @@ array_exp: TkIdentifier bracket_left expressions_push array_index_exp_list expre
    }
    ;
 
-exp: one_const_noneg
-      { $$ = $1 }
+exp: one_const_noneg { $$ = $1 }
    | TkIdentifier { $$ = &node.NodeExpIdentifier{Value:$1} }
-   | array_exp
-     {
-        $$ = $1
-     }
+   | array_exp { $$ = $1 }
    | exp TkPlus exp
      {
        if $1.Type() == node.TypeString && $3.Type() != node.TypeString {

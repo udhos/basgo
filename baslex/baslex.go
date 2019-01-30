@@ -72,6 +72,7 @@ const (
 	TkKeywordCos     = iota // COS
 	TkKeywordData    = iota // DATA
 	TkKeywordDate    = iota // DATE$
+	TkKeywordDef     = iota // DEF
 	TkKeywordDim     = iota // DIM
 	TkKeywordElse    = iota // ELSE
 	TkKeywordEnd     = iota // END
@@ -142,6 +143,7 @@ var tabKeywords = []struct {
 	{TkKeywordCos, "COS"},
 	{TkKeywordData, "DATA"},
 	{TkKeywordDate, "DATE$"},
+	{TkKeywordDef, "DEF"},
 	{TkKeywordDim, "DIM"},
 	{TkKeywordElse, "ELSE"},
 	{TkKeywordEnd, "END"},
@@ -251,6 +253,7 @@ var tabType = []string{
 	"COS",
 	"DATA",
 	"DATE",
+	"DEF",
 	"DIM",
 	"ELSE",
 	"END",

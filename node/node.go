@@ -42,6 +42,9 @@ func (a ByLineNumber) Less(i, j int) bool {
 // FuncPrintf is func type for printf
 type FuncPrintf func(format string, v ...interface{}) (int, error)
 
+type FuncSymbol struct {
+}
+
 type ArraySymbol struct {
 	UsedDimensions     int      // used
 	DeclaredDimensions []string // DIM
@@ -109,6 +112,11 @@ func (o *BuildOptions) VarSetUsed(name string) {
 func (o *BuildOptions) VarIsUsed(name string) bool {
 	_, used := o.Vars[strings.ToLower(name)]
 	return used
+}
+
+func FuncSetDeclared(tab map[string]FuncSymbol, f *NodeDefFn) error {
+	log.Printf("FuncSetDeclared: FIXME WRITEME")
+	return nil
 }
 
 // ArraySetDeclared sets array as decçared
@@ -187,6 +195,11 @@ func ArrayIsUsed(tab map[string]ArraySymbol, name string) bool {
 // VarMatch matches names of two variables
 func VarMatch(s1, s2 string) bool {
 	return strings.ToLower(s1) == strings.ToLower(s2)
+}
+
+// RenameFunc renames a.B$ => func_str_a_b
+func RenameFunc(name string) string {
+	return "func_" + RenameVar(name)
 }
 
 // RenameArray renames a.B$ => array_str_a_b
@@ -475,6 +488,63 @@ func (n *NodeData) Build(options *BuildOptions, outputf FuncPrintf) {
 // FindUsedVars finds used vars
 func (n *NodeData) FindUsedVars(options *BuildOptions) {
 	// DATA allows only constant expressions - no vars
+}
+
+// NodeDefFn is DEF FN
+type NodeDefFn struct {
+	FuncName  string
+	Variables []NodeExp
+	Body      NodeExp
+}
+
+// Name returns the name of the node
+func (n *NodeDefFn) Name() string {
+	return "DEF FN"
+}
+
+// Show displays the node
+func (n *NodeDefFn) Show(printf FuncPrintf) {
+	printf("[%s %s %q = ", n.Name(), n.FuncName, n.Variables)
+	printf(n.Body.String())
+	printf("]")
+}
+
+// Build generates code
+func (n *NodeDefFn) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+
+	name := RenameFunc(n.FuncName)
+	t := VarType(n.FuncName)
+	tt := TypeName(n.FuncName, t)
+
+	var varList string
+	if len(n.Variables) > 0 {
+		v0 := n.Variables[0]
+		vtt0 := TypeName(v0.String(), v0.Type())
+		varList = v0.Exp(options) + " " + vtt0
+		for i := 1; i < len(n.Variables); i++ {
+			v := n.Variables[i]
+			vtt := TypeName(v.String(), v.Type())
+			varList += "," + v.Exp(options) + " " + vtt
+		}
+	}
+
+	outputf(name)
+	outputf(" := func(")
+	outputf(varList)
+	outputf(") ")
+	outputf(tt)
+	outputf(" {\n")
+	outputf(" return ")
+	outputf(n.Body.Exp(options))
+	outputf("\n")
+	outputf("}\n")
+}
+
+// FindUsedVars finds used vars
+func (n *NodeDefFn) FindUsedVars(options *BuildOptions) {
 }
 
 // NodeDim is dim
