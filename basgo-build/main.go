@@ -192,6 +192,7 @@ func main() {
 }
 
 func inputHeaders(h map[string]struct{}) {
+	h["fmt"] = struct{}{}
 	h["bufio"] = struct{}{}
 	h["log"] = struct{}{}
 	h["os"] = struct{}{}
@@ -236,8 +237,10 @@ func boolToInt(v bool) int {
 		outputf(funcBoolToInt)
 	}
 
-	funcInputFmt := `
-func %s string {
+	if input {
+
+		funcInput := `
+func inputString() string {
 
 	buf, isPrefix, err := stdin.ReadLine()
 	if err != nil {
@@ -250,7 +253,7 @@ func %s string {
 	return string(buf)
 }
 
-func %s int {
+func inputInteger() int {
         str := strings.TrimSpace(inputString())
 	v, err := strconv.Atoi(str)
 	if err != nil {
@@ -259,7 +262,7 @@ func %s int {
 	return v 
 }
 
-func %s float64 {
+func inputFloat() float64 {
         str := strings.TrimSpace(inputString())
 	v, err := strconv.ParseFloat(str, 64)
 	if err != nil {
@@ -269,8 +272,6 @@ func %s float64 {
 }
 `
 
-	if input {
-		funcInput := fmt.Sprintf(funcInputFmt, node.InputString, node.InputInteger, node.InputFloat)
 		outputf(funcInput)
 	}
 

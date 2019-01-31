@@ -570,20 +570,20 @@ stmt: /* empty */
        Result.CountIf++
        $$ = &node.NodeIf{Index:Result.CountIf, Cond: cond, Then: $4, Else: $6}
      }
-  | TkKeywordInput TkIdentifier
+  | TkKeywordInput expressions_push var_list expressions_pop TkIdentifier
      {
         Result.LibInput = true
-        $$ = &node.NodeInput{Variable: $2, AddQuestion: true}
+        $$ = &node.NodeInput{Variables: $4, AddQuestion: true}
      }
-  | TkKeywordInput one_const_str TkComma TkIdentifier
+  | TkKeywordInput one_const_str TkComma expressions_push var_list expressions_pop
      {
         Result.LibInput = true
-        $$ = &node.NodeInput{PromptString:$2, Variable: $4}
+        $$ = &node.NodeInput{PromptString:$2, Variables: $5}
      }
-  | TkKeywordInput one_const_str TkSemicolon TkIdentifier
+  | TkKeywordInput one_const_str TkSemicolon expressions_push var_list expressions_pop
      {
         Result.LibInput = true
-        $$ = &node.NodeInput{PromptString:$2, Variable: $4, AddQuestion: true}
+        $$ = &node.NodeInput{PromptString:$2, Variables: $5, AddQuestion: true}
      }
   | TkKeywordGosub use_line_number
      {

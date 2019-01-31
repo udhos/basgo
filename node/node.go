@@ -1077,7 +1077,7 @@ func (n *NodeIf) FindUsedVars(options *BuildOptions) {
 
 // NodeInput handles input
 type NodeInput struct {
-	Variable     string
+	Variables    []NodeExp
 	PromptString NodeExp
 	AddQuestion  bool
 }
@@ -1089,15 +1089,17 @@ func (n *NodeInput) Name() string {
 
 // Show displays the node
 func (n *NodeInput) Show(printf FuncPrintf) {
-	printf("[%s var=%s prompt=%s question=%v]", n.Name(), n.Variable, n.PromptString, n.AddQuestion)
+	printf("[%s vars=%d prompt=%s question=%v]", n.Name(), len(n.Variables), n.PromptString, n.AddQuestion)
 }
 
 // FIXME move source code to external file?
+/*
 const (
 	InputString  = "inputString()"  // InputString FIXME move source code to external file?
 	InputInteger = "inputInteger()" // InputInteger FIXME move source code to external file?
 	InputFloat   = "inputFloat()"   // InputFloat FIXME move source code to external file?
 )
+*/
 
 // Build generates code
 func (n *NodeInput) Build(options *BuildOptions, outputf FuncPrintf) {
@@ -1105,16 +1107,8 @@ func (n *NodeInput) Build(options *BuildOptions, outputf FuncPrintf) {
 	n.Show(outputf)
 	outputf("\n")
 
+	/*
 	options.Headers["fmt"] = struct{}{} // used package
-
-	if prompt, hasPrompt := n.PromptString.(*NodeExpString); hasPrompt {
-		str := prompt.Exp(options)
-		outputf("fmt.Print(" + str + ") // INPUT prompt string\n")
-	}
-
-	if n.AddQuestion {
-		outputf("fmt.Print(`? `) // INPUT question mark not suppressed\n")
-	}
 
 	var code string
 
@@ -1141,6 +1135,28 @@ func (n *NodeInput) Build(options *BuildOptions, outputf FuncPrintf) {
 	}
 
 	outputf("%s // unnused INPUT variable %s/%s suppressed\n", code, n.Variable, v)
+	*/
+
+	outputf("for {\n")
+
+	// issue prompt string
+	if prompt, hasPrompt := n.PromptString.(*NodeExpString); hasPrompt {
+		str := prompt.Exp(options)
+		outputf("  fmt.Print(" + str + ") // INPUT prompt string\n")
+	}
+	if n.AddQuestion {
+		outputf("  fmt.Print(`? `) // INPUT question mark not suppressed\n")
+	}
+
+	outputf("  buf := inputString()\n")
+	outputf(`  fields := strings.Split(buf, ",")`+"\n")
+	outputf("  n := len(fields)\n")
+	outputf("  if n != %d {\n", len(n.Variables))
+	outputf("    f := fmt.Sprintf(`%d`, n)\n")
+	outputf("    fmt.Printf("Found " +f+ " fields from %d, please retry.\n\")\n", n)
+	outputf("    continue\n")
+	outputf("  }\n")
+	outputf("}\n")
 }
 
 // FindUsedVars finds used vars
