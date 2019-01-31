@@ -54,6 +54,8 @@ Status: the compiler currently can handle very simple programs.
 
 ## Use GOFUNC to call Go function from BASIC code
 
+GOFUNC() is a BASIC keyword introduced by the 'basgo' compiler in order to call a Go function from BASIC code.
+
     10 result = GOFUNC("func_name", arg1, arg2, ..., argN)
     20 print result
 

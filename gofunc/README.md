@@ -1,6 +1,8 @@
 
 # GOFUNC calls Go function from BASIC code
 
+GOFUNC() is a BASIC keyword introduced by the 'basgo' compiler in order to call a Go function from BASIC code.
+
 ## Usage:
 
 BASIC code calling Go code:
