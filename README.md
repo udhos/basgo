@@ -8,6 +8,7 @@
 * [Run the Compiler](#run-the-compiler)
   * [Example](#example)
   * [Sample \- Hello World](#sample---hello-world)
+  * [Use GOFUNC to call Go function from BASIC code](#use-gofunc-to-call-go-function-from-basic-code)
 * [Run the Interpreter](#run-the-interpreter)
 * [References](#references)
 
@@ -50,6 +51,13 @@ Status: the compiler currently can handle very simple programs.
     $ go run a.go
     hello world!
     $
+
+## Use GOFUNC to call Go function from BASIC code
+
+    10 result = GOFUNC("func_name", arg1, arg2, ..., argN)
+    20 print result
+
+See [gofunc/README.md](gofunc/README.md)
 
 # Run the Interpreter
 

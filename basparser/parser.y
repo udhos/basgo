@@ -87,6 +87,7 @@ func Reset() {
 	typeExpressions []node.NodeExp
 	typeExp node.NodeExp
 	typeExpArray *node.NodeExpArray
+	typeExpString *node.NodeExpString
 
 	typeRem string
 	typeNumber string
@@ -122,7 +123,7 @@ func Reset() {
 %type <typeExp> one_const_num_noneg
 %type <typeExp> one_const_int
 %type <typeExp> one_const_float
-%type <typeExp> one_const_str
+%type <typeExpString> one_const_str
 %type <typeExpArray> array_exp
 %type <typeExp> array_or_call
 %type <typeExpArray> one_dim
@@ -188,6 +189,7 @@ func Reset() {
 %token <tok> TkKeywordElse
 %token <tok> TkKeywordEnd
 %token <tok> TkKeywordFor
+%token <tok> TkKeywordGofunc
 %token <tok> TkKeywordGosub
 %token <tok> TkKeywordGoto
 %token <tok> TkKeywordIf
@@ -1516,6 +1518,14 @@ exp: one_const_noneg { $$ = $1 }
        }
        Result.LibMath = true
        $$ = &node.NodeExpTan{Value:num}
+     }
+   | TkKeywordGofunc TkParLeft expressions_push one_const_str expressions_pop TkParRight
+     {
+       $$ = &node.NodeExpGofunc{Name: $4}
+     }
+   | TkKeywordGofunc TkParLeft expressions_push one_const_str TkComma call_exp_list expressions_pop TkParRight
+     {
+       $$ = &node.NodeExpGofunc{Name: $4, Arguments: $6}
      }
    ;
 

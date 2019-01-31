@@ -1498,3 +1498,53 @@ func (e *NodeExpFuncCall) FindUsedVars(options *BuildOptions) {
 		p.FindUsedVars(options)
 	}
 }
+
+// NodeExpGofunc holds value
+type NodeExpGofunc struct {
+	Name      *NodeExpString
+	Arguments []NodeExp
+}
+
+// Type returns type
+func (e *NodeExpGofunc) Type() int {
+	return VarType(e.Name.Value)
+}
+
+// String returns value
+func (e *NodeExpGofunc) String() string {
+	return "GOFUNC(" + e.Name.Value + ")"
+}
+
+func RemoveSigil(s string) string {
+	last := len(s) - 1
+	if last < 0 {
+		return s
+	}
+	switch s[last] {
+	case '!', '$', '%', '#':
+		return s[:last]
+	}
+	return s
+}
+
+// Exp returns value
+func (e *NodeExpGofunc) Exp(options *BuildOptions) string {
+
+	call := RemoveSigil(e.Name.Value) + "("
+	if len(e.Arguments) > 0 {
+		call += e.Arguments[0].Exp(options)
+		for i := 1; i < len(e.Arguments); i++ {
+			call += "," + e.Arguments[i].Exp(options)
+		}
+	}
+	call += ") /* <-- GOFUNC */ "
+
+	return call
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpGofunc) FindUsedVars(options *BuildOptions) {
+	for _, a := range e.Arguments {
+		a.FindUsedVars(options)
+	}
+}
