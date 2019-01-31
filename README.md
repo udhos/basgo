@@ -57,7 +57,7 @@ Status: the compiler currently can handle very simple programs.
     10 result = GOFUNC("func_name", arg1, arg2, ..., argN)
     20 print result
 
-See [gofunc/README.md](gofunc/README.md)
+See [gofunc](gofunc)
 
 # Run the Interpreter
 
