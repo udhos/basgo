@@ -3,7 +3,28 @@
 
 ## Usage:
 
+BASIC code calling Go code:
+
     10 result = GOFUNC("func_name", arg1, arg2, ..., argN)
+    20 print result
+
+Go code called from BASIC:
+
+    func func_name(arg1, arg2, ..., argN float64) float64
+        return some_float64_value
+    }
+
+Append a '$' to func_name in order to call a string-returning function.
+
+BASIC:
+
+    10 result$ = GOFUNC("func_name$", arg1, arg2, ..., argN)
+
+Go:
+
+    func func_name(arg1, arg2, ..., argN float64) string
+        return "some_string_value"
+    }
 
 ## Example:
 
