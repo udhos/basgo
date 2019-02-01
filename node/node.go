@@ -683,6 +683,46 @@ func (n *NodeDim) FindUsedVars(options *BuildOptions) {
 	// DIM allows only constant expressions - no vars
 }
 
+// NodeOnGosub is ongosub
+type NodeOnGosub struct {
+	Cond  NodeExp
+	Lines []string
+	Index int
+}
+
+// Name returns the name of the node
+func (n *NodeOnGosub) Name() string {
+	return "ON-GOSUB"
+}
+
+// Show displays the node
+func (n *NodeOnGosub) Show(printf FuncPrintf) {
+	printf("[" + n.Name() + " ")
+	printf(n.Cond.String())
+	printf(" %q]", n.Lines)
+}
+
+// Build generates code
+func (n *NodeOnGosub) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ON %s GOSUB %q\n", n.Cond.String(), n.Lines)
+
+	outputf("switch %s {\n", forceInt(options, n.Cond))
+	for i, num := range n.Lines {
+		outputf("case %d:\n", i+1)
+		buildOneGosub(options, outputf, num, n.Index)
+	}
+	outputf("}\n")
+
+	if options.CountReturn > 0 {
+		outputf("gosub_return_%d:\n", n.Index)
+	}
+}
+
+// FindUsedVars finds used vars
+func (n *NodeOnGosub) FindUsedVars(options *BuildOptions) {
+	n.Cond.FindUsedVars(options)
+}
+
 // NodeOnGoto is ongoto
 type NodeOnGoto struct {
 	Cond  NodeExp
@@ -943,15 +983,18 @@ func (n *NodeGosub) Show(printf FuncPrintf) {
 	printf("[" + n.Name() + " " + n.Line + "]")
 }
 
+func buildOneGosub(options *BuildOptions, outputf FuncPrintf, line string, index int) {
+	outputf("gosubStack = append(gosubStack, %d) // gosub push return index\n", index)
+	outputf("goto line%s // Index=%d\n", line, index)
+}
+
 // Build generates code
 func (n *NodeGosub) Build(options *BuildOptions, outputf FuncPrintf) {
 	outputf("// ")
 	n.Show(outputf)
 	outputf("\n")
 
-	outputf("gosubStack = append(gosubStack, %d) // gosub push return index\n", n.Index)
-	outputf("goto line%s // %s %s Index=%d\n", n.Line, n.Name(), n.Line, n.Index)
-
+	buildOneGosub(options, outputf, n.Line, n.Index)
 	if options.CountReturn > 0 {
 		outputf("gosub_return_%d:\n", n.Index)
 	}

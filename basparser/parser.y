@@ -641,6 +641,17 @@ stmt: /* empty */
        Result.CountReturn++
        $$ = &node.NodeReturn{}
      }
+  | TkKeywordOn exp TkKeywordGosub number_list
+     {
+       cond := $2
+       lines := $4
+       if !node.TypeNumeric(cond.Type()) {
+           yylex.Error("ON-GOSUB condition must be numeric")
+       }
+       g := &node.NodeOnGosub{Index: Result.CountGosub, Cond: cond, Lines: lines}
+       Result.CountGosub++
+       $$ = g
+     }
   | TkKeywordOn exp TkKeywordGoto number_list
      {
        cond := $2

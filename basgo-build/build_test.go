@@ -31,6 +31,16 @@ const outputGoto = `1
 3
 `
 
+const sourceOnGosub = `
+10 for i=1 to 3:on i gosub 100,200,300:next
+20 print "end";
+30 end
+100 print 1;:gosub 1000:return
+200 print 2;:return
+300 print 3;:return
+1000 print "push";:return
+`
+
 const (
 	OK      = iota
 	WRONG   = iota
@@ -53,6 +63,8 @@ var testTable = []buildTest{
 	{`10 print sqr(-1);`, "", "NaN", OK},
 
 	{`10 a$=inkey$:b$=inkey$:print a$,b$;`, "abcd", "ab", OK},
+
+	{sourceOnGosub, "", "1push23end", OK},
 
 	{`10 def fa() = 1:print fa()`, "", "", WRONG},
 	{`10 def fn() = 1:print fn()`, "", "", WRONG},
