@@ -1108,54 +1108,69 @@ func (n *NodeInput) Build(options *BuildOptions, outputf FuncPrintf) {
 	outputf("\n")
 
 	/*
-	options.Headers["fmt"] = struct{}{} // used package
+		options.Headers["fmt"] = struct{}{} // used package
 
-	var code string
+		var code string
 
-	t := VarType(n.Variable) // a$ => string
-	switch t {
-	case TypeString:
-		code = InputString
-	case TypeInteger:
-		code = InputInteger
-	case TypeFloat:
-		code = InputFloat
-	default:
-		msg := fmt.Sprintf("NodeInput.Build: unknown var '%s' type: %d", n.Variable, t)
-		log.Printf(msg)
-		outputf("panic(%s) // INPUT bad var type\n", msg)
-		return
-	}
+		t := VarType(n.Variable) // a$ => string
+		switch t {
+		case TypeString:
+			code = InputString
+		case TypeInteger:
+			code = InputInteger
+		case TypeFloat:
+			code = InputFloat
+		default:
+			msg := fmt.Sprintf("NodeInput.Build: unknown var '%s' type: %d", n.Variable, t)
+			log.Printf(msg)
+			outputf("panic(%s) // INPUT bad var type\n", msg)
+			return
+		}
 
-	v := RenameVar(n.Variable) // a$ => str_a
+		v := RenameVar(n.Variable) // a$ => str_a
 
-	if options.VarIsUsed(n.Variable) {
-		outputf("%s = %s\n", v, code)
-		return
-	}
+		if options.VarIsUsed(n.Variable) {
+			outputf("%s = %s\n", v, code)
+			return
+		}
 
-	outputf("%s // unnused INPUT variable %s/%s suppressed\n", code, n.Variable, v)
+		outputf("%s // unnused INPUT variable %s/%s suppressed\n", code, n.Variable, v)
 	*/
 
-	outputf("for {\n")
-
-	// issue prompt string
+	var promptStr string
 	if prompt, hasPrompt := n.PromptString.(*NodeExpString); hasPrompt {
-		str := prompt.Exp(options)
-		outputf("  fmt.Print(" + str + ") // INPUT prompt string\n")
+		promptStr = prompt.Exp(options)
+		//outputf("  fmt.Print(" + str + ") // INPUT prompt string\n")
 	}
+	var questionMark string
 	if n.AddQuestion {
-		outputf("  fmt.Print(`? `) // INPUT question mark not suppressed\n")
+		questionMark = "? "
+		//outputf("  fmt.Print(`? `) // INPUT question mark not suppressed\n")
 	}
 
-	outputf("  buf := inputString()\n")
-	outputf(`  fields := strings.Split(buf, ",")`+"\n")
-	outputf("  n := len(fields)\n")
-	outputf("  if n != %d {\n", len(n.Variables))
-	outputf("    f := fmt.Sprintf(`%d`, n)\n")
-	outputf("    fmt.Printf("Found " +f+ " fields from %d, please retry.\n\")\n", n)
-	outputf("    continue\n")
-	outputf("  }\n")
+	outputf("{\n")
+	outputf("  fields := inputMultivar(%s,`%s`,%d)\n", promptStr, questionMark, len(n.Variables))
+
+	for i, v := range n.Variables {
+		str := v.Exp(options)
+		var code string
+		t := v.Type()
+		switch t {
+		case TypeString:
+			code = fmt.Sprintf("%s = fields[%d]", str, i)
+		case TypeInteger:
+			code = fmt.Sprintf("%s = inputParseInteger(fields[%d])", str, i)
+		case TypeFloat:
+			code = fmt.Sprintf("%s = inputParseFloat(fields[%d])", str, i)
+		}
+		used := VarOrArrayIsUsed(options, v)
+		if used {
+			outputf("  %s // INPUT var %d\n", code, i)
+		} else {
+			outputf("  // %s // unnused INPUT var %d %s suppressed\n", code, i, v.String())
+		}
+	}
+
 	outputf("}\n")
 }
 
@@ -1208,6 +1223,17 @@ func (n *NodeRead) Show(printf FuncPrintf) {
 	printf("]")
 }
 
+func VarOrArrayIsUsed(options *BuildOptions, e NodeExp) bool {
+	switch ee := e.(type) {
+	case *NodeExpIdentifier:
+		return options.VarIsUsed(ee.Value)
+	case *NodeExpArray:
+		return ArrayIsUsed(options.Arrays, ee.Name)
+	}
+	log.Printf("VarIsUsed: unexpected '%s' non-var non-array: %v", e.String(), e)
+	return false
+}
+
 // Build generates code
 func (n *NodeRead) Build(options *BuildOptions, outputf FuncPrintf) {
 	outputf("// ")
@@ -1232,16 +1258,19 @@ func (n *NodeRead) Build(options *BuildOptions, outputf FuncPrintf) {
 			code = fmt.Sprintf("println(%s)\n", msg)
 		}
 
-		var used bool
+		/*
+			var used bool
 
-		switch ee := e.(type) {
-		case *NodeExpIdentifier:
-			used = options.VarIsUsed(ee.Value)
-		case *NodeExpArray:
-			used = ArrayIsUsed(options.Arrays, ee.Name)
-		default:
-			log.Printf("NodeRead.Build: unexpected '%s' non-var non-array: %v", v, e)
-		}
+			switch ee := e.(type) {
+			case *NodeExpIdentifier:
+				used = options.VarIsUsed(ee.Value)
+			case *NodeExpArray:
+				used = ArrayIsUsed(options.Arrays, ee.Name)
+			default:
+				log.Printf("NodeRead.Build: unexpected '%s' non-var non-array: %v", v, e)
+			}
+		*/
+		used := VarOrArrayIsUsed(options, e)
 
 		if used {
 			outputf(code+" // READ %s\n", v)

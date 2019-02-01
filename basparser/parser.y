@@ -570,10 +570,10 @@ stmt: /* empty */
        Result.CountIf++
        $$ = &node.NodeIf{Index:Result.CountIf, Cond: cond, Then: $4, Else: $6}
      }
-  | TkKeywordInput expressions_push var_list expressions_pop TkIdentifier
+  | TkKeywordInput expressions_push var_list expressions_pop
      {
         Result.LibInput = true
-        $$ = &node.NodeInput{Variables: $4, AddQuestion: true}
+        $$ = &node.NodeInput{Variables: $3, AddQuestion: true}
      }
   | TkKeywordInput one_const_str TkComma expressions_push var_list expressions_pop
      {
