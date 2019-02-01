@@ -1444,9 +1444,9 @@ exp: one_const_noneg { $$ = $1 }
        $$ = &node.NodeExpMid{Value:e1, Begin:e2, Size:e3}
      }
    | TkKeywordRnd { $$ = &node.NodeExpRnd{Value:&node.NodeExpNumber{Value:"1"}} }
-   | TkKeywordRnd exp
+   | TkKeywordRnd TkParLeft exp TkParRight
      {
-       e := $2
+       e := $3
        if !node.TypeNumeric(e.Type()) {
            yylex.Error("RND expression must be numeric")
        }
