@@ -156,7 +156,7 @@ func Reset() {
 %token <tok> TkParRight
 %token <tok> TkBracketLeft
 %token <tok> TkBracketRight
-%token <tok> TkCommentQ
+%token <typeRem> TkCommentQ
 %token <typeString> TkString
 %token <typeNumber> TkNumber
 %token <typeFloat> TkFloat
@@ -296,11 +296,15 @@ line_num: TkNumber
        $$ = $1
      };
 
-line: statements_aux
+comment_q: /* empty */
+         | TkCommentQ
+         ;
+
+line: statements_aux comment_q
      {
 	$$ = &node.LineImmediate{Nodes:$1}
      }
-  | line_num statements_aux
+  | line_num statements_aux comment_q
      {
        n := $1
        ln, found := Result.LineNumbers[n]
@@ -656,8 +660,8 @@ stmt: /* empty */
         Result.LibReadData = true
         $$ = &node.NodeRead{Variables: $3}
      }
-  | TkKeywordRem
-     { $$ = &node.NodeRem{Value: $1} }
+  | TkCommentQ { $$ = &node.NodeRem{Value: $1} }
+  | TkKeywordRem { $$ = &node.NodeRem{Value: $1} }
   | TkKeywordRestore
      {
        Result.LibReadData = true
@@ -1656,6 +1660,8 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 	// for example: ident, literals (number, string)
 	switch id {
 		case TkKeywordRem:
+			lval.typeRem = t.Value
+		case TkCommentQ:
 			lval.typeRem = t.Value
 		case TkString:
 			lval.typeString = t.Value
