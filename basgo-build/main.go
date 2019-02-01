@@ -182,6 +182,8 @@ func main() {
 
 	writeVar(options.Vars, outputf)
 	writeArrays(&options, outputf)
+	declareFuncs(&options, result.FuncTable, outputf)
+
 	outputf(buf.String())
 
 	outputf(mainClose)
@@ -493,6 +495,20 @@ func writeImport(headers map[string]struct{}, outputf node.FuncPrintf) {
 		}
 		outputf(")\n")
 	}
+}
+
+func declareFuncs(options *node.BuildOptions, funcTable map[string]node.FuncSymbol, outputf node.FuncPrintf) {
+	if len(funcTable) < 1 {
+		return
+	}
+
+	outputf("var (\n")
+	for n, symb := range funcTable {
+		f := node.RenameFunc(n)
+		funcType := node.FuncBuildType(options, n, symb.Func.Variables)
+		outputf("  %s %s // DEF FN [%s] used=%v\n", f, funcType, n, symb.Used)
+	}
+	outputf(")\n")
 }
 
 func writeArrays(options *node.BuildOptions, outputf node.FuncPrintf) {

@@ -557,6 +557,26 @@ func (n *NodeDefFn) Show(printf FuncPrintf) {
 	printf("]")
 }
 
+func FuncBuildType(options *BuildOptions, name string, variables []NodeExp) string {
+
+	var varList string
+	if len(variables) > 0 {
+		v0 := variables[0]
+		vtt0 := TypeName(v0.String(), v0.Type())
+		varList = v0.Exp(options) + " " + vtt0
+		for i := 1; i < len(variables); i++ {
+			v := variables[i]
+			vtt := TypeName(v.String(), v.Type())
+			varList += "," + v.Exp(options) + " " + vtt
+		}
+	}
+
+	t := VarType(name)
+	tt := TypeName(name, t)
+
+	return "func(" + varList + ") " + tt
+}
+
 // Build generates code
 func (n *NodeDefFn) Build(options *BuildOptions, outputf FuncPrintf) {
 	outputf("// ")
@@ -564,20 +584,23 @@ func (n *NodeDefFn) Build(options *BuildOptions, outputf FuncPrintf) {
 	outputf("\n")
 
 	name := RenameFunc(n.FuncName)
-	t := VarType(n.FuncName)
-	tt := TypeName(n.FuncName, t)
 
-	var varList string
-	if len(n.Variables) > 0 {
-		v0 := n.Variables[0]
-		vtt0 := TypeName(v0.String(), v0.Type())
-		varList = v0.Exp(options) + " " + vtt0
-		for i := 1; i < len(n.Variables); i++ {
-			v := n.Variables[i]
-			vtt := TypeName(v.String(), v.Type())
-			varList += "," + v.Exp(options) + " " + vtt
+	t := VarType(n.FuncName)
+	/*
+		tt := TypeName(n.FuncName, t)
+
+		var varList string
+		if len(n.Variables) > 0 {
+			v0 := n.Variables[0]
+			vtt0 := TypeName(v0.String(), v0.Type())
+			varList = v0.Exp(options) + " " + vtt0
+			for i := 1; i < len(n.Variables); i++ {
+				v := n.Variables[i]
+				vtt := TypeName(v.String(), v.Type())
+				varList += "," + v.Exp(options) + " " + vtt
+			}
 		}
-	}
+	*/
 
 	var body string
 	bodyType := n.Body.Type()
@@ -591,10 +614,14 @@ func (n *NodeDefFn) Build(options *BuildOptions, outputf FuncPrintf) {
 	}
 
 	outputf(name)
-	outputf(" := func(")
-	outputf(varList)
-	outputf(") ")
-	outputf(tt)
+	/*
+		outputf(" := func(")
+		outputf(varList)
+		outputf(") ")
+		outputf(tt)
+	*/
+	outputf(" = ")
+	outputf(FuncBuildType(options, n.FuncName, n.Variables))
 	outputf(" {\n")
 	outputf(" return ")
 	outputf(body)
