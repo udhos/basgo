@@ -73,6 +73,7 @@ const (
 	TkKeywordData    = iota // DATA
 	TkKeywordDate    = iota // DATE$
 	TkKeywordDef     = iota // DEF
+	TkKeywordDefint  = iota // DEFINT
 	TkKeywordDim     = iota // DIM
 	TkKeywordElse    = iota // ELSE
 	TkKeywordEnd     = iota // END
@@ -81,8 +82,10 @@ const (
 	TkKeywordGosub   = iota // GOSUB
 	TkKeywordGoto    = iota // GOTO
 	TkKeywordIf      = iota // IF
+	TkKeywordInkey   = iota // INKEY$
 	TkKeywordInput   = iota // INPUT
 	TkKeywordInt     = iota // INT
+	TkKeywordKey     = iota // KEY
 	TkKeywordLeft    = iota // LEFT$
 	TkKeywordLen     = iota // LEN
 	TkKeywordLet     = iota // LET
@@ -90,6 +93,7 @@ const (
 	TkKeywordLoad    = iota // LOAD
 	TkKeywordMid     = iota // MID$
 	TkKeywordNext    = iota // NEXT
+	TkKeywordOff     = iota // OFF
 	TkKeywordOn      = iota // ON
 	TkKeywordPrint   = iota // PRINT
 	TkKeywordRead    = iota // READ
@@ -121,6 +125,7 @@ const (
 	TkKeywordVal     = iota // VAL
 	TkKeywordWend    = iota // WEND
 	TkKeywordWhile   = iota // WHILE
+	TkKeywordWidth   = iota // WIDTH
 
 	TkIdentifier = iota // Identifier (variable)
 )
@@ -146,6 +151,7 @@ var tabKeywords = []struct {
 	{TkKeywordData, "DATA"},
 	{TkKeywordDate, "DATE$"},
 	{TkKeywordDef, "DEF"},
+	{TkKeywordDefint, "DEFINT"},
 	{TkKeywordDim, "DIM"},
 	{TkKeywordElse, "ELSE"},
 	{TkKeywordEnd, "END"},
@@ -156,8 +162,10 @@ var tabKeywords = []struct {
 	{TkKeywordGoto, "GOTO"},
 	{TkKeywordIf, "IF"},
 	{TkKeywordImp, "IMP"},
+	{TkKeywordInkey, "INKEY$"},
 	{TkKeywordInput, "INPUT"},
 	{TkKeywordInt, "INT"},
+	{TkKeywordKey, "KEY"},
 	{TkKeywordLeft, "LEFT$"},
 	{TkKeywordLen, "LEN"},
 	{TkKeywordLet, "LET"},
@@ -167,6 +175,7 @@ var tabKeywords = []struct {
 	{TkKeywordMod, "MOD"},
 	{TkKeywordNext, "NEXT"},
 	{TkKeywordNot, "NOT"},
+	{TkKeywordOff, "OFF"},
 	{TkKeywordOn, "ON"},
 	{TkKeywordOr, "OR"},
 	{TkKeywordPrint, "PRINT"},
@@ -199,6 +208,7 @@ var tabKeywords = []struct {
 	{TkKeywordVal, "VAL"},
 	{TkKeywordWend, "WEND"},
 	{TkKeywordWhile, "WHILE"},
+	{TkKeywordWidth, "WIDTH"},
 	{TkKeywordXor, "XOR"},
 }
 
@@ -258,6 +268,7 @@ var tabType = []string{
 	"DATA",
 	"DATE",
 	"DEF",
+	"DEFINT",
 	"DIM",
 	"ELSE",
 	"END",
@@ -266,8 +277,10 @@ var tabType = []string{
 	"GOSUB",
 	"GOTO",
 	"IF",
+	"INKEY$",
 	"INPUT",
 	"INT",
+	"KEY",
 	"LEFT$",
 	"LEN",
 	"LET",
@@ -275,6 +288,7 @@ var tabType = []string{
 	"LOAD",
 	"MID$",
 	"NEXT",
+	"OFF",
 	"ON",
 	"PRINT",
 	"READ",
@@ -306,6 +320,7 @@ var tabType = []string{
 	"VAL",
 	"WEND",
 	"WHILE",
+	"WIDTH",
 
 	"IDENTIFIER",
 }

@@ -52,6 +52,8 @@ var testTable = []buildTest{
 	{`10 print sqr(9);`, "", "3", OK},
 	{`10 print sqr(-1);`, "", "NaN", OK},
 
+	{`10 a$=inkey$:b$=inkey$:print a$,b$;`, "abcd", "ab", OK},
+
 	{`10 def fa() = 1:print fa()`, "", "", WRONG},
 	{`10 def fn() = 1:print fn()`, "", "", WRONG},
 	{`10 def fn2() = 1:print fn2()`, "", "", WRONG},

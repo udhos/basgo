@@ -485,6 +485,28 @@ func (e *NodeExpGroup) FindUsedVars(options *BuildOptions) {
 	e.Value.FindUsedVars(options)
 }
 
+// NodeExpInkey holds value
+type NodeExpInkey struct{}
+
+// Type returns type
+func (e *NodeExpInkey) Type() int {
+	return TypeString
+}
+
+// String returns value
+func (e *NodeExpInkey) String() string {
+	return "INKEY$"
+}
+
+// Exp returns value
+func (e *NodeExpInkey) Exp(options *BuildOptions) string {
+	return "inputInkey()"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpInkey) FindUsedVars(options *BuildOptions) {
+}
+
 // NodeExpInt holds value
 type NodeExpInt struct {
 	Value NodeExp
@@ -1267,7 +1289,6 @@ func (e *NodeExpChr) FindUsedVars(options *BuildOptions) {
 
 // NodeExpDate holds value
 type NodeExpDate struct {
-	Value NodeExp
 }
 
 // Type returns type
@@ -1291,7 +1312,6 @@ func (e *NodeExpDate) FindUsedVars(options *BuildOptions) {
 
 // NodeExpTime holds value
 type NodeExpTime struct {
-	Value NodeExp
 }
 
 // Type returns type
@@ -1315,7 +1335,6 @@ func (e *NodeExpTime) FindUsedVars(options *BuildOptions) {
 
 // NodeExpTimer holds value
 type NodeExpTimer struct {
-	Value NodeExp
 }
 
 // Type returns type

@@ -70,6 +70,8 @@ Status: the interpreter currently can only parse simple programs, but is unable 
 
 # References
 
+http://www.ifarchive.org/indexes/if-archive/games/source/basic/
+
 http://www.moorecad.com/classicbasic/index.html - Classic Basic Games Page
 
 http://www.classicbasicgames.org/ - Classic BASIC Games

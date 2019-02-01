@@ -186,6 +186,7 @@ func Reset() {
 %token <tok> TkKeywordData
 %token <tok> TkKeywordDate
 %token <tok> TkKeywordDef
+%token <tok> TkKeywordDefint
 %token <tok> TkKeywordDim
 %token <tok> TkKeywordElse
 %token <tok> TkKeywordEnd
@@ -194,8 +195,10 @@ func Reset() {
 %token <tok> TkKeywordGosub
 %token <tok> TkKeywordGoto
 %token <tok> TkKeywordIf
+%token <tok> TkKeywordInkey
 %token <tok> TkKeywordInput
 %token <tok> TkKeywordInt
+%token <tok> TkKeywordKey
 %token <tok> TkKeywordLeft
 %token <tok> TkKeywordLen
 %token <tok> TkKeywordLet
@@ -203,6 +206,7 @@ func Reset() {
 %token <tok> TkKeywordLoad
 %token <tok> TkKeywordMid
 %token <tok> TkKeywordNext
+%token <tok> TkKeywordOff
 %token <tok> TkKeywordOn
 %token <tok> TkKeywordPrint
 %token <tok> TkKeywordRead
@@ -234,6 +238,7 @@ func Reset() {
 %token <tok> TkKeywordVal
 %token <tok> TkKeywordWend
 %token <tok> TkKeywordWhile
+%token <tok> TkKeywordWidth
 
 %token <typeIdentifier> TkIdentifier
 
@@ -678,6 +683,11 @@ stmt: /* empty */
 	}
         $$ = &node.NodeSwap{Var1: v1, Var2: v2}
      }
+  | TkKeywordKey TkKeywordOn { log.Printf("ignoring unsupported keyword KEY") }
+  | TkKeywordKey TkKeywordOff { log.Printf("ignoring unsupported keyword KEY") }
+  | TkKeywordCls { log.Printf("ignoring unsupported keyword CLS") }
+  | TkKeywordWidth exp { log.Printf("ignoring unsupported keyword WIDTH") }
+  | TkKeywordDefint TkIdentifier TkMinus TkIdentifier { log.Printf("ignoring unsupported keyword DEFINT") }
   ;
 
 expressions_push:
@@ -1537,6 +1547,10 @@ exp: one_const_noneg { $$ = $1 }
    | TkKeywordGofunc TkParLeft expressions_push one_const_str TkComma call_exp_list expressions_pop TkParRight
      {
        $$ = &node.NodeExpGofunc{Name: $4, Arguments: $6}
+     }
+   | TkKeywordInkey {
+       Result.LibInput = true
+       $$ = &node.NodeExpInkey{}
      }
    ;
 

@@ -254,6 +254,18 @@ func boolToInt(v bool) int {
 	if input {
 
 		funcInput := `
+
+func inputInkey() string {
+
+	b, err := stdin.ReadByte()
+	if err != nil {
+		log.Printf("input byte error: %%v", err)
+		return ""
+	}
+
+	return string([]byte{b})
+}
+
 func inputString() string {
 
 	buf, isPrefix, err := stdin.ReadLine()
