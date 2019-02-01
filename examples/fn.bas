@@ -1,0 +1,4 @@
+10 DEF FNA(X)=X*X
+20 DEF FN B(X)=X*X*X
+30 PRINT "fna(2)=";FNA(2)
+40 PRINT "fn b(2)=";FN B(2)
