@@ -1362,6 +1362,31 @@ func (e *NodeExpAbs) FindUsedVars(options *BuildOptions) {
 	e.Value.FindUsedVars(options)
 }
 
+// NodeExpSgn holds value
+type NodeExpSgn struct {
+	Value NodeExp
+}
+
+// Type returns type
+func (e *NodeExpSgn) Type() int {
+	return TypeInteger
+}
+
+// String returns value
+func (e *NodeExpSgn) String() string {
+	return "SGN(" + e.Value.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpSgn) Exp(options *BuildOptions) string {
+	return "mathSgn(" + forceFloat(options, e.Value) + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpSgn) FindUsedVars(options *BuildOptions) {
+	e.Value.FindUsedVars(options)
+}
+
 // NodeExpCos holds value
 type NodeExpCos struct {
 	Value NodeExp

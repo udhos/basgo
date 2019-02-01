@@ -186,7 +186,7 @@ func main() {
 
 	outputf(mainClose)
 
-	lib(outputf, options.Input, options.Rnd, options.Left, result.LibReadData, options.Mid, result.LibVal, result.LibRight, result.LibRepeat, result.LibAsc, result.LibBool, result.LibTime)
+	lib(outputf, options.Input, options.Rnd, options.Left, result.LibReadData, options.Mid, result.LibVal, result.LibRight, result.LibRepeat, result.LibAsc, result.LibBool, result.LibTime, result.LibSgn)
 
 	return status, errors
 }
@@ -200,7 +200,21 @@ func inputHeaders(h map[string]struct{}) {
 	h["strings"] = struct{}{}
 }
 
-func lib(outputf node.FuncPrintf, input, rnd, left, libReadData, mid, val, right, repeat, asc, libBool, libTime bool) {
+func lib(outputf node.FuncPrintf, input, rnd, left, libReadData, mid, val, right, repeat, asc, libBool, libTime, sgn bool) {
+
+	if sgn {
+
+		funcSgn := `
+func mathSgn(v float64) int {
+	switch {
+		case v < 0: return -1
+		case v > 0: return 1
+	}
+	return 0
+}
+`
+		outputf(funcSgn)
+	}
 
 	if libTime {
 

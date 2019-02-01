@@ -29,6 +29,7 @@ type ParserResult struct {
 	LibBool bool
 	LibTime bool
 	LibMath bool
+	LibSgn bool
 	ForStack []*node.NodeFor
 	WhileStack []*node.NodeWhile
 	CountFor int
@@ -212,6 +213,7 @@ func Reset() {
 %token <tok> TkKeywordRnd
 %token <tok> TkKeywordRun
 %token <tok> TkKeywordSave
+%token <tok> TkKeywordSgn
 %token <tok> TkKeywordSin
 %token <tok> TkKeywordSpace
 %token <tok> TkKeywordSpc
@@ -1482,6 +1484,15 @@ exp: one_const_noneg { $$ = $1 }
        }
        Result.LibMath = true
        $$ = &node.NodeExpAbs{Value:num}
+     }
+   | TkKeywordSgn TkParLeft exp TkParRight
+     {
+       num := $3
+       if !node.TypeNumeric(num.Type()) {
+           yylex.Error("SGN expression must be numeric")
+       }
+       Result.LibSgn = true
+       $$ = &node.NodeExpSgn{Value:num}
      }
    | TkKeywordCos TkParLeft exp TkParRight
      {

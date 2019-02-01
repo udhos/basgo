@@ -75,6 +75,15 @@ var testTable = []buildTest{
 	{`10 print len(date$);`, "", "10", OK},
 	{`10 t=timer:print (t>=0) and (t<86400);`, "", "-1", OK},
 
+	{`10 print sgn`, "", "0", WRONG},
+	{`10 print sgn()`, "", "0", WRONG},
+	{`10 print sgn("")`, "", "0", WRONG},
+	{`10 print sgn(2);`, "", "1", OK},
+	{`10 print sgn(0);`, "", "0", OK},
+	{`10 print sgn(-3);`, "", "-1", OK},
+	{`10 print sgn(1.2);`, "", "1", OK},
+	{`10 print sgn(-1.2);`, "", "-1", OK},
+
 	{`10 print abs`, "", "0", WRONG},
 	{`10 print abs()`, "", "0", WRONG},
 	{`10 print abs("")`, "", "0", WRONG},
