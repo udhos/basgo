@@ -66,6 +66,7 @@ const (
 
 	TkKeywordAbs     = iota // ABS
 	TkKeywordAsc     = iota // ASC
+	TkKeywordChain   = iota // CHAIN
 	TkKeywordChr     = iota // CHR$
 	TkKeywordCls     = iota // CLS
 	TkKeywordCont    = iota // CONT
@@ -145,6 +146,7 @@ var tabKeywords = []struct {
 	{TkKeywordAbs, "ABS"},
 	{TkKeywordAnd, "AND"},
 	{TkKeywordAsc, "ASC"},
+	{TkKeywordChain, "CHAIN"},
 	{TkKeywordChr, "CHR$"},
 	{TkKeywordCls, "CLS"},
 	{TkKeywordCont, "CONT"},
@@ -263,6 +265,7 @@ var tabType = []string{
 
 	"ABS",
 	"ASC",
+	"CHAIN",
 	"CHR$",
 	"CLS",
 	"CONT",

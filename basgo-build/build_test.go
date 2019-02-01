@@ -128,6 +128,8 @@ var testTable = []buildTest{
 	{`10 a=12.34e++56:print a;`, "", "", WRONG},
 	{`10 a=12.34e--56:print a;`, "", "", WRONG},
 
+	{`10 print int(98.89);`, "", "98", OK},
+	{`10 print int(-12.11);`, "", "-13", OK},
 	{`10 print a-int(1.1);`, "", "-1", OK},
 	{`10 print a+int(1.1);`, "", "1", OK},
 	{`10 print a*int(1.1);`, "", "0", OK},

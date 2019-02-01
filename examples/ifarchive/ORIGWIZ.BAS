@@ -1,24 +1,20 @@
 10 KEY OFF:CLS
-20 PRINT"∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞"
-30 PRINT"∞⁄ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒø∞"
-40 PRINT"∞≥                                   ≥∞"
-50 PRINT"∞≥            2039-A.BAS             ≥∞"
-60 PRINT"∞≥        THE WIZARD'S CASTLE        ≥∞"
-70 PRINT"∞≥                                   ≥∞"
-80 PRINT"∞≥                                   ≥∞"
-90 PRINT"∞≥ BROUGHT TO YOU BY THE MEMBERS OF  ≥∞"
-100 PRINT"∞≥      ‹‹‹‹‹ ‹‹‹‹‹ ‹‹‹‹‹ ‹‹‹‹‹      ≥∞"
-110 PRINT"∞≥        €   €   € €     €   €      ≥∞"
-120 PRINT"∞≥        €   €‹‹‹€ €     €   €      ≥∞"
-130 PRINT"∞≥        €   €     €     €   €      ≥∞"
-140 PRINT"∞≥      ‹‹€‹‹ €     €‹‹‹‹ €‹‹‹€      ≥∞"
-150 PRINT"∞≥                                   ≥∞"
-160 PRINT"∞≥      International PC Owners      ≥∞"
-170 PRINT"∞≥                                   ≥∞"
-180 PRINT"∞≥P.O. Box 10426, Pittsburgh PA 15234≥∞"
-190 PRINT"∞≥                                   ≥∞"
-200 PRINT"∞¿ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒŸ∞"
-210 PRINT"∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞∞"
+40 PRINT "                                   "
+50 PRINT "            2039-A.BAS             "
+60 PRINT "        THE WIZARD'S CASTLE        "
+70 PRINT "                                   "
+80 PRINT "                                   "
+90 PRINT " BROUGHT TO YOU BY THE MEMBERS OF  "
+100 PRINT"      ##### ##### ##### #####      "
+110 PRINT"        #   #   # #     #   #      "
+120 PRINT"        #   ##### #     #   #      "
+130 PRINT"        #   #     #     #   #      "
+140 PRINT"      ##### #     ##### #####      "
+150 PRINT"                                   "
+160 PRINT"      International PC Owners      "
+170 PRINT"                                   "
+180 PRINT"P.O. Box 10426, Pittsburgh PA 15234"
+190 PRINT"                                   "
 220 PRINT
 230 PRINT "       PRESS ANY KEY TO CONTINUE
 240 A$=INKEY$: IF A$="" THEN 240
@@ -870,19 +866,19 @@
 9440 OF=1
 9450 O(1)=0
 9460 GOTO 5230
-9470 DATA AN EMPTY ROOM,.,THE ENTRANCE,E,STAIRS GOING UP,U
-9480 DATA STAIRS GOING DOWN,D,A POOL,P,A CHEST,C,GOLD PIECES,G
-9490 DATA FLARES,F,A WARP,W,A SINKHOLE,S,A CRYSTAL ORB,O
-9500 DATA A BOOK,B,A KOBOLD,M,AN ORC,M,A WOLF,M,A GOBLIN,M,AN OGRE,M
-9510 DATA A TROLL,M,A BEAR,M,A MINOTAUR,M,A GARGOYLE,M,A CHIMERA,M
-9520 DATA A BALROG,M,A DRAGON,M,A VENDOR,V,THE RUBY RED,T
-9530 DATA THE NORN STONE,T,THE PALE PEARL,T,THE OPAL EYE,T
-9540 DATA THE GREEN GEM,T,THE BLUE FLAME,T,THE PALANTIR,T,THE SILMARIL,T
-9550 DATA X,"?",NO WEAPON," SANDWICH"
-9560 DATA DAGGER," STEW",MACE," SOUP",SWORD," BURGER",NO ARMOR," ROAST"
-9570 DATA LEATHER," FILET",CHAINMAIL," TACO",PLATE," PIE"
-9580 DATA HOBBIT,ELF,MAN,DWARF
-9590 X=FNA(8) : Y=FNA(8)
+9470 DATA "AN EMPTY ROOM",".","THE ENTRANCE","E","STAIRS GOING UP","U"
+9480 DATA "STAIRS GOING DOWN","D","A POOL","P","A CHEST","C","GOLD PIECES","G"
+9490 DATA "FLARES","F","A WARP","W","A SINKHOLE","S","A CRYSTAL ORB","O"
+9500 DATA "A BOOK","B","A KOBOLD","M","AN ORC","M","A WOLF","M","A GOBLIN","M","AN OGRE","M"
+9510 DATA "A TROLL","M","A BEAR","M","A MINOTAUR","M","A GARGOYLE","M","A CHIMERA","M"
+9520 DATA "A BALROG","M","A DRAGON","M","A VENDOR","V","THE RUBY RED","T"
+9530 DATA "THE NORN STONE","T","THE PALE PEARL","T","THE OPAL EYE","T"
+9540 DATA "THE GREEN GEM","T","THE BLUE FLAME","T","THE PALANTIR","T","THE SILMARIL","T"
+9550 DATA "X","?","NO WEAPON"," SANDWICH"
+9560 DATA "DAGGER"," STEW","MACE"," SOUP","SWORD"," BURGER","NO ARMOR"," ROAST"
+9570 DATA "LEATHER"," FILET","CHAINMAIL"," TACO","PLATE"," PIE"
+9580 DATA "HOBBIT","ELF","MAN","DWARF"
+9590 X=FNA(8) : Y=FNA(8)   :: print "x="x" y="y
 9600 IF L(FND(Z)) <> 101 GOTO 9590
 9610 L(FND(Z))=Q
 9620 RETURN
@@ -942,5 +938,4 @@
 10160 PRINT "YOU ARE AT (";X;",";Y;") LEVEL";Z;"."
 10170 RETURN
 10180 IF SAMP$="YES" THEN CHAIN "SAMPLES",1000 ELSE  END
-N
-10160 PRINT "YO
+

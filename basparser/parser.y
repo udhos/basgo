@@ -179,6 +179,7 @@ func Reset() {
 
 %token <tok> TkKeywordAbs
 %token <tok> TkKeywordAsc
+%token <tok> TkKeywordChain
 %token <tok> TkKeywordChr
 %token <tok> TkKeywordCls
 %token <tok> TkKeywordCont
@@ -284,11 +285,7 @@ statements_pop:
      }
      ;
 
-statements_aux: statements_push statements statements_pop
-     {
-        $$ = $2
-     }
-     ;
+statements_aux: statements_push statements statements_pop { $$ = $2 } ;
 
 line_num: TkNumber
      {
@@ -726,11 +723,12 @@ stmt: /* empty */
 	}
         $$ = &node.NodeSwap{Var1: v1, Var2: v2}
      }
-  | TkKeywordKey TkKeywordOn { log.Printf("ignoring unsupported keyword KEY") }
-  | TkKeywordKey TkKeywordOff { log.Printf("ignoring unsupported keyword KEY") }
-  | TkKeywordCls { log.Printf("ignoring unsupported keyword CLS") }
-  | TkKeywordWidth exp { log.Printf("ignoring unsupported keyword WIDTH") }
-  | TkKeywordDefint TkIdentifier TkMinus TkIdentifier { log.Printf("ignoring unsupported keyword DEFINT") }
+  | TkKeywordKey TkKeywordOn { $$ = unsupported("KEY")  }
+  | TkKeywordKey TkKeywordOff { $$ = unsupported("KEY") }
+  | TkKeywordCls { $$ = unsupported("CLS") }
+  | TkKeywordWidth exp { $$ = unsupported("WIDTH") }
+  | TkKeywordDefint TkIdentifier TkMinus TkIdentifier { $$ = unsupported("DEFINT") }
+  | TkKeywordChain expressions_push call_exp_list expressions_pop { $$ = unsupported("CHAIN") }
   ;
 
 expressions_push:
@@ -1595,13 +1593,13 @@ exp: one_const_noneg { $$ = $1 }
        Result.LibMath = true
        $$ = &node.NodeExpTan{Value:num}
      }
-   | TkKeywordGofunc TkParLeft expressions_push one_const_str expressions_pop TkParRight
+   | TkKeywordGofunc TkParLeft one_const_str TkParRight
      {
-       $$ = &node.NodeExpGofunc{Name: $4}
+       $$ = &node.NodeExpGofunc{Name: $3}
      }
-   | TkKeywordGofunc TkParLeft expressions_push one_const_str TkComma call_exp_list expressions_pop TkParRight
+   | TkKeywordGofunc TkParLeft one_const_str TkComma expressions_push call_exp_list expressions_pop TkParRight
      {
-       $$ = &node.NodeExpGofunc{Name: $4, Arguments: $6}
+       $$ = &node.NodeExpGofunc{Name: $3, Arguments: $6}
      }
    | TkKeywordInkey {
        Result.LibInput = true
@@ -1610,6 +1608,11 @@ exp: one_const_noneg { $$ = $1 }
    ;
 
 %%
+
+func unsupported(keyword string) *node.NodeEmpty {
+	log.Printf("ignoring unsupported keyword %s", keyword)
+	return &node.NodeEmpty{}
+}
 
 func captureRawLine(label string, list []node.Node, rawLine string) {
 	last := len(list) - 1
