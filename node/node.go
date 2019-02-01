@@ -1137,7 +1137,7 @@ func (n *NodeInput) Build(options *BuildOptions, outputf FuncPrintf) {
 		outputf("%s // unnused INPUT variable %s/%s suppressed\n", code, n.Variable, v)
 	*/
 
-	var promptStr string
+	promptStr := "``"
 	if prompt, hasPrompt := n.PromptString.(*NodeExpString); hasPrompt {
 		promptStr = prompt.Exp(options)
 		//outputf("  fmt.Print(" + str + ") // INPUT prompt string\n")
