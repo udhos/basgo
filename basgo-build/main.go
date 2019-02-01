@@ -274,7 +274,7 @@ func inputMultivar(prompt, question string, count int) []string {
 func inputParseInteger(str string) int {
 	v, err := strconv.Atoi(strings.TrimSpace(str))
 	if err != nil {
-		log.Printf("input: integer '%%%%s' error: %%%%v", str, err)
+		log.Printf("input: integer '%%s' error: %%v", str, err)
 	}
 	return v 
 }
@@ -282,7 +282,7 @@ func inputParseInteger(str string) int {
 func inputParseFloat(str string) float64 {
 	v, err := strconv.ParseFloat(strings.TrimSpace(str), 64)
 	if err != nil {
-		log.Printf("input: float '%%%%s' error: %%%%v", str, err)
+		log.Printf("input: float '%%s' error: %%v", str, err)
 	}
 	return v 
 }
