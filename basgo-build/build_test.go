@@ -41,6 +41,12 @@ const sourceOnGosub = `
 1000 print "push";:return
 `
 
+const sourceGoto2 = `
+10 goto 30
+20 def fna(x)=x*x:print fna(2)
+30 print 3
+`
+
 const (
 	OK      = iota
 	WRONG   = iota
@@ -72,6 +78,8 @@ var testTable = []buildTest{
 	{`10 a$=inkey$:b$=inkey$:print a$,b$;`, "abcd", "ab", OK},
 
 	{sourceOnGosub, "", "1push23end", OK},
+
+	{sourceGoto2, "", "3\n", OK},
 
 	{`10 def fa() = 1:print fa()`, "", "", WRONG},
 	{`10 def fn() = 1:print fn()`, "", "", WRONG},
