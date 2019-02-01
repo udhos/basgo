@@ -324,6 +324,9 @@ var testTable = []buildTest{
 
 	{`10 for a=1 to 2:if a>1 then next`, "", "", OK},
 
+	{`10 line input a:print a`, "", "", WRONG},
+	{`10 line input a$:print a$`, "2\n", "? 2\n", OK},
+
 	{`10 input a : print a`, "2\n", "? 2\n", OK},
 	{`10 input a(1) : print a(1)`, "2\n", "? 2\n", OK},
 	{`10 input "",a : print a`, "2\n", "2\n", OK},

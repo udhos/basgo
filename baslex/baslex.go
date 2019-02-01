@@ -89,6 +89,7 @@ const (
 	TkKeywordLeft    = iota // LEFT$
 	TkKeywordLen     = iota // LEN
 	TkKeywordLet     = iota // LET
+	TkKeywordLine    = iota // LINE
 	TkKeywordList    = iota // LIST
 	TkKeywordLoad    = iota // LOAD
 	TkKeywordMid     = iota // MID$
@@ -169,6 +170,7 @@ var tabKeywords = []struct {
 	{TkKeywordLeft, "LEFT$"},
 	{TkKeywordLen, "LEN"},
 	{TkKeywordLet, "LET"},
+	{TkKeywordLine, "LINE"},
 	{TkKeywordList, "LIST"},
 	{TkKeywordLoad, "LOAD"},
 	{TkKeywordMid, "MID$"},
@@ -284,6 +286,7 @@ var tabType = []string{
 	"LEFT$",
 	"LEN",
 	"LET",
+	"LINE",
 	"LIST",
 	"LOAD",
 	"MID$",

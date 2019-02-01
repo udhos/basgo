@@ -202,6 +202,7 @@ func Reset() {
 %token <tok> TkKeywordLeft
 %token <tok> TkKeywordLen
 %token <tok> TkKeywordLet
+%token <tok> TkKeywordLine
 %token <tok> TkKeywordList
 %token <tok> TkKeywordLoad
 %token <tok> TkKeywordMid
@@ -591,6 +592,33 @@ stmt: /* empty */
      {
         Result.LibInput = true
         $$ = &node.NodeInput{PromptString:$2, Variables: $5, AddQuestion: true}
+     }
+  | TkKeywordLine TkKeywordInput expressions_push one_var expressions_pop
+     {
+        v := $4
+        if v.Type() != node.TypeString {
+           yylex.Error("LINE INPUT variable must be string")
+        }
+        Result.LibInput = true
+        $$ = &node.NodeInput{Variables: []node.NodeExp{v}, AddQuestion: true}
+     }
+  | TkKeywordLine TkKeywordInput one_const_str TkComma expressions_push one_var expressions_pop
+     {
+        v := $6
+        if v.Type() != node.TypeString {
+           yylex.Error("LINE INPUT variable must be string")
+        }
+        Result.LibInput = true
+        $$ = &node.NodeInput{PromptString:$3, Variables: []node.NodeExp{v}}
+     }
+  | TkKeywordLine TkKeywordInput one_const_str TkSemicolon expressions_push one_var expressions_pop
+     {
+        v := $6
+        if v.Type() != node.TypeString {
+           yylex.Error("LINE INPUT variable must be string")
+        }
+        Result.LibInput = true
+        $$ = &node.NodeInput{PromptString:$3, Variables: []node.NodeExp{v}, AddQuestion: true}
      }
   | TkKeywordGosub use_line_number
      {
