@@ -402,7 +402,7 @@ func firstByte(s string) int {
 
 	if mid {
 		funcMid := `
-func stringMid(s string, begin, size int) string {
+func stringMidSize(s string, begin, size int) string {
 	if size < 1 {
 		return ""
 	}
@@ -418,6 +418,18 @@ func stringMid(s string, begin, size int) string {
 		size = avail
 	}
 	return s[begin:begin+size]
+}
+
+func stringMid(s string, begin int) string {
+	begin--
+	if begin >= len(s) {
+		return ""
+	}
+	if begin < 0 {
+		begin = 0
+	} 
+	avail := len(s) - begin
+	return s[begin:begin+avail]
 }
 `
 		outputf(funcMid)

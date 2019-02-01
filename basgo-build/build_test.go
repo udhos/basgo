@@ -505,6 +505,12 @@ var testTable = []buildTest{
 	{`10 print mid$("abc",4,1);`, "", "", OK},
 	{`10 print mid$("abc",0,1);`, "", "a", OK},
 
+	{`10 print mid$("abc",0);`, "", "abc", OK},
+	{`10 print mid$("abc",1);`, "", "abc", OK},
+	{`10 print mid$("abc",2);`, "", "bc", OK},
+	{`10 print mid$("abc",3);`, "", "c", OK},
+	{`10 print mid$("abc",4);`, "", "", OK},
+
 	{`10 gosub 20`, "", "", WRONG},
 	{`10 return`, "", "", RUNTIME},
 	{"10 gosub 20\n20 end", "", "", OK},

@@ -1417,6 +1417,18 @@ exp: one_const_noneg { $$ = $1 }
        $$ = &node.NodeExpRight{Value:e1, Size:e2}
      }
    | TkKeywordLen TkParLeft exp TkParRight  { $$ = &node.NodeExpLen{Value:$3} }
+   | TkKeywordMid TkParLeft exp TkComma exp TkParRight
+     {
+       e1 := $3
+       e2 := $5
+       if e1.Type() != node.TypeString {
+           yylex.Error("MID$ value must be string")
+       }
+       if !node.TypeNumeric(e2.Type()) {
+           yylex.Error("MID$ begin must be numeric")
+       }
+       $$ = &node.NodeExpMid{Value:e1, Begin:e2}
+     }
    | TkKeywordMid TkParLeft exp TkComma exp TkComma exp TkParRight
      {
        e1 := $3

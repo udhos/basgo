@@ -610,20 +610,28 @@ func (e *NodeExpMid) Type() int {
 
 // String returns value
 func (e *NodeExpMid) String() string {
+	if e.Size == NodeExp(nil) {
+		return "MID$(" + e.Value.String() + "," + e.Begin.String() + ")"
+	}
 	return "MID$(" + e.Value.String() + "," + e.Begin.String() + "," + e.Size.String() + ")"
 }
 
 // Exp returns value
 func (e *NodeExpMid) Exp(options *BuildOptions) string {
 	options.Mid = true
-	return "stringMid(" + e.Value.Exp(options) + "," + forceInt(options, e.Begin) + "," + forceInt(options, e.Size) + ")"
+	if e.Size == NodeExp(nil) {
+		return "stringMid(" + e.Value.Exp(options) + "," + forceInt(options, e.Begin) + ")"
+	}
+	return "stringMidSize(" + e.Value.Exp(options) + "," + forceInt(options, e.Begin) + "," + forceInt(options, e.Size) + ")"
 }
 
 // FindUsedVars finds used vars
 func (e *NodeExpMid) FindUsedVars(options *BuildOptions) {
 	e.Value.FindUsedVars(options)
 	e.Begin.FindUsedVars(options)
-	e.Size.FindUsedVars(options)
+	if e.Size != NodeExp(nil) {
+		e.Size.FindUsedVars(options)
+	}
 }
 
 // NodeExpLen holds value
