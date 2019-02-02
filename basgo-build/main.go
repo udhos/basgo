@@ -94,6 +94,10 @@ func main() {
 		CountReturn: result.CountReturn,
 	}
 
+	if result.LibReadData {
+		result.Baslib = true
+	}
+
 	if result.Baslib {
 		options.Headers["github.com/udhos/basgo/baslib"] = struct{}{}
 	}
@@ -123,16 +127,11 @@ func main() {
 
 	outputf(header)
 
-	if result.LibReadData {
-		options.Headers["log"] = struct{}{}
-	}
-
 	writeImport(options.Headers, outputf)
 
 	if result.LibReadData {
-		outputf("var dataPos int // READ-DATA cursor\n")
-		outputf("var data = []interface{}{\n")
-		for _, d := range options.Data {
+		outputf("var readData = []interface{}{\n")
+		for _, d := range options.ReadData {
 			outputf("%s,\n", d)
 		}
 		outputf("}\n")
@@ -152,61 +151,7 @@ func main() {
 
 	outputf(mainClose)
 
-	lib(outputf, result.LibReadData)
-
 	return status, errors
-}
-
-func lib(outputf node.FuncPrintf, libReadData bool) {
-
-	if libReadData {
-		funcData := `
-func readDataString(name string) string {
-	if dataPos >= len(data) {
-		log.Fatalf("readDataString overflow error: var=%%s pos=%%d\n", name, dataPos)
-	}
-	d := data[dataPos]
-	dataPos++
-	v, t := d.(string)
-	if t {
-		return v
-	}
-	log.Fatalf("readDataString type error: var=%%s pos=%%d\n", name, dataPos)
-	return v
-}
-func readDataInteger(name string) int {
-	if dataPos >= len(data) {
-		log.Fatalf("readDataInteger overflow error: var=%%s pos=%%d\n", name, dataPos)
-	}
-	d := data[dataPos]
-	dataPos++
-	v, t := d.(int)
-	if t {
-		return v
-	}
-	log.Fatalf("readDataInteger type error: var=%%s pos=%%d\n", name, dataPos)
-	return v
-}
-func readDataFloat(name string) float64 {
-	if dataPos >= len(data) {
-		log.Fatalf("readDataFloat overflow error: var=%%s pos=%%d\n", name, dataPos)
-	}
-	d := data[dataPos]
-	dataPos++
-	v, t := d.(float64)
-	if t {
-		return v
-	}
-	v1, t1 := d.(int)
-	if t1 {
-		return float64(v1)
-	}
-	log.Fatalf("readDataFloat type error: var=%%s pos=%%d\n", name, dataPos)
-	return v
-}
-`
-		outputf(funcData)
-	}
 }
 
 func writeImport(headers map[string]struct{}, outputf node.FuncPrintf) {

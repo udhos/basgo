@@ -12,9 +12,10 @@ import (
 )
 
 var (
-	stdin   = bufio.NewReader(os.Stdin)                       // INPUT
-	rnd     = rand.New(rand.NewSource(time.Now().UnixNano())) // RND
-	rndLast = rnd.Float64()                                   // RND
+	stdin       = bufio.NewReader(os.Stdin)                       // INPUT
+	rnd         = rand.New(rand.NewSource(time.Now().UnixNano())) // RND
+	rndLast     = rnd.Float64()                                   // RND
+	readDataPos int                                               // READ-DATA cursor
 )
 
 func Asc(s string) int {
@@ -178,6 +179,56 @@ func String(s string, count int) string {
 		s = s[:1]
 	}
 	return strings.Repeat(s, count)
+}
+
+func ReadDataString(data []interface{}, name string) string {
+	if readDataPos >= len(data) {
+		log.Fatalf("ReadDataString overflow error: var=%s pos=%d", name, readDataPos)
+	}
+	d := data[readDataPos]
+	readDataPos++
+	v, t := d.(string)
+	if t {
+		return v
+	}
+	log.Fatalf("ReadDataString type error: var=%s pos=%d", name, readDataPos)
+	return v
+}
+
+func ReadDataInteger(data []interface{}, name string) int {
+	if readDataPos >= len(data) {
+		log.Fatalf("ReadDataInteger overflow error: var=%s pos=%d", name, readDataPos)
+	}
+	d := data[readDataPos]
+	readDataPos++
+	v, t := d.(int)
+	if t {
+		return v
+	}
+	log.Fatalf("ReadDataInteger type error: var=%s pos=%d", name, readDataPos)
+	return v
+}
+
+func ReadDataFloat(data []interface{}, name string) float64 {
+	if readDataPos >= len(data) {
+		log.Fatalf("ReadDataFloat overflow error: var=%s pos=%d", name, readDataPos)
+	}
+	d := data[readDataPos]
+	readDataPos++
+	v, t := d.(float64)
+	if t {
+		return v
+	}
+	v1, t1 := d.(int)
+	if t1 {
+		return float64(v1)
+	}
+	log.Fatalf("ReadDataFloat type error: var=%s pos=%d\n", name, readDataPos)
+	return v
+}
+
+func Restore() {
+	readDataPos = 0
 }
 
 func Right(s string, size int) string {

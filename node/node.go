@@ -94,7 +94,7 @@ type BuildOptions struct {
 	LineNumbers map[string]LineNumber // numbers used by GOTO, GOSUB etc
 	CountGosub  int
 	CountReturn int
-	Data        []string // DATA for READ
+	ReadData    []string // DATA for READ
 }
 
 // VarSetUsed sets variable as used
@@ -525,7 +525,7 @@ func (n *NodeData) Build(options *BuildOptions, outputf FuncPrintf) {
 
 	for _, e := range n.Expressions {
 		s := e.Exp(options)
-		options.Data = append(options.Data, s)
+		options.ReadData = append(options.ReadData, s)
 	}
 }
 
@@ -1272,29 +1272,17 @@ func (n *NodeRead) Build(options *BuildOptions, outputf FuncPrintf) {
 		var code string
 		switch t {
 		case TypeString:
-			code = fmt.Sprintf(`%s = readDataString("%s")`, vv, vv)
+			code = fmt.Sprintf(`%s = baslib.ReadDataString(readData, "%s")`, vv, vv)
 		case TypeInteger:
-			code = fmt.Sprintf(`%s = readDataInteger("%s")`, vv, vv)
+			code = fmt.Sprintf(`%s = baslib.ReadDataInteger(readData, "%s")`, vv, vv)
 		case TypeFloat:
-			code = fmt.Sprintf(`%s = readDataFloat("%s")`, vv, vv)
+			code = fmt.Sprintf(`%s = baslib.ReadDataFloat(readData, "%s")`, vv, vv)
 		default:
 			msg := fmt.Sprintf("NodeRead.Build: unsupported var %s type: %d", v, t)
 			log.Printf(msg)
 			code = fmt.Sprintf("println(%s)\n", msg)
 		}
 
-		/*
-			var used bool
-
-			switch ee := e.(type) {
-			case *NodeExpIdentifier:
-				used = options.VarIsUsed(ee.Value)
-			case *NodeExpArray:
-				used = ArrayIsUsed(options.Arrays, ee.Name)
-			default:
-				log.Printf("NodeRead.Build: unexpected '%s' non-var non-array: %v", v, e)
-			}
-		*/
 		used := VarOrArrayIsUsed(options, e)
 
 		if used {
@@ -1325,7 +1313,7 @@ func (n *NodeRestore) Show(printf FuncPrintf) {
 
 // Build generates code
 func (n *NodeRestore) Build(options *BuildOptions, outputf FuncPrintf) {
-	outputf("dataPos = 0 // RESTORE\n")
+	outputf("baslib.Restore()\n")
 }
 
 // FindUsedVars finds used vars
