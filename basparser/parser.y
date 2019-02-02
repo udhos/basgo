@@ -1460,6 +1460,7 @@ exp: one_const_noneg { $$ = $1 }
        if !node.TypeNumeric(e.Type()) {
            yylex.Error("RND expression must be numeric")
        }
+       Result.Baslib = true
        $$ = &node.NodeExpRnd{Value:e}
      }
    | TkKeywordStr TkParLeft exp TkParRight

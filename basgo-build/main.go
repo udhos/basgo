@@ -153,20 +153,10 @@ func main() {
 		outputf("}\n")
 	}
 
-	if options.Rnd {
-		outputf("var rnd *rand.Rand // used by RND lib\n")
-		outputf("var rndLast float64 // used by RND lib\n")
-	}
-
 	outputf(mainOpen)
 
 	if result.LibGosubReturn {
 		outputf("gosubStack := []int{} // used by GOSUB/RETURN lib\n")
-	}
-
-	if options.Rnd {
-		outputf("rnd = rand.New(rand.NewSource(time.Now().UnixNano())) // used by RND lib\n")
-		outputf("rndLast = rnd.Float64() // used by RND lib\n")
 	}
 
 	writeVar(options.Vars, outputf)
@@ -177,24 +167,12 @@ func main() {
 
 	outputf(mainClose)
 
-	lib(outputf, options.Rnd, options.Left, result.LibReadData, options.Mid, result.LibVal, result.LibRight, result.LibRepeat, result.LibAsc)
+	lib(outputf, options.Left, result.LibReadData, options.Mid, result.LibVal, result.LibRight, result.LibRepeat, result.LibAsc)
 
 	return status, errors
 }
 
-func lib(outputf node.FuncPrintf, rnd, left, libReadData, mid, val, right, repeat, asc bool) {
-
-	if rnd {
-		funcRnd := `
-func randomFloat64(v float64) float64 {
-	if v > 0 {
-		rndLast = rnd.Float64() // generate new number
-	}
-	return rndLast
-}
-`
-		outputf(funcRnd)
-	}
+func lib(outputf node.FuncPrintf, left, libReadData, mid, val, right, repeat, asc bool) {
 
 	if left {
 		funcLeft := `

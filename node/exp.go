@@ -681,11 +681,7 @@ func (e *NodeExpRnd) String() string {
 
 // Exp returns value
 func (e *NodeExpRnd) Exp(options *BuildOptions) string {
-	options.Headers["time"] = struct{}{}
-	options.Headers["math/rand"] = struct{}{}
-	options.Rnd = true
-
-	return "randomFloat64(" + forceFloat(options, e.Value) + ")"
+	return "baslib.Rnd(" + forceFloat(options, e.Value) + ")"
 }
 
 // FindUsedVars finds used vars

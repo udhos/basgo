@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"strconv"
 	"strings"
@@ -11,7 +12,9 @@ import (
 )
 
 var (
-	stdin = bufio.NewReader(os.Stdin) // INPUT helpers
+	stdin   = bufio.NewReader(os.Stdin)                       // INPUT
+	rnd     = rand.New(rand.NewSource(time.Now().UnixNano())) // RND
+	rndLast = rnd.Float64()                                   // RND
 )
 
 func BoolToInt(v bool) int {
@@ -103,4 +106,11 @@ func InputParseFloat(str string) float64 {
 		log.Printf("input: float '%s' error: %v", str, err)
 	}
 	return v
+}
+
+func Rnd(v float64) float64 {
+	if v > 0 {
+		rndLast = rnd.Float64() // generate new number
+	}
+	return rndLast
 }
