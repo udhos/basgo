@@ -816,7 +816,14 @@ func (n *NodePrint) Build(options *BuildOptions, outputf FuncPrintf) {
 	outputf("\n")
 
 	for _, e := range n.Expressions {
+		numeric := TypeNumeric(e.Type())
+		if numeric {
+			outputf("fmt.Print(` `) // PRINT space before number\n")
+		}
 		outputf("fmt.Print(%s)\n", e.Exp(options))
+		if numeric {
+			outputf("fmt.Print(` `) // PRINT space after number\n")
+		}
 	}
 
 	if n.Tab {
