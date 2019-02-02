@@ -98,16 +98,6 @@ func main() {
 		options.Headers["github.com/udhos/basgo/baslib"] = struct{}{}
 	}
 
-	if result.LibVal {
-		options.Headers["log"] = struct{}{}
-		options.Headers["strings"] = struct{}{}
-		options.Headers["strconv"] = struct{}{}
-	}
-
-	if result.LibAsc {
-		options.Headers["log"] = struct{}{}
-	}
-
 	if result.LibMath {
 		options.Headers["math"] = struct{}{}
 	}
@@ -162,40 +152,12 @@ func main() {
 
 	outputf(mainClose)
 
-	lib(outputf, result.LibReadData, result.LibVal, result.LibAsc)
+	lib(outputf, result.LibReadData)
 
 	return status, errors
 }
 
-func lib(outputf node.FuncPrintf, libReadData, val, asc bool) {
-
-	if val {
-		funcVal := `
-func stringToFloat(s string) float64 {
-        s = strings.TrimSpace(s)
-	v, err := strconv.ParseFloat(s, 64)
-	if err != nil {
-		m := "value for number: '" + s + "' error: " + err.Error()
-		log.Printf(m)
-	}
-	return v 
-}
-`
-		outputf(funcVal)
-	}
-
-	if asc {
-		funcAsc := `
-func firstByte(s string) int {
-	if len(s) < 1 {
-		log.Printf("ASC: firstByte: empty string")
-		return 0
-	}
-	return int(s[0])
-}
-`
-		outputf(funcAsc)
-	}
+func lib(outputf node.FuncPrintf, libReadData bool) {
 
 	if libReadData {
 		funcData := `

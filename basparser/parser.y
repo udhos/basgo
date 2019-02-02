@@ -21,8 +21,6 @@ type ParserResult struct {
 	LineNumbers map[string]node.LineNumber // used by GOTO GOSUB etc
 	LibReadData bool
 	LibGosubReturn bool
-	LibVal bool
-	LibAsc bool
 	LibMath bool
 	Baslib bool
 	ForStack []*node.NodeFor
@@ -1478,7 +1476,7 @@ exp: one_const_noneg { $$ = $1 }
        if str.Type() != node.TypeString {
            yylex.Error("VAL expression must be string")
        }
-       Result.LibVal = true
+       Result.Baslib = true
        $$ = &node.NodeExpVal{Value:str}
      }
    | TkKeywordTab TkParLeft exp TkParRight
@@ -1528,7 +1526,7 @@ exp: one_const_noneg { $$ = $1 }
        if str.Type() != node.TypeString {
            yylex.Error("ASC expression must be string")
        }
-       Result.LibAsc = true
+       Result.Baslib = true
        $$ = &node.NodeExpAsc{Value:str}
      }
    | TkKeywordChr TkParLeft exp TkParRight

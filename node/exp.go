@@ -1121,7 +1121,7 @@ func (e *NodeExpVal) String() string {
 
 // Exp returns value
 func (e *NodeExpVal) Exp(options *BuildOptions) string {
-	return "stringToFloat(" + e.Value.Exp(options) + ")"
+	return "baslib.Val(" + e.Value.Exp(options) + ")"
 }
 
 // FindUsedVars finds used vars
@@ -1252,7 +1252,7 @@ func (e *NodeExpAsc) String() string {
 
 // Exp returns value
 func (e *NodeExpAsc) Exp(options *BuildOptions) string {
-	return "firstByte(" + e.Value.Exp(options) + ")"
+	return "baslib.Asc(" + e.Value.Exp(options) + ")"
 }
 
 // FindUsedVars finds used vars

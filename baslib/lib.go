@@ -17,6 +17,23 @@ var (
 	rndLast = rnd.Float64()                                   // RND
 )
 
+func Asc(s string) int {
+	if len(s) < 1 {
+		log.Printf("asc empty string")
+		return 0
+	}
+	return int(s[0])
+}
+
+func Val(s string) float64 {
+	s = strings.TrimSpace(s)
+	v, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		log.Printf("numeric value from: '%s' error: %v", s, err)
+	}
+	return v
+}
+
 func BoolToInt(v bool) int {
 	if v {
 		return -1
@@ -149,10 +166,18 @@ func Mid(s string, begin int) string {
 
 func String(s string, count int) string {
 	if count < 0 {
-		log.Printf("repeat string negative count")
-		count = 0
+		log.Printf("string repeat negative count")
 	}
-	return strings.Repeat(Left(s, 1), count)
+	if count < 1 {
+		return ""
+	}
+	if count == 1 {
+		return s
+	}
+	if len(s) > 1 {
+		s = s[:1]
+	}
+	return strings.Repeat(s, count)
 }
 
 func Right(s string, size int) string {
