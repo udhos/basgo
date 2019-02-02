@@ -19,7 +19,6 @@ import (
 type ParserResult struct {
 	Root []node.Node
 	LineNumbers map[string]node.LineNumber // used by GOTO GOSUB etc
-	LibInput bool
 	LibReadData bool
 	LibGosubReturn bool
 	LibVal bool
@@ -580,17 +579,17 @@ stmt: /* empty */
      }
   | TkKeywordInput expressions_push var_list expressions_pop
      {
-        Result.LibInput = true
+        Result.Baslib = true
         $$ = &node.NodeInput{Variables: $3, AddQuestion: true}
      }
   | TkKeywordInput one_const_str TkComma expressions_push var_list expressions_pop
      {
-        Result.LibInput = true
+        Result.Baslib = true
         $$ = &node.NodeInput{PromptString:$2, Variables: $5}
      }
   | TkKeywordInput one_const_str TkSemicolon expressions_push var_list expressions_pop
      {
-        Result.LibInput = true
+        Result.Baslib = true
         $$ = &node.NodeInput{PromptString:$2, Variables: $5, AddQuestion: true}
      }
   | TkKeywordLine TkKeywordInput expressions_push one_var expressions_pop
@@ -599,7 +598,7 @@ stmt: /* empty */
         if v.Type() != node.TypeString {
            yylex.Error("LINE INPUT variable must be string")
         }
-        Result.LibInput = true
+        Result.Baslib = true
         $$ = &node.NodeInput{Variables: []node.NodeExp{v}, AddQuestion: true}
      }
   | TkKeywordLine TkKeywordInput one_const_str TkComma expressions_push one_var expressions_pop
@@ -608,7 +607,7 @@ stmt: /* empty */
         if v.Type() != node.TypeString {
            yylex.Error("LINE INPUT variable must be string")
         }
-        Result.LibInput = true
+        Result.Baslib = true
         $$ = &node.NodeInput{PromptString:$3, Variables: []node.NodeExp{v}}
      }
   | TkKeywordLine TkKeywordInput one_const_str TkSemicolon expressions_push one_var expressions_pop
@@ -617,7 +616,7 @@ stmt: /* empty */
         if v.Type() != node.TypeString {
            yylex.Error("LINE INPUT variable must be string")
         }
-        Result.LibInput = true
+        Result.Baslib = true
         $$ = &node.NodeInput{PromptString:$3, Variables: []node.NodeExp{v}, AddQuestion: true}
      }
   | TkKeywordGosub use_line_number
@@ -1614,7 +1613,7 @@ exp: one_const_noneg { $$ = $1 }
        $$ = &node.NodeExpGofunc{Name: $3, Arguments: $6}
      }
    | TkKeywordInkey {
-       Result.LibInput = true
+       Result.Baslib = true
        $$ = &node.NodeExpInkey{}
      }
    ;

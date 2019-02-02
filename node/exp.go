@@ -500,7 +500,7 @@ func (e *NodeExpInkey) String() string {
 
 // Exp returns value
 func (e *NodeExpInkey) Exp(options *BuildOptions) string {
-	return "inputInkey()"
+	return "baslib.Inkey()"
 }
 
 // FindUsedVars finds used vars

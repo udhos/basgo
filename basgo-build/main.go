@@ -35,7 +35,6 @@ func compile(input io.Reader, outputf node.FuncPrintf) (int, int) {
 	log.Printf("%s: parsing", basgoLabel)
 
 	result, status, errors := parse(input, outputf)
-	libInput := result.LibInput
 	lineNumbersTab := result.LineNumbers
 	nodes := result.Root
 
@@ -91,17 +90,12 @@ func main() {
 		Vars:        map[string]struct{}{},
 		Arrays:      result.ArrayTable,
 		LineNumbers: lineNumbersTab,
-		Input:       libInput,
 		CountGosub:  result.CountGosub,
 		CountReturn: result.CountReturn,
 	}
 
 	if result.Baslib {
 		options.Headers["github.com/udhos/basgo/baslib"] = struct{}{}
-	}
-
-	if options.Input {
-		inputHeaders(options.Headers)
 	}
 
 	if result.LibVal {
@@ -159,10 +153,6 @@ func main() {
 		outputf("}\n")
 	}
 
-	if options.Input {
-		outputf("var stdin = bufio.NewReader(os.Stdin) // stdin used by INPUT lib\n")
-	}
-
 	if options.Rnd {
 		outputf("var rnd *rand.Rand // used by RND lib\n")
 		outputf("var rndLast float64 // used by RND lib\n")
@@ -187,21 +177,12 @@ func main() {
 
 	outputf(mainClose)
 
-	lib(outputf, options.Input, options.Rnd, options.Left, result.LibReadData, options.Mid, result.LibVal, result.LibRight, result.LibRepeat, result.LibAsc, result.LibBool)
+	lib(outputf, options.Rnd, options.Left, result.LibReadData, options.Mid, result.LibVal, result.LibRight, result.LibRepeat, result.LibAsc, result.LibBool)
 
 	return status, errors
 }
 
-func inputHeaders(h map[string]struct{}) {
-	h["fmt"] = struct{}{}
-	h["bufio"] = struct{}{}
-	h["log"] = struct{}{}
-	h["os"] = struct{}{}
-	h["strconv"] = struct{}{}
-	h["strings"] = struct{}{}
-}
-
-func lib(outputf node.FuncPrintf, input, rnd, left, libReadData, mid, val, right, repeat, asc, libBool bool) {
+func lib(outputf node.FuncPrintf, rnd, left, libReadData, mid, val, right, repeat, asc, libBool bool) {
 
 	if libBool {
 
@@ -214,72 +195,6 @@ func boolToInt(v bool) int {
 }
 `
 		outputf(funcBoolToInt)
-	}
-
-	if input {
-
-		funcInput := `
-
-func inputInkey() string {
-
-	b, err := stdin.ReadByte()
-	if err != nil {
-		log.Printf("input byte error: %%v", err)
-		return ""
-	}
-
-	return string([]byte{b})
-}
-
-func inputString() string {
-
-	buf, isPrefix, err := stdin.ReadLine()
-	if err != nil {
-		log.Printf("input error: %%v", err)
-	}
-	if isPrefix {
-		log.Printf("input too big has been truncated")
-	}
-
-	return string(buf)
-}
-
-func inputMultivar(prompt, question string, count int) []string {
-	for {
-		if prompt != "" {
-			fmt.Print(prompt)
-		}
-		if question != "" {
-			fmt.Print(question)
-		}
-		buf := inputString()
-  		fields := strings.Split(buf, ",")
-		if n := len(fields); n != count {
-			log.Printf("input: found %%d of %%d required comma-separated fields, please retry.", n, count)
-			continue
-		}
-		return fields
-	}
-}
-
-func inputParseInteger(str string) int {
-	v, err := strconv.Atoi(strings.TrimSpace(str))
-	if err != nil {
-		log.Printf("input: integer '%%s' error: %%v", str, err)
-	}
-	return v 
-}
-
-func inputParseFloat(str string) float64 {
-	v, err := strconv.ParseFloat(strings.TrimSpace(str), 64)
-	if err != nil {
-		log.Printf("input: float '%%s' error: %%v", str, err)
-	}
-	return v 
-}
-`
-
-		outputf(funcInput)
 	}
 
 	if rnd {

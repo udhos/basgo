@@ -93,7 +93,6 @@ type BuildOptions struct {
 	Arrays      map[string]ArraySymbol
 	LineNumbers map[string]LineNumber // numbers used by GOTO, GOSUB etc
 	Rnd         bool                  // using lib RND
-	Input       bool                  // using lib INPUT
 	Left        bool                  // using lib LEFT
 	Mid         bool                  // using lib MID
 	CountGosub  int
@@ -1162,64 +1161,23 @@ func (n *NodeInput) Show(printf FuncPrintf) {
 	printf("[%s vars=%d prompt=%s question=%v]", n.Name(), len(n.Variables), n.PromptString, n.AddQuestion)
 }
 
-// FIXME move source code to external file?
-/*
-const (
-	InputString  = "inputString()"  // InputString FIXME move source code to external file?
-	InputInteger = "inputInteger()" // InputInteger FIXME move source code to external file?
-	InputFloat   = "inputFloat()"   // InputFloat FIXME move source code to external file?
-)
-*/
-
 // Build generates code
 func (n *NodeInput) Build(options *BuildOptions, outputf FuncPrintf) {
 	outputf("// ")
 	n.Show(outputf)
 	outputf("\n")
 
-	/*
-		options.Headers["fmt"] = struct{}{} // used package
-
-		var code string
-
-		t := VarType(n.Variable) // a$ => string
-		switch t {
-		case TypeString:
-			code = InputString
-		case TypeInteger:
-			code = InputInteger
-		case TypeFloat:
-			code = InputFloat
-		default:
-			msg := fmt.Sprintf("NodeInput.Build: unknown var '%s' type: %d", n.Variable, t)
-			log.Printf(msg)
-			outputf("panic(%s) // INPUT bad var type\n", msg)
-			return
-		}
-
-		v := RenameVar(n.Variable) // a$ => str_a
-
-		if options.VarIsUsed(n.Variable) {
-			outputf("%s = %s\n", v, code)
-			return
-		}
-
-		outputf("%s // unnused INPUT variable %s/%s suppressed\n", code, n.Variable, v)
-	*/
-
 	promptStr := "``"
 	if prompt, hasPrompt := n.PromptString.(*NodeExpString); hasPrompt {
 		promptStr = prompt.Exp(options)
-		//outputf("  fmt.Print(" + str + ") // INPUT prompt string\n")
 	}
 	var questionMark string
 	if n.AddQuestion {
 		questionMark = "? "
-		//outputf("  fmt.Print(`? `) // INPUT question mark not suppressed\n")
 	}
 
 	outputf("{\n")
-	outputf("  fields := inputMultivar(%s,`%s`,%d)\n", promptStr, questionMark, len(n.Variables))
+	outputf("  fields := baslib.Input(%s,`%s`,%d)\n", promptStr, questionMark, len(n.Variables))
 
 	for i, v := range n.Variables {
 		str := v.Exp(options)
@@ -1229,9 +1187,9 @@ func (n *NodeInput) Build(options *BuildOptions, outputf FuncPrintf) {
 		case TypeString:
 			code = fmt.Sprintf("%s = fields[%d]", str, i)
 		case TypeInteger:
-			code = fmt.Sprintf("%s = inputParseInteger(fields[%d])", str, i)
+			code = fmt.Sprintf("%s = baslib.InputParseInteger(fields[%d])", str, i)
 		case TypeFloat:
-			code = fmt.Sprintf("%s = inputParseFloat(fields[%d])", str, i)
+			code = fmt.Sprintf("%s = baslib.InputParseFloat(fields[%d])", str, i)
 		}
 		used := VarOrArrayIsUsed(options, v)
 		if used {
