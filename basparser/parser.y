@@ -27,7 +27,6 @@ type ParserResult struct {
 	LibRepeat bool
 	LibAsc bool
 	LibBool bool
-	LibTime bool
 	LibMath bool
 	Baslib bool
 	ForStack []*node.NodeFor
@@ -1541,15 +1540,15 @@ exp: one_const_noneg { $$ = $1 }
        $$ = &node.NodeExpChr{Value:num}
      }
    | TkKeywordDate {
-       Result.LibTime = true
+       Result.Baslib = true
        $$ = &node.NodeExpDate{}
      }
    | TkKeywordTime {
-       Result.LibTime = true
+       Result.Baslib = true
        $$ = &node.NodeExpTime{}
      }
    | TkKeywordTimer {
-       Result.LibTime = true
+       Result.Baslib = true
        $$ = &node.NodeExpTimer{}
      }
    | TkKeywordAbs TkParLeft exp TkParRight

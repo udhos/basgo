@@ -1311,7 +1311,7 @@ func (e *NodeExpDate) String() string {
 
 // Exp returns value
 func (e *NodeExpDate) Exp(options *BuildOptions) string {
-	return "timeDate()"
+	return "baslib.Date()"
 }
 
 // FindUsedVars finds used vars
@@ -1334,7 +1334,7 @@ func (e *NodeExpTime) String() string {
 
 // Exp returns value
 func (e *NodeExpTime) Exp(options *BuildOptions) string {
-	return "timeTime()"
+	return "baslib.Time()"
 }
 
 // FindUsedVars finds used vars
@@ -1357,7 +1357,7 @@ func (e *NodeExpTimer) String() string {
 
 // Exp returns value
 func (e *NodeExpTimer) Exp(options *BuildOptions) string {
-	return "timeTimer()"
+	return "baslib.Timer()"
 }
 
 // FindUsedVars finds used vars
