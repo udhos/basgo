@@ -104,11 +104,6 @@ func main() {
 		options.Headers["strconv"] = struct{}{}
 	}
 
-	if result.LibRepeat {
-		options.Headers["log"] = struct{}{}
-		options.Headers["strings"] = struct{}{}
-	}
-
 	if result.LibAsc {
 		options.Headers["log"] = struct{}{}
 	}
@@ -167,55 +162,12 @@ func main() {
 
 	outputf(mainClose)
 
-	lib(outputf, options.Left, result.LibReadData, options.Mid, result.LibVal, result.LibRight, result.LibRepeat, result.LibAsc)
+	lib(outputf, result.LibReadData, result.LibVal, result.LibAsc)
 
 	return status, errors
 }
 
-func lib(outputf node.FuncPrintf, left, libReadData, mid, val, right, repeat, asc bool) {
-
-	if left {
-		funcLeft := `
-func stringLeft(s string, size int) string {
-	if size < 1 {
-		return ""
-	}
-	if size >= len(s) {
-		return s
-	}
-	return s[:size]
-}
-`
-		outputf(funcLeft)
-	}
-
-	if right {
-		funcRight := `
-func stringRight(s string, size int) string {
-	if size < 1 {
-		return ""
-	}
-	if size >= len(s) {
-		return s
-	}
-	return s[len(s)-size:]
-}
-`
-		outputf(funcRight)
-	}
-
-	if repeat {
-		funcRepeat := `
-func stringRepeat(s string, count int) string {
-	if count < 0 {
-		log.Printf("repeat string negative count")
-		count = 0
-	}
-	return strings.Repeat(s, count)
-}
-`
-		outputf(funcRepeat)
-	}
+func lib(outputf node.FuncPrintf, libReadData, val, asc bool) {
 
 	if val {
 		funcVal := `
@@ -243,41 +195,6 @@ func firstByte(s string) int {
 }
 `
 		outputf(funcAsc)
-	}
-
-	if mid {
-		funcMid := `
-func stringMidSize(s string, begin, size int) string {
-	if size < 1 {
-		return ""
-	}
-	begin--
-	if begin >= len(s) {
-		return ""
-	}
-	if begin < 0 {
-		begin = 0
-	} 
-	avail := len(s) - begin
-	if size > avail {
-		size = avail
-	}
-	return s[begin:begin+size]
-}
-
-func stringMid(s string, begin int) string {
-	begin--
-	if begin >= len(s) {
-		return ""
-	}
-	if begin < 0 {
-		begin = 0
-	} 
-	avail := len(s) - begin
-	return s[begin:begin+avail]
-}
-`
-		outputf(funcMid)
 	}
 
 	if libReadData {

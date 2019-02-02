@@ -92,9 +92,6 @@ type BuildOptions struct {
 	Vars        map[string]struct{}
 	Arrays      map[string]ArraySymbol
 	LineNumbers map[string]LineNumber // numbers used by GOTO, GOSUB etc
-	Rnd         bool                  // using lib RND
-	Left        bool                  // using lib LEFT
-	Mid         bool                  // using lib MID
 	CountGosub  int
 	CountReturn int
 	Data        []string // DATA for READ

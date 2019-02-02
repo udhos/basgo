@@ -22,8 +22,6 @@ type ParserResult struct {
 	LibReadData bool
 	LibGosubReturn bool
 	LibVal bool
-	LibRight bool
-	LibRepeat bool
 	LibAsc bool
 	LibMath bool
 	Baslib bool
@@ -1348,7 +1346,7 @@ exp: one_const_noneg { $$ = $1 }
 		fmt.Sprintf("%s = %s | ", e1.String(), e2.String()) +
 		fmt.Sprintf("%s = %s", node.TypeLabel(t1), node.TypeLabel(t2)))
        }
-       Result.Baslib = true
+       Result.Baslib = true // BoolToInt
        $$ = &node.NodeExpEqual{Left:e1, Right:e2}
      }
    | exp TkUnequal exp
@@ -1356,7 +1354,7 @@ exp: one_const_noneg { $$ = $1 }
        if !node.TypeCompare($1.Type(), $3.Type()) {
            yylex.Error("TkUnequal type mismatch")
        }
-       Result.Baslib = true
+       Result.Baslib = true // BoolToInt
        $$ = &node.NodeExpUnequal{Left:$1, Right:$3}
      }
    | exp TkGT exp
@@ -1364,7 +1362,7 @@ exp: one_const_noneg { $$ = $1 }
        if !node.TypeCompare($1.Type(), $3.Type()) {
            yylex.Error("TkGT type mismatch")
        }
-       Result.Baslib = true
+       Result.Baslib = true // BoolToInt
        $$ = &node.NodeExpGT{Left:$1, Right:$3}
      }
    | exp TkLT exp
@@ -1372,7 +1370,7 @@ exp: one_const_noneg { $$ = $1 }
        if !node.TypeCompare($1.Type(), $3.Type()) {
            yylex.Error("TkLT type mismatch")
        }
-       Result.Baslib = true
+       Result.Baslib = true // BoolToInt
        $$ = &node.NodeExpLT{Left:$1, Right:$3}
      }
    | exp TkGE exp
@@ -1380,7 +1378,7 @@ exp: one_const_noneg { $$ = $1 }
        if !node.TypeCompare($1.Type(), $3.Type()) {
            yylex.Error("TkGE type mismatch")
        }
-       Result.Baslib = true
+       Result.Baslib = true // BoolToInt
        $$ = &node.NodeExpGE{Left:$1, Right:$3}
      }
    | exp TkLE exp
@@ -1388,7 +1386,7 @@ exp: one_const_noneg { $$ = $1 }
        if !node.TypeCompare($1.Type(), $3.Type()) {
            yylex.Error("TkLE type mismatch")
        }
-       Result.Baslib = true
+       Result.Baslib = true // BoolToInt
        $$ = &node.NodeExpLE{Left:$1, Right:$3}
      }
    | TkKeywordInt exp
@@ -1409,6 +1407,7 @@ exp: one_const_noneg { $$ = $1 }
        if !node.TypeNumeric(e2.Type()) {
            yylex.Error("LEFT$ size must be numeric")
        }
+       Result.Baslib = true
        $$ = &node.NodeExpLeft{Value:e1, Size:e2}
      }
    | TkKeywordRight TkParLeft exp TkComma exp TkParRight
@@ -1421,7 +1420,7 @@ exp: one_const_noneg { $$ = $1 }
        if !node.TypeNumeric(e2.Type()) {
            yylex.Error("RIGHT$ size must be numeric")
        }
-       Result.LibRight = true
+       Result.Baslib = true
        $$ = &node.NodeExpRight{Value:e1, Size:e2}
      }
    | TkKeywordLen TkParLeft exp TkParRight  { $$ = &node.NodeExpLen{Value:$3} }
@@ -1435,6 +1434,7 @@ exp: one_const_noneg { $$ = $1 }
        if !node.TypeNumeric(e2.Type()) {
            yylex.Error("MID$ begin must be numeric")
        }
+       Result.Baslib = true
        $$ = &node.NodeExpMid{Value:e1, Begin:e2}
      }
    | TkKeywordMid TkParLeft exp TkComma exp TkComma exp TkParRight
@@ -1451,6 +1451,7 @@ exp: one_const_noneg { $$ = $1 }
        if !node.TypeNumeric(e3.Type()) {
            yylex.Error("MID$ size must be numeric")
        }
+       Result.Baslib = true
        $$ = &node.NodeExpMid{Value:e1, Begin:e2, Size:e3}
      }
    | TkKeywordRnd { $$ = &node.NodeExpRnd{Value:&node.NodeExpNumber{Value:"1"}} }
@@ -1486,7 +1487,7 @@ exp: one_const_noneg { $$ = $1 }
        if !node.TypeNumeric(num.Type()) {
            yylex.Error("TAB expression must be numeric")
        }
-       Result.LibRepeat = true
+       Result.Baslib = true
        $$ = &node.NodeExpTab{Value:num}
      }
    | TkKeywordSpc TkParLeft exp TkParRight
@@ -1496,7 +1497,7 @@ exp: one_const_noneg { $$ = $1 }
            yylex.Error("SPC expression must be numeric")
        }
        $$ = &node.NodeExpSpc{Value:num}
-       Result.LibRepeat = true
+       Result.Baslib = true
      }
    | TkKeywordSpace TkParLeft exp TkParRight
      {
@@ -1504,7 +1505,7 @@ exp: one_const_noneg { $$ = $1 }
        if !node.TypeNumeric(num.Type()) {
            yylex.Error("SPACE$ expression must be numeric")
        }
-       Result.LibRepeat = true
+       Result.Baslib = true
        $$ = &node.NodeExpSpace{Value:num}
      }
    | TkKeywordString TkParLeft exp TkComma exp TkParRight
@@ -1518,7 +1519,7 @@ exp: one_const_noneg { $$ = $1 }
        if !node.TypeNumeric(t) && t != node.TypeString  {
            yylex.Error("STRING$ char must be numeric or string")
        }
-       Result.LibRepeat = true
+       Result.Baslib = true
        $$ = &node.NodeExpFuncString{Value:num, Char: char}
      }
    | TkKeywordAsc TkParLeft exp TkParRight

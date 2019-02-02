@@ -108,6 +108,63 @@ func InputParseFloat(str string) float64 {
 	return v
 }
 
+func Left(s string, size int) string {
+	if size < 1 {
+		return ""
+	}
+	if size >= len(s) {
+		return s
+	}
+	return s[:size]
+}
+
+func MidSize(s string, begin, size int) string {
+	if size < 1 {
+		return ""
+	}
+	begin--
+	if begin >= len(s) {
+		return ""
+	}
+	if begin < 0 {
+		begin = 0
+	}
+	avail := len(s) - begin
+	if size > avail {
+		size = avail
+	}
+	return s[begin : begin+size]
+}
+
+func Mid(s string, begin int) string {
+	begin--
+	if begin >= len(s) {
+		return ""
+	}
+	if begin < 0 {
+		begin = 0
+	}
+	return s[begin:]
+}
+
+func String(s string, count int) string {
+	if count < 0 {
+		log.Printf("repeat string negative count")
+		count = 0
+	}
+	return strings.Repeat(Left(s, 1), count)
+}
+
+func Right(s string, size int) string {
+	if size < 1 {
+		return ""
+	}
+	if size >= len(s) {
+		return s
+	}
+	return s[len(s)-size:]
+}
+
 func Rnd(v float64) float64 {
 	if v > 0 {
 		rndLast = rnd.Float64() // generate new number

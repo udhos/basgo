@@ -559,8 +559,7 @@ func (e *NodeExpLeft) String() string {
 
 // Exp returns value
 func (e *NodeExpLeft) Exp(options *BuildOptions) string {
-	options.Left = true
-	return "stringLeft(" + e.Value.Exp(options) + "," + forceInt(options, e.Size) + ")"
+	return "baslib.Left(" + e.Value.Exp(options) + "," + forceInt(options, e.Size) + ")"
 }
 
 // FindUsedVars finds used vars
@@ -587,7 +586,7 @@ func (e *NodeExpRight) String() string {
 
 // Exp returns value
 func (e *NodeExpRight) Exp(options *BuildOptions) string {
-	return "stringRight(" + e.Value.Exp(options) + "," + forceInt(options, e.Size) + ")"
+	return "baslib.Right(" + e.Value.Exp(options) + "," + forceInt(options, e.Size) + ")"
 }
 
 // FindUsedVars finds used vars
@@ -618,11 +617,10 @@ func (e *NodeExpMid) String() string {
 
 // Exp returns value
 func (e *NodeExpMid) Exp(options *BuildOptions) string {
-	options.Mid = true
 	if e.Size == NodeExp(nil) {
-		return "stringMid(" + e.Value.Exp(options) + "," + forceInt(options, e.Begin) + ")"
+		return "baslib.Mid(" + e.Value.Exp(options) + "," + forceInt(options, e.Begin) + ")"
 	}
-	return "stringMidSize(" + e.Value.Exp(options) + "," + forceInt(options, e.Begin) + "," + forceInt(options, e.Size) + ")"
+	return "baslib.MidSize(" + e.Value.Exp(options) + "," + forceInt(options, e.Begin) + "," + forceInt(options, e.Size) + ")"
 }
 
 // FindUsedVars finds used vars
@@ -1148,7 +1146,7 @@ func (e *NodeExpTab) String() string {
 
 // Exp returns value
 func (e *NodeExpTab) Exp(options *BuildOptions) string {
-	return `stringRepeat(" ",` + forceInt(options, e.Value) + "-1)"
+	return `baslib.String(" ",` + forceInt(options, e.Value) + "-1)"
 }
 
 // FindUsedVars finds used vars
@@ -1173,7 +1171,7 @@ func (e *NodeExpSpc) String() string {
 
 // Exp returns value
 func (e *NodeExpSpc) Exp(options *BuildOptions) string {
-	return `stringRepeat(" ",` + forceInt(options, e.Value) + ")"
+	return `baslib.String(" ",` + forceInt(options, e.Value) + ")"
 }
 
 // FindUsedVars finds used vars
@@ -1198,7 +1196,7 @@ func (e *NodeExpSpace) String() string {
 
 // Exp returns value
 func (e *NodeExpSpace) Exp(options *BuildOptions) string {
-	return `stringRepeat(" ",` + forceInt(options, e.Value) + ")"
+	return `baslib.String(" ",` + forceInt(options, e.Value) + ")"
 }
 
 // FindUsedVars finds used vars
@@ -1226,14 +1224,10 @@ func (e *NodeExpFuncString) String() string {
 func (e *NodeExpFuncString) Exp(options *BuildOptions) string {
 	if TypeNumeric(e.Char.Type()) {
 		str := "string([]byte{byte(" + forceInt(options, e.Char) + ")})"
-		return "stringRepeat(" + str + "," + forceInt(options, e.Value) + ")"
+		return "baslib.String(" + str + "," + forceInt(options, e.Value) + ")"
 	}
 
-	options.Left = true
-
-	left := "stringLeft(" + e.Char.Exp(options) + ",1)"
-
-	return `stringRepeat(` + left + `,` + forceInt(options, e.Value) + ")"
+	return `baslib.String(` + e.Char.Exp(options) + `,` + forceInt(options, e.Value) + ")"
 }
 
 // FindUsedVars finds used vars
