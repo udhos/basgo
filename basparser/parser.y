@@ -907,7 +907,20 @@ print_expressions: exp
 	}
     ;
 
-one_const_int: TkNumber { $$ = &node.NodeExpNumber{Value:$1} }
+one_const_int: TkNumber
+    {
+        str := $1
+
+        // str->int->str: make sure it can be used as literal int const in Go source code
+        num, err := strconv.Atoi(str)
+        if err != nil {
+            yylex.Error("error parsing number: "+err.Error())
+        }
+	str = strconv.Itoa(num)
+
+        $$ = &node.NodeExpNumber{Value:str}
+    }
+
 one_const_float: TkFloat
      {
        n := &node.NodeExpFloat{}
