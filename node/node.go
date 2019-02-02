@@ -1480,3 +1480,47 @@ func (n *NodeWhile) Build(options *BuildOptions, outputf FuncPrintf) {
 func (n *NodeWhile) FindUsedVars(options *BuildOptions) {
 	n.Cond.FindUsedVars(options)
 }
+
+// NodeGoproc is _GOPROC
+type NodeGoproc struct {
+	ProcName  *NodeExpString
+	Arguments []NodeExp
+}
+
+// Name returns the name of the node
+func (n *NodeGoproc) Name() string {
+	return "_GOPROC"
+}
+
+// Show displays the node
+func (n *NodeGoproc) Show(printf FuncPrintf) {
+	printf("[" + n.Name())
+	printf(" " + n.ProcName.String())
+	printf("]")
+}
+
+// Build generates code
+func (n *NodeGoproc) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+
+	outputf(n.ProcName.String())
+	outputf("(")
+	argc := len(n.Arguments)
+	if argc > 0 {
+		outputf(n.Arguments[0].Exp(options))
+		for i := 1; i < argc; i++ {
+			outputf(",")
+			outputf(n.Arguments[i].Exp(options))
+		}
+	}
+	outputf(") /* <-- _GOPROC */\n")
+}
+
+// FindUsedVars finds used vars
+func (n *NodeGoproc) FindUsedVars(options *BuildOptions) {
+	for _, a := range n.Arguments {
+		a.FindUsedVars(options)
+	}
+}

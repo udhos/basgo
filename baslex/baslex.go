@@ -79,7 +79,8 @@ const (
 	TkKeywordElse    = iota // ELSE
 	TkKeywordEnd     = iota // END
 	TkKeywordFor     = iota // FOR
-	TkKeywordGofunc  = iota // GOFUNC
+	TkKeywordGofunc  = iota // _GOFUNC
+	TkKeywordGoproc  = iota // _GOPROC
 	TkKeywordGosub   = iota // GOSUB
 	TkKeywordGoto    = iota // GOTO
 	TkKeywordIf      = iota // IF
@@ -160,7 +161,8 @@ var tabKeywords = []struct {
 	{TkKeywordEnd, "END"},
 	{TkKeywordEqv, "EQV"},
 	{TkKeywordFor, "FOR"},
-	{TkKeywordGofunc, "GOFUNC"},
+	{TkKeywordGofunc, "_GOFUNC"},
+	{TkKeywordGoproc, "_GOPROC"},
 	{TkKeywordGosub, "GOSUB"},
 	{TkKeywordGoto, "GOTO"},
 	{TkKeywordIf, "IF"},
@@ -278,7 +280,8 @@ var tabType = []string{
 	"ELSE",
 	"END",
 	"FOR",
-	"GOFUNC",
+	"_GOFUNC",
+	"_GOPROC",
 	"GOSUB",
 	"GOTO",
 	"IF",

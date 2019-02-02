@@ -69,6 +69,9 @@ var testTable = []buildTest{
 	{`10 print "hello`, "", "hello\n", OK},
 	{`10 print "hello  `, "", "hello  \n", OK},
 
+	{`10 a$=_gofunc("fmt.Sprintf$","gofunc-good"): print a$;`, "", "gofunc-good", OK},
+	{`10 print "goproc-";:_goproc("fmt.Print","good")`, "", "goproc-good", OK},
+
 	{`10 print sin(0);`, "", "0", OK},
 	{`10 print cos(0);`, "", "1", OK},
 	{`10 print tan(0);`, "", "0", OK},

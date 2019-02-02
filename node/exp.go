@@ -1554,7 +1554,7 @@ func (e *NodeExpGofunc) Type() int {
 
 // String returns value
 func (e *NodeExpGofunc) String() string {
-	return "GOFUNC(" + e.Name.Value + ")"
+	return "_GOFUNC(" + e.Name.Value + ")"
 }
 
 func RemoveSigil(s string) string {
@@ -1579,7 +1579,7 @@ func (e *NodeExpGofunc) Exp(options *BuildOptions) string {
 			call += "," + e.Arguments[i].Exp(options)
 		}
 	}
-	call += ") /* <-- GOFUNC */ "
+	call += ") /* <-- _GOFUNC */ "
 
 	return call
 }

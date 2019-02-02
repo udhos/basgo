@@ -186,6 +186,7 @@ func Reset() {
 %token <tok> TkKeywordEnd
 %token <tok> TkKeywordFor
 %token <tok> TkKeywordGofunc
+%token <tok> TkKeywordGoproc
 %token <tok> TkKeywordGosub
 %token <tok> TkKeywordGoto
 %token <tok> TkKeywordIf
@@ -715,6 +716,14 @@ stmt: /* empty */
            yylex.Error("SWAP type mismatch")
 	}
         $$ = &node.NodeSwap{Var1: v1, Var2: v2}
+     }
+   | TkKeywordGoproc TkParLeft one_const_str TkParRight
+     {
+       $$ = &node.NodeGoproc{ProcName: $3}
+     }
+   | TkKeywordGoproc TkParLeft one_const_str TkComma expressions_push call_exp_list expressions_pop TkParRight
+     {
+       $$ = &node.NodeGoproc{ProcName: $3, Arguments: $6}
      }
   | TkKeywordKey TkKeywordOn { $$ = unsupported("KEY")  }
   | TkKeywordKey TkKeywordOff { $$ = unsupported("KEY") }

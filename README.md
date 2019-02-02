@@ -8,7 +8,7 @@
 * [Run the Compiler](#run-the-compiler)
   * [Example](#example)
   * [Sample \- Hello World](#sample---hello-world)
-  * [Use GOFUNC to call Go function from BASIC code](#use-gofunc-to-call-go-function-from-basic-code)
+  * [Use \_GOFUNC to call Go function from BASIC code](#use-_gofunc-to-call-go-function-from-basic-code)
 * [Run the Interpreter](#run-the-interpreter)
 * [References](#references)
 
@@ -52,11 +52,11 @@ Status: the compiler currently can handle very simple programs.
     hello world!
     $
 
-## Use GOFUNC to call Go function from BASIC code
+## Use \_GOFUNC to call Go function from BASIC code
 
-GOFUNC() is a BASIC keyword introduced by the 'basgo' compiler in order to call a Go function from BASIC code.
+\_GOFUNC() is a BASIC keyword introduced by the 'basgo' compiler in order to call a Go function from BASIC code.
 
-    10 result = GOFUNC("func_name", arg1, arg2, ..., argN)
+    10 result = _GOFUNC("func_name", arg1, arg2, ..., argN)
     20 print result
 
 See [gofunc](gofunc)

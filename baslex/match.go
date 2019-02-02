@@ -188,7 +188,7 @@ func matchBlank(l *Lex, b byte) Token {
 	case b == '.':
 		l.state = stFloat
 		return l.save(b)
-	case letter(b):
+	case b == '_', letter(b): // support keyword with '_' prefix for _GOFUNC
 		l.state = stName
 		return l.save(b)
 	}
