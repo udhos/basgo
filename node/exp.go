@@ -1406,7 +1406,7 @@ func (e *NodeExpSgn) String() string {
 
 // Exp returns value
 func (e *NodeExpSgn) Exp(options *BuildOptions) string {
-	return "mathSgn(" + forceFloat(options, e.Value) + ")"
+	return "baslib.Sgn(" + forceFloat(options, e.Value) + ")"
 }
 
 // FindUsedVars finds used vars

@@ -29,7 +29,7 @@ type ParserResult struct {
 	LibBool bool
 	LibTime bool
 	LibMath bool
-	LibSgn bool
+	Baslib bool
 	ForStack []*node.NodeFor
 	WhileStack []*node.NodeWhile
 	CountFor int
@@ -1567,7 +1567,7 @@ exp: one_const_noneg { $$ = $1 }
        if !node.TypeNumeric(num.Type()) {
            yylex.Error("SGN expression must be numeric")
        }
-       Result.LibSgn = true
+       Result.Baslib = true
        $$ = &node.NodeExpSgn{Value:num}
      }
    | TkKeywordCos TkParLeft exp TkParRight
