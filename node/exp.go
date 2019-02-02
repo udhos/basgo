@@ -908,7 +908,7 @@ func compareOp(e NodeExpBinary, options *BuildOptions, golangOp string) string {
 }
 
 func boolToInt(s string) string {
-	return fmt.Sprintf("boolToInt(%s)", s)
+	return fmt.Sprintf("baslib.BoolToInt(%s)", s)
 }
 
 // FindUsedVars finds used vars

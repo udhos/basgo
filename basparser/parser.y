@@ -25,7 +25,6 @@ type ParserResult struct {
 	LibRight bool
 	LibRepeat bool
 	LibAsc bool
-	LibBool bool
 	LibMath bool
 	Baslib bool
 	ForStack []*node.NodeFor
@@ -1349,7 +1348,7 @@ exp: one_const_noneg { $$ = $1 }
 		fmt.Sprintf("%s = %s | ", e1.String(), e2.String()) +
 		fmt.Sprintf("%s = %s", node.TypeLabel(t1), node.TypeLabel(t2)))
        }
-       Result.LibBool = true
+       Result.Baslib = true
        $$ = &node.NodeExpEqual{Left:e1, Right:e2}
      }
    | exp TkUnequal exp
@@ -1357,7 +1356,7 @@ exp: one_const_noneg { $$ = $1 }
        if !node.TypeCompare($1.Type(), $3.Type()) {
            yylex.Error("TkUnequal type mismatch")
        }
-       Result.LibBool = true
+       Result.Baslib = true
        $$ = &node.NodeExpUnequal{Left:$1, Right:$3}
      }
    | exp TkGT exp
@@ -1365,7 +1364,7 @@ exp: one_const_noneg { $$ = $1 }
        if !node.TypeCompare($1.Type(), $3.Type()) {
            yylex.Error("TkGT type mismatch")
        }
-       Result.LibBool = true
+       Result.Baslib = true
        $$ = &node.NodeExpGT{Left:$1, Right:$3}
      }
    | exp TkLT exp
@@ -1373,7 +1372,7 @@ exp: one_const_noneg { $$ = $1 }
        if !node.TypeCompare($1.Type(), $3.Type()) {
            yylex.Error("TkLT type mismatch")
        }
-       Result.LibBool = true
+       Result.Baslib = true
        $$ = &node.NodeExpLT{Left:$1, Right:$3}
      }
    | exp TkGE exp
@@ -1381,7 +1380,7 @@ exp: one_const_noneg { $$ = $1 }
        if !node.TypeCompare($1.Type(), $3.Type()) {
            yylex.Error("TkGE type mismatch")
        }
-       Result.LibBool = true
+       Result.Baslib = true
        $$ = &node.NodeExpGE{Left:$1, Right:$3}
      }
    | exp TkLE exp
@@ -1389,7 +1388,7 @@ exp: one_const_noneg { $$ = $1 }
        if !node.TypeCompare($1.Type(), $3.Type()) {
            yylex.Error("TkLE type mismatch")
        }
-       Result.LibBool = true
+       Result.Baslib = true
        $$ = &node.NodeExpLE{Left:$1, Right:$3}
      }
    | TkKeywordInt exp

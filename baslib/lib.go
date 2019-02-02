@@ -14,6 +14,13 @@ var (
 	stdin = bufio.NewReader(os.Stdin) // INPUT helpers
 )
 
+func BoolToInt(v bool) int {
+	if v {
+		return -1
+	}
+	return 0
+}
+
 func Sgn(v float64) int {
 	switch {
 	case v < 0:

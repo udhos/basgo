@@ -177,25 +177,12 @@ func main() {
 
 	outputf(mainClose)
 
-	lib(outputf, options.Rnd, options.Left, result.LibReadData, options.Mid, result.LibVal, result.LibRight, result.LibRepeat, result.LibAsc, result.LibBool)
+	lib(outputf, options.Rnd, options.Left, result.LibReadData, options.Mid, result.LibVal, result.LibRight, result.LibRepeat, result.LibAsc)
 
 	return status, errors
 }
 
-func lib(outputf node.FuncPrintf, rnd, left, libReadData, mid, val, right, repeat, asc, libBool bool) {
-
-	if libBool {
-
-		funcBoolToInt := `
-func boolToInt(v bool) int {
-	if v {
-		return -1
-	}
-	return 0
-}
-`
-		outputf(funcBoolToInt)
-	}
+func lib(outputf node.FuncPrintf, rnd, left, libReadData, mid, val, right, repeat, asc bool) {
 
 	if rnd {
 		funcRnd := `
