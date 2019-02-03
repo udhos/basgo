@@ -68,7 +68,11 @@ Status: the interpreter currently can only parse simple programs, but is unable 
     # interpreter interactively reads from stdin
     basgo-run
 
-# References
+# BASIC References
+
+## BASIC programs and games
+
+http://peyre.x10.mx/GWBASIC/ - A page about GWBASIC Games & Other Programs
 
 http://www.ifarchive.org/indexes/if-archive/games/source/basic/
 
@@ -78,6 +82,8 @@ http://www.classicbasicgames.org/ - Classic BASIC Games
 
 http://www.vintage-basic.net/games.html - BASIC Computer Games
 
+## BASIC documentation
+
 https://hwiegman.home.xs4all.nl/gw-man/ - GW-BASIC User's Guide
 
 http://www.antonis.de/qbebooks/gwbasman/ - GW-BASIC User's Guide
@@ -86,10 +92,9 @@ http://www.antonis.de/qbebooks/gwbasman/chapter%206.html - Operators
 
 https://robhagemans.github.io/pcbasic/doc/1.2/#guide - Language Guide
 
-https://github.com/robhagemans/pcbasic - GW-BASIC emulator
+## BASIC interpreters and compilers
 
-https://godoc.org/modernc.org/golex - lex/flex-like utility
+https://github.com/robhagemans/pcbasic - GW-BASIC emulator
 
 https://github.com/skx/gobasic/ - BASIC interpreter in Golang
 
-END
