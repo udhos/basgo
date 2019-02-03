@@ -226,6 +226,7 @@ func Reset() {
 %token <tok> TkKeywordOff
 %token <tok> TkKeywordOn
 %token <tok> TkKeywordPrint
+%token <tok> TkKeywordRandomize
 %token <tok> TkKeywordRead
 %token <typeRem> TkKeywordRem
 %token <tok> TkKeywordRestore
@@ -782,6 +783,20 @@ stmt: /* empty */
    | TkKeywordGoproc TkParLeft one_const_str TkComma expressions_push call_exp_list expressions_pop TkParRight
      {
        $$ = &node.NodeGoproc{ProcName: $3, Arguments: $6}
+     }
+   | TkKeywordRandomize
+     {
+       Result.Baslib = true
+       $$ = &node.NodeRandomize{}
+     }
+   | TkKeywordRandomize exp
+     {
+       seed := $2
+       if !node.TypeNumeric(seed.Type()) {
+           yylex.Error("RANDOMIZE seed must be numeric")
+       }
+       Result.Baslib = true
+       $$ = &node.NodeRandomize{Seed: seed}
      }
   | TkKeywordKey TkKeywordOn { $$ = unsupportedEmpty("KEY")  }
   | TkKeywordKey TkKeywordOff { $$ = unsupportedEmpty("KEY") }

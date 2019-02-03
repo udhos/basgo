@@ -241,7 +241,18 @@ func Right(s string, size int) string {
 	return s[len(s)-size:]
 }
 
+func RandomizeAuto() {
+	rnd.Seed(time.Now().UnixNano())
+}
+
+func Randomize(seed float64) {
+	rnd.Seed(int64(seed))
+}
+
 func Rnd(v float64) float64 {
+	if v < 0 {
+		Randomize(v)
+	}
 	if v > 0 {
 		rndLast = rnd.Float64() // generate new number
 	}

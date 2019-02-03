@@ -1592,3 +1592,43 @@ func (n *NodeGoimport) Build(options *BuildOptions, outputf FuncPrintf) {
 // FindUsedVars finds used vars
 func (n *NodeGoimport) FindUsedVars(options *BuildOptions) {
 }
+
+// NodeRandomize is randomize
+type NodeRandomize struct {
+	Seed NodeExp
+}
+
+// Name returns the name of the node
+func (n *NodeRandomize) Name() string {
+	return "RANDOMIZE"
+}
+
+// Show displays the node
+func (n *NodeRandomize) Show(printf FuncPrintf) {
+	printf("[" + n.Name())
+	if n.Seed != NodeExp(nil) {
+		printf(" " + n.Seed.String())
+	}
+	printf("]")
+}
+
+// Build generates code
+func (n *NodeRandomize) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+
+	if n.Seed == NodeExp(nil) {
+		outputf("baslib.RandomizeAuto()\n")
+		return
+	}
+
+	outputf("baslib.Randomize(" + n.Seed.Exp(options) + ")\n")
+}
+
+// FindUsedVars finds used vars
+func (n *NodeRandomize) FindUsedVars(options *BuildOptions) {
+	if n.Seed != NodeExp(nil) {
+		n.Seed.FindUsedVars(options)
+	}
+}
