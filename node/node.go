@@ -1531,3 +1531,59 @@ func (n *NodeGoproc) FindUsedVars(options *BuildOptions) {
 		a.FindUsedVars(options)
 	}
 }
+
+// NodeGodecl is _GODECL
+type NodeGodecl struct {
+	Value *NodeExpString
+}
+
+// Name returns the name of the node
+func (n *NodeGodecl) Name() string {
+	return "_GODECL"
+}
+
+// Show displays the node
+func (n *NodeGodecl) Show(printf FuncPrintf) {
+	printf("[" + n.Name())
+	printf(" " + n.Value.String())
+	printf("]")
+}
+
+// Build generates code
+func (n *NodeGodecl) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+}
+
+// FindUsedVars finds used vars
+func (n *NodeGodecl) FindUsedVars(options *BuildOptions) {
+}
+
+// NodeGoimport is _GOIMPORT
+type NodeGoimport struct {
+	Value *NodeExpString
+}
+
+// Name returns the name of the node
+func (n *NodeGoimport) Name() string {
+	return "_GOIMPORT"
+}
+
+// Show displays the node
+func (n *NodeGoimport) Show(printf FuncPrintf) {
+	printf("[" + n.Name())
+	printf(" " + n.Value.String())
+	printf("]")
+}
+
+// Build generates code
+func (n *NodeGoimport) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+}
+
+// FindUsedVars finds used vars
+func (n *NodeGoimport) FindUsedVars(options *BuildOptions) {
+}

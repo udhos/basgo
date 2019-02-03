@@ -64,71 +64,73 @@ const (
 	UnaryPlus    = iota // fictitious
 	UnaryMinus   = iota // fictitious
 
-	TkKeywordAbs     = iota // ABS
-	TkKeywordAsc     = iota // ASC
-	TkKeywordChain   = iota // CHAIN
-	TkKeywordChr     = iota // CHR$
-	TkKeywordCls     = iota // CLS
-	TkKeywordCont    = iota // CONT
-	TkKeywordCos     = iota // COS
-	TkKeywordData    = iota // DATA
-	TkKeywordDate    = iota // DATE$
-	TkKeywordDef     = iota // DEF
-	TkKeywordDefint  = iota // DEFINT
-	TkKeywordDim     = iota // DIM
-	TkKeywordElse    = iota // ELSE
-	TkKeywordEnd     = iota // END
-	TkKeywordFor     = iota // FOR
-	TkKeywordGofunc  = iota // _GOFUNC
-	TkKeywordGoproc  = iota // _GOPROC
-	TkKeywordGosub   = iota // GOSUB
-	TkKeywordGoto    = iota // GOTO
-	TkKeywordIf      = iota // IF
-	TkKeywordInkey   = iota // INKEY$
-	TkKeywordInput   = iota // INPUT
-	TkKeywordInt     = iota // INT
-	TkKeywordKey     = iota // KEY
-	TkKeywordLeft    = iota // LEFT$
-	TkKeywordLen     = iota // LEN
-	TkKeywordLet     = iota // LET
-	TkKeywordLine    = iota // LINE
-	TkKeywordList    = iota // LIST
-	TkKeywordLoad    = iota // LOAD
-	TkKeywordMid     = iota // MID$
-	TkKeywordNext    = iota // NEXT
-	TkKeywordOff     = iota // OFF
-	TkKeywordOn      = iota // ON
-	TkKeywordPrint   = iota // PRINT
-	TkKeywordRead    = iota // READ
-	TkKeywordRem     = iota // REM
-	TkKeywordRestore = iota // RESTORE
-	TkKeywordReturn  = iota // RETURN
-	TkKeywordRight   = iota // RIGHT$
-	TkKeywordRnd     = iota // RND
-	TkKeywordRun     = iota // RUN
-	TkKeywordSave    = iota // SAVE
-	TkKeywordSgn     = iota // SGN
-	TkKeywordSin     = iota // SIN
-	TkKeywordSpace   = iota // SPACE$
-	TkKeywordSpc     = iota // SPC
-	TkKeywordSqr     = iota // SQR
-	TkKeywordStep    = iota // STEP
-	TkKeywordStop    = iota // STOP
-	TkKeywordStr     = iota // STR$
-	TkKeywordString  = iota // STRING$
-	TkKeywordSwap    = iota // SWAP
-	TkKeywordSystem  = iota // SYSTEM
-	TkKeywordTab     = iota // TAB
-	TkKeywordTan     = iota // TAN
-	TkKeywordThen    = iota // THEN
-	TkKeywordTime    = iota // TIME$
-	TkKeywordTimer   = iota // TIMER
-	TkKeywordTo      = iota // TO
-	TkKeywordUsing   = iota // USING
-	TkKeywordVal     = iota // VAL
-	TkKeywordWend    = iota // WEND
-	TkKeywordWhile   = iota // WHILE
-	TkKeywordWidth   = iota // WIDTH
+	TkKeywordAbs      = iota // ABS
+	TkKeywordAsc      = iota // ASC
+	TkKeywordChain    = iota // CHAIN
+	TkKeywordChr      = iota // CHR$
+	TkKeywordCls      = iota // CLS
+	TkKeywordCont     = iota // CONT
+	TkKeywordCos      = iota // COS
+	TkKeywordData     = iota // DATA
+	TkKeywordDate     = iota // DATE$
+	TkKeywordDef      = iota // DEF
+	TkKeywordDefint   = iota // DEFINT
+	TkKeywordDim      = iota // DIM
+	TkKeywordElse     = iota // ELSE
+	TkKeywordEnd      = iota // END
+	TkKeywordFor      = iota // FOR
+	TkKeywordGodecl   = iota // _GODECL
+	TkKeywordGofunc   = iota // _GOFUNC
+	TkKeywordGoimport = iota // _GOIMPORT
+	TkKeywordGoproc   = iota // _GOPROC
+	TkKeywordGosub    = iota // GOSUB
+	TkKeywordGoto     = iota // GOTO
+	TkKeywordIf       = iota // IF
+	TkKeywordInkey    = iota // INKEY$
+	TkKeywordInput    = iota // INPUT
+	TkKeywordInt      = iota // INT
+	TkKeywordKey      = iota // KEY
+	TkKeywordLeft     = iota // LEFT$
+	TkKeywordLen      = iota // LEN
+	TkKeywordLet      = iota // LET
+	TkKeywordLine     = iota // LINE
+	TkKeywordList     = iota // LIST
+	TkKeywordLoad     = iota // LOAD
+	TkKeywordMid      = iota // MID$
+	TkKeywordNext     = iota // NEXT
+	TkKeywordOff      = iota // OFF
+	TkKeywordOn       = iota // ON
+	TkKeywordPrint    = iota // PRINT
+	TkKeywordRead     = iota // READ
+	TkKeywordRem      = iota // REM
+	TkKeywordRestore  = iota // RESTORE
+	TkKeywordReturn   = iota // RETURN
+	TkKeywordRight    = iota // RIGHT$
+	TkKeywordRnd      = iota // RND
+	TkKeywordRun      = iota // RUN
+	TkKeywordSave     = iota // SAVE
+	TkKeywordSgn      = iota // SGN
+	TkKeywordSin      = iota // SIN
+	TkKeywordSpace    = iota // SPACE$
+	TkKeywordSpc      = iota // SPC
+	TkKeywordSqr      = iota // SQR
+	TkKeywordStep     = iota // STEP
+	TkKeywordStop     = iota // STOP
+	TkKeywordStr      = iota // STR$
+	TkKeywordString   = iota // STRING$
+	TkKeywordSwap     = iota // SWAP
+	TkKeywordSystem   = iota // SYSTEM
+	TkKeywordTab      = iota // TAB
+	TkKeywordTan      = iota // TAN
+	TkKeywordThen     = iota // THEN
+	TkKeywordTime     = iota // TIME$
+	TkKeywordTimer    = iota // TIMER
+	TkKeywordTo       = iota // TO
+	TkKeywordUsing    = iota // USING
+	TkKeywordVal      = iota // VAL
+	TkKeywordWend     = iota // WEND
+	TkKeywordWhile    = iota // WHILE
+	TkKeywordWidth    = iota // WIDTH
 
 	TkIdentifier = iota // Identifier (variable)
 )
@@ -161,7 +163,9 @@ var tabKeywords = []struct {
 	{TkKeywordEnd, "END"},
 	{TkKeywordEqv, "EQV"},
 	{TkKeywordFor, "FOR"},
+	{TkKeywordGodecl, "_GODECL"},
 	{TkKeywordGofunc, "_GOFUNC"},
+	{TkKeywordGoimport, "_GOIMPORT"},
 	{TkKeywordGoproc, "_GOPROC"},
 	{TkKeywordGosub, "GOSUB"},
 	{TkKeywordGoto, "GOTO"},
@@ -280,7 +284,9 @@ var tabType = []string{
 	"ELSE",
 	"END",
 	"FOR",
+	"_GODECL",
 	"_GOFUNC",
+	"_GOIMPORT",
 	"_GOPROC",
 	"GOSUB",
 	"GOTO",

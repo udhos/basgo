@@ -127,7 +127,12 @@ func main() {
 
 	outputf(header)
 
-	writeImport(options.Headers, outputf)
+	// Copy headers from options into result imports
+	for h, v := range options.Headers {
+		result.Imports[h] = v
+	}
+
+	writeImport(result.Imports, outputf)
 
 	if result.LibReadData {
 		outputf("var readData = []interface{}{\n")
@@ -151,17 +156,29 @@ func main() {
 
 	outputf(mainClose)
 
+	// Declarations from _GODECL
+	if len(result.Declarations) > 0 {
+		outputf("\n// _GODECL declarations - begin\n")
+		for _, d := range result.Declarations {
+			outputf(d)
+			outputf("\n")
+		}
+		outputf("// _GODECL declarations - end\n\n")
+	}
+
 	return status, errors
 }
 
-func writeImport(headers map[string]struct{}, outputf node.FuncPrintf) {
-	if len(headers) > 0 {
-		outputf("import (\n")
-		for h := range headers {
-			outputf("\"%s\"\n", h)
-		}
-		outputf(")\n")
+func writeImport(imp map[string]struct{}, outputf node.FuncPrintf) {
+	if len(imp) < 1 {
+		return
 	}
+
+	outputf("import (\n")
+	for h := range imp {
+		outputf("\"%s\"\n", h)
+	}
+	outputf(")\n")
 }
 
 func declareFuncs(options *node.BuildOptions, funcTable map[string]node.FuncSymbol, outputf node.FuncPrintf) {

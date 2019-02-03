@@ -47,6 +47,16 @@ const sourceGoto2 = `
 30 print 3
 `
 
+const sourceGofunc = `
+10 _goimport("math")
+20 _godecl("func degToRad(d float64) float64 {")
+30 _godecl("    return d*math.Pi/180")
+40 _godecl("}")
+50 input d
+60 r = _gofunc("degToRad", d)
+70 print d;"degrees in radians is";r;
+`
+
 const (
 	OK      = iota
 	WRONG   = iota
@@ -71,6 +81,7 @@ var testTable = []buildTest{
 
 	{`10 a$=_gofunc("fmt.Sprintf$","gofunc-good"): print a$;`, "", "gofunc-good", OK},
 	{`10 print "goproc-";:_goproc("fmt.Print","good")`, "", "goproc-good", OK},
+	{sourceGofunc, "180", "?  180 degrees in radians is 3.141592653589793 ", OK},
 
 	{`10 print sin(0);`, "", " 0 ", OK},
 	{`10 print cos(0);`, "", " 1 ", OK},

@@ -34,15 +34,21 @@ type ParserResult struct {
 	CountWend int
 	CountIf int
 	FuncTable map[string]node.FuncSymbol
+	Imports map[string]struct{}
+	Declarations []string
 }
 
 // parser auxiliary variables
 var (
+	/*
 	Result = ParserResult{
 		LineNumbers: map[string]node.LineNumber{},
 		ArrayTable: map[string]node.ArraySymbol{},
 		FuncTable: map[string]node.FuncSymbol{},
+		Imports: map[string]struct{}{},
 	}
+	*/
+	Result = newResult()
 
 	nodeListStack [][]node.Node // support nested node lists (1)
 	expListStack [][]node.NodeExp // support nested exp lists (2)
@@ -57,12 +63,25 @@ var (
 	// (2) exp can nest list of exp: array(exp,exp,exp)
 )
 
+func newResult() ParserResult {
+	return ParserResult{
+		LineNumbers: map[string]node.LineNumber{},
+		ArrayTable: map[string]node.ArraySymbol{},
+		FuncTable: map[string]node.FuncSymbol{},
+		Imports: map[string]struct{}{},
+	}
+}
+
 func Reset() {
+	/*
 	Result = ParserResult{
 		LineNumbers: map[string]node.LineNumber{},
 		ArrayTable: map[string]node.ArraySymbol{},
 		FuncTable: map[string]node.FuncSymbol{},
+		Imports: map[string]struct{}{},
 	}
+	*/
+	Result = newResult()
 
 	nodeListStack = [][]node.Node{}
 	expListStack = [][]node.NodeExp{}
@@ -185,7 +204,9 @@ func Reset() {
 %token <tok> TkKeywordElse
 %token <tok> TkKeywordEnd
 %token <tok> TkKeywordFor
+%token <tok> TkKeywordGodecl
 %token <tok> TkKeywordGofunc
+%token <tok> TkKeywordGoimport
 %token <tok> TkKeywordGoproc
 %token <tok> TkKeywordGosub
 %token <tok> TkKeywordGoto
@@ -716,6 +737,18 @@ stmt: /* empty */
            yylex.Error("SWAP type mismatch")
 	}
         $$ = &node.NodeSwap{Var1: v1, Var2: v2}
+     }
+   | TkKeywordGodecl TkParLeft one_const_str TkParRight
+     {
+       decl := $3
+       Result.Declarations = append(Result.Declarations, decl.Value)
+       $$ = &node.NodeGodecl{Value:decl}
+     }
+   | TkKeywordGoimport TkParLeft one_const_str TkParRight
+     {
+       imp := $3
+       Result.Imports[imp.Value] = struct{}{}       
+       $$ = &node.NodeGoimport{Value:imp}
      }
    | TkKeywordGoproc TkParLeft one_const_str TkParRight
      {
