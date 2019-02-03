@@ -846,6 +846,7 @@ func (n *NodePrint) FindUsedVars(options *BuildOptions) {
 
 // NodeEnd is end
 type NodeEnd struct {
+	Message string
 }
 
 // Name returns the name of the node
@@ -860,6 +861,10 @@ func (n *NodeEnd) Show(printf FuncPrintf) {
 
 // Build generates code
 func (n *NodeEnd) Build(options *BuildOptions, outputf FuncPrintf) {
+	if n.Message != "" {
+		outputf("fmt.Print(\"END:\")\n")
+		outputf("fmt.Println(\"%s\")\n", n.Message)
+	}
 	outputf("os.Exit(0) // %s\n", n.Name())
 	options.Headers["os"] = struct{}{} // used package
 }

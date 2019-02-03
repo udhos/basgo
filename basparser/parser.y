@@ -685,6 +685,31 @@ stmt: /* empty */
        Result.CountReturn++
        $$ = &node.NodeReturn{}
      }
+  | TkKeywordRun
+     {
+       log.Printf("RUN keyword is not supported")
+       $$ = unsupportedEnd(Result.Imports, "RUN")
+     }
+  | TkKeywordRun use_line_number
+     {
+       log.Printf("RUN keyword is not supported")
+       $$ = unsupportedEnd(Result.Imports, "RUN")
+     }
+  | TkKeywordRun use_line_number TkComma single_var
+     {
+       log.Printf("RUN keyword is not supported")
+       $$ = unsupportedEnd(Result.Imports, "RUN")
+     }
+  | TkKeywordRun one_const_str
+     {
+       log.Printf("RUN keyword is not supported")
+       $$ = unsupportedEnd(Result.Imports, "RUN")
+     }
+  | TkKeywordRun one_const_str TkComma single_var
+     {
+       log.Printf("RUN keyword is not supported")
+       $$ = unsupportedEnd(Result.Imports, "RUN")
+     }
   | TkKeywordOn exp TkKeywordGosub number_list
      {
        cond := $2
@@ -758,12 +783,12 @@ stmt: /* empty */
      {
        $$ = &node.NodeGoproc{ProcName: $3, Arguments: $6}
      }
-  | TkKeywordKey TkKeywordOn { $$ = unsupported("KEY")  }
-  | TkKeywordKey TkKeywordOff { $$ = unsupported("KEY") }
-  | TkKeywordCls { $$ = unsupported("CLS") }
-  | TkKeywordWidth exp { $$ = unsupported("WIDTH") }
-  | TkKeywordDefint TkIdentifier TkMinus TkIdentifier { $$ = unsupported("DEFINT") }
-  | TkKeywordChain expressions_push call_exp_list expressions_pop { $$ = unsupported("CHAIN") }
+  | TkKeywordKey TkKeywordOn { $$ = unsupportedEmpty("KEY")  }
+  | TkKeywordKey TkKeywordOff { $$ = unsupportedEmpty("KEY") }
+  | TkKeywordCls { $$ = unsupportedEmpty("CLS") }
+  | TkKeywordWidth exp { $$ = unsupportedEmpty("WIDTH") }
+  | TkKeywordDefint TkIdentifier TkMinus TkIdentifier { $$ = unsupportedEmpty("DEFINT") }
+  | TkKeywordChain expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("CHAIN") }
   ;
 
 expressions_push:
@@ -1661,9 +1686,16 @@ exp: one_const_noneg { $$ = $1 }
 
 %%
 
-func unsupported(keyword string) *node.NodeEmpty {
+func unsupportedEmpty(keyword string) *node.NodeEmpty {
 	log.Printf("ignoring unsupported keyword %s", keyword)
 	return &node.NodeEmpty{}
+}
+
+func unsupportedEnd(imp map[string]struct{}, keyword string) *node.NodeEnd {
+	log.Printf("unsupported keyword %s", keyword)
+        msg := fmt.Sprintf("stopping on unsupported keyword %s", keyword) 
+	imp["fmt"] = struct{}{} // NodeEnd.Message uses fmt
+	return &node.NodeEnd{Message:msg}
 }
 
 func captureRawLine(label string, list []node.Node, rawLine string) {
