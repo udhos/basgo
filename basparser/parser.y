@@ -191,6 +191,7 @@ func Reset() {
 
 %token <tok> TkKeywordAbs
 %token <tok> TkKeywordAsc
+%token <tok> TkKeywordBeep
 %token <tok> TkKeywordChain
 %token <tok> TkKeywordChr
 %token <tok> TkKeywordCls
@@ -800,6 +801,7 @@ stmt: /* empty */
      }
   | TkKeywordKey TkKeywordOn { $$ = unsupportedEmpty("KEY")  }
   | TkKeywordKey TkKeywordOff { $$ = unsupportedEmpty("KEY") }
+  | TkKeywordBeep { $$ = unsupportedEmpty("BEEP") }
   | TkKeywordCls { $$ = unsupportedEmpty("CLS") }
   | TkKeywordWidth exp { $$ = unsupportedEmpty("WIDTH") }
   | TkKeywordDefint TkIdentifier TkMinus TkIdentifier { $$ = unsupportedEmpty("DEFINT") }
