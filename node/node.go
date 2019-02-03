@@ -1379,7 +1379,7 @@ func (n *NodeReturn) Build(options *BuildOptions, outputf FuncPrintf) {
 
 	outputf("if len(gosubStack) < 1 {\n")
 	outputf(`   panic("RETURN without GOSUB")`)
-	outputf("}\n")
+	outputf("\n}\n")
 
 	outputf("{\n")
 	outputf("last := len(gosubStack) - 1\n")
