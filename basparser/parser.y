@@ -689,27 +689,22 @@ stmt: /* empty */
      }
   | TkKeywordRun
      {
-       log.Printf("RUN keyword is not supported")
        $$ = unsupportedEnd(Result.Imports, "RUN")
      }
   | TkKeywordRun use_line_number
      {
-       log.Printf("RUN keyword is not supported")
        $$ = unsupportedEnd(Result.Imports, "RUN")
      }
   | TkKeywordRun use_line_number TkComma single_var
      {
-       log.Printf("RUN keyword is not supported")
        $$ = unsupportedEnd(Result.Imports, "RUN")
      }
   | TkKeywordRun one_const_str
      {
-       log.Printf("RUN keyword is not supported")
        $$ = unsupportedEnd(Result.Imports, "RUN")
      }
   | TkKeywordRun one_const_str TkComma single_var
      {
-       log.Printf("RUN keyword is not supported")
        $$ = unsupportedEnd(Result.Imports, "RUN")
      }
   | TkKeywordOn exp TkKeywordGosub number_list
@@ -1709,7 +1704,7 @@ func unsupportedEmpty(keyword string) *node.NodeEmpty {
 }
 
 func unsupportedEnd(imp map[string]struct{}, keyword string) *node.NodeEnd {
-	log.Printf("unsupported keyword %s", keyword)
+	log.Printf("unsupported keyword %s will halt the program", keyword)
         msg := fmt.Sprintf("stopping on unsupported keyword %s", keyword) 
 	imp["fmt"] = struct{}{} // NodeEnd.Message uses fmt
 	return &node.NodeEnd{Message:msg}
