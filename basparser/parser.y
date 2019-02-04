@@ -196,6 +196,7 @@ func Reset() {
 %token <tok> TkKeywordChr
 %token <tok> TkKeywordClear
 %token <tok> TkKeywordCls
+%token <tok> TkKeywordColor
 %token <tok> TkKeywordCont
 %token <tok> TkKeywordCos
 %token <tok> TkKeywordData
@@ -812,6 +813,7 @@ stmt: /* empty */
   | TkKeywordChain expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("CHAIN") }
   | TkKeywordClear { $$ = unsupportedEmpty("CLEAR") }
   | TkKeywordClear expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("CLEAR") }
+  | TkKeywordColor expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("COLOR") }
   | TkKeywordLocate expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("LOCATE") }
   ;
 
