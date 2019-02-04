@@ -215,6 +215,7 @@ func Reset() {
 %token <tok> TkKeywordIf
 %token <tok> TkKeywordInkey
 %token <tok> TkKeywordInput
+%token <tok> TkKeywordInstr
 %token <tok> TkKeywordInt
 %token <tok> TkKeywordKey
 %token <tok> TkKeywordLeft
@@ -1696,9 +1697,40 @@ exp: one_const_noneg { $$ = $1 }
      {
        $$ = &node.NodeExpGofunc{Name: $3, Arguments: $6}
      }
-   | TkKeywordInkey {
+   | TkKeywordInkey
+     {
        Result.Baslib = true
        $$ = &node.NodeExpInkey{}
+     }
+   | TkKeywordInstr TkParLeft exp TkComma exp TkParRight
+     {
+       str := $3
+       sub := $5
+       if str.Type() != node.TypeString {
+           yylex.Error("INSTR wrong string type")
+       }
+       if sub.Type() != node.TypeString {
+           yylex.Error("INSTR wrong sub-string type")
+       }
+       Result.Baslib = true
+       $$ = &node.NodeExpInstr{Begin:&node.NodeExpNumber{Value:"1"},Str:str,Sub:sub}
+     }
+   | TkKeywordInstr TkParLeft exp TkComma exp TkComma exp TkParRight
+     {
+       begin := $3
+       str := $5
+       sub := $7
+       if !node.TypeNumeric(begin.Type()) {
+           yylex.Error("INSTR offset must be numeric")
+       }
+       if str.Type() != node.TypeString {
+           yylex.Error("INSTR wrong string type")
+       }
+       if sub.Type() != node.TypeString {
+           yylex.Error("INSTR wrong sub-string type")
+       }
+       Result.Baslib = true
+       $$ = &node.NodeExpInstr{Begin:begin,Str:str,Sub:sub}
      }
    ;
 

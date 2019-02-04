@@ -1591,3 +1591,32 @@ func (e *NodeExpGofunc) FindUsedVars(options *BuildOptions) {
 		a.FindUsedVars(options)
 	}
 }
+
+// NodeExpInstr holds value
+type NodeExpInstr struct {
+	Begin NodeExp
+	Str   NodeExp
+	Sub   NodeExp
+}
+
+// Type returns type
+func (e *NodeExpInstr) Type() int {
+	return TypeInteger
+}
+
+// String returns value
+func (e *NodeExpInstr) String() string {
+	return "INSTR(" + e.Begin.String() + "," + e.Str.String() + "," + e.Sub.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpInstr) Exp(options *BuildOptions) string {
+	return "baslib.Instr(" + forceInt(options, e.Begin) + "," + e.Str.Exp(options) + "," + e.Sub.Exp(options) + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpInstr) FindUsedVars(options *BuildOptions) {
+	e.Begin.FindUsedVars(options)
+	e.Str.FindUsedVars(options)
+	e.Sub.FindUsedVars(options)
+}

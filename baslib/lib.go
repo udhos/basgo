@@ -266,3 +266,18 @@ func StrInt(v int) string {
 func StrFloat(v float64) string {
 	return " " + strconv.FormatFloat(v, 'f', -1, 64)
 }
+
+func Instr(begin int, str string, sub string) int {
+	if begin > len(str) {
+		return 0
+	}
+	begin--
+	if begin < 0 {
+		begin = 0
+	}
+	i := strings.Index(str[begin:], sub)
+	if i < 0 {
+		return 0
+	}
+	return i + begin + 1
+}
