@@ -1359,7 +1359,9 @@ func (n *NodeRem) FindUsedVars(options *BuildOptions) {
 }
 
 // NodeReturn is return
-type NodeReturn struct{}
+type NodeReturn struct {
+	Line string
+}
 
 // Name returns the name of the node
 func (n *NodeReturn) Name() string {
@@ -1368,7 +1370,7 @@ func (n *NodeReturn) Name() string {
 
 // Show displays the node
 func (n *NodeReturn) Show(printf FuncPrintf) {
-	printf("[" + n.Name() + "]")
+	printf("[" + n.Name() + " " + n.Line + "]")
 }
 
 // Build generates code
@@ -1382,14 +1384,26 @@ func (n *NodeReturn) Build(options *BuildOptions, outputf FuncPrintf) {
 	outputf("\n}\n")
 
 	outputf("{\n")
+
+	// pop
 	outputf("last := len(gosubStack) - 1\n")
-	outputf("index := gosubStack[last] // top\n")
-	outputf("gosubStack = gosubStack[:last] // pop\n")
-	outputf("switch index {\n")
-	for i := 0; i < options.CountGosub; i++ {
-		outputf("case %d: goto gosub_return_%d\n", i, i)
+	if n.Line == "" {
+		outputf("index := gosubStack[last] // save top\n")
 	}
-	outputf("}\n")
+	outputf("gosubStack = gosubStack[:last] // pop\n")
+
+	if n.Line == "" {
+		// return
+		outputf("switch index {\n")
+		for i := 0; i < options.CountGosub; i++ {
+			outputf("case %d: goto gosub_return_%d\n", i, i)
+		}
+		outputf("}\n")
+	} else {
+		// return line
+		outputf("goto line%s // %s %s\n", n.Line, n.Name(), n.Line)
+	}
+
 	outputf("}\n")
 }
 

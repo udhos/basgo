@@ -57,6 +57,15 @@ const sourceGofunc = `
 70 print d;"degrees in radians is";r;
 `
 
+const sourceReturnLine = `
+10 print "1";:gosub 100
+20 print "2";
+30 print "3";
+40 end
+100 print "4";
+110 return 30 
+`
+
 const (
 	OK      = iota
 	WRONG   = iota
@@ -90,6 +99,8 @@ var testTable = []buildTest{
 	{`10 print instr(3,"abcabcabc","bc");`, "", " 5 ", OK},
 	{`10 print instr(3,"abcabcabc","");`, "", " 3 ", OK},
 	{`10 print instr(3,"abcabcabc","xy");`, "", " 0 ", OK},
+
+	{sourceReturnLine, "", "143", OK},
 
 	{"10 print 0 => 0", "", " -1 \n", OK},
 	{"10 print 1 => 0", "", " -1 \n", OK},
