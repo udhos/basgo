@@ -1373,38 +1373,48 @@ func (n *NodeReturn) Show(printf FuncPrintf) {
 	printf("[" + n.Name() + " " + n.Line + "]")
 }
 
+func BuildReturnGlobal(options *BuildOptions, outputf FuncPrintf) {
+	outputf(`panic("global return label reached without jump")`)
+	outputf("\n")
+
+	outputf("return_global:\n")
+	outputf("if len(gosubStack) < 1 {\n")
+	outputf(`   panic("RETURN without GOSUB")`)
+	outputf("\n}\n")
+
+	outputf("{\n") // block open
+
+	// pop
+	outputf("last := len(gosubStack) - 1\n")
+	outputf("index := gosubStack[last] // save top\n")
+	outputf("gosubStack = gosubStack[:last] // pop\n")
+
+	// actual jump
+	outputf("switch index {\n") // switch open
+	for i := 0; i < options.CountGosub; i++ {
+		outputf("case %d: goto gosub_return_%d\n", i, i)
+	}
+	outputf("}\n") // switch close
+
+	outputf("}\n") // block close
+
+	outputf(`panic("global return switch fallthru")`)
+	outputf("\n")
+}
+
 // Build generates code
 func (n *NodeReturn) Build(options *BuildOptions, outputf FuncPrintf) {
 	outputf("// ")
 	n.Show(outputf)
 	outputf("\n")
 
-	outputf("if len(gosubStack) < 1 {\n")
-	outputf(`   panic("RETURN without GOSUB")`)
-	outputf("\n}\n")
-
-	outputf("{\n")
-
-	// pop
-	outputf("last := len(gosubStack) - 1\n")
-	if n.Line == "" {
-		outputf("index := gosubStack[last] // save top\n")
-	}
-	outputf("gosubStack = gosubStack[:last] // pop\n")
-
 	if n.Line == "" {
 		// return
-		outputf("switch index {\n")
-		for i := 0; i < options.CountGosub; i++ {
-			outputf("case %d: goto gosub_return_%d\n", i, i)
-		}
-		outputf("}\n")
+		outputf("goto return_global // %s\n", n.Name())
 	} else {
 		// return line
 		outputf("goto line%s // %s %s\n", n.Line, n.Name(), n.Line)
 	}
-
-	outputf("}\n")
 }
 
 // FindUsedVars finds used vars

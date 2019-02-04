@@ -154,6 +154,11 @@ func main() {
 
 	outputf(buf.String())
 
+	if result.CountReturn > 0 {
+		outputf("return // exit from main() - end of program\n")
+		node.BuildReturnGlobal(&options, outputf)
+	}
+
 	outputf(mainClose)
 
 	// Declarations from _GODECL
