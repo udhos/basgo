@@ -188,6 +188,7 @@ var testTable = []buildTest{
 	{`10 print int(1.1)+a;`, "", " 1 ", OK},
 	{`10 print int(1.1)*a;`, "", " 0 ", OK},
 	{`10 a=1:print int(1.1)/a;`, "", " 1 ", OK},
+	{`10 print int(5/2)*2+1;`, "", " 5 ", OK},
 
 	{"10 print 1+2", "", " 3 \n", OK},
 	{"10 print 1.1+2", "", " 3.1 \n", OK},
@@ -426,10 +427,10 @@ var testTable = []buildTest{
 	{`10 input a:print A;`, "23\n", "?  23 ", OK},
 	{`10 input A:print a;`, "23\n", "?  23 ", OK},
 
-	{`10 print int 2`, "", " 2 \n", OK},
-	{`10 print int 2.1`, "", " 2 \n", OK},
-	{`10 print int 2.9`, "", " 2 \n", OK},
-	{`10 print int ""`, "", "", WRONG},
+	{`10 print int(2)`, "", " 2 \n", OK},
+	{`10 print int(2.1)`, "", " 2 \n", OK},
+	{`10 print int(2.9)`, "", " 2 \n", OK},
+	{`10 print int("")`, "", "", WRONG},
 
 	{`10 print left$("abc",-1)`, "", "\n", OK},
 	{`10 print left$("abc",0)`, "", "\n", OK},

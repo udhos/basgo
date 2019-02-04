@@ -1480,9 +1480,9 @@ exp: one_const_noneg { $$ = $1 }
        Result.Baslib = true // BoolToInt
        $$ = &node.NodeExpLE{Left:$1, Right:$3}
      }
-   | TkKeywordInt exp
+   | TkKeywordInt TkParLeft exp TkParRight
      {
-       e := $2
+       e := $3
        if !node.TypeNumeric(e.Type()) {
            yylex.Error("INT expression must be numeric")
        }
