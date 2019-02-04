@@ -109,10 +109,13 @@ func TestEqual(t *testing.T) {
 	expectTokenEOF := tokenEOF
 	eq := Token{ID: TkEqual, Value: `=`}
 	un := Token{ID: TkUnequal, Value: `<>`}
+	un2 := Token{ID: TkUnequal, Value: `><`}
 	lt := Token{ID: TkLT, Value: `<`}
 	gt := Token{ID: TkGT, Value: `>`}
 	le := Token{ID: TkLE, Value: `<=`}
 	ge := Token{ID: TkGE, Value: `>=`}
+	el := Token{ID: TkLE, Value: `=<`}
+	eg := Token{ID: TkGE, Value: `=>`}
 
 	compareValue(t, "equal-lt", `<`, []Token{lt, expectTokenEOF})
 	compareValue(t, "equal-lt", ` < `, []Token{lt, expectTokenEOF})
@@ -134,13 +137,19 @@ func TestEqual(t *testing.T) {
 	compareValue(t, "equal-ge2", ` >=>= `, []Token{ge, ge, expectTokenEOF})
 	compareValue(t, "equal-ge2", ` >= >= `, []Token{ge, ge, expectTokenEOF})
 
+	compareValue(t, "equal-el", `=<`, []Token{el, expectTokenEOF})
+	compareValue(t, "equal-eg", `=>`, []Token{eg, expectTokenEOF})
+
+	compareValue(t, "equal-un2", `><`, []Token{un2, expectTokenEOF})
+	compareValue(t, "equal-un2-spc", ` >< `, []Token{un2, expectTokenEOF})
+
 	compareValue(t, "equal-eq", `=`, []Token{eq, expectTokenEOF})
-	compareValue(t, "equal-eq", ` = `, []Token{eq, expectTokenEOF})
+	compareValue(t, "equal-eq-spc", ` = `, []Token{eq, expectTokenEOF})
 	compareValue(t, "equal-un", `<>`, []Token{un, expectTokenEOF})
-	compareValue(t, "equal-un", ` <> `, []Token{un, expectTokenEOF})
+	compareValue(t, "equal-un-spc", ` <> `, []Token{un, expectTokenEOF})
 	compareValue(t, "equal-lg", ` < > `, []Token{lt, gt, expectTokenEOF})
-	compareValue(t, "equal-eq-un", `=<>`, []Token{eq, un, expectTokenEOF})
-	compareValue(t, "equal-eq-un", ` = <> `, []Token{eq, un, expectTokenEOF})
+	compareValue(t, "equal-eq-un", `=<>`, []Token{el, gt, expectTokenEOF})
+	compareValue(t, "equal-eq-un-spc", ` = <> `, []Token{eq, un, expectTokenEOF})
 	compareValue(t, "equal-un-eq", ` <>= `, []Token{un, eq, expectTokenEOF})
 	compareValue(t, "equal-un-eq", ` <> = `, []Token{un, eq, expectTokenEOF})
 }

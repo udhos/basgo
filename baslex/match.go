@@ -28,6 +28,7 @@ const (
 	stName       = iota
 	stLT         = iota
 	stGT         = iota
+	stEqual      = iota
 )
 
 // "CLS" => TkKeywordCls
@@ -57,6 +58,7 @@ var tabState = []funcState{
 	matchName,
 	matchLT,
 	matchGT,
+	matchEqual,
 }
 
 func (l *Lex) saveLocation(t Token, size int) Token {
@@ -114,6 +116,8 @@ func (l *Lex) foundEOF() Token {
 		return l.consume(Token{ID: TkLT})
 	case stGT:
 		return l.consume(Token{ID: TkGT})
+	case stEqual:
+		return l.consume(Token{ID: TkEqual})
 	}
 
 	return l.saveLocationEmpty(Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL:foundEOF: bad state=%d", l.state)})
@@ -163,7 +167,8 @@ func matchBlank(l *Lex, b byte) Token {
 	case b == ':':
 		return l.saveLocationValue(Token{ID: TkColon, Value: ":"})
 	case b == '=':
-		return l.saveLocationValue(Token{ID: TkEqual, Value: "="})
+		l.state = stEqual
+		return l.save(b)
 	case b == ',':
 		return l.saveLocationValue(Token{ID: TkComma, Value: ","})
 	case b == ';':
@@ -443,6 +448,13 @@ func matchGT(l *Lex, b byte) Token {
 			return t
 		}
 		return l.consume(Token{ID: TkGE})
+	case '<':
+		l.state = stBlank
+		// attention: must save byte before extracting value for new token
+		if t := l.save(b); t.ID != TkNull {
+			return t
+		}
+		return l.consume(Token{ID: TkUnequal})
 	}
 
 	// push back
@@ -452,4 +464,32 @@ func matchGT(l *Lex, b byte) Token {
 	l.state = stBlank // blank state will deliver next token
 
 	return l.consume(Token{ID: TkGT})
+}
+
+func matchEqual(l *Lex, b byte) Token {
+
+	switch b {
+	case '>':
+		l.state = stBlank
+		// attention: must save byte before extracting value for new token
+		if t := l.save(b); t.ID != TkNull {
+			return t
+		}
+		return l.consume(Token{ID: TkGE})
+	case '<':
+		l.state = stBlank
+		// attention: must save byte before extracting value for new token
+		if t := l.save(b); t.ID != TkNull {
+			return t
+		}
+		return l.consume(Token{ID: TkLE})
+	}
+
+	// push back
+	if errUnread := unread(l); errUnread != nil {
+		return l.saveLocationEmpty(Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)})
+	}
+	l.state = stBlank // blank state will deliver next token
+
+	return l.consume(Token{ID: TkEqual})
 }

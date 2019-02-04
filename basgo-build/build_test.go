@@ -83,6 +83,15 @@ var testTable = []buildTest{
 	{`10 print "goproc-";:_goproc("fmt.Print","good")`, "", "goproc-good", OK},
 	{sourceGofunc, "180", "?  180 degrees in radians is 3.141592653589793 ", OK},
 
+	{"10 print 0 => 0", "", " -1 \n", OK},
+	{"10 print 1 => 0", "", " -1 \n", OK},
+	{"10 print 0 => 1", "", " 0 \n", OK},
+	{"10 print 0 =< 0", "", " -1 \n", OK},
+	{"10 print 1 =< 0", "", " 0 \n", OK},
+	{"10 print 0 =< 1", "", " -1 \n", OK},
+	{"10 print 0 >< 0", "", " 0 \n", OK},
+	{"10 print 0 >< 1", "", " -1 \n", OK},
+
 	{`10 print sin(0);`, "", " 0 ", OK},
 	{`10 print cos(0);`, "", " 1 ", OK},
 	{`10 print tan(0);`, "", " 0 ", OK},
