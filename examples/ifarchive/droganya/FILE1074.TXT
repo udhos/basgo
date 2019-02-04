@@ -1,0 +1,21 @@
+Disk No: 1074
+Disk Title: Game Fun for All
+PC-SIG Version: 2
+
+CASTLE DROGANYA is a reactive adventure game.  The course of the game is
+dictated by your response to the situation.  The goal is to free the
+souls of the townspeople who have been trapped by the evil Lord
+Droganya.
+
+File Descriptions:
+
+------------  CASTLE DROGANYA.
+DROGANYA BAS  Adventure game.
+DROGANYA DOC  Documentation.
+
+PC-SIG
+1030D East Duane Avenue
+Sunnyvale  Ca. 94086
+(408) 730-9291
+(c) Copyright 1988,89 PC-SIG, Inc.
+

@@ -194,6 +194,7 @@ func Reset() {
 %token <tok> TkKeywordBeep
 %token <tok> TkKeywordChain
 %token <tok> TkKeywordChr
+%token <tok> TkKeywordClear
 %token <tok> TkKeywordCls
 %token <tok> TkKeywordCont
 %token <tok> TkKeywordCos
@@ -222,6 +223,7 @@ func Reset() {
 %token <tok> TkKeywordLine
 %token <tok> TkKeywordList
 %token <tok> TkKeywordLoad
+%token <tok> TkKeywordLocate
 %token <tok> TkKeywordMid
 %token <tok> TkKeywordNext
 %token <tok> TkKeywordOff
@@ -801,6 +803,9 @@ stmt: /* empty */
   | TkKeywordWidth exp { $$ = unsupportedEmpty("WIDTH") }
   | TkKeywordDefint TkIdentifier TkMinus TkIdentifier { $$ = unsupportedEmpty("DEFINT") }
   | TkKeywordChain expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("CHAIN") }
+  | TkKeywordClear { $$ = unsupportedEmpty("CLEAR") }
+  | TkKeywordClear expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("CLEAR") }
+  | TkKeywordLocate expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("LOCATE") }
   ;
 
 expressions_push:

@@ -69,6 +69,7 @@ const (
 	TkKeywordBeep      = iota // BEEP
 	TkKeywordChain     = iota // CHAIN
 	TkKeywordChr       = iota // CHR$
+	TkKeywordClear     = iota // CLEAR
 	TkKeywordCls       = iota // CLS
 	TkKeywordCont      = iota // CONT
 	TkKeywordCos       = iota // COS
@@ -97,6 +98,7 @@ const (
 	TkKeywordLine      = iota // LINE
 	TkKeywordList      = iota // LIST
 	TkKeywordLoad      = iota // LOAD
+	TkKeywordLocate    = iota // LOCATE
 	TkKeywordMid       = iota // MID$
 	TkKeywordNext      = iota // NEXT
 	TkKeywordOff       = iota // OFF
@@ -154,6 +156,7 @@ var tabKeywords = []struct {
 	{TkKeywordBeep, "BEEP"},
 	{TkKeywordChain, "CHAIN"},
 	{TkKeywordChr, "CHR$"},
+	{TkKeywordClear, "CLEAR"},
 	{TkKeywordCls, "CLS"},
 	{TkKeywordCont, "CONT"},
 	{TkKeywordCos, "COS"},
@@ -184,6 +187,7 @@ var tabKeywords = []struct {
 	{TkKeywordLine, "LINE"},
 	{TkKeywordList, "LIST"},
 	{TkKeywordLoad, "LOAD"},
+	{TkKeywordLocate, "LOCATE"},
 	{TkKeywordMid, "MID$"},
 	{TkKeywordMod, "MOD"},
 	{TkKeywordNext, "NEXT"},
@@ -278,6 +282,7 @@ var tabType = []string{
 	"BEEP",
 	"CHAIN",
 	"CHR$",
+	"CLEAR",
 	"CLS",
 	"CONT",
 	"COS",
@@ -306,6 +311,7 @@ var tabType = []string{
 	"LINE",
 	"LIST",
 	"LOAD",
+	"LOCATE",
 	"MID$",
 	"NEXT",
 	"OFF",

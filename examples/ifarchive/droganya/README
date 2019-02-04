@@ -1,0 +1,15 @@
+
+DROGANYA.TOK is the original tokenized version for BASICA,
+DROGANYA.BAS is the same stuff written out in ASCII.
+
+These two versions do not run under GW-BASIC or QBASIC ("out of memory").
+Comments and line numbers take up program space in BASIC, so Nathan Glasser
+renumbered the program with shorter line numbers and deleted all the comments
+(and fixed a bug found in that process); the result can now be run under
+GW-BASIC or QBASIC:
+
+NEWDROG.BAS  is Nathan Glasser's ASCII version for GW-BASIC,
+NEWDROG.TOK  is the tokenized version of this,
+NEWDROG.QBS  is a slightly modified version for QBASIC
+             (modified by Volker Blasius following a suggestion by Ambat Sasi)
+ 
