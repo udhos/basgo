@@ -258,3 +258,11 @@ func Rnd(v float64) float64 {
 	}
 	return rndLast
 }
+
+func StrInt(v int) string {
+	return " " + strconv.Itoa(v)
+}
+
+func StrFloat(v float64) string {
+	return " " + strconv.FormatFloat(v, 'f', -1, 64)
+}

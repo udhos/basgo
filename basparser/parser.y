@@ -618,7 +618,7 @@ stmt: /* empty */
            yylex.Error("LINE INPUT variable must be string")
         }
         Result.Baslib = true
-        $$ = &node.NodeInput{Variables: []node.NodeExp{v}, AddQuestion: true}
+        $$ = &node.NodeInput{Variables: []node.NodeExp{v}}
      }
   | TkKeywordLine TkKeywordInput one_const_str TkComma expressions_push one_var expressions_pop
      {
@@ -636,7 +636,7 @@ stmt: /* empty */
            yylex.Error("LINE INPUT variable must be string")
         }
         Result.Baslib = true
-        $$ = &node.NodeInput{PromptString:$3, Variables: []node.NodeExp{v}, AddQuestion: true}
+        $$ = &node.NodeInput{PromptString:$3, Variables: []node.NodeExp{v}}
      }
   | TkKeywordGosub use_line_number
      {
@@ -1547,6 +1547,7 @@ exp: one_const_noneg { $$ = $1 }
        if !node.TypeNumeric(num.Type()) {
            yylex.Error("STR$ expression must be numeric")
        }
+       Result.Baslib = true
        $$ = &node.NodeExpStr{Value:num}
      }
    | TkKeywordVal TkParLeft exp TkParRight

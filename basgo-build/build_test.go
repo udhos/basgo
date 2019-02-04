@@ -365,7 +365,9 @@ var testTable = []buildTest{
 	{`10 for a=1 to 2:if a>1 then next`, "", "", OK},
 
 	{`10 line input a:print a`, "", "", WRONG},
-	{`10 line input a$:print a$`, "2\n", "? 2\n", OK},
+	{`10 line input a$:print a$`, "2\n", "2\n", OK},
+	{`10 line input "choice? ",a$:print a$`, "2\n", "choice? 2\n", OK},
+	{`10 line input "choice? ";a$:print a$`, "2\n", "choice? 2\n", OK},
 
 	{`10 input a : print a`, "2\n", "?  2 \n", OK},
 	{`10 input a(1) : print a(1)`, "2\n", "?  2 \n", OK},
@@ -449,8 +451,8 @@ var testTable = []buildTest{
 	{"10 b%=1:c%=3:for a=b% to c% step 2:print a;:next", "", " 1  3 ", OK},
 	{"10 b%=1:c%=3:d%=2:for a=b% to c% step d%:print a;:next", "", " 1  3 ", OK},
 	{"10 b=1:c=3:d=2:for a%=b to c step d:print a%;:next", "", " 1  3 ", OK},
-	{"10 for a=1 to 3:for b=4 to 5:print str$(a),str$(b);:next:next", "", "141524253435", OK},
-	{"10 for a=1 to 3:for b=4 to 5:print str$(a),str$(b);:next b,a", "", "141524253435", OK},
+	{"10 for a=1 to 3:for b=4 to 5:print str$(a),str$(b);:next:next", "", " 1 4 1 5 2 4 2 5 3 4 3 5", OK},
+	{"10 for a=1 to 3:for b=4 to 5:print str$(a),str$(b);:next b,a", "", " 1 4 1 5 2 4 2 5 3 4 3 5", OK},
 	{"10 for a=1 to 3:for b=4 to 5:print a,b;:next a,b", "", "", WRONG},
 	{"10 for a=1 to 3:for b=4 to 5:print a,b;:next", "", "", WRONG},
 	{"10 for a=1 to 3 step -1:print a;:next", "", "", OK},
@@ -492,10 +494,10 @@ var testTable = []buildTest{
 	{`10 data "3":read a$(1,2):print a$(1,2)`, "", "3\n", OK},
 	{`10 data 2,3:read a(1),b:print a(1),b`, "", " 2  3 \n", OK},
 
-	{`10 for a(1)=1 to 3:print str$(a(1));:next a(1)`, "", "123", OK},
-	{`10 for a(1)=1 to 3:print str$(a(1));:next`, "", "123", OK},
-	{`10 for a(1,2)=1 to 3:print str$(a(1,2));:next a(1,2)`, "", "123", OK},
-	{`10 for a(1,2)=1 to 3:print str$(a(1,2));:next`, "", "123", OK},
+	{`10 for a(1)=1 to 3:print str$(a(1));:next a(1)`, "", " 1 2 3", OK},
+	{`10 for a(1)=1 to 3:print str$(a(1));:next`, "", " 1 2 3", OK},
+	{`10 for a(1,2)=1 to 3:print str$(a(1,2));:next a(1,2)`, "", " 1 2 3", OK},
+	{`10 for a(1,2)=1 to 3:print str$(a(1,2));:next`, "", " 1 2 3", OK},
 	{`10 for a(1)=1 to 3:print a(1);:next a(2)`, "", "", WRONG},
 	{`10 for a(1,2)=1 to 3:print a(1,2);:next a(1,1)`, "", "", WRONG},
 
@@ -551,7 +553,7 @@ var testTable = []buildTest{
 	{"10 print 1;:gosub 20:print 2;:end\n20 print 3;:return", "", " 1  3  2 ", OK},
 	{sourceGosub, "", "1234567", OK},
 
-	{`10 print "1";:while a<3:print str$(a);:a=a+1:wend`, "", "1012", OK},
+	{`10 print "1";:while a<3:print str$(a);:a=a+1:wend`, "", "1 0 1 2", OK},
 	{`10 print "1";:while 0:print a;:a=a+1:wend`, "", "1", OK},
 	{`10 print "1";:while "":print a;:a=a+1:wend`, "", "", WRONG},
 	{`10 print "1";:while a<3:print a;:a=a+1`, "", "", WRONG},
@@ -568,11 +570,11 @@ var testTable = []buildTest{
 
 	{`10 print str$();`, "", "", WRONG},
 	{`10 print str$("");`, "", "", WRONG},
-	{`10 print str$(1);`, "", "1", OK},
-	{`10 print str$(1.1);`, "", "1.1", OK},
-	{`10 print str$(1+1);`, "", "2", OK},
-	{`10 print str$(1+.1);`, "", "1.1", OK},
-	{`10 print "1"+str$(1+.1);`, "", "11.1", OK},
+	{`10 print str$(1);`, "", " 1", OK},
+	{`10 print str$(1.1);`, "", " 1.1", OK},
+	{`10 print str$(1+1);`, "", " 2", OK},
+	{`10 print str$(1+.1);`, "", " 1.1", OK},
+	{`10 print "1"+str$(1+.1);`, "", "1 1.1", OK},
 
 	{`10 print val();`, "", "", WRONG},
 	{`10 print val(0);`, "", "", WRONG},

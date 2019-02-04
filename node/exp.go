@@ -1088,14 +1088,15 @@ func (e *NodeExpStr) String() string {
 
 // Exp returns value
 func (e *NodeExpStr) Exp(options *BuildOptions) string {
-	options.Headers["strconv"] = struct{}{}
 
 	v := e.Value.Exp(options)
 
 	if e.Value.Type() == TypeInteger {
-		return "strconv.Itoa(" + v + ")"
+		//return "strconv.Itoa(" + v + ")"
+		return "baslib.StrInt(" + v + ")"
 	} else {
-		return "strconv.FormatFloat(" + v + ", 'f', -1, 64)"
+		//return "strconv.FormatFloat(" + v + ", 'f', -1, 64)"
+		return "baslib.StrFloat(" + v + ")"
 	}
 }
 
