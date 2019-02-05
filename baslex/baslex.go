@@ -38,6 +38,7 @@ const (
 	TkCommentQ     = iota // Comment '
 	TkString       = iota // String "
 	TkNumber       = iota // Number [0-9]+
+	TkNumberHex    = iota // Number &H[0-9]+
 	TkFloat        = iota // .digits | digits. | digits.digits
 
 	TkKeywordImp = iota // IMP
@@ -261,6 +262,7 @@ var tabType = []string{
 	"COMMENT-Q",
 	"STRING",
 	"NUMBER",
+	"NUMBER-HEX",
 	"FLOAT",
 
 	"IMP",

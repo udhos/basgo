@@ -102,6 +102,13 @@ var testTable = []buildTest{
 
 	{sourceReturnLine, "", "143", OK},
 
+	{`10 print &`, "", " 0 \n", WRONG},
+	{`10 print &h`, "", " 0 \n", WRONG},
+	{`10 print &hg`, "", " 0 \n", WRONG},
+	{`10 print &hb`, "", " 11 \n", OK},
+	{"10 print &hb", "", " 11 \n", OK},
+	{`10 print &hb;`, "", " 11 ", OK},
+
 	{"10 print 0 => 0", "", " -1 \n", OK},
 	{"10 print 1 => 0", "", " -1 \n", OK},
 	{"10 print 0 => 1", "", " 0 \n", OK},
@@ -164,14 +171,28 @@ var testTable = []buildTest{
 	{`10 print abs(1.2);`, "", " 1.2 ", OK},
 	{`10 print abs(-1.2);`, "", " 1.2 ", OK},
 
+	{`10 print 0e`, "", " 0 \n", OK},
+	{`10 print 1e`, "", " 1 \n", OK},
+	{`10 print 1e+`, "", " 1 \n", WRONG},
+	{`10 print 1e-`, "", " 1 \n", WRONG},
+	{`10 print .1e`, "", " 0.1 \n", OK},
+	{`10 print 1e2`, "", " 100 \n", OK},
+	{`10 print .12345e+5`, "", " 12345 \n", OK},
+	{`10 print 12.34e56`, "", " 1.234e+57 \n", OK},
+	{`10 print 12.34e+56`, "", " 1.234e+57 \n", OK},
+	{`10 print 12.34e-56`, "", " 1.234e-55 \n", OK},
+
 	{`10 print 0e;`, "", " 0 ", OK},
 	{`10 print 1e;`, "", " 1 ", OK},
+	{`10 print 1e+;`, "", " 1 ", WRONG},
+	{`10 print 1e-;`, "", " 1 ", WRONG},
 	{`10 print .1e;`, "", " 0.1 ", OK},
 	{`10 print 1e2;`, "", " 100 ", OK},
 	{`10 print .12345e+5;`, "", " 12345 ", OK},
 	{`10 print 12.34e56;`, "", " 1.234e+57 ", OK},
 	{`10 print 12.34e+56;`, "", " 1.234e+57 ", OK},
 	{`10 print 12.34e-56;`, "", " 1.234e-55 ", OK},
+
 	{`10 a=12.34e56:print a;`, "", " 1.234e+57 ", OK},
 	{`10 a=12.34ee56:print a;`, "", "", WRONG},
 	{`10 a=12.34e+-56:print a;`, "", "", WRONG},

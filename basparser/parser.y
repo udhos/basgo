@@ -171,6 +171,7 @@ func Reset() {
 %token <typeRem> TkCommentQ
 %token <typeString> TkString
 %token <typeNumber> TkNumber
+%token <typeNumber> TkNumberHex
 %token <typeFloat> TkFloat
 
 %left <tok> TkKeywordImp
@@ -1000,6 +1001,30 @@ one_const_int: TkNumber
 
         $$ = &node.NodeExpNumber{Value:str}
     }
+    | TkNumberHex
+    {
+        str := $1
+
+	if len(str) < 3 {
+            yylex.Error("short hex number: "+str)
+	} else {
+            str = str[2:]
+	}
+
+        // str->int->str: make sure it can be used as literal int const in Go source code
+        num, err := strconv.ParseInt(str, 16, 64)
+        if err != nil {
+            yylex.Error("error parsing hex number: "+err.Error())
+        }
+	maxInt := int64(^uint(0) >> 1)
+	if num > maxInt {
+            yylex.Error("hex number overflow: " + str)
+	}
+	str = strconv.Itoa(int(num))
+
+        $$ = &node.NodeExpNumber{Value:str}
+    }
+    ;
 
 one_const_float: TkFloat
      {
@@ -1817,6 +1842,8 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 		case TkString:
 			lval.typeString = t.Value
 		case TkNumber:
+			lval.typeNumber = t.Value
+		case TkNumberHex:
 			lval.typeNumber = t.Value
 		case TkFloat:
 			lval.typeFloat = t.Value

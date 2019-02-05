@@ -29,6 +29,9 @@ const (
 	stLT         = iota
 	stGT         = iota
 	stEqual      = iota
+	stAmpersand  = iota
+	stAmperH     = iota
+	stHex        = iota
 )
 
 // "CLS" => TkKeywordCls
@@ -59,6 +62,9 @@ var tabState = []funcState{
 	matchLT,
 	matchGT,
 	matchEqual,
+	matchAmpersand,
+	matchAmperH,
+	matchHex,
 }
 
 func (l *Lex) saveLocation(t Token, size int) Token {
@@ -108,7 +114,7 @@ func (l *Lex) foundEOF() Token {
 		return l.consume(Token{ID: TkString})
 	case stNumber:
 		return l.consume(Token{ID: TkNumber})
-	case stFloat:
+	case stFloat, stFloatE, stFloatEEE:
 		return l.consume(Token{ID: TkFloat})
 	case stName:
 		return l.consumeName()
@@ -118,6 +124,16 @@ func (l *Lex) foundEOF() Token {
 		return l.consume(Token{ID: TkGT})
 	case stEqual:
 		return l.consume(Token{ID: TkEqual})
+	case stHex:
+		return l.consume(Token{ID: TkNumberHex})
+
+		/*
+			// Some states do not support EOF:
+
+			case stFloatEE:
+			case stAmpersend:
+			case stAmperH:
+		*/
 	}
 
 	return l.saveLocationEmpty(Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL:foundEOF: bad state=%d", l.state)})
@@ -196,6 +212,9 @@ func matchBlank(l *Lex, b byte) Token {
 	case b == '_', letter(b): // support keyword with '_' prefix for _GOFUNC
 		l.state = stName
 		return l.save(b)
+	case b == '&':
+		l.state = stAmpersand
+		return l.save(b)
 	}
 
 	invalid := fmt.Sprintf("INVALID: byte=%d: '%c'", b, b)
@@ -208,6 +227,10 @@ func letter(b byte) bool {
 
 func digit(b byte) bool {
 	return b >= '0' && b <= '9'
+}
+
+func hexdigit(b byte) bool {
+	return digit(b) || (b >= 'a' && b <= 'f') || (b >= 'A' && b <= 'F')
 }
 
 func blank(b byte) bool {
@@ -492,4 +515,45 @@ func matchEqual(l *Lex, b byte) Token {
 	l.state = stBlank // blank state will deliver next token
 
 	return l.consume(Token{ID: TkEqual})
+}
+
+// expect only H
+func matchAmpersand(l *Lex, b byte) Token {
+
+	switch b {
+	case 'h', 'H':
+		l.state = stAmperH
+		return l.save(b)
+	}
+
+	invalid := fmt.Sprintf("matchAmpersand: INVALID: byte=%d: '%c'", b, b)
+	return l.saveLocationEmpty(Token{ID: TkErrInvalid, Value: invalid})
+}
+
+// expect hexdigit
+func matchAmperH(l *Lex, b byte) Token {
+
+	if hexdigit(b) {
+		l.state = stHex
+		return l.save(b)
+	}
+
+	invalid := fmt.Sprintf("matchAmperH: INVALID: byte=%d: '%c'", b, b)
+	return l.saveLocationEmpty(Token{ID: TkErrInvalid, Value: invalid})
+}
+
+func matchHex(l *Lex, b byte) Token {
+
+	if hexdigit(b) {
+		l.state = stHex
+		return l.save(b)
+	}
+
+	// push back non-digit
+	if errUnread := unread(l); errUnread != nil {
+		return l.saveLocationEmpty(Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)})
+	}
+	l.state = stBlank // blank state will deliver next token
+
+	return l.consume(Token{ID: TkNumberHex})
 }
