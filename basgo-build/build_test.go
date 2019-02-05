@@ -76,6 +76,11 @@ var testTable = []buildTest{
 	{"", "", "", OK},       // empty program
 	{"ugh", "", "", WRONG}, // invalid program
 
+	{"10 data\n20 read a$:print a$;", "", "", OK},
+	{"10 data ,\n20 read a$:print a$;", "", "", OK},
+	{`10 data:read a$:print a$;`, "", "", OK},
+	{`10 data ,:read a$:print a$;`, "", "", OK},
+
 	{`10 rem a`, "", "", OK},
 	{`10 ' a`, "", "", OK},
 	{`10 print "1";:rem a`, "", "1", OK},

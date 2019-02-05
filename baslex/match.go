@@ -16,22 +16,24 @@ Keep states in sync:
 
 // (1) const states
 const (
-	stBlank      = iota
-	stCommentQ   = iota
-	stCommentRem = iota
-	stString     = iota
-	stNumber     = iota
-	stFloat      = iota
-	stFloatE     = iota
-	stFloatEE    = iota
-	stFloatEEE   = iota
-	stName       = iota
-	stLT         = iota
-	stGT         = iota
-	stEqual      = iota
-	stAmpersand  = iota
-	stAmperH     = iota
-	stHex        = iota
+	stBlank                = iota
+	stCommentQ             = iota
+	stCommentRem           = iota
+	stString               = iota
+	stStringUnquoted       = iota
+	stStringUnquotedFinish = iota
+	stNumber               = iota
+	stFloat                = iota
+	stFloatE               = iota
+	stFloatEE              = iota
+	stFloatEEE             = iota
+	stName                 = iota
+	stLT                   = iota
+	stGT                   = iota
+	stEqual                = iota
+	stAmpersand            = iota
+	stAmperH               = iota
+	stHex                  = iota
 )
 
 // "CLS" => TkKeywordCls
@@ -53,6 +55,8 @@ var tabState = []funcState{
 	matchCommentQ,
 	matchCommentRem,
 	matchString,
+	matchStringUnquoted,
+	matchStringUnquotedFinish,
 	matchNumber,
 	matchFloat,
 	matchFloatE,
@@ -98,6 +102,11 @@ func (l *Lex) consumeName() Token {
 	return l.consume(Token{ID: id})
 }
 
+func quoteString(t Token) Token {
+	t.Value = `"` + t.Value + `"`
+	return t
+}
+
 // (3) func foundEOF()
 func (l *Lex) foundEOF() Token {
 
@@ -112,6 +121,8 @@ func (l *Lex) foundEOF() Token {
 		return l.consume(Token{ID: TkKeywordRem})
 	case stString:
 		return l.consume(Token{ID: TkString})
+	case stStringUnquoted:
+		return quoteString(l.consume(Token{ID: TkString}))
 	case stNumber:
 		return l.consume(Token{ID: TkNumber})
 	case stFloat, stFloatE, stFloatEEE:
@@ -155,7 +166,66 @@ func (l *Lex) save(b byte) Token {
 	return tokenNull
 }
 
+/*
+func finishStringUnquoted(l *Lex) Token {
+	// push back
+	if errUnread := unread(l); errUnread != nil {
+		return l.saveLocationEmpty(Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)})
+	}
+
+	return quoteString(l.consume(Token{ID: TkString}))
+}
+*/
+
+func matchBlankData(l *Lex, b byte) Token {
+
+	//log.Printf("matchBlankData: byte=%c", b)
+
+	switch {
+	case eol(b):
+		l.data = false
+		// push back
+		if errUnread := unread(l); errUnread != nil {
+			return l.saveLocationEmpty(Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)})
+		}
+		l.state = stStringUnquoted
+		return tokenNull
+	case blank(b):
+		return tokenNull
+	case b == ',':
+		// push back
+		if errUnread := unread(l); errUnread != nil {
+			return l.saveLocationEmpty(Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)})
+		}
+		l.state = stStringUnquoted
+		return tokenNull
+	case b == ':':
+		l.data = false
+		// push back
+		if errUnread := unread(l); errUnread != nil {
+			return l.saveLocationEmpty(Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)})
+		}
+		l.state = stStringUnquoted
+		return tokenNull
+	case b == '"':
+		l.state = stString
+		return l.save(b)
+	case digit(b):
+		l.state = stNumber
+		return l.save(b)
+	}
+
+	// anything else is unquoted string
+
+	l.state = stStringUnquoted
+	return l.save(b)
+}
+
 func matchBlank(l *Lex, b byte) Token {
+
+	if l.data {
+		return matchBlankData(l, b)
+	}
 
 	switch {
 	case eol(b):
@@ -219,7 +289,7 @@ func matchBlank(l *Lex, b byte) Token {
 		return l.save(b)
 	}
 
-	invalid := fmt.Sprintf("INVALID: byte=%d: '%c'", b, b)
+	invalid := fmt.Sprintf("matchBlank: INVALID: byte=%d: '%c'", b, b)
 	return l.saveLocationEmpty(Token{ID: TkErrInvalid, Value: invalid})
 }
 
@@ -307,6 +377,40 @@ func matchString(l *Lex, b byte) Token {
 	}
 
 	return l.save(b)
+}
+
+func matchStringUnquoted(l *Lex, b byte) Token {
+
+	switch {
+	case b == ',', b == ':', eol(b):
+		// push back , : EOL
+		if errUnread := unread(l); errUnread != nil {
+			return l.saveLocationEmpty(Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)})
+		}
+		l.state = stStringUnquotedFinish // will deliver , : EOL
+
+		return quoteString(l.consume(Token{ID: TkString}))
+	}
+
+	return l.save(b)
+}
+
+func matchStringUnquotedFinish(l *Lex, b byte) Token {
+
+	switch {
+	case eol(b):
+		l.state = stBlank
+		return l.saveLocationEmpty(Token{ID: TkEOL, Value: "EOL"})
+	case b == ':':
+		l.state = stBlank
+		return l.saveLocationValue(Token{ID: TkColon, Value: ":"})
+	case b == ',':
+		l.state = stBlank
+		return l.saveLocationValue(Token{ID: TkComma, Value: ","})
+	}
+
+	invalid := fmt.Sprintf("matchStringUnquotedFinish: INVALID: byte=%d: '%c'", b, b)
+	return l.saveLocationEmpty(Token{ID: TkErrInvalid, Value: invalid})
 }
 
 func matchNumber(l *Lex, b byte) Token {
@@ -449,13 +553,16 @@ func matchName(l *Lex, b byte) Token {
 	}
 	l.state = stBlank // blank state will deliver next token
 
-	// trap special keyword REM
+	// trap special keywords REM, DATA
 
 	name := l.buf.String()
 	id := findKeyword(name)
-	if id == TkKeywordRem {
+	switch id {
+	case TkKeywordRem:
 		l.state = stCommentRem
 		return tokenNull // keep matching REM
+	case TkKeywordData:
+		l.data = true // support DATA unquoted string
 	}
 
 	return l.consumeName()

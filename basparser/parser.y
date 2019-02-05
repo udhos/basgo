@@ -414,6 +414,11 @@ stmt: /* empty */
      { $$ = &node.NodeEnd{} }
   | TkKeywordSystem
      { $$ = &node.NodeEnd{} }
+  | TkKeywordData
+     {
+        Result.LibReadData = true
+        $$ = &node.NodeData{Expressions: []node.NodeExp{node.NewNodeExpString(`""`)}}
+     }
   | TkKeywordData const_list_any
      {
         Result.LibReadData = true
