@@ -10,7 +10,7 @@ import (
 	"io"
 	"strconv"
         "log"
-	//"strings"
+	"strings"
 
 	"github.com/udhos/basgo/baslex"
 	"github.com/udhos/basgo/node"
@@ -161,6 +161,7 @@ func Reset() {
 %token <tok> TkErrInvalid
 %token <tok> TkErrLarge
 
+%token <tok> TkHash
 %token <tok> TkColon
 %token <tok> TkComma
 %token <tok> TkSemicolon
@@ -196,6 +197,7 @@ func Reset() {
 %token <tok> TkKeywordChain
 %token <tok> TkKeywordChr
 %token <tok> TkKeywordClear
+%token <tok> TkKeywordClose
 %token <tok> TkKeywordCls
 %token <tok> TkKeywordColor
 %token <tok> TkKeywordCont
@@ -231,6 +233,7 @@ func Reset() {
 %token <tok> TkKeywordNext
 %token <tok> TkKeywordOff
 %token <tok> TkKeywordOn
+%token <tok> TkKeywordOpen
 %token <tok> TkKeywordPrint
 %token <tok> TkKeywordRandomize
 %token <tok> TkKeywordRead
@@ -607,6 +610,41 @@ stmt: /* empty */
        Result.CountIf++
        $$ = &node.NodeIf{Index:Result.CountIf, Cond: cond, Then: $4, Else: $6}
      }
+  | TkKeywordClose exp
+     {
+       num := $2
+
+       if !node.TypeNumeric(num.Type()) {
+          yylex.Error("CLOSE file number must be numeric")
+       }
+
+       log.Printf("CLOSE FIXME WRITEME")
+       $$ = unsupportedEmpty("CLOSE")
+     }
+  | TkKeywordPrint TkHash exp TkComma expressions_push var_list expressions_pop
+     {
+       num := $3
+       //list := $6
+
+       if !node.TypeNumeric(num.Type()) {
+          yylex.Error("PRINT# file number must be numeric")
+       }
+
+       log.Printf("PRINT# FIXME WRITEME")
+       $$ = unsupportedEmpty("PRINT#")
+     }
+  | TkKeywordInput TkHash exp TkComma expressions_push var_list expressions_pop
+     {
+       num := $3
+       //list := $6
+
+       if !node.TypeNumeric(num.Type()) {
+          yylex.Error("INPUT# file number must be numeric")
+       }
+
+       log.Printf("INPUT# FIXME WRITEME")
+       $$ = unsupportedEmpty("INPUT#")
+     }
   | TkKeywordInput expressions_push var_list expressions_pop
      {
         Result.Baslib = true
@@ -656,18 +694,57 @@ stmt: /* empty */
         Result.CountGosub++
         $$ = g
      }
-  | TkKeywordGoto stmt_goto
-     { $$ = $2 }
-  | TkKeywordLet assign
-     { $$ = $2 }
-  | assign
-     { $$ = $1 }
-  | TkKeywordList
-     { $$ = &node.NodeList{} }
-  | TkKeywordPrint
-     { 
-        $$ = &node.NodePrint{Newline: true}
+  | TkKeywordGoto stmt_goto { $$ = $2 }
+  | TkKeywordLet assign { $$ = $2 }
+  | assign { $$ = $1 }
+  | TkKeywordList { $$ = &node.NodeList{} }
+  | TkKeywordOpen exp TkKeywordFor TkKeywordInput TkIdentifier exp
+     {
+        // OPEN "arq" FOR INPUT AS 1
+	filename := $2
+	labelAs := $5
+	num := $6
+
+	if filename.Type() != node.TypeString {
+           yylex.Error("OPEN filename must be string")
+	}
+        if strings.ToLower(labelAs) != "as" {
+           yylex.Error("OPEN expecting 'AS', found: " + labelAs)
+        }
+	if !node.TypeNumeric(num.Type()) {
+           yylex.Error("OPEN file number must be numeric")
+	}
+	
+        $$ = &node.NodeOpen{File:filename, Number:num, Mode:node.OpenInput}
      }
+  | TkKeywordOpen exp TkKeywordFor TkIdentifier TkIdentifier exp
+     {
+        // OPEN "arq" FOR INPUT AS 1
+	filename := $2
+	mode := $4
+	labelAs := $5
+	num := $6
+        var m int
+
+	if filename.Type() != node.TypeString {
+           yylex.Error("OPEN filename must be string")
+	}
+	switch strings.ToLower(mode) {
+           case "output":
+              m = node.OpenOutput
+           default:
+              yylex.Error("OPEN unexpected mode: " + mode)
+        }
+        if strings.ToLower(labelAs) != "as" {
+           yylex.Error("OPEN expecting 'AS', found: " + labelAs)
+        }
+	if !node.TypeNumeric(num.Type()) {
+           yylex.Error("OPEN file number must be numeric")
+	}
+	
+        $$ = &node.NodeOpen{File:filename, Number:num, Mode:m}
+     }
+  | TkKeywordPrint { $$ = &node.NodePrint{Newline: true} }
   | TkKeywordPrint expressions_push print_expressions expressions_pop
      {
         $$ = &node.NodePrint{Expressions: $3, Newline: true}

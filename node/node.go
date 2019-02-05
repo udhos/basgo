@@ -1656,3 +1656,43 @@ func (n *NodeRandomize) FindUsedVars(options *BuildOptions) {
 		n.Seed.FindUsedVars(options)
 	}
 }
+
+const (
+	OpenRandom = iota
+	OpenInput  = iota
+	OpenOutput = iota
+	OpenAppend = iota
+)
+
+// NodeOpen is open
+type NodeOpen struct {
+	File   NodeExp
+	Number NodeExp
+	Mode   int
+}
+
+// Name returns the name of the node
+func (n *NodeOpen) Name() string {
+	return "OPEN"
+}
+
+// Show displays the node
+func (n *NodeOpen) Show(printf FuncPrintf) {
+	printf("[" + n.Name() + " ")
+	printf(n.File.String())
+	printf("]")
+}
+
+// Build generates code
+func (n *NodeOpen) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+
+}
+
+// FindUsedVars finds used vars
+func (n *NodeOpen) FindUsedVars(options *BuildOptions) {
+	n.File.FindUsedVars(options)
+	n.Number.FindUsedVars(options)
+}

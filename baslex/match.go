@@ -180,6 +180,8 @@ func matchBlank(l *Lex, b byte) Token {
 		return l.saveLocationValue(Token{ID: TkPow, Value: "^"})
 	case b == '\\':
 		return l.saveLocationValue(Token{ID: TkBackSlash, Value: "\\"})
+	case b == '#':
+		return l.saveLocationValue(Token{ID: TkHash, Value: "#"})
 	case b == ':':
 		return l.saveLocationValue(Token{ID: TkColon, Value: ":"})
 	case b == '=':
@@ -408,13 +410,35 @@ func matchName(l *Lex, b byte) Token {
 	case letter(b) || digit(b) || b == '.':
 		return l.save(b)
 
-	case b == '$' || b == '%' || b == '!' || b == '#':
+	case b == '#':
+
+		name := l.buf.String()
+		id := findKeyword(name)
+		switch id {
+		case TkKeywordInput, TkKeywordPrint:
+			// push back hash
+			if errUnread := unread(l); errUnread != nil {
+				return l.saveLocationEmpty(Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)})
+			}
+			l.state = stBlank // blank state will deliver next token #
+
+			return l.consumeName() // consume INPUT, PRINT
+		}
+
 		l.state = stBlank
 		// attention: must save byte before extracting value for new token
 		if t := l.save(b); t.ID != TkNull {
 			return t
 		}
-		return l.consumeName()
+		return l.consumeName() // consume IDENT#
+
+	case b == '$' || b == '%' || b == '!':
+		l.state = stBlank
+		// attention: must save byte before extracting value for new token
+		if t := l.save(b); t.ID != TkNull {
+			return t
+		}
+		return l.consumeName() // consume IDENTx (x: $,%,!)
 	}
 
 	// found name

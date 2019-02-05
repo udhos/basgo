@@ -28,6 +28,7 @@ const (
 	TkErrInvalid  = iota // Invalid, unexpected token found
 	TkErrLarge    = iota // Large token -- last error
 
+	TkHash         = iota // Colon #
 	TkColon        = iota // Colon :
 	TkComma        = iota // Comma ,
 	TkSemicolon    = iota // Semicolon ; (newline suppressor)
@@ -71,6 +72,7 @@ const (
 	TkKeywordChain     = iota // CHAIN
 	TkKeywordChr       = iota // CHR$
 	TkKeywordClear     = iota // CLEAR
+	TkKeywordClose     = iota // CLOSE
 	TkKeywordCls       = iota // CLS
 	TkKeywordColor     = iota // COLOR
 	TkKeywordCont      = iota // CONT
@@ -106,6 +108,7 @@ const (
 	TkKeywordNext      = iota // NEXT
 	TkKeywordOff       = iota // OFF
 	TkKeywordOn        = iota // ON
+	TkKeywordOpen      = iota // OPEN
 	TkKeywordPrint     = iota // PRINT
 	TkKeywordRandomize = iota // RANDOMIZE
 	TkKeywordRead      = iota // READ
@@ -164,6 +167,7 @@ var tabKeywords = []struct {
 	{TkKeywordChain, "CHAIN"},
 	{TkKeywordChr, "CHR$"},
 	{TkKeywordClear, "CLEAR"},
+	{TkKeywordClose, "CLOSE"},
 	{TkKeywordCls, "CLS"},
 	{TkKeywordColor, "COLOR"},
 	{TkKeywordCont, "CONT"},
@@ -203,6 +207,7 @@ var tabKeywords = []struct {
 	{TkKeywordNot, "NOT"},
 	{TkKeywordOff, "OFF"},
 	{TkKeywordOn, "ON"},
+	{TkKeywordOpen, "OPEN"},
 	{TkKeywordOr, "OR"},
 	{TkKeywordPrint, "PRINT"},
 	{TkKeywordRandomize, "RANDOMIZE"},
@@ -254,6 +259,7 @@ var tabType = []string{
 	"ERROR-INVALID",
 	"ERROR-LARGE",
 
+	"HASH",
 	"COLON",
 	"COMMA",
 	"SEMICOLON",
@@ -297,6 +303,7 @@ var tabType = []string{
 	"CHAIN",
 	"CHR$",
 	"CLEAR",
+	"CLOSE",
 	"CLS",
 	"COLOR",
 	"CONT",
@@ -332,6 +339,7 @@ var tabType = []string{
 	"NEXT",
 	"OFF",
 	"ON",
+	"OPEN",
 	"PRINT",
 	"RANDOMIZE",
 	"READ",
