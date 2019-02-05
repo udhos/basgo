@@ -234,12 +234,15 @@ func Reset() {
 %token <tok> TkKeywordRandomize
 %token <tok> TkKeywordRead
 %token <typeRem> TkKeywordRem
+%token <tok> TkKeywordReset
 %token <tok> TkKeywordRestore
 %token <tok> TkKeywordReturn
 %token <tok> TkKeywordRight
 %token <tok> TkKeywordRnd
 %token <tok> TkKeywordRun
 %token <tok> TkKeywordSave
+%token <tok> TkKeywordScreen
+%token <tok> TkKeywordSeg
 %token <tok> TkKeywordSgn
 %token <tok> TkKeywordSin
 %token <tok> TkKeywordSpace
@@ -411,6 +414,8 @@ stmt: /* empty */
         Result.LibReadData = true
         $$ = &node.NodeData{Expressions: $2}
      }
+  | TkKeywordDef TkKeywordSeg { $$ = unsupportedEmpty("DEFSEG") }
+  | TkKeywordDef TkKeywordSeg TkEqual exp { $$ = unsupportedEmpty("DEFSEG") }
   | TkKeywordDef TkIdentifier TkParLeft TkParRight TkEqual exp
      {
         i := $2
@@ -697,26 +702,11 @@ stmt: /* empty */
        Result.LibGosubReturn = true
        $$ = &node.NodeReturn{Line: $2}
      }
-  | TkKeywordRun
-     {
-       $$ = unsupportedEnd(Result.Imports, "RUN")
-     }
-  | TkKeywordRun use_line_number
-     {
-       $$ = unsupportedEnd(Result.Imports, "RUN")
-     }
-  | TkKeywordRun use_line_number TkComma single_var
-     {
-       $$ = unsupportedEnd(Result.Imports, "RUN")
-     }
-  | TkKeywordRun one_const_str
-     {
-       $$ = unsupportedEnd(Result.Imports, "RUN")
-     }
-  | TkKeywordRun one_const_str TkComma single_var
-     {
-       $$ = unsupportedEnd(Result.Imports, "RUN")
-     }
+  | TkKeywordRun { $$ = unsupportedEnd(Result.Imports, "RUN") }
+  | TkKeywordRun use_line_number { $$ = unsupportedEnd(Result.Imports, "RUN") }
+  | TkKeywordRun use_line_number TkComma single_var { $$ = unsupportedEnd(Result.Imports, "RUN") }
+  | TkKeywordRun one_const_str { $$ = unsupportedEnd(Result.Imports, "RUN") }
+  | TkKeywordRun one_const_str TkComma single_var { $$ = unsupportedEnd(Result.Imports, "RUN") }
   | TkKeywordOn exp TkKeywordGosub number_list
      {
        cond := $2
@@ -806,6 +796,8 @@ stmt: /* empty */
      }
   | TkKeywordKey TkKeywordOn { $$ = unsupportedEmpty("KEY")  }
   | TkKeywordKey TkKeywordOff { $$ = unsupportedEmpty("KEY") }
+  | TkKeywordKey TkKeywordList { $$ = unsupportedEmpty("KEY")  }
+  | TkKeywordKey exp TkComma exp { $$ = unsupportedEmpty("KEY")  }
   | TkKeywordBeep { $$ = unsupportedEmpty("BEEP") }
   | TkKeywordCls { $$ = unsupportedEmpty("CLS") }
   | TkKeywordWidth exp { $$ = unsupportedEmpty("WIDTH") }
@@ -815,6 +807,8 @@ stmt: /* empty */
   | TkKeywordClear expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("CLEAR") }
   | TkKeywordColor expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("COLOR") }
   | TkKeywordLocate expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("LOCATE") }
+  | TkKeywordReset { $$ = unsupportedEmpty("RESET") }
+  | TkKeywordScreen expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("SCREEN") }
   ;
 
 expressions_push:

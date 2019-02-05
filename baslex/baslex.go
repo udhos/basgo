@@ -109,12 +109,15 @@ const (
 	TkKeywordRandomize = iota // RANDOMIZE
 	TkKeywordRead      = iota // READ
 	TkKeywordRem       = iota // REM
+	TkKeywordReset     = iota // RESET
 	TkKeywordRestore   = iota // RESTORE
 	TkKeywordReturn    = iota // RETURN
 	TkKeywordRight     = iota // RIGHT$
 	TkKeywordRnd       = iota // RND
 	TkKeywordRun       = iota // RUN
 	TkKeywordSave      = iota // SAVE
+	TkKeywordScreen    = iota // SCREEN
+	TkKeywordSeg       = iota // SEG
 	TkKeywordSgn       = iota // SGN
 	TkKeywordSin       = iota // SIN
 	TkKeywordSpace     = iota // SPACE$
@@ -203,12 +206,15 @@ var tabKeywords = []struct {
 	{TkKeywordRandomize, "RANDOMIZE"},
 	{TkKeywordRead, "READ"},
 	{TkKeywordRem, "REM"},
+	{TkKeywordReset, "RESET"},
 	{TkKeywordRestore, "RESTORE"},
 	{TkKeywordReturn, "RETURN"},
 	{TkKeywordRight, "RIGHT$"},
 	{TkKeywordRnd, "RND"},
 	{TkKeywordRun, "RUN"},
 	{TkKeywordSave, "SAVE"},
+	{TkKeywordScreen, "SCREEN"},
+	{TkKeywordSeg, "SEG"},
 	{TkKeywordSgn, "SGN"},
 	{TkKeywordSin, "SIN"},
 	{TkKeywordSpace, "SPACE$"},
@@ -326,12 +332,15 @@ var tabType = []string{
 	"RANDOMIZE",
 	"READ",
 	"REM",
+	"RESET",
 	"RESTORE",
 	"RETURN",
 	"RIGHT$",
 	"RND",
 	"RUN",
 	"SAVE",
+	"SCREEN",
+	"SEG",
 	"SGN",
 	"SIN",
 	"SPACE$",
