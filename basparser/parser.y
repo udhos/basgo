@@ -246,6 +246,7 @@ func Reset() {
 %token <tok> TkKeywordSeg
 %token <tok> TkKeywordSgn
 %token <tok> TkKeywordSin
+%token <tok> TkKeywordSound
 %token <tok> TkKeywordSpace
 %token <tok> TkKeywordSpc
 %token <tok> TkKeywordSqr
@@ -808,8 +809,11 @@ stmt: /* empty */
   | TkKeywordClear expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("CLEAR") }
   | TkKeywordColor expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("COLOR") }
   | TkKeywordLocate expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("LOCATE") }
+  | TkKeywordLocate TkComma expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("LOCATE") }
+  | TkKeywordLocate TkComma TkComma expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("LOCATE") }
   | TkKeywordReset { $$ = unsupportedEmpty("RESET") }
   | TkKeywordScreen expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("SCREEN") }
+  | TkKeywordSound exp TkComma exp { $$ = unsupportedEmpty("SOUND") }
   ;
 
 expressions_push:
