@@ -75,6 +75,8 @@ Status: the interpreter currently can only parse simple programs, but is unable 
 
 ## BASIC programs and games
 
+http://www.eddiesegoura.com/Games/ - BASIC Games
+
 http://peyre.x10.mx/GWBASIC/ - A page about GWBASIC Games & Other Programs
 
 http://www.ifarchive.org/indexes/if-archive/games/source/basic/
