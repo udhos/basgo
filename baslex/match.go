@@ -318,6 +318,10 @@ func matchNumber(l *Lex, b byte) Token {
 	case b == 'e', b == 'E':
 		l.state = stFloatE // switch from number to floatE
 		return l.save(b)
+	case b == '!':
+		// force float
+		l.state = stBlank // blank state will deliver next token
+		return l.consume(Token{ID: TkFloat})
 	}
 
 	// push back non-digit

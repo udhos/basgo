@@ -102,6 +102,11 @@ var testTable = []buildTest{
 
 	{sourceReturnLine, "", "143", OK},
 
+	{`10 print 2!`, "", " 2 \n", OK},
+	{`10 print 2!;`, "", " 2 ", OK},
+	{`10 a=1:print a=1!`, "", " -1 \n", OK},
+	{`10 a=1:print a=1!;`, "", " -1 ", OK},
+
 	{`10 print &`, "", " 0 \n", WRONG},
 	{`10 print &h`, "", " 0 \n", WRONG},
 	{`10 print &hg`, "", " 0 \n", WRONG},
