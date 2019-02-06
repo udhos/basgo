@@ -71,9 +71,10 @@ func Timer() float64 {
 }
 
 func Inkey() string {
+        log.Printf("INKEY currently is blocking, please hit ENTER")
 	b, err := stdin.ReadByte()
 	if err != nil {
-		log.Printf("input byte error: %v", err)
+		log.Printf("inkey byte error: %v", err)
 		return ""
 	}
 	return string([]byte{b})

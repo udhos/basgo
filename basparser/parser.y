@@ -915,6 +915,7 @@ stmt: /* empty */
   | TkKeywordLocate expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("LOCATE") }
   | TkKeywordLocate TkComma expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("LOCATE") }
   | TkKeywordLocate TkComma TkComma expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("LOCATE") }
+  | TkKeywordPoke TkParLeft exp TkComma exp TkParRight { $$ = unsupportedEmpty("POKE") }
   | TkKeywordReset { $$ = unsupportedEmpty("RESET") }
   | TkKeywordScreen expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("SCREEN") }
   | TkKeywordSound exp TkComma exp { $$ = unsupportedEmpty("SOUND") }
@@ -1866,6 +1867,10 @@ exp: one_const_noneg { $$ = $1 }
        }
        Result.Baslib = true
        $$ = &node.NodeExpInstr{Begin:begin,Str:str,Sub:sub}
+     }
+  | TkKeywordPeek TkParLeft exp TkParRight
+     {
+       $$ = &node.NodeExpPeek{}
      }
    ;
 

@@ -1620,3 +1620,25 @@ func (e *NodeExpInstr) FindUsedVars(options *BuildOptions) {
 	e.Str.FindUsedVars(options)
 	e.Sub.FindUsedVars(options)
 }
+
+// NodeExpPeek holds value
+type NodeExpPeek struct{}
+
+// Type returns type
+func (e *NodeExpPeek) Type() int {
+	return TypeInteger
+}
+
+// String returns value
+func (e *NodeExpPeek) String() string {
+	return "PEEK-unsupported"
+}
+
+// Exp returns value
+func (e *NodeExpPeek) Exp(options *BuildOptions) string {
+	return "(0 /* <- PEEK unsupported */)"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpPeek) FindUsedVars(options *BuildOptions) {
+}
