@@ -36,18 +36,12 @@ type ParserResult struct {
 	FuncTable map[string]node.FuncSymbol
 	Imports map[string]struct{}
 	Declarations []string
+	RestoreTable map[string]int
+	DataOffset int
 }
 
 // parser auxiliary variables
 var (
-	/*
-	Result = ParserResult{
-		LineNumbers: map[string]node.LineNumber{},
-		ArrayTable: map[string]node.ArraySymbol{},
-		FuncTable: map[string]node.FuncSymbol{},
-		Imports: map[string]struct{}{},
-	}
-	*/
 	Result = newResult()
 
 	nodeListStack [][]node.Node // support nested node lists (1)
@@ -69,18 +63,11 @@ func newResult() ParserResult {
 		ArrayTable: map[string]node.ArraySymbol{},
 		FuncTable: map[string]node.FuncSymbol{},
 		Imports: map[string]struct{}{},
+		RestoreTable: map[string]int{},
 	}
 }
 
 func Reset() {
-	/*
-	Result = ParserResult{
-		LineNumbers: map[string]node.LineNumber{},
-		ArrayTable: map[string]node.ArraySymbol{},
-		FuncTable: map[string]node.FuncSymbol{},
-		Imports: map[string]struct{}{},
-	}
-	*/
 	Result = newResult()
 
 	nodeListStack = [][]node.Node{}
@@ -142,6 +129,7 @@ func Reset() {
 %type <typeExpArray> one_dim
 %type <typeNumberList> number_list
 %type <typeLineNumber> use_line_number
+%type <typeLineNumber> restore_line_number
 %type <typeExpressions> const_list_any
 %type <typeExpressions> const_list_num_noneg
 %type <typeExpressions> dim_list
@@ -200,6 +188,7 @@ func Reset() {
 %token <tok> TkKeywordClose
 %token <tok> TkKeywordCls
 %token <tok> TkKeywordColor
+%token <tok> TkKeywordCommon
 %token <tok> TkKeywordCont
 %token <tok> TkKeywordCos
 %token <tok> TkKeywordData
@@ -417,14 +406,22 @@ stmt: /* empty */
      { $$ = &node.NodeEnd{} }
   | TkKeywordData
      {
+        line := lastLineNum
+	if _, found := Result.RestoreTable[line]; !found {
+		Result.RestoreTable[line] = Result.DataOffset
+	}
+	Result.DataOffset++
         $$ = &node.NodeData{Expressions: []node.NodeExp{node.NewNodeExpString(`""`)}}
      }
   | TkKeywordData const_list_any
      {
-	//for i, e := range $2 {
-	//	log.Printf("DATA: %d [%s] %s", i, e.String(), node.TypeLabel(e.Type()))
-	//}
-        $$ = &node.NodeData{Expressions: $2}
+	list := $2
+        line := lastLineNum
+	if _, found := Result.RestoreTable[line]; !found {
+		Result.RestoreTable[line] = Result.DataOffset
+	}
+	Result.DataOffset += len(list)
+        $$ = &node.NodeData{Expressions: list}
      }
   | TkKeywordDef TkIdentifier
      { 
@@ -796,6 +793,11 @@ stmt: /* empty */
        Result.LibReadData = true
        $$ = &node.NodeRestore{}
      }
+  | TkKeywordRestore restore_line_number
+     {
+       Result.LibReadData = true
+       $$ = &node.NodeRestore{Line: $2}
+     }
   | TkKeywordReturn
      {
        Result.LibGosubReturn = true
@@ -912,6 +914,7 @@ stmt: /* empty */
   | TkKeywordClear { $$ = unsupportedEmpty("CLEAR") }
   | TkKeywordClear expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("CLEAR") }
   | TkKeywordColor expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("COLOR") }
+  | TkKeywordCommon expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("COMMON") }
   | TkKeywordLocate expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("LOCATE") }
   | TkKeywordLocate TkComma expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("LOCATE") }
   | TkKeywordLocate TkComma TkComma expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("LOCATE") }
@@ -946,8 +949,24 @@ use_line_number: TkNumber
          ln.Used = true
          Result.LineNumbers[n] = ln
        } else {
-         // set used, unset defined
+         // set used
          Result.LineNumbers[n] = node.LineNumber{Used: true}
+       }
+       $$ = n
+    }
+  ;
+
+restore_line_number: TkNumber
+    {
+       n := $1
+       ln, found := Result.LineNumbers[n]
+       if found {
+         // set used, keep defined unchanged
+         ln.UsedRestore = true
+         Result.LineNumbers[n] = ln
+       } else {
+         // set used
+         Result.LineNumbers[n] = node.LineNumber{UsedRestore: true}
        }
        $$ = n
     }

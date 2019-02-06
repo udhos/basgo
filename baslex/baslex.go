@@ -75,6 +75,7 @@ const (
 	TkKeywordClose     = iota // CLOSE
 	TkKeywordCls       = iota // CLS
 	TkKeywordColor     = iota // COLOR
+	TkKeywordCommon    = iota // COMMON
 	TkKeywordCont      = iota // CONT
 	TkKeywordCos       = iota // COS
 	TkKeywordData      = iota // DATA
@@ -171,6 +172,7 @@ var tabKeywords = []struct {
 	{TkKeywordClose, "CLOSE"},
 	{TkKeywordCls, "CLS"},
 	{TkKeywordColor, "COLOR"},
+	{TkKeywordCommon, "COMMON"},
 	{TkKeywordCont, "CONT"},
 	{TkKeywordCos, "COS"},
 	{TkKeywordData, "DATA"},
@@ -308,6 +310,7 @@ var tabType = []string{
 	"CLOSE",
 	"CLS",
 	"COLOR",
+	"COMMON",
 	"CONT",
 	"COS",
 	"DATA",

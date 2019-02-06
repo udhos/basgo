@@ -66,6 +66,15 @@ const sourceReturnLine = `
 110 return 30 
 `
 
+const sourceRestore = `
+10 data 1,2
+20 data 3,4:data 5,6
+30 data 7,8
+40 read a:print a;
+50 restore 30:read a:print a;
+60 restore 20:read a:print a;
+`
+
 const (
 	OK      = iota
 	WRONG   = iota
@@ -86,6 +95,8 @@ var testTable = []buildTest{
 	{`10 data a,&hb:read a$,b:print a$,b;`, "", "a 11 ", OK},
 	{`10 data a, 3:read a$,b:print a$,b;`, "", "a 3 ", OK},
 	{`10 data a, .1:read a$,b:print a$,b;`, "", "a 0.1 ", OK},
+
+	{sourceRestore, "", " 1  7  3 ", OK},
 
 	{`10 rem a`, "", "", OK},
 	{`10 ' a`, "", "", OK},

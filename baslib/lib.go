@@ -71,7 +71,7 @@ func Timer() float64 {
 }
 
 func Inkey() string {
-        log.Printf("INKEY currently is blocking, please hit ENTER")
+	log.Printf("INKEY currently is blocking, please hit ENTER")
 	b, err := stdin.ReadByte()
 	if err != nil {
 		log.Printf("inkey byte error: %v", err)
@@ -228,8 +228,16 @@ func ReadDataFloat(data []interface{}, name string) float64 {
 	return v
 }
 
-func Restore() {
-	readDataPos = 0
+func Restore(data []interface{}, line string, pos int) {
+	if readDataPos < 0 {
+		// warn only, actual fault hit in READ
+		log.Printf("Restore underflow error: line=%s pos=%d", line, pos)
+	}
+	if readDataPos >= len(data) {
+		// warn only, actual fault hit in READ
+		log.Printf("Restore overflow error: line=%s pos=%d", line, pos)
+	}
+	readDataPos = pos
 }
 
 func Right(s string, size int) string {

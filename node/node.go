@@ -11,8 +11,9 @@ import (
 
 // LineNumber track used+undefined line numbers
 type LineNumber struct {
-	Used    bool // GOTO 10, GOSUB 10 etc
-	Defined bool // 10 print
+	Used        bool // GOTO 10, GOSUB 10 etc
+	UsedRestore bool // RESTORE 30 -- do NOT create label
+	Defined     bool // 10 print
 }
 
 // ByLineNumber helper type to sort lines by number
@@ -88,13 +89,14 @@ func TypeName(name string, t int) string {
 
 // BuildOptions holds state required for issuing Go code
 type BuildOptions struct {
-	Headers     map[string]struct{}
-	Vars        map[string]struct{}
-	Arrays      map[string]ArraySymbol
-	LineNumbers map[string]LineNumber // numbers used by GOTO, GOSUB etc
-	CountGosub  int
-	CountReturn int
-	ReadData    []string // DATA for READ
+	Headers      map[string]struct{}
+	Vars         map[string]struct{}
+	Arrays       map[string]ArraySymbol
+	LineNumbers  map[string]LineNumber // numbers used by GOTO, GOSUB etc
+	CountGosub   int
+	CountReturn  int
+	ReadData     []string // DATA for READ
+	RestoreTable map[string]int
 }
 
 // VarSetUsed sets variable as used
@@ -1312,7 +1314,9 @@ func (n *NodeRead) FindUsedVars(options *BuildOptions) {
 }
 
 // NodeRestore is restore
-type NodeRestore struct{}
+type NodeRestore struct {
+	Line string
+}
 
 // Name returns the name of the node
 func (n *NodeRestore) Name() string {
@@ -1321,12 +1325,24 @@ func (n *NodeRestore) Name() string {
 
 // Show displays the node
 func (n *NodeRestore) Show(printf FuncPrintf) {
-	printf("[" + n.Name() + "]")
+	printf("[" + n.Name() + " " + n.Line + "]")
 }
 
 // Build generates code
 func (n *NodeRestore) Build(options *BuildOptions, outputf FuncPrintf) {
-	outputf("baslib.Restore()\n")
+	if n.Line == "" {
+		outputf("baslib.Restore(readData,\"\",0)\n")
+		return
+	}
+
+	offset, found := options.RestoreTable[n.Line]
+	if !found {
+		log.Printf("NodeRestore.Build: line not found: %s", n.Line)
+		outputf("baslib.Restore(readData,\"%s\",%d) // RESTORE line NOT FOUND\n", n.Line, offset)
+		outputf("panic(`RESTORE line not found: %s`)\n", n.Line)
+		return
+	}
+	outputf("baslib.Restore(readData,\"%s\",%d)\n", n.Line, offset)
 }
 
 // FindUsedVars finds used vars

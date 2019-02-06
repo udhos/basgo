@@ -60,9 +60,17 @@ func compile(input io.Reader, outputf node.FuncPrintf) (int, int) {
 
 	for n, ln := range lineNumbersTab {
 		//log.Printf("%s: line %s used=%v defined=%v", basgoLabel, n, ln.Used, ln.Defined)
-		if ln.Used && !ln.Defined {
-			undefLines++
-			log.Printf("%s: line %s used but not defined", basgoLabel, n)
+		if !ln.Defined {
+			if ln.Used {
+				undefLines++
+				log.Printf("%s: line %s used (JUMP) but not defined", basgoLabel, n)
+				continue
+			}
+			if ln.UsedRestore {
+				undefLines++
+				log.Printf("%s: line %s used (RESTORE) but not defined", basgoLabel, n)
+				continue
+			}
 		}
 	}
 
@@ -86,12 +94,13 @@ func main() {
 `
 
 	options := node.BuildOptions{
-		Headers:     map[string]struct{}{},
-		Vars:        map[string]struct{}{},
-		Arrays:      result.ArrayTable,
-		LineNumbers: lineNumbersTab,
-		CountGosub:  result.CountGosub,
-		CountReturn: result.CountReturn,
+		Headers:      map[string]struct{}{},
+		Vars:         map[string]struct{}{},
+		Arrays:       result.ArrayTable,
+		LineNumbers:  lineNumbersTab,
+		CountGosub:   result.CountGosub,
+		CountReturn:  result.CountReturn,
+		RestoreTable: result.RestoreTable,
 	}
 
 	if result.LibReadData {
