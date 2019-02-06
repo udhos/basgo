@@ -109,6 +109,8 @@ const (
 	TkKeywordOff       = iota // OFF
 	TkKeywordOn        = iota // ON
 	TkKeywordOpen      = iota // OPEN
+	TkKeywordPeek      = iota // PEEK
+	TkKeywordPoke      = iota // POKE
 	TkKeywordPrint     = iota // PRINT
 	TkKeywordRandomize = iota // RANDOMIZE
 	TkKeywordRead      = iota // READ
@@ -121,7 +123,6 @@ const (
 	TkKeywordRun       = iota // RUN
 	TkKeywordSave      = iota // SAVE
 	TkKeywordScreen    = iota // SCREEN
-	TkKeywordSeg       = iota // SEG
 	TkKeywordSgn       = iota // SGN
 	TkKeywordSin       = iota // SIN
 	TkKeywordSound     = iota // SOUND
@@ -209,6 +210,8 @@ var tabKeywords = []struct {
 	{TkKeywordOn, "ON"},
 	{TkKeywordOpen, "OPEN"},
 	{TkKeywordOr, "OR"},
+	{TkKeywordPeek, "PEEK"},
+	{TkKeywordPoke, "POKE"},
 	{TkKeywordPrint, "PRINT"},
 	{TkKeywordRandomize, "RANDOMIZE"},
 	{TkKeywordRead, "READ"},
@@ -221,7 +224,6 @@ var tabKeywords = []struct {
 	{TkKeywordRun, "RUN"},
 	{TkKeywordSave, "SAVE"},
 	{TkKeywordScreen, "SCREEN"},
-	{TkKeywordSeg, "SEG"},
 	{TkKeywordSgn, "SGN"},
 	{TkKeywordSin, "SIN"},
 	{TkKeywordSound, "SOUND"},
@@ -340,6 +342,8 @@ var tabType = []string{
 	"OFF",
 	"ON",
 	"OPEN",
+	"PEEK",
+	"POKE",
 	"PRINT",
 	"RANDOMIZE",
 	"READ",
@@ -352,7 +356,6 @@ var tabType = []string{
 	"RUN",
 	"SAVE",
 	"SCREEN",
-	"SEG",
 	"SGN",
 	"SIN",
 	"SOUND",
@@ -523,7 +526,7 @@ func (l *Lex) findToken() Token {
 			l.data = DataOff // disable DATA unquoted string
 		}
 
-		if t.ID != TkKeywordData &&   t.ID != TkKeywordComma && l.data > DataOff {
+		if t.ID != TkKeywordData && t.ID != TkComma && l.data > DataOff {
 			// data value returned
 			//log.Printf("token[%s] switch to DataAfterValue", t.Value)
 			l.data = DataAfterValue

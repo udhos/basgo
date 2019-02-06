@@ -525,6 +525,7 @@ func (n *NodeData) Build(options *BuildOptions, outputf FuncPrintf) {
 
 	for _, e := range n.Expressions {
 		s := e.Exp(options)
+		//log.Printf("NodeData.Build: '%s' %s", s, TypeLabel(e.Type()))
 		options.ReadData = append(options.ReadData, s)
 	}
 }

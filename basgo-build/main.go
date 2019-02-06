@@ -138,6 +138,7 @@ func main() {
 		outputf("var readData = []interface{}{\n")
 		for _, d := range options.ReadData {
 			outputf("%s,\n", d)
+			//outputf("%s,\n", d.Exp(options))
 		}
 		outputf("}\n")
 	}

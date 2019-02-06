@@ -210,6 +210,16 @@ func matchBlankData(l *Lex, b byte) Token {
 	case digit(b):
 		l.state = stNumber
 		return l.save(b)
+	case b == '.':
+		l.state = stFloat
+		return l.save(b)
+	case b == '&':
+		l.state = stAmpersand
+		return l.save(b)
+	case b == '+':
+		return l.saveLocationValue(Token{ID: TkPlus, Value: "+"})
+	case b == '-':
+		return l.saveLocationValue(Token{ID: TkMinus, Value: "-"})
 	}
 
 	// anything else is unquoted string
@@ -280,11 +290,11 @@ func matchBlank(l *Lex, b byte) Token {
 	case b == '.':
 		l.state = stFloat
 		return l.save(b)
-	case b == '_', letter(b): // support keyword with '_' prefix for _GOFUNC
-		l.state = stName
-		return l.save(b)
 	case b == '&':
 		l.state = stAmpersand
+		return l.save(b)
+	case b == '_', letter(b): // support keyword with '_' prefix for _GOFUNC
+		l.state = stName
 		return l.save(b)
 	}
 

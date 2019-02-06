@@ -234,6 +234,8 @@ func Reset() {
 %token <tok> TkKeywordOff
 %token <tok> TkKeywordOn
 %token <tok> TkKeywordOpen
+%token <tok> TkKeywordPeek
+%token <tok> TkKeywordPoke
 %token <tok> TkKeywordPrint
 %token <tok> TkKeywordRandomize
 %token <tok> TkKeywordRead
@@ -246,7 +248,6 @@ func Reset() {
 %token <tok> TkKeywordRun
 %token <tok> TkKeywordSave
 %token <tok> TkKeywordScreen
-%token <tok> TkKeywordSeg
 %token <tok> TkKeywordSgn
 %token <tok> TkKeywordSin
 %token <tok> TkKeywordSound
@@ -416,16 +417,37 @@ stmt: /* empty */
      { $$ = &node.NodeEnd{} }
   | TkKeywordData
      {
-        Result.LibReadData = true
         $$ = &node.NodeData{Expressions: []node.NodeExp{node.NewNodeExpString(`""`)}}
      }
   | TkKeywordData const_list_any
      {
-        Result.LibReadData = true
+	//for i, e := range $2 {
+	//	log.Printf("DATA: %d [%s] %s", i, e.String(), node.TypeLabel(e.Type()))
+	//}
         $$ = &node.NodeData{Expressions: $2}
      }
-  | TkKeywordDef TkKeywordSeg { $$ = unsupportedEmpty("DEFSEG") }
-  | TkKeywordDef TkKeywordSeg TkEqual exp { $$ = unsupportedEmpty("DEFSEG") }
+  | TkKeywordDef TkIdentifier
+     { 
+        ident := $2
+        var unsup node.Node
+        if isSymbol(ident, "SEG") {
+           unsup = unsupportedEmpty("DEF SEG")
+        } else {
+           unsup = unsupportedEmpty("DEF " + ident)
+	}
+        $$ = unsup
+     }
+  | TkKeywordDef TkIdentifier TkEqual exp
+     {
+        ident := $2
+        var unsup node.Node
+        if isSymbol(ident, "SEG") {
+           unsup = unsupportedEmpty("DEF SEG")
+        } else {
+           unsup = unsupportedEmpty("DEF " + ident)
+	}
+        $$ = unsup
+     }
   | TkKeywordDef TkIdentifier TkParLeft TkParRight TkEqual exp
      {
         i := $2
@@ -713,7 +735,7 @@ stmt: /* empty */
 	if filename.Type() != node.TypeString {
            yylex.Error("OPEN filename must be string")
 	}
-        if strings.ToLower(labelAs) != "as" {
+        if !isSymbol(labelAs, "AS") {
            yylex.Error("OPEN expecting 'AS', found: " + labelAs)
         }
 	if !node.TypeNumeric(num.Type()) {
@@ -724,7 +746,7 @@ stmt: /* empty */
      }
   | TkKeywordOpen exp TkKeywordFor TkIdentifier TkIdentifier exp
      {
-        // OPEN "arq" FOR INPUT AS 1
+        // OPEN "arq" FOR OUTPUT AS 1
 	filename := $2
 	mode := $4
 	labelAs := $5
@@ -740,7 +762,7 @@ stmt: /* empty */
            default:
               yylex.Error("OPEN unexpected mode: " + mode)
         }
-        if strings.ToLower(labelAs) != "as" {
+        if !isSymbol(labelAs, "AS") {
            yylex.Error("OPEN expecting 'AS', found: " + labelAs)
         }
 	if !node.TypeNumeric(num.Type()) {
@@ -1848,6 +1870,10 @@ exp: one_const_noneg { $$ = $1 }
    ;
 
 %%
+
+func isSymbol(ident, symbol string) bool {
+	return strings.ToLower(ident) == strings.ToLower(symbol)
+}
 
 func unsupportedEmpty(keyword string) *node.NodeEmpty {
 	log.Printf("ignoring unsupported keyword %s", keyword)
