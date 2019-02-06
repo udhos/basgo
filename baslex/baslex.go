@@ -523,7 +523,7 @@ func (l *Lex) findToken() Token {
 			l.data = DataOff // disable DATA unquoted string
 		}
 
-		if t.ID != TkKeywordData && l.data > DataOff {
+		if t.ID != TkKeywordData &&   t.ID != TkKeywordComma && l.data > DataOff {
 			// data value returned
 			//log.Printf("token[%s] switch to DataAfterValue", t.Value)
 			l.data = DataAfterValue
