@@ -943,6 +943,7 @@ stmt: /* empty */
   | TkKeywordOn TkKeywordError TkKeywordGoto TkNumber { $$ = unsupportedEmpty("ON-ERROR-GOTO") }
   | TkKeywordPlay exp { $$ = unsupportedEmpty("PLAY") }
   | TkKeywordPoke TkParLeft exp TkComma exp TkParRight { $$ = unsupportedEmpty("POKE") }
+  | TkKeywordPoke exp TkComma exp { $$ = unsupportedEmpty("POKE") }
   | TkKeywordReset { $$ = unsupportedEmpty("RESET") }
   | TkKeywordResume { $$ = unsupportedEmpty("RESUME") }
   | TkKeywordResume TkNumber { $$ = unsupportedEmpty("RESUME") }
