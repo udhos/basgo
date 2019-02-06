@@ -108,6 +108,7 @@ const (
 	TkKeywordLocate    = iota // LOCATE
 	TkKeywordMid       = iota // MID$
 	TkKeywordNext      = iota // NEXT
+	TkKeywordNew       = iota // NEW
 	TkKeywordOff       = iota // OFF
 	TkKeywordOn        = iota // ON
 	TkKeywordOpen      = iota // OPEN
@@ -211,6 +212,7 @@ var tabKeywords = []struct {
 	{TkKeywordMid, "MID$"},
 	{TkKeywordMod, "MOD"},
 	{TkKeywordNext, "NEXT"},
+	{TkKeywordNew, "NEW"},
 	{TkKeywordNot, "NOT"},
 	{TkKeywordOff, "OFF"},
 	{TkKeywordOn, "ON"},
@@ -349,6 +351,7 @@ var tabType = []string{
 	"LOCATE",
 	"MID$",
 	"NEXT",
+	"NEW",
 	"OFF",
 	"ON",
 	"OPEN",

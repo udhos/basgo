@@ -223,6 +223,7 @@ func Reset() {
 %token <tok> TkKeywordLocate
 %token <tok> TkKeywordMid
 %token <tok> TkKeywordNext
+%token <tok> TkKeywordNew
 %token <tok> TkKeywordOff
 %token <tok> TkKeywordOn
 %token <tok> TkKeywordOpen
@@ -940,6 +941,7 @@ stmt: /* empty */
   | TkKeywordLocate expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("LOCATE") }
   | TkKeywordLocate TkComma expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("LOCATE") }
   | TkKeywordLocate TkComma TkComma expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("LOCATE") }
+  | TkKeywordNew { $$ = unsupportedEnd(Result.Imports, "NEW") }
   | TkKeywordOn TkKeywordError TkKeywordGoto TkNumber { $$ = unsupportedEmpty("ON-ERROR-GOTO") }
   | TkKeywordPlay exp { $$ = unsupportedEmpty("PLAY") }
   | TkKeywordPoke TkParLeft exp TkComma exp TkParRight { $$ = unsupportedEmpty("POKE") }
