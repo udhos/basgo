@@ -85,6 +85,7 @@ const (
 	TkKeywordDim       = iota // DIM
 	TkKeywordElse      = iota // ELSE
 	TkKeywordEnd       = iota // END
+	TkKeywordError     = iota // ERROR
 	TkKeywordFor       = iota // FOR
 	TkKeywordGodecl    = iota // _GODECL
 	TkKeywordGofunc    = iota // _GOFUNC
@@ -111,6 +112,7 @@ const (
 	TkKeywordOn        = iota // ON
 	TkKeywordOpen      = iota // OPEN
 	TkKeywordPeek      = iota // PEEK
+	TkKeywordPlay      = iota // PLAY
 	TkKeywordPoke      = iota // POKE
 	TkKeywordPrint     = iota // PRINT
 	TkKeywordRandomize = iota // RANDOMIZE
@@ -118,6 +120,7 @@ const (
 	TkKeywordRem       = iota // REM
 	TkKeywordReset     = iota // RESET
 	TkKeywordRestore   = iota // RESTORE
+	TkKeywordResume    = iota // RESUME
 	TkKeywordReturn    = iota // RETURN
 	TkKeywordRight     = iota // RIGHT$
 	TkKeywordRnd       = iota // RND
@@ -183,6 +186,7 @@ var tabKeywords = []struct {
 	{TkKeywordElse, "ELSE"},
 	{TkKeywordEnd, "END"},
 	{TkKeywordEqv, "EQV"},
+	{TkKeywordError, "ERROR"},
 	{TkKeywordFor, "FOR"},
 	{TkKeywordGodecl, "_GODECL"},
 	{TkKeywordGofunc, "_GOFUNC"},
@@ -213,6 +217,7 @@ var tabKeywords = []struct {
 	{TkKeywordOpen, "OPEN"},
 	{TkKeywordOr, "OR"},
 	{TkKeywordPeek, "PEEK"},
+	{TkKeywordPlay, "PLAY"},
 	{TkKeywordPoke, "POKE"},
 	{TkKeywordPrint, "PRINT"},
 	{TkKeywordRandomize, "RANDOMIZE"},
@@ -220,6 +225,7 @@ var tabKeywords = []struct {
 	{TkKeywordRem, "REM"},
 	{TkKeywordReset, "RESET"},
 	{TkKeywordRestore, "RESTORE"},
+	{TkKeywordResume, "RESUME"},
 	{TkKeywordReturn, "RETURN"},
 	{TkKeywordRight, "RIGHT$"},
 	{TkKeywordRnd, "RND"},
@@ -320,6 +326,7 @@ var tabType = []string{
 	"DIM",
 	"ELSE",
 	"END",
+	"ERROR",
 	"FOR",
 	"_GODECL",
 	"_GOFUNC",
@@ -346,6 +353,7 @@ var tabType = []string{
 	"ON",
 	"OPEN",
 	"PEEK",
+	"PLAY",
 	"POKE",
 	"PRINT",
 	"RANDOMIZE",
@@ -353,6 +361,7 @@ var tabType = []string{
 	"REM",
 	"RESET",
 	"RESTORE",
+	"RESUME",
 	"RETURN",
 	"RIGHT$",
 	"RND",

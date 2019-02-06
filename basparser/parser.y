@@ -137,6 +137,8 @@ func Reset() {
 %type <typeExp> single_var
 %type <typeExpressions> var_list
 %type <typeExpressions> single_var_list
+%type <typeExp> file_num
+%type <typeExpressions> file_num_list
 
 // same for terminals
 
@@ -198,6 +200,7 @@ func Reset() {
 %token <tok> TkKeywordDim
 %token <tok> TkKeywordElse
 %token <tok> TkKeywordEnd
+%token <tok> TkKeywordError
 %token <tok> TkKeywordFor
 %token <tok> TkKeywordGodecl
 %token <tok> TkKeywordGofunc
@@ -224,6 +227,7 @@ func Reset() {
 %token <tok> TkKeywordOn
 %token <tok> TkKeywordOpen
 %token <tok> TkKeywordPeek
+%token <tok> TkKeywordPlay
 %token <tok> TkKeywordPoke
 %token <tok> TkKeywordPrint
 %token <tok> TkKeywordRandomize
@@ -231,6 +235,7 @@ func Reset() {
 %token <typeRem> TkKeywordRem
 %token <tok> TkKeywordReset
 %token <tok> TkKeywordRestore
+%token <tok> TkKeywordResume
 %token <tok> TkKeywordReturn
 %token <tok> TkKeywordRight
 %token <tok> TkKeywordRnd
@@ -357,8 +362,7 @@ stmt_goto: use_line_number
   ;
 
 then_or_goto: TkKeywordThen
-           |
-           TkKeywordGoto
+           | TkKeywordGoto
            ;
 
 one_dim: TkIdentifier bracket_left const_list_num_noneg bracket_right
@@ -395,6 +399,25 @@ dim_list: one_dim
 	        $$ = expListStack[last]
 	}
         ;
+
+file_num: exp { $$ = $1 }
+	| TkHash exp { $$ = $2 }
+        ;
+
+file_num_list: file_num
+        {
+                last := len(expListStack) - 1
+                expListStack[last] = []node.NodeExp{$1} // reset file_num_list
+                $$ = expListStack[last]
+        }
+    |
+        file_num_list TkComma file_num
+        {
+                last := len(expListStack) - 1
+                expListStack[last] = append(expListStack[last], $3)
+                $$ = expListStack[last]
+        }
+    ;
 
 stmt: /* empty */
      { $$ = &node.NodeEmpty{} }
@@ -634,14 +657,13 @@ stmt: /* empty */
        Result.CountIf++
        $$ = &node.NodeIf{Index:Result.CountIf, Cond: cond, Then: $4, Else: $6}
      }
-  | TkKeywordClose exp
+  | TkKeywordClose
      {
-       num := $2
-
-       if !node.TypeNumeric(num.Type()) {
-          yylex.Error("CLOSE file number must be numeric")
-       }
-
+       log.Printf("CLOSE FIXME WRITEME")
+       $$ = unsupportedEmpty("CLOSE")
+     }
+  | TkKeywordClose expressions_push file_num_list expressions_pop
+     {
        log.Printf("CLOSE FIXME WRITEME")
        $$ = unsupportedEmpty("CLOSE")
      }
@@ -914,12 +936,17 @@ stmt: /* empty */
   | TkKeywordClear { $$ = unsupportedEmpty("CLEAR") }
   | TkKeywordClear expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("CLEAR") }
   | TkKeywordColor expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("COLOR") }
-  | TkKeywordCommon expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("COMMON") }
+  | TkKeywordCommon expressions_push common_var_list expressions_pop { $$ = unsupportedEmpty("COMMON") }
   | TkKeywordLocate expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("LOCATE") }
   | TkKeywordLocate TkComma expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("LOCATE") }
   | TkKeywordLocate TkComma TkComma expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("LOCATE") }
+  | TkKeywordOn TkKeywordError TkKeywordGoto TkNumber { $$ = unsupportedEmpty("ON-ERROR-GOTO") }
+  | TkKeywordPlay exp { $$ = unsupportedEmpty("PLAY") }
   | TkKeywordPoke TkParLeft exp TkComma exp TkParRight { $$ = unsupportedEmpty("POKE") }
   | TkKeywordReset { $$ = unsupportedEmpty("RESET") }
+  | TkKeywordResume { $$ = unsupportedEmpty("RESUME") }
+  | TkKeywordResume TkNumber { $$ = unsupportedEmpty("RESUME") }
+  | TkKeywordResume TkKeywordNext { $$ = unsupportedEmpty("RESUME") }
   | TkKeywordScreen expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("SCREEN") }
   | TkKeywordSound exp TkComma exp { $$ = unsupportedEmpty("SOUND") }
   ;
@@ -983,6 +1010,10 @@ number_list: use_line_number
         $$ = numberList
      }
   ;
+
+common_var: TkIdentifier | TkIdentifier TkParLeft TkParRight ;
+
+common_var_list: common_var | common_var_list TkComma common_var ;
 
 single_var: TkIdentifier { $$ = &node.NodeExpIdentifier{Value:$1} } ;
 
@@ -1465,13 +1496,14 @@ exp: one_const_noneg { $$ = $1 }
    | TkParLeft exp TkParRight { $$ = &node.NodeExpGroup{Value:$2} }
    | TkKeywordNot exp
      {
-       switch $2.Type() {
+       e := $2
+       switch e.Type() {
        case node.TypeString:
            yylex.Error("Not has string type")
        case node.TypeUnknown:
            yylex.Error("Not has unknown type")
        }
-       $$ = &node.NodeExpNot{Value:$2}
+       $$ = &node.NodeExpNot{Value:e}
      }
    | exp TkKeywordAnd exp
      {
