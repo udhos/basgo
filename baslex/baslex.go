@@ -418,8 +418,14 @@ type Lex struct {
 	state            int
 	lineCount        int
 	lineOffset       int
-	data             bool // support DATA unquoted string
+	data             int // support DATA unquoted string
 }
+
+const (
+	DataOff         = iota
+	DataBeforeValue = iota
+	DataAfterValue  = iota
+)
 
 // Line returns current line count.
 func (l *Lex) Line() int {
@@ -512,9 +518,14 @@ func (l *Lex) findToken() Token {
 			l.lineOffset = 0
 			l.lineCount++
 			l.pendingLineReset = true
-			l.data = false // disable DATA unquoted string
+			l.data = DataOff // disable DATA unquoted string
 		case TkColon:
-			l.data = false // disable DATA unquoted string
+			l.data = DataOff // disable DATA unquoted string
+		}
+
+		if l.data > DataOff {
+			// data value returned
+			l.data = DataAfterValue
 		}
 
 		return t

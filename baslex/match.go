@@ -183,14 +183,12 @@ func matchBlankData(l *Lex, b byte) Token {
 
 	switch {
 	case eol(b):
-		l.data = false
+		l.data = DataOff
 		// push back
 		if errUnread := unread(l); errUnread != nil {
 			return l.saveLocationEmpty(Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)})
 		}
 		l.state = stStringUnquoted
-		return tokenNull
-	case blank(b):
 		return tokenNull
 	case b == ',':
 		// push back
@@ -200,12 +198,14 @@ func matchBlankData(l *Lex, b byte) Token {
 		l.state = stStringUnquoted
 		return tokenNull
 	case b == ':':
-		l.data = false
+		l.data = DataOff
 		// push back
 		if errUnread := unread(l); errUnread != nil {
 			return l.saveLocationEmpty(Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: unread: %s", errUnread)})
 		}
 		l.state = stStringUnquoted
+		return tokenNull
+	case blank(b):
 		return tokenNull
 	case b == '"':
 		l.state = stString
@@ -223,7 +223,7 @@ func matchBlankData(l *Lex, b byte) Token {
 
 func matchBlank(l *Lex, b byte) Token {
 
-	if l.data {
+	if l.data > DataOff {
 		return matchBlankData(l, b)
 	}
 
@@ -562,7 +562,7 @@ func matchName(l *Lex, b byte) Token {
 		l.state = stCommentRem
 		return tokenNull // keep matching REM
 	case TkKeywordData:
-		l.data = true // support DATA unquoted string
+		l.data = DataBeforeValue // support DATA unquoted string
 	}
 
 	return l.consumeName()
