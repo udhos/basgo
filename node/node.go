@@ -734,6 +734,9 @@ func (n *NodeOnGosub) Build(options *BuildOptions, outputf FuncPrintf) {
 
 	outputf("switch %s {\n", forceInt(options, n.Cond))
 	for i, num := range n.Lines {
+		if num == "" {
+			continue
+		}
 		outputf("case %d:\n", i+1)
 		buildOneGosub(options, outputf, num, n.Index)
 	}
@@ -773,6 +776,9 @@ func (n *NodeOnGoto) Build(options *BuildOptions, outputf FuncPrintf) {
 
 	outputf("switch %s {\n", forceInt(options, n.Cond))
 	for i, num := range n.Lines {
+		if num == "" {
+			continue
+		}
 		outputf("case %d: goto line%s\n", i+1, num)
 	}
 	outputf("}\n")

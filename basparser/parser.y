@@ -127,7 +127,8 @@ func Reset() {
 %type <typeExpArray> array_exp
 %type <typeExp> array_or_call
 %type <typeExpArray> one_dim
-%type <typeNumberList> number_list
+%type <typeLineNumber> jump_number
+%type <typeNumberList> jump_list
 %type <typeLineNumber> use_line_number
 %type <typeLineNumber> restore_line_number
 %type <typeExpressions> const_list_any
@@ -838,7 +839,7 @@ stmt: /* empty */
   | TkKeywordRun use_line_number TkComma single_var { $$ = unsupportedEnd(Result.Imports, "RUN") }
   | TkKeywordRun one_const_str { $$ = unsupportedEnd(Result.Imports, "RUN") }
   | TkKeywordRun one_const_str TkComma single_var { $$ = unsupportedEnd(Result.Imports, "RUN") }
-  | TkKeywordOn exp TkKeywordGosub number_list
+  | TkKeywordOn exp TkKeywordGosub jump_list
      {
        cond := $2
        lines := $4
@@ -849,7 +850,7 @@ stmt: /* empty */
        Result.CountGosub++
        $$ = g
      }
-  | TkKeywordOn exp TkKeywordGoto number_list
+  | TkKeywordOn exp TkKeywordGoto jump_list
      {
        cond := $2
        lines := $4
@@ -1002,12 +1003,16 @@ restore_line_number: TkNumber
     }
   ;
 
-number_list: use_line_number
+jump_number: /* empty */ { $$ = "" }
+	| use_line_number { $$ = $1 }
+	;
+
+jump_list: jump_number
      {
-        numberList = []string{$1} // reset list
+        numberList = []string{$1} // reset jump_list
 	$$ = numberList
      }
-  | number_list TkComma use_line_number
+  | jump_list TkComma jump_number
      {
         numberList = append(numberList, $3)
         $$ = numberList
