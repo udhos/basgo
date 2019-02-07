@@ -41,6 +41,20 @@ const sourceOnGosub = `
 1000 print "push";:return
 `
 
+const sourceOnGosub2 = `
+5 rem output: 'a 1 2 3b 4'
+10 for i=1 to 4:on i gosub 100,,,400:print str$(i);:next:end
+100 print "a";:return
+400 print "b";:return
+`
+
+const sourceOnGoto = `
+5 rem output: 'x'
+10 on 2 goto 100,,300:print "x";:end
+100 print "a";:end
+300 print "b";:end
+`
+
 const sourceGoto2 = `
 10 goto 30
 20 def fna(x)=x*x:print fna(2)
@@ -82,8 +96,12 @@ const (
 )
 
 var testTable = []buildTest{
-	{"", "", "", OK},       // empty program
-	{"ugh", "", "", WRONG}, // invalid program
+	{"", "", "", OK},                  // empty program
+	{"ugh", "", "", WRONG},            // invalid program
+	{`10 print "ab"`, "", "ab\n", OK}, // minimum program
+
+	{sourceOnGoto, "", "x", OK},
+	{sourceOnGosub2, "", "a 1 2 3b 4", OK},
 
 	{"10 data\n20 read a$:print a$;", "", "", OK},
 	{"10 data ,\n20 read a$:print a$;", "", "", OK},
@@ -687,7 +705,7 @@ var testTable = []buildTest{
 	{`10 print "a"+string$(2,32)+"b";`, "", "a  b", OK},
 
 	{`10 print chr$(32);`, "", " ", OK},
-	{`10 print chr$(0);`, "", string([]byte{0}), OK},
+	{`10 print chr$(0);`, "", string(0), OK},
 
 	{`10 print asc(" ");`, "", " 32 ", OK},
 	{`10 print asc(" a");`, "", " 32 ", OK},

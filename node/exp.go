@@ -1224,7 +1224,7 @@ func (e *NodeExpFuncString) String() string {
 // Exp returns value
 func (e *NodeExpFuncString) Exp(options *BuildOptions) string {
 	if TypeNumeric(e.Char.Type()) {
-		str := "string([]byte{byte(" + forceInt(options, e.Char) + ")})"
+		str := "string(byte(" + forceInt(options, e.Char) + "))"
 		return "baslib.String(" + str + "," + forceInt(options, e.Value) + ")"
 	}
 
