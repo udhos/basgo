@@ -115,31 +115,31 @@ func (i *inputBuf) ReadBytes(delim byte) (line []byte, err error) {
 }
 
 // try grab more data from input stream into empty buffer
-func (i *inputBuf) readMore() error {
+func (i *inputBuf) readMore() {
 
 	// try input stream
 	data, ok := <-i.queue
+
 	if len(data) > 0 {
 		// append data into buffer
 		i.mutex.Lock()
 		_, errWrite := i.buf.Write(data)
+		if i.broken == nil {
+			i.broken = errWrite
+		}
 		i.mutex.Unlock()
 		if errWrite != nil {
-			return errWrite
+			return
 		}
-	}
-
-	if errBroken := i.getBroken(); errBroken != nil {
-		return errBroken
 	}
 
 	if !ok {
 		i.mutex.Lock()
-		i.broken = fmt.Errorf("baslib.inputBuf.readMore: input channel closed")
+		if i.broken == nil {
+			i.broken = fmt.Errorf("baslib.inputBuf.readMore: input channel closed")
+		}
 		i.mutex.Unlock()
 	}
-
-	return nil
 }
 
 func (i *inputBuf) Inkey() (byte, bool) {
