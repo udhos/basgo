@@ -67,7 +67,6 @@ func (i *inputBuf) Read(buf []byte) (int, error) {
 		if i.buf.Len() > 0 {
 			n, err := i.buf.Read(buf)
 			i.mutex.Unlock()
-			log.Printf("baslib.inputBuf.Read: buffered1: %d", n)
 			return n, err
 		}
 		i.mutex.Unlock()
@@ -90,8 +89,6 @@ func (i *inputBuf) ReadBytes(delim byte) (line []byte, err error) {
 		buf := i.buf.Bytes()
 		index := bytes.IndexByte(buf, delim)
 		i.mutex.Unlock()
-
-		log.Printf("baslib.inputBuf.ReadBytes: buf=[%s] index=%d", string(buf), index)
 
 		if index >= 0 {
 			// found
@@ -122,7 +119,6 @@ func (i *inputBuf) readMore() error {
 
 	// try input stream
 	data, ok := <-i.queue
-	log.Printf("baslib.inputBuf.readMore: data=%d", len(data))
 	if len(data) > 0 {
 		// append data into buffer
 		i.mutex.Lock()
