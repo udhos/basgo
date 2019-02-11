@@ -92,7 +92,7 @@ func inputString() string {
 
 	s := string(buf)
 
-	log.Printf("inputString: [%s]", s)
+	//log.Printf("inputString: [%s]", s)
 
 	return s
 }
