@@ -128,9 +128,6 @@ func (i *inputBuf) readMore() {
 			i.broken = errWrite
 		}
 		i.mutex.Unlock()
-		if errWrite != nil {
-			return
-		}
 	}
 
 	if !ok {
