@@ -12,6 +12,7 @@ import (
 type inputBuf struct {
 	reader io.Reader // not shared
 	queue  chan []byte
+	more   chan struct{}
 
 	// unsafe data shared among goroutines
 	buf    bytes.Buffer
@@ -24,12 +25,15 @@ func newInputBuf(r io.Reader) *inputBuf {
 	i := &inputBuf{
 		reader: r,
 		queue:  make(chan []byte),
+		more:   make(chan struct{}),
 	}
 	go readLoop(i)
+	go moreLoop(i)
 	return i
 }
 
 // readLoop runs as a goroutine
+// readLoop reads from input Reader into queue channel
 func readLoop(i *inputBuf) {
 	for {
 		buf := make([]byte, 10)
@@ -45,11 +49,27 @@ func readLoop(i *inputBuf) {
 			return
 		}
 		if n < 1 {
-			log.Printf("baslib.readLoop: unexpected empty Read()")
+			log.Printf("baslib.inputBuf.readLoop: unexpected empty Read()")
 			time.Sleep(time.Millisecond * 500)
 			continue
 		}
 	}
+}
+
+// moreLoop reads more data when requested
+func moreLoop(i *inputBuf) {
+	for {
+		_, ok := <-i.more
+		if !ok {
+			log.Printf("baslib.inputBuf.moreLoop: exiting")
+			return
+		}
+		i.readMore()
+	}
+}
+
+func (i *inputBuf) requestMore() {
+	i.more <- struct{}{}
 }
 
 func (i *inputBuf) getBroken() error {
@@ -77,7 +97,7 @@ func (i *inputBuf) Read(buf []byte) (int, error) {
 		}
 
 		// 3/3. read more from input stream into buffer
-		i.readMore()
+		i.requestMore()
 	}
 }
 
@@ -110,11 +130,11 @@ func (i *inputBuf) ReadBytes(delim byte) (line []byte, err error) {
 		}
 
 		// 3. read more from input stream into buffer
-		i.readMore()
+		i.requestMore()
 	}
 }
 
-// try grab more data from input stream into empty buffer
+// try grab more data from input channel into buffer
 func (i *inputBuf) readMore() {
 
 	// try input stream
@@ -148,7 +168,9 @@ func (i *inputBuf) Inkey() (byte, bool) {
 		return b, true // true: found byte
 	}
 
-	go i.readMore() // call as goroutine to keep Inkey() non-blocking
+	if errBroken := i.getBroken(); errBroken == nil {
+		i.requestMore()
+	}
 
 	return b, false // false: buffer empty
 }
