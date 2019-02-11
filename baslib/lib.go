@@ -2,6 +2,7 @@ package baslib
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"log"
 	"math/rand"
@@ -82,13 +83,13 @@ func Inkey() string {
 
 func inputString() string {
 
-	buf, isPrefix, err := stdin.ReadLine()
+	buf, err := stdin.ReadBytes('\n')
 	if err != nil {
 		log.Printf("input error: %v", err)
 	}
-	if isPrefix {
-		log.Printf("input too big has been truncated")
-	}
+
+	buf = bytes.TrimRight(buf, "\n")
+	buf = bytes.TrimRight(buf, "\r")
 
 	return string(buf)
 }
