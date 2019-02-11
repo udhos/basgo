@@ -1642,3 +1642,28 @@ func (e *NodeExpPeek) Exp(options *BuildOptions) string {
 // FindUsedVars finds used vars
 func (e *NodeExpPeek) FindUsedVars(options *BuildOptions) {
 }
+
+// NodeExpInput holds value
+type NodeExpInput struct {
+	Count NodeExp
+}
+
+// Type returns type
+func (e *NodeExpInput) Type() int {
+	return TypeString
+}
+
+// String returns value
+func (e *NodeExpInput) String() string {
+	return "INPUT$(" + e.Count.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpInput) Exp(options *BuildOptions) string {
+	return "baslib.InputCount(" + forceInt(options, e.Count) + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpInput) FindUsedVars(options *BuildOptions) {
+	e.Count.FindUsedVars(options)
+}

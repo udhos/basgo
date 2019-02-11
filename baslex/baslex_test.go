@@ -269,6 +269,17 @@ func TestLogical(t *testing.T) {
 	compareValue(t, "logical", " and not imp eqv or xor", seq)
 }
 
+func TestInputFunc(t *testing.T) {
+
+	expectTokenEOF := tokenEOF
+	kwInput := Token{ID: TkKeywordInput, Value: `input`}
+	kwInputFunc := Token{ID: TkKeywordInputFunc, Value: `input$`}
+
+	seq := []Token{kwInput, kwInputFunc, expectTokenEOF}
+
+	compareValue(t, "input-func", " input input$ ", seq)
+}
+
 func compareValue(t *testing.T, label, str string, tokens []Token) {
 
 	lex := NewStr(str)

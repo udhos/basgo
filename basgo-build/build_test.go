@@ -100,6 +100,8 @@ var testTable = []buildTest{
 	{"ugh", "", "", WRONG},            // invalid program
 	{`10 print "ab"`, "", "ab\n", OK}, // minimum program
 
+	{`10 a$=input$(3):print a$;`, "abcde\n", "abc", OK},
+
 	{`10 input a:print a`, "2\n", "?  2 \n", OK},
 
 	{sourceOnGoto, "", "x", OK},

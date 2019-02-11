@@ -97,6 +97,22 @@ func inputString() string {
 	return s
 }
 
+func InputCount(count int) string {
+
+	if count < 1 {
+		return ""
+	}
+
+	buf := make([]byte, count)
+
+	_, err := stdin.Read(buf)
+	if err != nil {
+		log.Printf("InputCount: error: %v", err)
+	}
+
+	return string(buf)
+}
+
 func Input(prompt, question string, count int) []string {
 	for {
 		if prompt != "" {

@@ -96,6 +96,7 @@ const (
 	TkKeywordIf        = iota // IF
 	TkKeywordInkey     = iota // INKEY$
 	TkKeywordInput     = iota // INPUT
+	TkKeywordInputFunc = iota // INPUT$
 	TkKeywordInstr     = iota // INSTR
 	TkKeywordInt       = iota // INT
 	TkKeywordKey       = iota // KEY
@@ -199,6 +200,7 @@ var tabKeywords = []struct {
 	{TkKeywordImp, "IMP"},
 	{TkKeywordInkey, "INKEY$"},
 	{TkKeywordInput, "INPUT"},
+	{TkKeywordInputFunc, "INPUT$"},
 	{TkKeywordInstr, "INSTR"},
 	{TkKeywordInt, "INT"},
 	{TkKeywordKey, "KEY"},
@@ -339,6 +341,7 @@ var tabType = []string{
 	"IF",
 	"INKEY$",
 	"INPUT",
+	"INPUT$",
 	"INSTR",
 	"INT",
 	"KEY",

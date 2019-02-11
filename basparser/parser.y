@@ -212,6 +212,7 @@ func Reset() {
 %token <tok> TkKeywordIf
 %token <tok> TkKeywordInkey
 %token <tok> TkKeywordInput
+%token <tok> TkKeywordInputFunc
 %token <tok> TkKeywordInstr
 %token <tok> TkKeywordInt
 %token <tok> TkKeywordKey
@@ -1930,6 +1931,15 @@ exp: one_const_noneg { $$ = $1 }
   | TkKeywordPeek TkParLeft exp TkParRight
      {
        $$ = &node.NodeExpPeek{}
+     }
+  | TkKeywordInputFunc TkParLeft exp TkParRight
+     {
+       count := $3
+       if !node.TypeNumeric(count.Type()) {
+           yylex.Error("INPUT$ count must be numeric")
+       }	
+       Result.Baslib = true
+       $$ = &node.NodeExpInput{Count: count}
      }
    ;
 
