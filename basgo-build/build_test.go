@@ -100,6 +100,8 @@ var testTable = []buildTest{
 	{"ugh", "", "", WRONG},            // invalid program
 	{`10 print "ab"`, "", "ab\n", OK}, // minimum program
 
+	{`10 input a:print a`, "2\n", "?  2 \n", OK},
+
 	{sourceOnGoto, "", "x", OK},
 	{sourceOnGosub2, "", "a 1 2 3b 4", OK},
 
@@ -169,7 +171,7 @@ var testTable = []buildTest{
 	{`10 print sqr(9);`, "", " 3 ", OK},
 	{`10 print sqr(-1);`, "", " NaN ", OK},
 
-	{`10 a$=inkey$:b$=inkey$:print a$,b$;`, "abcd", "ab", OK},
+	{`10 while a$<>"b":a$=inkey$:print a$;:wend`, "abcd", "ab", OK},
 
 	{sourceOnGosub, "", "1push23end", OK},
 

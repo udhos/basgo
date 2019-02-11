@@ -1,7 +1,7 @@
 package baslib
 
 import (
-	"bufio"
+	//"bufio"
 	"bytes"
 	"fmt"
 	"log"
@@ -13,7 +13,8 @@ import (
 )
 
 var (
-	stdin       = bufio.NewReader(os.Stdin)                       // INPUT
+	//stdin       = bufio.NewReader(os.Stdin)                       // INPUT
+	stdin       = newInputBuf(os.Stdin)                           // INPUT
 	rnd         = rand.New(rand.NewSource(time.Now().UnixNano())) // RND
 	rndLast     = rnd.Float64()                                   // RND
 	readDataPos int                                               // READ-DATA cursor
@@ -72,13 +73,11 @@ func Timer() float64 {
 }
 
 func Inkey() string {
-	log.Printf("INKEY currently is blocking, please hit ENTER")
-	b, err := stdin.ReadByte()
-	if err != nil {
-		log.Printf("inkey byte error: %v", err)
+	b, found := stdin.Inkey()
+	if !found {
 		return ""
 	}
-	return string([]byte{b})
+	return string(b)
 }
 
 func inputString() string {
@@ -91,7 +90,11 @@ func inputString() string {
 	buf = bytes.TrimRight(buf, "\n")
 	buf = bytes.TrimRight(buf, "\r")
 
-	return string(buf)
+	s := string(buf)
+
+	log.Printf("inputString: [%s]", s)
+
+	return s
 }
 
 func Input(prompt, question string, count int) []string {
