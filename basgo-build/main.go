@@ -101,6 +101,7 @@ func main() {
 		CountGosub:   result.CountGosub,
 		CountReturn:  result.CountReturn,
 		RestoreTable: result.RestoreTable,
+		TypeTable:    result.TypeTable,
 	}
 
 	if result.LibReadData {
@@ -158,7 +159,7 @@ func main() {
 		outputf("gosubStack := []int{} // used by GOSUB/RETURN lib\n")
 	}
 
-	writeVar(options.Vars, outputf)
+	writeVar(options.Vars, result.TypeTable, outputf)
 	writeArrays(&options, outputf)
 	declareFuncs(&options, result.FuncTable, outputf)
 
@@ -218,13 +219,13 @@ func writeArrays(options *node.BuildOptions, outputf node.FuncPrintf) {
 	outputf("var (\n")
 	for v, arr := range options.Arrays {
 		a := node.RenameArray(v)
-		arrayType := arr.ArrayType(v)
+		arrayType := arr.ArrayType(options.TypeTable, v)
 		outputf("  %s %s // array [%s]\n", a, arrayType, v)
 	}
 	outputf(")\n")
 }
 
-func writeVar(vars map[string]struct{}, outputf node.FuncPrintf) {
+func writeVar(vars map[string]struct{}, typeTable []int, outputf node.FuncPrintf) {
 	if len(vars) < 1 {
 		return
 	}
@@ -232,7 +233,7 @@ func writeVar(vars map[string]struct{}, outputf node.FuncPrintf) {
 	outputf("var (\n")
 	for v := range vars {
 		vv := node.RenameVar(v)
-		t := node.VarType(v)
+		t := node.VarType(typeTable, v)
 		tt := node.TypeName(v, t)
 		outputf("  %s %s // var [%s]\n", vv, tt, v)
 	}

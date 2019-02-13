@@ -38,6 +38,7 @@ type ParserResult struct {
 	Declarations []string
 	RestoreTable map[string]int
 	DataOffset int
+	TypeTable []int
 }
 
 // parser auxiliary variables
@@ -58,13 +59,18 @@ var (
 )
 
 func newResult() ParserResult {
-	return ParserResult{
+	r := ParserResult{
 		LineNumbers: map[string]node.LineNumber{},
 		ArrayTable: map[string]node.ArraySymbol{},
 		FuncTable: map[string]node.FuncSymbol{},
 		Imports: map[string]struct{}{},
 		RestoreTable: map[string]int{},
 	}
+	r.TypeTable = make([]int,26,26)
+	for i := range r.TypeTable {
+		r.TypeTable[i] = node.TypeFloat // DEFSNG A-Z
+	}
+	return r
 }
 
 func Reset() {
@@ -478,7 +484,7 @@ stmt: /* empty */
 	if !node.IsFuncName(i) {
            yylex.Error("DEF FN bad function name: " + i)
 	}
-	if !node.TypeCompare(node.VarType(i), e.Type()) {
+	if !node.TypeCompare(node.VarType(Result.TypeTable, i), e.Type(Result.TypeTable)) {
            yylex.Error("DEF FN type mismatch")
 	}
         n := &node.NodeDefFn{FuncName: i, Body: e}
@@ -508,7 +514,7 @@ stmt: /* empty */
                 dedupVar[vName] = struct{}{}
 	}
         
-	if !node.TypeCompare(node.VarType(i), e.Type()) {
+	if !node.TypeCompare(node.VarType(Result.TypeTable, i), e.Type(Result.TypeTable)) {
            yylex.Error("DEF FN type mismatch")
 	}
         n := &node.NodeDefFn{FuncName: i, Variables: list, Body: e}
@@ -527,13 +533,13 @@ stmt: /* empty */
 	ident := $2
 	first := $4
 	last := $6
-	if !node.TypeNumeric(ident.Type()) {
+	if !node.TypeNumeric(ident.Type(Result.TypeTable)) {
            yylex.Error("FOR variable must be numeric")
 	}
-        if !node.TypeNumeric(first.Type()) {
+        if !node.TypeNumeric(first.Type(Result.TypeTable)) {
            yylex.Error("FOR first value must be numeric")
         }
-        if !node.TypeNumeric(last.Type()) {
+        if !node.TypeNumeric(last.Type(Result.TypeTable)) {
            yylex.Error("FOR last value must be numeric")
         }
         f := &node.NodeFor{Index: Result.CountFor, Variable: ident, First: first, Last: last, Step: &node.NodeExpNumber{Value: "1"}}
@@ -547,16 +553,16 @@ stmt: /* empty */
 	first := $4
 	last := $6
 	step := $8
-	if !node.TypeNumeric(ident.Type()) {
+	if !node.TypeNumeric(ident.Type(Result.TypeTable)) {
            yylex.Error("FOR variable must be numeric")
 	}
-        if !node.TypeNumeric(first.Type()) {
+        if !node.TypeNumeric(first.Type(Result.TypeTable)) {
            yylex.Error("FOR first value must be numeric")
         }
-        if !node.TypeNumeric(last.Type()) {
+        if !node.TypeNumeric(last.Type(Result.TypeTable)) {
            yylex.Error("FOR last value must be numeric")
         }
-        if !node.TypeNumeric(step.Type()) {
+        if !node.TypeNumeric(step.Type(Result.TypeTable)) {
            yylex.Error("FOR step value must be numeric")
         }
         f := &node.NodeFor{Index: Result.CountFor, Variable: ident, First: first, Last: last, Step: step}
@@ -582,7 +588,7 @@ stmt: /* empty */
         list := $3
         forList := []*node.NodeFor{}
 	for _, ident := range list {
-	   if !node.TypeNumeric(ident.Type()) {
+	   if !node.TypeNumeric(ident.Type(Result.TypeTable)) {
               yylex.Error("NEXT variable must be numeric: "+ident.String())
               continue
 	   }
@@ -609,7 +615,7 @@ stmt: /* empty */
   | TkKeywordIf exp then_or_goto stmt_goto
      {
        cond := $2
-       if !node.TypeNumeric(cond.Type()) {
+       if !node.TypeNumeric(cond.Type(Result.TypeTable)) {
            yylex.Error("IF condition must be boolean")
        }
        Result.CountIf++
@@ -618,7 +624,7 @@ stmt: /* empty */
   | TkKeywordIf exp then_or_goto stmt_goto TkKeywordElse stmt_goto
      {
        cond := $2
-       if !node.TypeNumeric(cond.Type()) {
+       if !node.TypeNumeric(cond.Type(Result.TypeTable)) {
            yylex.Error("IF condition must be boolean")
        }
        Result.CountIf++
@@ -627,7 +633,7 @@ stmt: /* empty */
   | TkKeywordIf exp then_or_goto stmt_goto TkKeywordElse statements_aux
      {
        cond := $2
-       if !node.TypeNumeric(cond.Type()) {
+       if !node.TypeNumeric(cond.Type(Result.TypeTable)) {
            yylex.Error("IF condition must be boolean")
        }
        Result.CountIf++
@@ -636,7 +642,7 @@ stmt: /* empty */
   | TkKeywordIf exp TkKeywordThen statements_aux
      {
        cond := $2
-       if !node.TypeNumeric(cond.Type()) {
+       if !node.TypeNumeric(cond.Type(Result.TypeTable)) {
            yylex.Error("IF condition must be boolean")
        }
        Result.CountIf++
@@ -645,7 +651,7 @@ stmt: /* empty */
   | TkKeywordIf exp TkKeywordThen statements_aux TkKeywordElse stmt_goto
      {
        cond := $2
-       if !node.TypeNumeric(cond.Type()) {
+       if !node.TypeNumeric(cond.Type(Result.TypeTable)) {
            yylex.Error("IF condition must be boolean")
        }
        Result.CountIf++
@@ -654,7 +660,7 @@ stmt: /* empty */
   | TkKeywordIf exp TkKeywordThen statements_aux TkKeywordElse statements_aux
      {
        cond := $2
-       if !node.TypeNumeric(cond.Type()) {
+       if !node.TypeNumeric(cond.Type(Result.TypeTable)) {
            yylex.Error("IF condition must be boolean")
        }
        Result.CountIf++
@@ -675,7 +681,7 @@ stmt: /* empty */
        num := $3
        //list := $6
 
-       if !node.TypeNumeric(num.Type()) {
+       if !node.TypeNumeric(num.Type(Result.TypeTable)) {
           yylex.Error("PRINT# file number must be numeric")
        }
 
@@ -687,7 +693,7 @@ stmt: /* empty */
        num := $3
        //list := $6
 
-       if !node.TypeNumeric(num.Type()) {
+       if !node.TypeNumeric(num.Type(Result.TypeTable)) {
           yylex.Error("INPUT# file number must be numeric")
        }
 
@@ -712,7 +718,7 @@ stmt: /* empty */
   | TkKeywordLine TkKeywordInput expressions_push one_var expressions_pop
      {
         v := $4
-        if v.Type() != node.TypeString {
+        if v.Type(Result.TypeTable) != node.TypeString {
            yylex.Error("LINE INPUT variable must be string")
         }
         Result.Baslib = true
@@ -721,7 +727,7 @@ stmt: /* empty */
   | TkKeywordLine TkKeywordInput one_const_str TkComma expressions_push one_var expressions_pop
      {
         v := $6
-        if v.Type() != node.TypeString {
+        if v.Type(Result.TypeTable) != node.TypeString {
            yylex.Error("LINE INPUT variable must be string")
         }
         Result.Baslib = true
@@ -730,7 +736,7 @@ stmt: /* empty */
   | TkKeywordLine TkKeywordInput one_const_str TkSemicolon expressions_push one_var expressions_pop
      {
         v := $6
-        if v.Type() != node.TypeString {
+        if v.Type(Result.TypeTable) != node.TypeString {
            yylex.Error("LINE INPUT variable must be string")
         }
         Result.Baslib = true
@@ -754,13 +760,13 @@ stmt: /* empty */
 	labelAs := $5
 	num := $6
 
-	if filename.Type() != node.TypeString {
+	if filename.Type(Result.TypeTable) != node.TypeString {
            yylex.Error("OPEN filename must be string")
 	}
         if !isSymbol(labelAs, "AS") {
            yylex.Error("OPEN expecting 'AS', found: " + labelAs)
         }
-	if !node.TypeNumeric(num.Type()) {
+	if !node.TypeNumeric(num.Type(Result.TypeTable)) {
            yylex.Error("OPEN file number must be numeric")
 	}
 	
@@ -775,7 +781,7 @@ stmt: /* empty */
 	num := $6
         var m int
 
-	if filename.Type() != node.TypeString {
+	if filename.Type(Result.TypeTable) != node.TypeString {
            yylex.Error("OPEN filename must be string")
 	}
 	switch strings.ToLower(mode) {
@@ -787,7 +793,7 @@ stmt: /* empty */
         if !isSymbol(labelAs, "AS") {
            yylex.Error("OPEN expecting 'AS', found: " + labelAs)
         }
-	if !node.TypeNumeric(num.Type()) {
+	if !node.TypeNumeric(num.Type(Result.TypeTable)) {
            yylex.Error("OPEN file number must be numeric")
 	}
 	
@@ -844,7 +850,7 @@ stmt: /* empty */
      {
        cond := $2
        lines := $4
-       if !node.TypeNumeric(cond.Type()) {
+       if !node.TypeNumeric(cond.Type(Result.TypeTable)) {
            yylex.Error("ON-GOSUB condition must be numeric")
        }
        g := &node.NodeOnGosub{Index: Result.CountGosub, Cond: cond, Lines: lines}
@@ -855,7 +861,7 @@ stmt: /* empty */
      {
        cond := $2
        lines := $4
-       if !node.TypeNumeric(cond.Type()) {
+       if !node.TypeNumeric(cond.Type(Result.TypeTable)) {
            yylex.Error("ON-GOTO condition must be numeric")
        }
        $$ = &node.NodeOnGoto{Cond: cond, Lines: lines}
@@ -863,7 +869,7 @@ stmt: /* empty */
   | TkKeywordWhile exp
      {
        cond := $2
-       if !node.TypeNumeric(cond.Type()) {
+       if !node.TypeNumeric(cond.Type(Result.TypeTable)) {
            yylex.Error("WHILE condition must be boolean")
        }
        while := &node.NodeWhile{Cond: cond, Index: Result.CountWhile}
@@ -888,7 +894,7 @@ stmt: /* empty */
      {
 	v1 := $2
 	v2 := $4
-	if v1.Type() != v2.Type() {
+	if v1.Type(Result.TypeTable) != v2.Type(Result.TypeTable) {
            yylex.Error("SWAP type mismatch")
 	}
         $$ = &node.NodeSwap{Var1: v1, Var2: v2}
@@ -921,7 +927,7 @@ stmt: /* empty */
    | TkKeywordRandomize exp
      {
        seed := $2
-       if !node.TypeNumeric(seed.Type()) {
+       if !node.TypeNumeric(seed.Type(Result.TypeTable)) {
            yylex.Error("RANDOMIZE seed must be numeric")
        }
        Result.Baslib = true
@@ -1084,8 +1090,8 @@ assign: TkIdentifier TkEqual exp
      {
 	i := $1
 	e := $3
-	ti := node.VarType(i)
-	te := e.Type()
+	ti := node.VarType(Result.TypeTable, i)
+	te := e.Type(Result.TypeTable)
 	if !node.TypeCompare(ti, te) {
            yylex.Error("Assignment type mismatch")
 	}
@@ -1095,8 +1101,8 @@ assign: TkIdentifier TkEqual exp
      {
 	a := $1
 	e := $3
-	ta := a.Type()
-	te := e.Type()
+	ta := a.Type(Result.TypeTable)
+	te := e.Type(Result.TypeTable)
 	if !node.TypeCompare(ta, te) {
            yylex.Error("Array assignment type mismatch")
 	}
@@ -1107,7 +1113,7 @@ assign: TkIdentifier TkEqual exp
 array_index_exp_list: exp
 	{
 		e := $1
-		if !node.TypeNumeric(e.Type()) {
+		if !node.TypeNumeric(e.Type(Result.TypeTable)) {
 			yylex.Error("Array index must be numeric")
 		}
 		last := len(expListStack) - 1
@@ -1118,7 +1124,7 @@ array_index_exp_list: exp
         array_index_exp_list TkComma exp
         {
 		e := $3
-		if !node.TypeNumeric(e.Type()) {
+		if !node.TypeNumeric(e.Type(Result.TypeTable)) {
 			yylex.Error("Array index must be numeric")
 		}
 		last := len(expListStack) - 1
@@ -1281,7 +1287,7 @@ array_or_call: TkIdentifier TkBracketLeft expressions_push array_index_exp_list 
       // function call
       //
       name := $1
-      err := node.FuncSetUsed(Result.FuncTable, name, nil)
+      err := node.FuncSetUsed(Result.FuncTable, name, nil, Result.TypeTable)
       if err != nil {
          yylex.Error("error using DEF FN: " + err.Error())
       }
@@ -1299,7 +1305,7 @@ array_or_call: TkIdentifier TkBracketLeft expressions_push array_index_exp_list 
          //
          // function call
          //
-         err := node.FuncSetUsed(Result.FuncTable, name, list)
+         err := node.FuncSetUsed(Result.FuncTable, name, list, Result.TypeTable)
          if err != nil {
             yylex.Error("error using DEF FN: " + err.Error())
          }
@@ -1310,7 +1316,7 @@ array_or_call: TkIdentifier TkBracketLeft expressions_push array_index_exp_list 
          //
          indices := $4
          for _, i := range indices {
-            if !node.TypeNumeric(i.Type()) {
+            if !node.TypeNumeric(i.Type(Result.TypeTable)) {
                yylex.Error("array index must be numeric")
             }
          }
@@ -1344,34 +1350,36 @@ exp: one_const_noneg { $$ = $1 }
    | array_or_call { $$ = $1 }
    | exp TkPlus exp
      {
-       if $1.Type() == node.TypeString && $3.Type() != node.TypeString {
+       e1 := $1
+       e2 := $3
+       if e1.Type(Result.TypeTable) == node.TypeString && e2.Type(Result.TypeTable) != node.TypeString {
            yylex.Error("TkPlus string and non-string")
        }
-       if $1.Type() != node.TypeString && $3.Type() == node.TypeString {
+       if e1.Type(Result.TypeTable) != node.TypeString && e2.Type(Result.TypeTable) == node.TypeString {
            yylex.Error("TkPlus non-string and string")
        }
-       n := &node.NodeExpPlus{Left: $1, Right: $3}
-       if n.Type() == node.TypeUnknown {
+       n := &node.NodeExpPlus{Left: e1, Right: e2}
+       if n.Type(Result.TypeTable) == node.TypeUnknown {
            yylex.Error("TkPlus produces unknown type")
        }
        $$ = n
      }
    | exp TkMinus exp
      {
-       switch $1.Type() {
+       switch $1.Type(Result.TypeTable) {
        case node.TypeString:
            yylex.Error("TkMinus left value has string type")
        case node.TypeUnknown:
            yylex.Error("TkMinus left value has unknown type")
        }
-       switch $3.Type() {
+       switch $3.Type(Result.TypeTable) {
        case node.TypeString:
            yylex.Error("TkMinus right value has string type")
        case node.TypeUnknown:
            yylex.Error("TkMinus right value has unknown type")
        }
        n := &node.NodeExpMinus{Left: $1, Right: $3}
-       switch n.Type() {
+       switch n.Type(Result.TypeTable) {
        case node.TypeString:
            yylex.Error("TkMinus produces string type")
        case node.TypeUnknown:
@@ -1381,60 +1389,60 @@ exp: one_const_noneg { $$ = $1 }
      }
    | exp TkKeywordMod exp
      {
-       switch $1.Type() {
+       switch $1.Type(Result.TypeTable) {
        case node.TypeString:
            yylex.Error("TkMod left value has string type")
        case node.TypeUnknown:
            yylex.Error("TkMod left value has unknown type")
        }
-       switch $3.Type() {
+       switch $3.Type(Result.TypeTable) {
        case node.TypeString:
            yylex.Error("TkMod right value has string type")
        case node.TypeUnknown:
            yylex.Error("TkMod right value has unknown type")
        }
        n := &node.NodeExpMod{Left: $1, Right: $3}
-       if  n.Type() != node.TypeInteger {
+       if  n.Type(Result.TypeTable) != node.TypeInteger {
            yylex.Error("TkMod produces non-integer type")
        }
        $$ = n
      }
    | exp TkBackSlash exp
      {
-       switch $1.Type() {
+       switch $1.Type(Result.TypeTable) {
        case node.TypeString:
            yylex.Error("Integer division left value has string type")
        case node.TypeUnknown:
            yylex.Error("Integer division left value has unknown type")
        }
-       switch $3.Type() {
+       switch $3.Type(Result.TypeTable) {
        case node.TypeString:
            yylex.Error("Integer division right value has string type")
        case node.TypeUnknown:
            yylex.Error("Integer division right value has unknown type")
        }
        n := &node.NodeExpDivInt{Left: $1, Right: $3}
-       if  n.Type() != node.TypeInteger {
+       if  n.Type(Result.TypeTable) != node.TypeInteger {
            yylex.Error("Integer division produces non-integer type")
        }
        $$ = n
      }
    | exp TkMult exp
      {
-       switch $1.Type() {
+       switch $1.Type(Result.TypeTable) {
        case node.TypeString:
            yylex.Error("TkMult left value has string type")
        case node.TypeUnknown:
            yylex.Error("TkMult left value has unknown type")
        }
-       switch $3.Type() {
+       switch $3.Type(Result.TypeTable) {
        case node.TypeString:
            yylex.Error("TkMult right value has string type")
        case node.TypeUnknown:
            yylex.Error("TkMult right value has unknown type")
        }
        n := &node.NodeExpMult{Left: $1, Right: $3}
-       switch n.Type() {
+       switch n.Type(Result.TypeTable) {
        case node.TypeString:
            yylex.Error("TkMult produces string type")
        case node.TypeUnknown:
@@ -1444,47 +1452,47 @@ exp: one_const_noneg { $$ = $1 }
      }
    | exp TkDiv exp
      {
-       switch $1.Type() {
+       switch $1.Type(Result.TypeTable) {
        case node.TypeString:
            yylex.Error("TkDiv left value has string type")
        case node.TypeUnknown:
            yylex.Error("TkDiv left value has unknown type")
        }
-       switch $3.Type() {
+       switch $3.Type(Result.TypeTable) {
        case node.TypeString:
            yylex.Error("TkDiv right value has string type")
        case node.TypeUnknown:
            yylex.Error("TkDiv right value has unknown type")
        }
        n := &node.NodeExpDiv{Left: $1, Right: $3}
-       if  n.Type() != node.TypeFloat {
+       if  n.Type(Result.TypeTable) != node.TypeFloat {
            yylex.Error("TkDiv produces non-float type")
        }
        $$ = n
      }
    | exp TkPow exp
      {
-       switch $1.Type() {
+       switch $1.Type(Result.TypeTable) {
        case node.TypeString:
            yylex.Error("TkPow left value has string type")
        case node.TypeUnknown:
            yylex.Error("TkPow left value has unknown type")
        }
-       switch $3.Type() {
+       switch $3.Type(Result.TypeTable) {
        case node.TypeString:
            yylex.Error("TkPow right value has string type")
        case node.TypeUnknown:
            yylex.Error("TkPow right value has unknown type")
        }
        n := &node.NodeExpPow{Left: $1, Right: $3}
-       if  n.Type() != node.TypeFloat {
+       if  n.Type(Result.TypeTable) != node.TypeFloat {
            yylex.Error("TkPow produces non-float type")
        }
        $$ = n
      }
    | TkPlus exp %prec UnaryPlus
      {
-       switch $2.Type() {
+       switch $2.Type(Result.TypeTable) {
        case node.TypeString:
            yylex.Error("Unary plus has string type")
        case node.TypeUnknown:
@@ -1494,7 +1502,7 @@ exp: one_const_noneg { $$ = $1 }
      }
    | TkMinus exp %prec UnaryMinus
      {
-       switch $2.Type() {
+       switch $2.Type(Result.TypeTable) {
        case node.TypeString:
            yylex.Error("Unary minus has string type")
        case node.TypeUnknown:
@@ -1506,7 +1514,7 @@ exp: one_const_noneg { $$ = $1 }
    | TkKeywordNot exp
      {
        e := $2
-       switch e.Type() {
+       switch e.Type(Result.TypeTable) {
        case node.TypeString:
            yylex.Error("Not has string type")
        case node.TypeUnknown:
@@ -1516,100 +1524,100 @@ exp: one_const_noneg { $$ = $1 }
      }
    | exp TkKeywordAnd exp
      {
-       switch $1.Type() {
+       switch $1.Type(Result.TypeTable) {
        case node.TypeString:
            yylex.Error("TkAnd left value has string type")
        case node.TypeUnknown:
            yylex.Error("TkAnd left value has unknown type")
        }
-       switch $3.Type() {
+       switch $3.Type(Result.TypeTable) {
        case node.TypeString:
            yylex.Error("TkAnd right value has string type")
        case node.TypeUnknown:
            yylex.Error("TkAnd right value has unknown type")
        }
        n := &node.NodeExpAnd{Left:$1, Right:$3}
-       if  n.Type() != node.TypeInteger {
+       if  n.Type(Result.TypeTable) != node.TypeInteger {
            yylex.Error("TkAnd produces non-integer type")
        }
        $$ = n
      }
    | exp TkKeywordEqv exp
      {
-       switch $1.Type() {
+       switch $1.Type(Result.TypeTable) {
        case node.TypeString:
            yylex.Error("TkEqv left value has string type")
        case node.TypeUnknown:
            yylex.Error("TkEqv left value has unknown type")
        }
-       switch $3.Type() {
+       switch $3.Type(Result.TypeTable) {
        case node.TypeString:
            yylex.Error("TkEqv right value has string type")
        case node.TypeUnknown:
            yylex.Error("TkEqv right value has unknown type")
        }
        n := &node.NodeExpEqv{Left:$1, Right:$3}
-       if  n.Type() != node.TypeInteger {
+       if  n.Type(Result.TypeTable) != node.TypeInteger {
            yylex.Error("TkEqv produces non-integer type")
        }
        $$ = n
      }
    | exp TkKeywordImp exp
      {
-       switch $1.Type() {
+       switch $1.Type(Result.TypeTable) {
        case node.TypeString:
            yylex.Error("TkImp left value has string type")
        case node.TypeUnknown:
            yylex.Error("TkImp left value has unknown type")
        }
-       switch $3.Type() {
+       switch $3.Type(Result.TypeTable) {
        case node.TypeString:
            yylex.Error("TkImp right value has string type")
        case node.TypeUnknown:
            yylex.Error("TkImp right value has unknown type")
        }
        n := &node.NodeExpImp{Left:$1, Right:$3}
-       if  n.Type() != node.TypeInteger {
+       if  n.Type(Result.TypeTable) != node.TypeInteger {
            yylex.Error("TkImp produces non-integer type")
        }
        $$ = n
      }
    | exp TkKeywordOr exp
      {
-       switch $1.Type() {
+       switch $1.Type(Result.TypeTable) {
        case node.TypeString:
            yylex.Error("TkOr left value has string type")
        case node.TypeUnknown:
            yylex.Error("TkOr left value has unknown type")
        }
-       switch $3.Type() {
+       switch $3.Type(Result.TypeTable) {
        case node.TypeString:
            yylex.Error("TkOr right value has string type")
        case node.TypeUnknown:
            yylex.Error("TkOr right value has unknown type")
        }
        n := &node.NodeExpOr{Left:$1, Right:$3}
-       if  n.Type() != node.TypeInteger {
+       if  n.Type(Result.TypeTable) != node.TypeInteger {
            yylex.Error("TkOr produces non-integer type")
        }
        $$ = n
      }
    | exp TkKeywordXor exp
      {
-       switch $1.Type() {
+       switch $1.Type(Result.TypeTable) {
        case node.TypeString:
            yylex.Error("TkXor left value has string type")
        case node.TypeUnknown:
            yylex.Error("TkXor left value has unknown type")
        }
-       switch $3.Type() {
+       switch $3.Type(Result.TypeTable) {
        case node.TypeString:
            yylex.Error("TkXor right value has string type")
        case node.TypeUnknown:
            yylex.Error("TkXor right value has unknown type")
        }
        n := &node.NodeExpXor{Left:$1, Right:$3}
-       if  n.Type() != node.TypeInteger {
+       if  n.Type(Result.TypeTable) != node.TypeInteger {
            yylex.Error("TkXor produces non-integer type")
        }
        $$ = n
@@ -1618,8 +1626,8 @@ exp: one_const_noneg { $$ = $1 }
      {
        e1 := $1
        e2 := $3
-       t1 := e1.Type()
-       t2 := e2.Type()
+       t1 := e1.Type(Result.TypeTable)
+       t2 := e2.Type(Result.TypeTable)
        if !node.TypeCompare(t1, t2) {
            yylex.Error("TkEqual type mismatch: " + 
 		fmt.Sprintf("%s = %s | ", e1.String(), e2.String()) +
@@ -1630,7 +1638,7 @@ exp: one_const_noneg { $$ = $1 }
      }
    | exp TkUnequal exp
      {
-       if !node.TypeCompare($1.Type(), $3.Type()) {
+       if !node.TypeCompare($1.Type(Result.TypeTable), $3.Type(Result.TypeTable)) {
            yylex.Error("TkUnequal type mismatch")
        }
        Result.Baslib = true // BoolToInt
@@ -1638,7 +1646,7 @@ exp: one_const_noneg { $$ = $1 }
      }
    | exp TkGT exp
      {
-       if !node.TypeCompare($1.Type(), $3.Type()) {
+       if !node.TypeCompare($1.Type(Result.TypeTable), $3.Type(Result.TypeTable)) {
            yylex.Error("TkGT type mismatch")
        }
        Result.Baslib = true // BoolToInt
@@ -1646,7 +1654,7 @@ exp: one_const_noneg { $$ = $1 }
      }
    | exp TkLT exp
      {
-       if !node.TypeCompare($1.Type(), $3.Type()) {
+       if !node.TypeCompare($1.Type(Result.TypeTable), $3.Type(Result.TypeTable)) {
            yylex.Error("TkLT type mismatch")
        }
        Result.Baslib = true // BoolToInt
@@ -1654,7 +1662,7 @@ exp: one_const_noneg { $$ = $1 }
      }
    | exp TkGE exp
      {
-       if !node.TypeCompare($1.Type(), $3.Type()) {
+       if !node.TypeCompare($1.Type(Result.TypeTable), $3.Type(Result.TypeTable)) {
            yylex.Error("TkGE type mismatch")
        }
        Result.Baslib = true // BoolToInt
@@ -1662,7 +1670,7 @@ exp: one_const_noneg { $$ = $1 }
      }
    | exp TkLE exp
      {
-       if !node.TypeCompare($1.Type(), $3.Type()) {
+       if !node.TypeCompare($1.Type(Result.TypeTable), $3.Type(Result.TypeTable)) {
            yylex.Error("TkLE type mismatch")
        }
        Result.Baslib = true // BoolToInt
@@ -1671,7 +1679,7 @@ exp: one_const_noneg { $$ = $1 }
    | TkKeywordInt TkParLeft exp TkParRight
      {
        e := $3
-       if !node.TypeNumeric(e.Type()) {
+       if !node.TypeNumeric(e.Type(Result.TypeTable)) {
            yylex.Error("INT expression must be numeric")
        }
        $$ = &node.NodeExpInt{Value:e}
@@ -1680,10 +1688,10 @@ exp: one_const_noneg { $$ = $1 }
      {
        e1 := $3
        e2 := $5
-       if e1.Type() != node.TypeString {
+       if e1.Type(Result.TypeTable) != node.TypeString {
            yylex.Error("LEFT$ value must be string")
        }
-       if !node.TypeNumeric(e2.Type()) {
+       if !node.TypeNumeric(e2.Type(Result.TypeTable)) {
            yylex.Error("LEFT$ size must be numeric")
        }
        Result.Baslib = true
@@ -1693,10 +1701,10 @@ exp: one_const_noneg { $$ = $1 }
      {
        e1 := $3
        e2 := $5
-       if e1.Type() != node.TypeString {
+       if e1.Type(Result.TypeTable) != node.TypeString {
            yylex.Error("RIGHT$ value must be string")
        }
-       if !node.TypeNumeric(e2.Type()) {
+       if !node.TypeNumeric(e2.Type(Result.TypeTable)) {
            yylex.Error("RIGHT$ size must be numeric")
        }
        Result.Baslib = true
@@ -1707,10 +1715,10 @@ exp: one_const_noneg { $$ = $1 }
      {
        e1 := $3
        e2 := $5
-       if e1.Type() != node.TypeString {
+       if e1.Type(Result.TypeTable) != node.TypeString {
            yylex.Error("MID$ value must be string")
        }
-       if !node.TypeNumeric(e2.Type()) {
+       if !node.TypeNumeric(e2.Type(Result.TypeTable)) {
            yylex.Error("MID$ begin must be numeric")
        }
        Result.Baslib = true
@@ -1721,13 +1729,13 @@ exp: one_const_noneg { $$ = $1 }
        e1 := $3
        e2 := $5
        e3 := $7
-       if e1.Type() != node.TypeString {
+       if e1.Type(Result.TypeTable) != node.TypeString {
            yylex.Error("MID$ value must be string")
        }
-       if !node.TypeNumeric(e2.Type()) {
+       if !node.TypeNumeric(e2.Type(Result.TypeTable)) {
            yylex.Error("MID$ begin must be numeric")
        }
-       if !node.TypeNumeric(e3.Type()) {
+       if !node.TypeNumeric(e3.Type(Result.TypeTable)) {
            yylex.Error("MID$ size must be numeric")
        }
        Result.Baslib = true
@@ -1737,7 +1745,7 @@ exp: one_const_noneg { $$ = $1 }
    | TkKeywordRnd TkParLeft exp TkParRight
      {
        e := $3
-       if !node.TypeNumeric(e.Type()) {
+       if !node.TypeNumeric(e.Type(Result.TypeTable)) {
            yylex.Error("RND expression must be numeric")
        }
        Result.Baslib = true
@@ -1746,7 +1754,7 @@ exp: one_const_noneg { $$ = $1 }
    | TkKeywordStr TkParLeft exp TkParRight
      {
        num := $3
-       if !node.TypeNumeric(num.Type()) {
+       if !node.TypeNumeric(num.Type(Result.TypeTable)) {
            yylex.Error("STR$ expression must be numeric")
        }
        Result.Baslib = true
@@ -1755,7 +1763,7 @@ exp: one_const_noneg { $$ = $1 }
    | TkKeywordVal TkParLeft exp TkParRight
      {
        str := $3
-       if str.Type() != node.TypeString {
+       if str.Type(Result.TypeTable) != node.TypeString {
            yylex.Error("VAL expression must be string")
        }
        Result.Baslib = true
@@ -1764,7 +1772,7 @@ exp: one_const_noneg { $$ = $1 }
    | TkKeywordTab TkParLeft exp TkParRight
      {
        num := $3
-       if !node.TypeNumeric(num.Type()) {
+       if !node.TypeNumeric(num.Type(Result.TypeTable)) {
            yylex.Error("TAB expression must be numeric")
        }
        Result.Baslib = true
@@ -1773,7 +1781,7 @@ exp: one_const_noneg { $$ = $1 }
    | TkKeywordSpc TkParLeft exp TkParRight
      {
        num := $3
-       if !node.TypeNumeric(num.Type()) {
+       if !node.TypeNumeric(num.Type(Result.TypeTable)) {
            yylex.Error("SPC expression must be numeric")
        }
        $$ = &node.NodeExpSpc{Value:num}
@@ -1782,7 +1790,7 @@ exp: one_const_noneg { $$ = $1 }
    | TkKeywordSpace TkParLeft exp TkParRight
      {
        num := $3
-       if !node.TypeNumeric(num.Type()) {
+       if !node.TypeNumeric(num.Type(Result.TypeTable)) {
            yylex.Error("SPACE$ expression must be numeric")
        }
        Result.Baslib = true
@@ -1792,10 +1800,10 @@ exp: one_const_noneg { $$ = $1 }
      {
        num := $3
        char := $5
-       if !node.TypeNumeric(num.Type()) {
+       if !node.TypeNumeric(num.Type(Result.TypeTable)) {
            yylex.Error("STRING$ expression must be numeric")
        }
-       t := char.Type()
+       t := char.Type(Result.TypeTable)
        if !node.TypeNumeric(t) && t != node.TypeString  {
            yylex.Error("STRING$ char must be numeric or string")
        }
@@ -1805,7 +1813,7 @@ exp: one_const_noneg { $$ = $1 }
    | TkKeywordAsc TkParLeft exp TkParRight
      {
        str := $3
-       if str.Type() != node.TypeString {
+       if str.Type(Result.TypeTable) != node.TypeString {
            yylex.Error("ASC expression must be string")
        }
        Result.Baslib = true
@@ -1814,7 +1822,7 @@ exp: one_const_noneg { $$ = $1 }
    | TkKeywordChr TkParLeft exp TkParRight
      {
        num := $3
-       if !node.TypeNumeric(num.Type()) {
+       if !node.TypeNumeric(num.Type(Result.TypeTable)) {
            yylex.Error("CHR$ expression must be numeric")
        }
        $$ = &node.NodeExpChr{Value:num}
@@ -1834,7 +1842,7 @@ exp: one_const_noneg { $$ = $1 }
    | TkKeywordAbs TkParLeft exp TkParRight
      {
        num := $3
-       if !node.TypeNumeric(num.Type()) {
+       if !node.TypeNumeric(num.Type(Result.TypeTable)) {
            yylex.Error("ABS expression must be numeric")
        }
        Result.LibMath = true
@@ -1843,7 +1851,7 @@ exp: one_const_noneg { $$ = $1 }
    | TkKeywordSgn TkParLeft exp TkParRight
      {
        num := $3
-       if !node.TypeNumeric(num.Type()) {
+       if !node.TypeNumeric(num.Type(Result.TypeTable)) {
            yylex.Error("SGN expression must be numeric")
        }
        Result.Baslib = true
@@ -1852,7 +1860,7 @@ exp: one_const_noneg { $$ = $1 }
    | TkKeywordCos TkParLeft exp TkParRight
      {
        num := $3
-       if !node.TypeNumeric(num.Type()) {
+       if !node.TypeNumeric(num.Type(Result.TypeTable)) {
            yylex.Error("COS expression must be numeric")
        }
        Result.LibMath = true
@@ -1861,7 +1869,7 @@ exp: one_const_noneg { $$ = $1 }
    | TkKeywordSin TkParLeft exp TkParRight
      {
        num := $3
-       if !node.TypeNumeric(num.Type()) {
+       if !node.TypeNumeric(num.Type(Result.TypeTable)) {
            yylex.Error("SIN expression must be numeric")
        }
        Result.LibMath = true
@@ -1870,7 +1878,7 @@ exp: one_const_noneg { $$ = $1 }
    | TkKeywordSqr TkParLeft exp TkParRight
      {
        num := $3
-       if !node.TypeNumeric(num.Type()) {
+       if !node.TypeNumeric(num.Type(Result.TypeTable)) {
            yylex.Error("SQR expression must be numeric")
        }
        Result.LibMath = true
@@ -1879,7 +1887,7 @@ exp: one_const_noneg { $$ = $1 }
    | TkKeywordTan TkParLeft exp TkParRight
      {
        num := $3
-       if !node.TypeNumeric(num.Type()) {
+       if !node.TypeNumeric(num.Type(Result.TypeTable)) {
            yylex.Error("TAN expression must be numeric")
        }
        Result.LibMath = true
@@ -1902,10 +1910,10 @@ exp: one_const_noneg { $$ = $1 }
      {
        str := $3
        sub := $5
-       if str.Type() != node.TypeString {
+       if str.Type(Result.TypeTable) != node.TypeString {
            yylex.Error("INSTR wrong string type")
        }
-       if sub.Type() != node.TypeString {
+       if sub.Type(Result.TypeTable) != node.TypeString {
            yylex.Error("INSTR wrong sub-string type")
        }
        Result.Baslib = true
@@ -1916,13 +1924,13 @@ exp: one_const_noneg { $$ = $1 }
        begin := $3
        str := $5
        sub := $7
-       if !node.TypeNumeric(begin.Type()) {
+       if !node.TypeNumeric(begin.Type(Result.TypeTable)) {
            yylex.Error("INSTR offset must be numeric")
        }
-       if str.Type() != node.TypeString {
+       if str.Type(Result.TypeTable) != node.TypeString {
            yylex.Error("INSTR wrong string type")
        }
-       if sub.Type() != node.TypeString {
+       if sub.Type(Result.TypeTable) != node.TypeString {
            yylex.Error("INSTR wrong sub-string type")
        }
        Result.Baslib = true
@@ -1935,7 +1943,7 @@ exp: one_const_noneg { $$ = $1 }
   | TkKeywordInputFunc TkParLeft exp TkParRight
      {
        count := $3
-       if !node.TypeNumeric(count.Type()) {
+       if !node.TypeNumeric(count.Type(Result.TypeTable)) {
            yylex.Error("INPUT$ count must be numeric")
        }	
        Result.Baslib = true
