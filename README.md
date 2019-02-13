@@ -6,6 +6,7 @@
 * [Requirements](#requirements)
 * [Install](#install)
 * [Run the Compiler](#run-the-compiler)
+  * [Status and Limitations](#status-and-limitations)
   * [Example](#example)
   * [Sample \- Hello World](#sample---hello-world)
   * [Use \_GOFUNC to call Go function from BASIC code](#use-_gofunc-to-call-go-function-from-basic-code)
@@ -14,8 +15,6 @@
   * [BASIC programs and games](#basic-programs-and-games)
   * [BASIC documentation](#basic-documentation)
   * [BASIC interpreters and compilers](#basic-interpreters-and-compilers)
-
-Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc.go)
 
 # Requirements
 
