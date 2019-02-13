@@ -53,6 +53,7 @@ var (
 	numberList []string
 	identList []string
 	lastLineNum string // basic line number for parser error reporting
+	rangeList [][]string
 
 	// (1) stmt IF-THEN can nest list of stmt: THEN CLS:IF:CLS
 	// (2) exp can nest list of exp: array(exp,exp,exp)
@@ -67,10 +68,15 @@ func newResult() ParserResult {
 		RestoreTable: map[string]int{},
 	}
 	r.TypeTable = make([]int,26,26)
-	for i := range r.TypeTable {
-		r.TypeTable[i] = node.TypeFloat // DEFSNG A-Z
-	}
+	defineType(&r, 0, 25, node.TypeFloat) // DEFSNG A-Z
 	return r
+}
+
+func defineType(r *ParserResult, first, last, t int) {
+	log.Printf("defineType: range %d-%d as %d", first, last, t)
+	for i := first; i <= last; i++ {
+		r.TypeTable[i] = t
+	}
 }
 
 func Reset() {
@@ -104,6 +110,7 @@ func Reset() {
 	typeNumberList []string
 	typeLineNumber string
 	typeIdentList []string
+	typeRangeList [][]string
 
 	tok int
 }
@@ -146,6 +153,9 @@ func Reset() {
 %type <typeExpressions> single_var_list
 %type <typeExp> file_num
 %type <typeExpressions> file_num_list
+%type <typeIdentifier> letter_single
+%type <typeIdentList> letter_range
+%type <typeRangeList> letter_range_list
 
 // same for terminals
 
@@ -203,7 +213,10 @@ func Reset() {
 %token <tok> TkKeywordData
 %token <tok> TkKeywordDate
 %token <tok> TkKeywordDef
+%token <tok> TkKeywordDefdbl
 %token <tok> TkKeywordDefint
+%token <tok> TkKeywordDefsng
+%token <tok> TkKeywordDefstr
 %token <tok> TkKeywordDim
 %token <tok> TkKeywordElse
 %token <tok> TkKeywordEnd
@@ -427,6 +440,46 @@ file_num_list: file_num
                 $$ = expListStack[last]
         }
     ;
+
+letter_single: TkIdentifier
+	{
+		s := strings.ToLower($1)
+		if len(s) != 1 {
+			yylex.Error("range must be a single letter")
+		}
+		$$ = s
+	}
+	;
+
+letter_range: letter_single
+	{
+		s := $1
+		$$ = []string{s,s}
+	}
+	| letter_single TkMinus letter_single
+	{
+		s1 := $1
+		s2 := $3
+		if s1 > s2 {
+			yylex.Error("bad range order: first char greater than last char")
+		}
+		$$ = []string{s1,s2}
+	}
+	;
+
+letter_range_list: letter_range
+	{
+		r := $1
+        	rangeList = [][]string{r} // reset range list
+        	$$ = rangeList
+	}
+	| letter_range_list TkComma letter_range
+	{
+		r := $3
+        	rangeList = append(rangeList, r)
+		$$ = rangeList
+	}
+	;
 
 stmt: /* empty */
      { $$ = &node.NodeEmpty{} }
@@ -940,7 +993,15 @@ stmt: /* empty */
   | TkKeywordBeep { $$ = unsupportedEmpty("BEEP") }
   | TkKeywordCls { $$ = unsupportedEmpty("CLS") }
   | TkKeywordWidth exp { $$ = unsupportedEmpty("WIDTH") }
-  | TkKeywordDefint TkIdentifier TkMinus TkIdentifier { $$ = unsupportedEmpty("DEFINT") }
+  | TkKeywordDefint letter_range_list
+	{
+		list := $2
+		for _,p := range list {
+			first := int(p[0][0] - 'a')
+			last := int(p[1][0] - 'a')
+			defineType(&Result, first, last, node.TypeInteger) // DEFINT i-j
+		}
+	}
   | TkKeywordChain expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("CHAIN") }
   | TkKeywordClear { $$ = unsupportedEmpty("CLEAR") }
   | TkKeywordClear expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("CLEAR") }
