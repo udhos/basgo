@@ -1715,7 +1715,7 @@ func (n *NodeRandomize) Build(options *BuildOptions, outputf FuncPrintf) {
 		return
 	}
 
-	outputf("baslib.Randomize(" + n.Seed.Exp(options) + ")\n")
+	outputf("baslib.Randomize(" + forceFloat(options, n.Seed) + ")\n")
 }
 
 // FindUsedVars finds used vars
