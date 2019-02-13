@@ -37,10 +37,16 @@ The recipe below will install 'basgo-build' under "~/go/bin".
 
 # Run the Compiler
 
-Status: the compiler currently can handle very simple programs.
-
     basgo-build < program.bas > program.go
     go run program.go                      ;# builds and runs program.go
+
+## Status and Limitations
+
+The compiler currently can handle many simple programs.
+
+Limitations include lack of support for sound, graphics and hardware-specific instructions (POKE, PEEK, etc).
+
+See also known issues: https://github.com/udhos/basgo/issues
 
 ## Example
 
