@@ -81,7 +81,10 @@ const (
 	TkKeywordData      = iota // DATA
 	TkKeywordDate      = iota // DATE$
 	TkKeywordDef       = iota // DEF
+	TkKeywordDefdbl    = iota // DEFDBL
 	TkKeywordDefint    = iota // DEFINT
+	TkKeywordDefsng    = iota // DEFSNG
+	TkKeywordDefstr    = iota // DEFSTR
 	TkKeywordDim       = iota // DIM
 	TkKeywordElse      = iota // ELSE
 	TkKeywordEnd       = iota // END
@@ -183,7 +186,10 @@ var tabKeywords = []struct {
 	{TkKeywordData, "DATA"},
 	{TkKeywordDate, "DATE$"},
 	{TkKeywordDef, "DEF"},
+	{TkKeywordDefdbl, "DEFDBL"},
 	{TkKeywordDefint, "DEFINT"},
+	{TkKeywordDefsng, "DEFSNG"},
+	{TkKeywordDefstr, "DEFSTR"},
 	{TkKeywordDim, "DIM"},
 	{TkKeywordElse, "ELSE"},
 	{TkKeywordEnd, "END"},
@@ -326,7 +332,10 @@ var tabType = []string{
 	"DATA",
 	"DATE",
 	"DEF",
+	"DEFDBL",
 	"DEFINT",
+	"DEFSNG",
+	"DEFSTR",
 	"DIM",
 	"ELSE",
 	"END",

@@ -14,6 +14,7 @@ const (
 	TypeString  = iota
 	TypeFloat   = iota
 	TypeInteger = iota
+	TypeDouble  = iota
 )
 
 func TypeLabel(t int) string {
@@ -24,6 +25,8 @@ func TypeLabel(t int) string {
 		return "FLOAT"
 	case TypeInteger:
 		return "INTEGER"
+	case TypeDouble:
+		return "DOUBLE"
 	}
 	return "UNKNOWN"
 }
@@ -42,7 +45,7 @@ func TypeCompare(t1, t2 int) bool {
 type NodeExp interface {
 	String() string                   // Literal cosmetic display
 	Exp(options *BuildOptions) string // For code generation in Go
-	Type() int
+	Type(table []int) int
 	FindUsedVars(options *BuildOptions)
 }
 
@@ -50,7 +53,7 @@ type NodeExp interface {
 type NodeExpNumber struct{ Value string }
 
 // Type returns type
-func (e *NodeExpNumber) Type() int {
+func (e *NodeExpNumber) Type(table []int) int {
 	return TypeInteger
 }
 
@@ -77,7 +80,7 @@ func toFloat(v string) string {
 type NodeExpFloat struct{ Value float64 }
 
 // Type returns type
-func (e *NodeExpFloat) Type() int {
+func (e *NodeExpFloat) Type(table []int) int {
 	return TypeFloat
 }
 
@@ -105,7 +108,7 @@ func NewNodeExpString(s string) *NodeExpString {
 type NodeExpString struct{ Value string }
 
 // Type returns type
-func (e *NodeExpString) Type() int {
+func (e *NodeExpString) Type(table []int) int {
 	return TypeString
 }
 
@@ -125,28 +128,38 @@ func (e *NodeExpString) FindUsedVars(options *BuildOptions) {
 }
 
 // NodeExpIdentifier holds value
-type NodeExpIdentifier struct {
-	Value string
+type NodeExpIdent struct {
+	Value    string
+	SaveType int
+}
+
+func NewNodeExpIdent(table []int, s string) *NodeExpIdent {
+	t := VarType(table, s)
+	i := &NodeExpIdent{
+		Value:    s,
+		SaveType: t,
+	}
+	return i
 }
 
 // Type returns type
-func (e *NodeExpIdentifier) Type() int {
-	return VarType(e.Value)
+func (e *NodeExpIdent) Type(table []int) int {
+	return e.SaveType
 }
 
 // String returns value
-func (e *NodeExpIdentifier) String() string {
+func (e *NodeExpIdent) String() string {
 	return e.Value
 }
 
 // Exp returns value
-func (e *NodeExpIdentifier) Exp(options *BuildOptions) string {
-	return RenameVar(e.Value)
+func (e *NodeExpIdent) Exp(options *BuildOptions) string {
+	return RenameVarType(e.Value, e.SaveType)
 }
 
 // FindUsedVars finds used vars
-func (e *NodeExpIdentifier) FindUsedVars(options *BuildOptions) {
-	options.VarSetUsed(e.Value)
+func (e *NodeExpIdent) FindUsedVars(options *BuildOptions) {
+	options.VarSetUsed(e.Value, e.Type(options.TypeTable))
 }
 
 // NodeExpArray holds value
@@ -156,8 +169,8 @@ type NodeExpArray struct {
 }
 
 // Type returns type
-func (e *NodeExpArray) Type() int {
-	return VarType(e.Name)
+func (e *NodeExpArray) Type(table []int) int {
+	return VarType(table, e.Name)
 }
 
 // String returns value
@@ -172,7 +185,7 @@ func (e *NodeExpArray) String() string {
 
 // Exp returns value
 func (e *NodeExpArray) Exp(options *BuildOptions) string {
-	str := RenameArray(e.Name)
+	str := RenameArray(options.TypeTable, e.Name)
 	for _, i := range e.Indices {
 		str += "[" + forceInt(options, i) + "]"
 	}
@@ -194,8 +207,8 @@ type NodeExpPlus struct {
 }
 
 // Type returns type
-func (e *NodeExpPlus) Type() int {
-	return combineType(e.Left.Type(), e.Right.Type())
+func (e *NodeExpPlus) Type(table []int) int {
+	return combineType(e.Left.Type(table), e.Right.Type(table))
 }
 
 func combineType(t1, t2 int) int {
@@ -219,8 +232,8 @@ func combineType(t1, t2 int) int {
 
 // Promotes Integer to Float if needed
 func combineNumeric(options *BuildOptions, e1, e2 NodeExp) (string, string) {
-	t1 := e1.Type()
-	t2 := e2.Type()
+	t1 := e1.Type(options.TypeTable)
+	t2 := e2.Type(options.TypeTable)
 	if t1 == TypeInteger && t2 == TypeFloat {
 		return forceFloat(options, e1), e2.Exp(options)
 	}
@@ -254,8 +267,8 @@ type NodeExpMinus struct {
 }
 
 // Type returns type
-func (e *NodeExpMinus) Type() int {
-	return combineType(e.Left.Type(), e.Right.Type())
+func (e *NodeExpMinus) Type(table []int) int {
+	return combineType(e.Left.Type(table), e.Right.Type(table))
 }
 
 // String returns value
@@ -282,7 +295,7 @@ type NodeExpMod struct {
 }
 
 // Type returns type
-func (e *NodeExpMod) Type() int {
+func (e *NodeExpMod) Type(table []int) int {
 	return TypeInteger
 }
 
@@ -313,8 +326,8 @@ type NodeExpMult struct {
 }
 
 // Type returns type
-func (e *NodeExpMult) Type() int {
-	return combineType(e.Left.Type(), e.Right.Type())
+func (e *NodeExpMult) Type(table []int) int {
+	return combineType(e.Left.Type(table), e.Right.Type(table))
 }
 
 // String returns value
@@ -341,7 +354,7 @@ type NodeExpDiv struct {
 }
 
 // Type returns type
-func (e *NodeExpDiv) Type() int {
+func (e *NodeExpDiv) Type(table []int) int {
 	return TypeFloat // remember: 5 / 2 = float
 }
 
@@ -368,7 +381,7 @@ type NodeExpDivInt struct {
 }
 
 // Type returns type
-func (e *NodeExpDivInt) Type() int {
+func (e *NodeExpDivInt) Type(table []int) int {
 	return TypeInteger
 }
 
@@ -395,7 +408,7 @@ type NodeExpPow struct {
 }
 
 // Type returns type
-func (e *NodeExpPow) Type() int {
+func (e *NodeExpPow) Type(table []int) int {
 	return TypeFloat
 }
 
@@ -420,8 +433,8 @@ func (e *NodeExpPow) FindUsedVars(options *BuildOptions) {
 type NodeExpUnaryPlus struct{ Value NodeExp }
 
 // Type returns type
-func (e *NodeExpUnaryPlus) Type() int {
-	return e.Value.Type()
+func (e *NodeExpUnaryPlus) Type(table []int) int {
+	return e.Value.Type(table)
 }
 
 // String returns value
@@ -443,8 +456,8 @@ func (e *NodeExpUnaryPlus) FindUsedVars(options *BuildOptions) {
 type NodeExpUnaryMinus struct{ Value NodeExp }
 
 // Type returns type
-func (e *NodeExpUnaryMinus) Type() int {
-	return e.Value.Type()
+func (e *NodeExpUnaryMinus) Type(table []int) int {
+	return e.Value.Type(table)
 }
 
 // String returns value
@@ -466,8 +479,8 @@ func (e *NodeExpUnaryMinus) FindUsedVars(options *BuildOptions) {
 type NodeExpGroup struct{ Value NodeExp }
 
 // Type returns type
-func (e *NodeExpGroup) Type() int {
-	return e.Value.Type()
+func (e *NodeExpGroup) Type(table []int) int {
+	return e.Value.Type(table)
 }
 
 // String returns value
@@ -489,7 +502,7 @@ func (e *NodeExpGroup) FindUsedVars(options *BuildOptions) {
 type NodeExpInkey struct{}
 
 // Type returns type
-func (e *NodeExpInkey) Type() int {
+func (e *NodeExpInkey) Type(table []int) int {
 	return TypeString
 }
 
@@ -513,7 +526,7 @@ type NodeExpInt struct {
 }
 
 // Type returns type
-func (e *NodeExpInt) Type() int {
+func (e *NodeExpInt) Type(table []int) int {
 	return TypeInteger
 }
 
@@ -529,7 +542,7 @@ func (e *NodeExpInt) Exp(options *BuildOptions) string {
 
 func floorInt(options *BuildOptions, e NodeExp) string {
 	s := e.Exp(options)
-	if e.Type() != TypeInteger {
+	if e.Type(options.TypeTable) != TypeInteger {
 		options.Headers["math"] = struct{}{}
 		return toInt("math.Floor(" + s + ") /* <- floorInt(non-int) */")
 	}
@@ -548,7 +561,7 @@ type NodeExpLeft struct {
 }
 
 // Type returns type
-func (e *NodeExpLeft) Type() int {
+func (e *NodeExpLeft) Type(table []int) int {
 	return TypeString
 }
 
@@ -575,7 +588,7 @@ type NodeExpRight struct {
 }
 
 // Type returns type
-func (e *NodeExpRight) Type() int {
+func (e *NodeExpRight) Type(table []int) int {
 	return TypeString
 }
 
@@ -603,7 +616,7 @@ type NodeExpMid struct {
 }
 
 // Type returns type
-func (e *NodeExpMid) Type() int {
+func (e *NodeExpMid) Type(table []int) int {
 	return TypeString
 }
 
@@ -638,7 +651,7 @@ type NodeExpLen struct {
 }
 
 // Type returns type
-func (e *NodeExpLen) Type() int {
+func (e *NodeExpLen) Type(table []int) int {
 	return TypeInteger
 }
 
@@ -649,7 +662,7 @@ func (e *NodeExpLen) String() string {
 
 // Exp returns value
 func (e *NodeExpLen) Exp(options *BuildOptions) string {
-	if e.Value.Type() == TypeString {
+	if e.Value.Type(options.TypeTable) == TypeString {
 		return "len(" + e.Value.Exp(options) + ")"
 	}
 	return "8 /* <- LEN(non-string) */"
@@ -657,7 +670,7 @@ func (e *NodeExpLen) Exp(options *BuildOptions) string {
 
 // FindUsedVars finds used vars
 func (e *NodeExpLen) FindUsedVars(options *BuildOptions) {
-	if e.Value.Type() == TypeString {
+	if e.Value.Type(options.TypeTable) == TypeString {
 		e.Value.FindUsedVars(options)
 	}
 }
@@ -668,7 +681,7 @@ type NodeExpRnd struct {
 }
 
 // Type returns type
-func (e *NodeExpRnd) Type() int {
+func (e *NodeExpRnd) Type(table []int) int {
 	return TypeFloat
 }
 
@@ -693,7 +706,7 @@ type NodeExpNot struct {
 }
 
 // Type returns type
-func (e *NodeExpNot) Type() int {
+func (e *NodeExpNot) Type(table []int) int {
 	return TypeInteger
 }
 
@@ -709,7 +722,7 @@ func (e *NodeExpNot) Exp(options *BuildOptions) string {
 
 func forceInt(options *BuildOptions, e NodeExp) string {
 	s := e.Exp(options)
-	if e.Type() != TypeInteger {
+	if e.Type(options.TypeTable) != TypeInteger {
 		options.Headers["math"] = struct{}{}
 		return toInt("math.Round(" + s + ") /* <- forceInt(non-int) */")
 	}
@@ -718,7 +731,7 @@ func forceInt(options *BuildOptions, e NodeExp) string {
 
 func forceFloat(options *BuildOptions, e NodeExp) string {
 	s := e.Exp(options)
-	if e.Type() != TypeFloat {
+	if e.Type(options.TypeTable) != TypeFloat {
 		return toFloat(s) + " /* <- forceFloat(non-float) */"
 	}
 	return s
@@ -736,7 +749,7 @@ type NodeExpAnd struct {
 }
 
 // Type returns type
-func (e *NodeExpAnd) Type() int {
+func (e *NodeExpAnd) Type(table []int) int {
 	return TypeInteger
 }
 
@@ -763,7 +776,7 @@ type NodeExpEqv struct {
 }
 
 // Type returns type
-func (e *NodeExpEqv) Type() int {
+func (e *NodeExpEqv) Type(table []int) int {
 	return TypeInteger
 }
 
@@ -790,7 +803,7 @@ type NodeExpImp struct {
 }
 
 // Type returns type
-func (e *NodeExpImp) Type() int {
+func (e *NodeExpImp) Type(table []int) int {
 	return TypeInteger
 }
 
@@ -817,7 +830,7 @@ type NodeExpOr struct {
 }
 
 // Type returns type
-func (e *NodeExpOr) Type() int {
+func (e *NodeExpOr) Type(table []int) int {
 	return TypeInteger
 }
 
@@ -844,7 +857,7 @@ type NodeExpXor struct {
 }
 
 // Type returns type
-func (e *NodeExpXor) Type() int {
+func (e *NodeExpXor) Type(table []int) int {
 	return TypeInteger
 }
 
@@ -876,7 +889,7 @@ type NodeExpEqual struct {
 }
 
 // Type returns type
-func (e *NodeExpEqual) Type() int {
+func (e *NodeExpEqual) Type(table []int) int {
 	return TypeInteger
 }
 
@@ -918,7 +931,7 @@ type NodeExpUnequal struct {
 }
 
 // Type returns type
-func (e *NodeExpUnequal) Type() int {
+func (e *NodeExpUnequal) Type(table []int) int {
 	return TypeInteger
 }
 
@@ -950,7 +963,7 @@ type NodeExpGT struct {
 }
 
 // Type returns type
-func (e *NodeExpGT) Type() int {
+func (e *NodeExpGT) Type(table []int) int {
 	return TypeInteger
 }
 
@@ -982,7 +995,7 @@ type NodeExpLT struct {
 }
 
 // Type returns type
-func (e *NodeExpLT) Type() int {
+func (e *NodeExpLT) Type(table []int) int {
 	return TypeInteger
 }
 
@@ -1014,7 +1027,7 @@ type NodeExpGE struct {
 }
 
 // Type returns type
-func (e *NodeExpGE) Type() int {
+func (e *NodeExpGE) Type(table []int) int {
 	return TypeInteger
 }
 
@@ -1046,7 +1059,7 @@ type NodeExpLE struct {
 }
 
 // Type returns type
-func (e *NodeExpLE) Type() int {
+func (e *NodeExpLE) Type(table []int) int {
 	return TypeInteger
 }
 
@@ -1077,7 +1090,7 @@ type NodeExpStr struct {
 }
 
 // Type returns type
-func (e *NodeExpStr) Type() int {
+func (e *NodeExpStr) Type(table []int) int {
 	return TypeString
 }
 
@@ -1091,7 +1104,7 @@ func (e *NodeExpStr) Exp(options *BuildOptions) string {
 
 	v := e.Value.Exp(options)
 
-	if e.Value.Type() == TypeInteger {
+	if e.Value.Type(options.TypeTable) == TypeInteger {
 		//return "strconv.Itoa(" + v + ")"
 		return "baslib.StrInt(" + v + ")"
 	} else {
@@ -1111,7 +1124,7 @@ type NodeExpVal struct {
 }
 
 // Type returns type
-func (e *NodeExpVal) Type() int {
+func (e *NodeExpVal) Type(table []int) int {
 	return TypeFloat
 }
 
@@ -1136,7 +1149,7 @@ type NodeExpTab struct {
 }
 
 // Type returns type
-func (e *NodeExpTab) Type() int {
+func (e *NodeExpTab) Type(table []int) int {
 	return TypeString
 }
 
@@ -1161,7 +1174,7 @@ type NodeExpSpc struct {
 }
 
 // Type returns type
-func (e *NodeExpSpc) Type() int {
+func (e *NodeExpSpc) Type(table []int) int {
 	return TypeString
 }
 
@@ -1186,7 +1199,7 @@ type NodeExpSpace struct {
 }
 
 // Type returns type
-func (e *NodeExpSpace) Type() int {
+func (e *NodeExpSpace) Type(table []int) int {
 	return TypeString
 }
 
@@ -1212,7 +1225,7 @@ type NodeExpFuncString struct {
 }
 
 // Type returns type
-func (e *NodeExpFuncString) Type() int {
+func (e *NodeExpFuncString) Type(table []int) int {
 	return TypeString
 }
 
@@ -1223,7 +1236,7 @@ func (e *NodeExpFuncString) String() string {
 
 // Exp returns value
 func (e *NodeExpFuncString) Exp(options *BuildOptions) string {
-	if TypeNumeric(e.Char.Type()) {
+	if TypeNumeric(e.Char.Type(options.TypeTable)) {
 		str := "string(byte(" + forceInt(options, e.Char) + "))"
 		return "baslib.String(" + str + "," + forceInt(options, e.Value) + ")"
 	}
@@ -1242,7 +1255,7 @@ type NodeExpAsc struct {
 }
 
 // Type returns type
-func (e *NodeExpAsc) Type() int {
+func (e *NodeExpAsc) Type(table []int) int {
 	return TypeInteger
 }
 
@@ -1267,7 +1280,7 @@ type NodeExpChr struct {
 }
 
 // Type returns type
-func (e *NodeExpChr) Type() int {
+func (e *NodeExpChr) Type(table []int) int {
 	return TypeString
 }
 
@@ -1291,7 +1304,7 @@ type NodeExpDate struct {
 }
 
 // Type returns type
-func (e *NodeExpDate) Type() int {
+func (e *NodeExpDate) Type(table []int) int {
 	return TypeString
 }
 
@@ -1314,7 +1327,7 @@ type NodeExpTime struct {
 }
 
 // Type returns type
-func (e *NodeExpTime) Type() int {
+func (e *NodeExpTime) Type(table []int) int {
 	return TypeString
 }
 
@@ -1337,7 +1350,7 @@ type NodeExpTimer struct {
 }
 
 // Type returns type
-func (e *NodeExpTimer) Type() int {
+func (e *NodeExpTimer) Type(table []int) int {
 	return TypeFloat
 }
 
@@ -1361,7 +1374,7 @@ type NodeExpAbs struct {
 }
 
 // Type returns type
-func (e *NodeExpAbs) Type() int {
+func (e *NodeExpAbs) Type(table []int) int {
 	return TypeFloat
 }
 
@@ -1386,7 +1399,7 @@ type NodeExpSgn struct {
 }
 
 // Type returns type
-func (e *NodeExpSgn) Type() int {
+func (e *NodeExpSgn) Type(table []int) int {
 	return TypeInteger
 }
 
@@ -1411,7 +1424,7 @@ type NodeExpCos struct {
 }
 
 // Type returns type
-func (e *NodeExpCos) Type() int {
+func (e *NodeExpCos) Type(table []int) int {
 	return TypeFloat
 }
 
@@ -1436,7 +1449,7 @@ type NodeExpSin struct {
 }
 
 // Type returns type
-func (e *NodeExpSin) Type() int {
+func (e *NodeExpSin) Type(table []int) int {
 	return TypeFloat
 }
 
@@ -1461,7 +1474,7 @@ type NodeExpSqr struct {
 }
 
 // Type returns type
-func (e *NodeExpSqr) Type() int {
+func (e *NodeExpSqr) Type(table []int) int {
 	return TypeFloat
 }
 
@@ -1486,7 +1499,7 @@ type NodeExpTan struct {
 }
 
 // Type returns type
-func (e *NodeExpTan) Type() int {
+func (e *NodeExpTan) Type(table []int) int {
 	return TypeFloat
 }
 
@@ -1512,8 +1525,8 @@ type NodeExpFuncCall struct {
 }
 
 // Type returns type
-func (e *NodeExpFuncCall) Type() int {
-	return VarType(e.Name)
+func (e *NodeExpFuncCall) Type(table []int) int {
+	return VarType(table, e.Name)
 }
 
 // String returns value
@@ -1523,7 +1536,7 @@ func (e *NodeExpFuncCall) String() string {
 
 // Exp returns value
 func (e *NodeExpFuncCall) Exp(options *BuildOptions) string {
-	name := RenameFunc(e.Name)
+	name := RenameFunc(options.TypeTable, e.Name)
 	call := name + "("
 	if len(e.Parameters) > 0 {
 		call += e.Parameters[0].Exp(options)
@@ -1549,8 +1562,8 @@ type NodeExpGofunc struct {
 }
 
 // Type returns type
-func (e *NodeExpGofunc) Type() int {
-	return VarType(e.Name.Value)
+func (e *NodeExpGofunc) Type(table []int) int {
+	return VarType(table, e.Name.Value)
 }
 
 // String returns value
@@ -1600,7 +1613,7 @@ type NodeExpInstr struct {
 }
 
 // Type returns type
-func (e *NodeExpInstr) Type() int {
+func (e *NodeExpInstr) Type(table []int) int {
 	return TypeInteger
 }
 
@@ -1625,7 +1638,7 @@ func (e *NodeExpInstr) FindUsedVars(options *BuildOptions) {
 type NodeExpPeek struct{}
 
 // Type returns type
-func (e *NodeExpPeek) Type() int {
+func (e *NodeExpPeek) Type(table []int) int {
 	return TypeInteger
 }
 
@@ -1649,7 +1662,7 @@ type NodeExpInput struct {
 }
 
 // Type returns type
-func (e *NodeExpInput) Type() int {
+func (e *NodeExpInput) Type(table []int) int {
 	return TypeString
 }
 
