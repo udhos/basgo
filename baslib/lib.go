@@ -10,11 +10,14 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/udhos/inkey/inkey"
 )
 
 var (
 	//stdin       = bufio.NewReader(os.Stdin)                       // INPUT
-	stdin       = newInputBuf(os.Stdin)                           // INPUT
+	//stdin       = newInputBuf(os.Stdin)                           // INPUT
+	stdin       = inkey.New(os.Stdin)                             // INPUT
 	rnd         = rand.New(rand.NewSource(time.Now().UnixNano())) // RND
 	rndLast     = rnd.Float64()                                   // RND
 	readDataPos int                                               // READ-DATA cursor
