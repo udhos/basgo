@@ -108,6 +108,9 @@ var testTable = []buildTest{
 
 	{`10 print pos(0);`, "", " 1 ", OK},
 	{`10 print pos(0);pos(0);`, "", " 1  4 ", OK},
+	{`10 print "abcd";pos(0);`, "", "abcd 5 ", OK},
+	{`10 print "abcd";chr$(13);pos(0);`, "", "abcd\n 1 ", OK},
+	{`10 print "abcd";:print:print pos(0);`, "", "abcd\n 1 ", OK},
 
 	{sourceDefint, "", " 1.1 b 2 ", OK},
 

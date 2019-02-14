@@ -344,7 +344,7 @@ func PrintFloat(f float64) {
 func Print(s string) {
 	for _, b := range s {
 		switch b {
-		case '\n':
+		case 13: // CR = 13
 			fmt.Println()
 			screenPos = 1
 		default:
