@@ -259,6 +259,7 @@ func Reset() {
 %token <tok> TkKeywordPeek
 %token <tok> TkKeywordPlay
 %token <tok> TkKeywordPoke
+%token <tok> TkKeywordPos
 %token <tok> TkKeywordPrint
 %token <tok> TkKeywordRandomize
 %token <tok> TkKeywordRead
@@ -860,17 +861,24 @@ stmt: /* empty */
 	
         $$ = &node.NodeOpen{File:filename, Number:num, Mode:m}
      }
-  | TkKeywordPrint { $$ = &node.NodePrint{Newline: true} }
+  | TkKeywordPrint
+     {
+        Result.Baslib = true
+        $$ = &node.NodePrint{Newline: true}
+     }
   | TkKeywordPrint expressions_push print_expressions expressions_pop
      {
+        Result.Baslib = true
         $$ = &node.NodePrint{Expressions: $3, Newline: true}
      }
   | TkKeywordPrint expressions_push print_expressions TkSemicolon expressions_pop
      {
+        Result.Baslib = true
         $$ = &node.NodePrint{Expressions: $3}
      }
   | TkKeywordPrint expressions_push print_expressions TkComma expressions_pop
      {
+        Result.Baslib = true
         $$ = &node.NodePrint{Expressions: $3, Tab: true}
      }
   | TkKeywordRead expressions_push var_list expressions_pop
@@ -2039,6 +2047,11 @@ exp: one_const_noneg { $$ = $1 }
        }	
        Result.Baslib = true
        $$ = &node.NodeExpInput{Count: count}
+     }
+  | TkKeywordPos TkParLeft exp TkParRight
+     {
+        Result.Baslib = true
+        $$ = &node.NodeExpPos{}
      }
    ;
 

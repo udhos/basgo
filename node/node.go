@@ -870,25 +870,39 @@ func (n *NodePrint) Build(options *BuildOptions, outputf FuncPrintf) {
 	outputf("\n")
 
 	for _, e := range n.Expressions {
-		numeric := TypeNumeric(e.Type(options.TypeTable))
-		if numeric {
-			outputf("fmt.Print(` `) // PRINT space before number\n")
+		t := e.Type(options.TypeTable)
+		switch t {
+		case TypeString:
+			outputf("baslib.Print(%s)\n", e.Exp(options))
+		case TypeInteger:
+			outputf("baslib.PrintInt(%s)\n", e.Exp(options))
+		case TypeFloat:
+			outputf("baslib.PrintFloat(%s)\n", e.Exp(options))
+		default:
+			log.Printf("NodePrint.Build: unsupported type: %d", t)
 		}
-		outputf("fmt.Print(%s)\n", e.Exp(options))
-		if numeric {
-			outputf("fmt.Print(` `) // PRINT space after number\n")
-		}
+
+		/*
+			numeric := TypeNumeric(e.Type(options.TypeTable))
+			if numeric {
+				outputf("baslib.Print(` `) // PRINT space before number\n")
+			}
+			outputf("baslib.Print(%s)\n", e.Exp(options))
+			if numeric {
+				outputf("baslib.Print(` `) // PRINT space after number\n")
+			}
+		*/
 	}
 
 	if n.Tab {
-		outputf(`fmt.Print("        ") // PRINT tab due to ending comma\n`)
+		outputf(`baslib.Print("        ") // PRINT tab due to ending comma\n`)
 	}
 
 	if n.Newline {
-		outputf("fmt.Println() // PRINT newline not suppressed\n")
+		outputf("baslib.Println(``) // PRINT newline not suppressed\n")
 	}
 
-	options.Headers["fmt"] = struct{}{} // used package
+	//options.Headers["fmt"] = struct{}{} // used package
 }
 
 // FindUsedVars finds used vars

@@ -106,6 +106,9 @@ var testTable = []buildTest{
 	{"ugh", "", "", WRONG},            // invalid program
 	{`10 print "ab"`, "", "ab\n", OK}, // minimum program
 
+	{`10 print pos(0);`, "", " 1 ", OK},
+	{`10 print pos(0);pos(0);`, "", " 1  4 ", OK},
+
 	{sourceDefint, "", " 1.1 b 2 ", OK},
 
 	{`10 a$=input$(3):print a$;`, "abcde\n", "abc", OK},
@@ -140,8 +143,8 @@ var testTable = []buildTest{
 	{`10 print "hello`, "", "hello\n", OK},
 	{`10 print "hello  `, "", "hello  \n", OK},
 
-	{`10 a$=_gofunc("fmt.Sprintf$","gofunc-good"): print a$;`, "", "gofunc-good", OK},
-	{`10 print "goproc-";:_goproc("fmt.Print","good")`, "", "goproc-good", OK},
+	{`10 _goimport("fmt"):a$=_gofunc("fmt.Sprintf$","gofunc-good"): print a$;`, "", "gofunc-good", OK},
+	{`10 _goimport("fmt"):print "goproc-";:_goproc("fmt.Print","good")`, "", "goproc-good", OK},
 	{sourceGofunc, "180", "?  180 degrees in radians is 3.141592653589793 ", OK},
 
 	{`10 print instr("abcabcabc","");`, "", " 1 ", OK},

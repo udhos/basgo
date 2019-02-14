@@ -17,10 +17,11 @@ import (
 var (
 	//stdin       = bufio.NewReader(os.Stdin)                       // INPUT
 	//stdin       = newInputBuf(os.Stdin)                           // INPUT
-	stdin       = inkey.New(os.Stdin)                             // INPUT
-	rnd         = rand.New(rand.NewSource(time.Now().UnixNano())) // RND
-	rndLast     = rnd.Float64()                                   // RND
-	readDataPos int                                               // READ-DATA cursor
+	stdin       = inkey.New(os.Stdin)                                 // INPUT
+	rnd         = rand.New(rand.NewSource(time.Now().UnixNano()))     // RND
+	rndLast     = rnd.Float64()                                       // RND
+	readDataPos int                                                   // READ-DATA cursor
+	screenPos   int                                               = 1 // PRINT COLUMN
 )
 
 func Asc(s string) int {
@@ -119,10 +120,10 @@ func InputCount(count int) string {
 func Input(prompt, question string, count int) []string {
 	for {
 		if prompt != "" {
-			fmt.Print(prompt)
+			Print(prompt)
 		}
 		if question != "" {
-			fmt.Print(question)
+			Print(question)
 		}
 		buf := inputString()
 		fields := strings.Split(buf, ",")
@@ -292,11 +293,20 @@ func Rnd(v float64) float64 {
 }
 
 func StrInt(v int) string {
-	return " " + strconv.Itoa(v)
+	return " " + itoa(v)
+}
+
+func itoa(v int) string {
+	return strconv.Itoa(v)
 }
 
 func StrFloat(v float64) string {
-	return " " + strconv.FormatFloat(v, 'f', -1, 64)
+	return " " + ftoa(v)
+}
+
+func ftoa(v float64) string {
+	//return strconv.FormatFloat(v, 'f', -1, 64)
+	return fmt.Sprint(v)
 }
 
 func Instr(begin int, str string, sub string) int {
@@ -312,4 +322,40 @@ func Instr(begin int, str string, sub string) int {
 		return 0
 	}
 	return i + begin + 1
+}
+
+func Pos() int {
+	return screenPos
+}
+
+func PrintInt(i int) {
+	Print(" ")
+	Print(itoa(i))
+	Print(" ")
+}
+
+func PrintFloat(f float64) {
+	Print(" ")
+	Print(ftoa(f))
+	//Print(fmt.Sprint(f))
+	Print(" ")
+}
+
+func Print(s string) {
+	for _, b := range s {
+		switch b {
+		case '\n':
+			fmt.Println()
+			screenPos = 1
+		default:
+			fmt.Print(string(b))
+			screenPos++
+		}
+	}
+}
+
+func Println(s string) {
+	Print(s)
+	fmt.Println()
+	screenPos = 1
 }

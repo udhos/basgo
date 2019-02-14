@@ -1680,3 +1680,25 @@ func (e *NodeExpInput) Exp(options *BuildOptions) string {
 func (e *NodeExpInput) FindUsedVars(options *BuildOptions) {
 	e.Count.FindUsedVars(options)
 }
+
+// NodeExpPos holds value
+type NodeExpPos struct{}
+
+// Type returns type
+func (e *NodeExpPos) Type(table []int) int {
+	return TypeInteger
+}
+
+// String returns value
+func (e *NodeExpPos) String() string {
+	return "POS()"
+}
+
+// Exp returns value
+func (e *NodeExpPos) Exp(options *BuildOptions) string {
+	return "baslib.Pos()"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpPos) FindUsedVars(options *BuildOptions) {
+}
