@@ -1160,7 +1160,7 @@ func (e *NodeExpTab) String() string {
 
 // Exp returns value
 func (e *NodeExpTab) Exp(options *BuildOptions) string {
-	return `baslib.String(" ",` + forceInt(options, e.Value) + "-1)"
+	return "baslib.Tab(" + forceInt(options, e.Value) + ")"
 }
 
 // FindUsedVars finds used vars

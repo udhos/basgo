@@ -702,10 +702,11 @@ var testTable = []buildTest{
 	{`10 print right$("abc",a$)`, "", "", WRONG},
 	{`10 print right$(1,1)`, "", "", WRONG},
 
-	{`10 print "a"+tab(0)+"b";`, "", "ab", OK},
-	{`10 print "a"+tab(1)+"b";`, "", "ab", OK},
-	{`10 print "a"+tab(2)+"b";`, "", "a b", OK},
-	{`10 print "a"+tab(3)+"b";`, "", "a  b", OK},
+	{`10 print "a";tab(0);"b";`, "", "a\nb", OK},
+	{`10 print "a";tab(1);"b";`, "", "a\nb", OK},
+	{`10 print "a";tab(2);"b";`, "", "ab", OK},
+	{`10 print "a";tab(3);"b";`, "", "a b", OK},
+	{`10 print "a";tab(4);"b";`, "", "a  b", OK},
 
 	{`10 print "a"+spc(0)+"b";`, "", "ab", OK},
 	{`10 print "a"+spc(1)+"b";`, "", "a b", OK},

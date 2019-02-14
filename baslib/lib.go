@@ -344,9 +344,8 @@ func PrintFloat(f float64) {
 func Print(s string) {
 	for _, b := range s {
 		switch b {
-		case 13: // CR = 13
-			fmt.Println()
-			screenPos = 1
+		case 13: // CR
+			cr()
 		default:
 			fmt.Print(string(b))
 			screenPos++
@@ -354,8 +353,25 @@ func Print(s string) {
 	}
 }
 
-func Println(s string) {
-	Print(s)
+func cr() {
 	fmt.Println()
 	screenPos = 1
+}
+
+func Println(s string) {
+	Print(s)
+	cr()
+}
+
+func Tab(col int) string {
+	if col < 1 {
+		col = 1
+	}
+	if col == screenPos {
+		return ""
+	}
+	if col < screenPos {
+		return string(13) + String(" ", col-1)
+	}
+	return String(" ", col-screenPos)
 }
