@@ -342,7 +342,7 @@ func VarTypeDouble(table []int, name string) int {
 		log.Printf("VarType: bad var first letter index: letter=%c index=%d", name[0], i)
 		return TypeFloat
 	}
-	log.Printf("VarType: %s = %s", name, TypeLabel(table[i]))
+	//log.Printf("VarType: %s = %s", name, TypeLabel(table[i]))
 	return table[i]
 }
 
