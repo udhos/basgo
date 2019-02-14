@@ -747,7 +747,7 @@ stmt: /* empty */
   | TkKeywordLet assign { $$ = $2 }
   | assign { $$ = $1 }
   | TkKeywordList { $$ = &node.NodeList{} }
-  | TkKeywordOpen exp TkKeywordFor TkKeywordInput TkIdentifier exp
+  | TkKeywordOpen exp TkKeywordFor TkKeywordInput TkIdentifier file_num
      {
         // OPEN "arq" FOR INPUT AS 1
 	filename := $2
@@ -766,7 +766,7 @@ stmt: /* empty */
 	
         $$ = &node.NodeOpen{File:filename, Number:num, Mode:node.OpenInput}
      }
-  | TkKeywordOpen exp TkKeywordFor TkIdentifier TkIdentifier exp
+  | TkKeywordOpen exp TkKeywordFor TkIdentifier TkIdentifier file_num
      {
         // OPEN "arq" FOR OUTPUT AS 1
 	filename := $2
