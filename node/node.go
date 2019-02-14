@@ -87,10 +87,15 @@ func TypeName(name string, t int) string {
 	return tt
 }
 
+type VarSymbol struct {
+	Name string
+	Type int
+}
+
 // BuildOptions holds state required for issuing Go code
 type BuildOptions struct {
 	Headers      map[string]struct{}
-	Vars         map[string]struct{}
+	Vars         map[string]VarSymbol
 	Arrays       map[string]ArraySymbol
 	LineNumbers  map[string]LineNumber // numbers used by GOTO, GOSUB etc
 	CountGosub   int
@@ -101,13 +106,15 @@ type BuildOptions struct {
 }
 
 // VarSetUsed sets variable as used
-func (o *BuildOptions) VarSetUsed(name string) {
-	o.Vars[strings.ToLower(name)] = struct{}{}
+func (o *BuildOptions) VarSetUsed(name string, t int) {
+	s := RenameVarType(name, t)
+	o.Vars[s] = VarSymbol{Name: name, Type: t}
 }
 
 // VarIsUsed checks whether variable is used
-func (o *BuildOptions) VarIsUsed(name string) bool {
-	_, used := o.Vars[strings.ToLower(name)]
+func (o *BuildOptions) VarIsUsed(name string, t int) bool {
+	s := RenameVarType(name, t)
+	_, used := o.Vars[s]
 	return used
 }
 
@@ -245,40 +252,74 @@ func VarMatch(s1, s2 string) bool {
 }
 
 // RenameFunc renames a.B$ => func_str_a_b
-func RenameFunc(name string) string {
-	return "func_" + RenameVar(name)
+func RenameFunc(table []int, name string) string {
+	return "func_" + RenameVar(table, name)
 }
 
 // RenameArray renames a.B$ => array_str_a_b
-func RenameArray(name string) string {
-	return "array_" + RenameVar(name)
+func RenameArray(table []int, name string) string {
+	return "array_" + RenameVar(table, name)
 }
 
 // RenameVar renames a.B$ => str_a_b
-func RenameVar(name string) string {
-	name = strings.ToLower(name)
-	name = strings.Replace(name, ".", "_", -1)
+func RenameVar(table []int, name string) string {
 	last := len(name) - 1
 	if last < 0 {
-		return "sng_" + name
+		log.Printf("RenameVar: bad var name: [%s]", name)
+		return "RenameVar_failure"
 	}
 	switch name[last] {
 	case '$':
-		return "str_" + name[:last]
+		return RenameVarType(name, TypeString)
 	case '%':
-		return "int_" + name[:last]
+		return RenameVarType(name, TypeInteger)
 	case '!':
-		return "sng_" + name[:last]
+		return RenameVarType(name, TypeFloat)
 	case '#':
-		return "dbl_" + name[:last]
+		return RenameVarType(name, TypeDouble)
 	}
+	t := VarTypeDouble(table, name)
+	return RenameVarType(name, t)
+}
+
+func RenameVarType(name string, t int) string {
+	last := len(name) - 1
+	if last < 0 {
+		log.Printf("RenameVarType: bad var name: [%s]", name)
+		return "RenameVarType_failure"
+	}
+	switch name[last] {
+	case '$', '%', '!', '#':
+		name = name[:last]
+	}
+	name = strings.ToLower(name)
+	name = strings.Replace(name, ".", "_", -1)
+	switch t {
+	case TypeString:
+		return "str_" + name
+	case TypeInteger:
+		return "int_" + name
+	case TypeFloat:
+		return "sng_" + name
+	case TypeDouble:
+		return "dbl_" + name
+	}
+	log.Printf("RenameVarType: bad var type=%d [%s]", t, name)
 	return "sng_" + name
 }
 
 // VarType finds var type: a$ => string
 func VarType(table []int, name string) int {
+	t := VarTypeDouble(table, name)
+	if t == TypeDouble {
+		return TypeFloat
+	}
+	return t
+}
+
+func VarTypeDouble(table []int, name string) int {
 	last := len(name) - 1
-	if last < 1 {
+	if last < 0 {
 		log.Printf("VarType: bad var name: len=%d [%s]", len(name), name)
 		return TypeFloat
 	}
@@ -287,8 +328,10 @@ func VarType(table []int, name string) int {
 		return TypeString
 	case '%':
 		return TypeInteger
-	case '!', '#':
+	case '!':
 		return TypeFloat
+	case '#':
+		return TypeDouble
 	}
 	if len(table) != 26 {
 		log.Printf("VarType: unexpected type table size: %d", len(table))
@@ -299,6 +342,7 @@ func VarType(table []int, name string) int {
 		log.Printf("VarType: bad var first letter index: letter=%c index=%d", name[0], i)
 		return TypeFloat
 	}
+	log.Printf("VarType: %s = %s", name, TypeLabel(table[i]))
 	return table[i]
 }
 
@@ -382,11 +426,16 @@ func (n *LineImmediate) FindUsedVars(options *BuildOptions) {
 
 // NodeEmpty is empty
 type NodeEmpty struct {
+	Value string
 }
 
 // Name returns the name of the node
 func (n *NodeEmpty) Name() string {
-	return "EMPTY-NODE"
+	s := "EMPTY-NODE"
+	if n.Value != "" {
+		s += ":" + n.Value
+	}
+	return s
 }
 
 // Show displays the node
@@ -396,7 +445,9 @@ func (n *NodeEmpty) Show(printf FuncPrintf) {
 
 // Build generates code
 func (n *NodeEmpty) Build(options *BuildOptions, outputf FuncPrintf) {
-	outputf("// empty node ignored\n")
+	outputf("// empty node ignored: ")
+	n.Show(outputf)
+	outputf("\n")
 }
 
 // FindUsedVars finds used vars
@@ -406,7 +457,7 @@ func (n *NodeEmpty) FindUsedVars(options *BuildOptions) {
 
 // NodeAssign is assignment
 type NodeAssign struct {
-	Left  string
+	Left  NodeExp
 	Right NodeExp
 }
 
@@ -420,7 +471,7 @@ func (n *NodeAssign) Show(printf FuncPrintf) {
 	printf("[")
 	printf(n.Name())
 	printf(" ")
-	printf(n.Left)
+	printf(n.Left.String())
 	printf("=")
 	printf(n.Right.String())
 	printf("]")
@@ -446,18 +497,18 @@ func (n *NodeAssign) Build(options *BuildOptions, outputf FuncPrintf) {
 	n.Show(outputf)
 	outputf("\n")
 
-	ti := VarType(options.TypeTable, n.Left)
+	tv := n.Left.Type(options.TypeTable)
 	te := n.Right.Type(options.TypeTable)
 
-	v := RenameVar(n.Left)
+	v := n.Left.Exp(options)
 	e := n.Right.Exp(options)
 
-	code := assignCode(options, "=", v, e, ti, te)
+	code := assignCode(options, "=", v, e, tv, te)
 
-	if options.VarIsUsed(n.Left) {
+	if options.VarIsUsed(n.Left.String(), tv) {
 		outputf(code + "\n")
 	} else {
-		outputf("// %s // suppressed: '%s' not used\n", code, n.Left)
+		outputf("// %s // suppressed: '%s' not used\n", code, n.Left.String())
 	}
 }
 
@@ -595,7 +646,7 @@ func (n *NodeDefFn) Build(options *BuildOptions, outputf FuncPrintf) {
 	n.Show(outputf)
 	outputf("\n")
 
-	name := RenameFunc(n.FuncName)
+	name := RenameFunc(options.TypeTable, n.FuncName)
 
 	t := VarType(options.TypeTable, n.FuncName)
 
@@ -626,7 +677,7 @@ func (n *NodeDefFn) FindUsedVars(options *BuildOptions) {
 	// find used vars
 
 	tmp := &BuildOptions{
-		Vars:   map[string]struct{}{},
+		Vars:   map[string]VarSymbol{},
 		Arrays: map[string]ArraySymbol{},
 	}
 
@@ -635,13 +686,15 @@ func (n *NodeDefFn) FindUsedVars(options *BuildOptions) {
 	// remove func args from used vars
 
 	for _, arg := range n.Variables {
-		delete(tmp.Vars, arg.String())
+		//log.Printf("NodeDefFn.FindUsedVar: arg: %s/%s", arg.String(), arg.Exp(options))
+		delete(tmp.Vars, arg.Exp(options))
 	}
 
 	// return used vars
 
 	for k, v := range tmp.Vars {
 		options.Vars[k] = v
+		//log.Printf("NodeDefFn.FindUsedVar: used var: %s/%s/%s", v.Name, k, TypeLabel(v.Type))
 	}
 
 	for k, v := range tmp.Arrays {
@@ -690,7 +743,7 @@ func (n *NodeDim) Build(options *BuildOptions, outputf FuncPrintf) {
 			outputf("// %s\n", msg)
 			continue
 		}
-		name := RenameArray(v)
+		name := RenameArray(options.TypeTable, v)
 		arrayType := arr.ArrayType(options.TypeTable, v)
 		outputf("%s = %s{} // DIM reset array [%s]\n", name, arrayType, v)
 	}
@@ -934,8 +987,8 @@ func (n *NodeFor) Build(options *BuildOptions, outputf FuncPrintf) {
 func (n *NodeFor) FindUsedVars(options *BuildOptions) {
 
 	switch v := n.Variable.(type) {
-	case *NodeExpIdentifier:
-		options.VarSetUsed(v.Value)
+	case *NodeExpIdent:
+		options.VarSetUsed(v.Value, v.Type(options.TypeTable))
 	case *NodeExpArray:
 		err := ArraySetUsed(options.Arrays, v.Name, len(v.Indices))
 		if err != nil {
@@ -990,8 +1043,8 @@ func (n *NodeNext) Build(options *BuildOptions, outputf FuncPrintf) {
 func (n *NodeNext) FindUsedVars(options *BuildOptions) {
 	for _, i := range n.Variables {
 		switch v := i.(type) {
-		case *NodeExpIdentifier:
-			options.VarSetUsed(v.Value)
+		case *NodeExpIdent:
+			options.VarSetUsed(v.Value, v.Type(options.TypeTable))
 		case *NodeExpArray:
 			err := ArraySetUsed(options.Arrays, v.Name, len(v.Indices))
 			if err != nil {
@@ -1263,8 +1316,8 @@ func (n *NodeRead) Show(printf FuncPrintf) {
 
 func VarOrArrayIsUsed(options *BuildOptions, e NodeExp) bool {
 	switch ee := e.(type) {
-	case *NodeExpIdentifier:
-		return options.VarIsUsed(ee.Value)
+	case *NodeExpIdent:
+		return options.VarIsUsed(ee.Value, ee.Type(options.TypeTable))
 	case *NodeExpArray:
 		return ArrayIsUsed(options.Arrays, ee.Name)
 	}

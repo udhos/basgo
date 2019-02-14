@@ -73,9 +73,17 @@ func newResult() ParserResult {
 }
 
 func defineType(r *ParserResult, first, last, t int) {
-	log.Printf("defineType: range %d-%d as %d", first, last, t)
+	log.Printf("defineType: range %c-%c as %s", byte('a'+first), byte('a'+last), node.TypeLabel(t))
 	for i := first; i <= last; i++ {
 		r.TypeTable[i] = t
+	}
+}
+
+func defineTypeRange(r *ParserResult, list [][]string, t int) {
+	for _, p := range list {
+		first := int(p[0][0] - 'a')
+		last := int(p[1][0] - 'a')
+		defineType(&Result, first, last, t)
 	}
 }
 
@@ -993,14 +1001,29 @@ stmt: /* empty */
   | TkKeywordBeep { $$ = unsupportedEmpty("BEEP") }
   | TkKeywordCls { $$ = unsupportedEmpty("CLS") }
   | TkKeywordWidth exp { $$ = unsupportedEmpty("WIDTH") }
+  | TkKeywordDefdbl letter_range_list
+	{
+		list := $2
+		defineTypeRange(&Result, list, node.TypeDouble) // DEFDBL
+		$$ = &node.NodeEmpty{Value: "DEFDBL"}
+	}
   | TkKeywordDefint letter_range_list
 	{
 		list := $2
-		for _,p := range list {
-			first := int(p[0][0] - 'a')
-			last := int(p[1][0] - 'a')
-			defineType(&Result, first, last, node.TypeInteger) // DEFINT i-j
-		}
+		defineTypeRange(&Result, list, node.TypeInteger) // DEFINT
+		$$ = &node.NodeEmpty{Value: "DEFINT"}
+	}
+  | TkKeywordDefsng letter_range_list
+	{
+		list := $2
+		defineTypeRange(&Result, list, node.TypeFloat) // DEFSNG
+		$$ = &node.NodeEmpty{Value: "DEFSNG"}
+	}
+  | TkKeywordDefstr letter_range_list
+	{
+		list := $2
+		defineTypeRange(&Result, list, node.TypeString) // DEFSTR
+		$$ = &node.NodeEmpty{Value: "DEFSTR"}
 	}
   | TkKeywordChain expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("CHAIN") }
   | TkKeywordClear { $$ = unsupportedEmpty("CLEAR") }
@@ -1091,7 +1114,12 @@ common_var: TkIdentifier | TkIdentifier TkParLeft TkParRight ;
 
 common_var_list: common_var | common_var_list TkComma common_var ;
 
-single_var: TkIdentifier { $$ = &node.NodeExpIdentifier{Value:$1} } ;
+single_var: TkIdentifier
+	{
+		i := $1
+		$$ = node.NewNodeExpIdent(Result.TypeTable, i)
+	}
+	;
 
 single_var_list: single_var
 	{
@@ -1147,14 +1175,16 @@ const_list_num_noneg: one_const_num_noneg
      }
   ;
 
-assign: TkIdentifier TkEqual exp
+assign: single_var TkEqual exp
      {
 	i := $1
 	e := $3
-	ti := node.VarType(Result.TypeTable, i)
+	ti := i.Type(Result.TypeTable)
 	te := e.Type(Result.TypeTable)
 	if !node.TypeCompare(ti, te) {
-           yylex.Error("Assignment type mismatch")
+           yylex.Error("Assignment type mismatch: " + 
+		fmt.Sprintf("%s = %s | ", i.String(), e.String()) +
+		fmt.Sprintf("%s = %s", node.TypeLabel(ti), node.TypeLabel(te)))
 	}
         $$ = &node.NodeAssign{Left: i, Right: e}
      }
@@ -1407,7 +1437,7 @@ call_exp_list: exp
     ;
 
 exp: one_const_noneg { $$ = $1 }
-   | TkIdentifier { $$ = &node.NodeExpIdentifier{Value:$1} }
+   | TkIdentifier { $$ = node.NewNodeExpIdent(Result.TypeTable, $1) }
    | array_or_call { $$ = $1 }
    | exp TkPlus exp
      {

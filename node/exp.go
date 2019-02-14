@@ -14,6 +14,7 @@ const (
 	TypeString  = iota
 	TypeFloat   = iota
 	TypeInteger = iota
+	TypeDouble  = iota
 )
 
 func TypeLabel(t int) string {
@@ -24,6 +25,8 @@ func TypeLabel(t int) string {
 		return "FLOAT"
 	case TypeInteger:
 		return "INTEGER"
+	case TypeDouble:
+		return "DOUBLE"
 	}
 	return "UNKNOWN"
 }
@@ -125,28 +128,38 @@ func (e *NodeExpString) FindUsedVars(options *BuildOptions) {
 }
 
 // NodeExpIdentifier holds value
-type NodeExpIdentifier struct {
-	Value string
+type NodeExpIdent struct {
+	Value    string
+	SaveType int
+}
+
+func NewNodeExpIdent(table []int, s string) *NodeExpIdent {
+	t := VarType(table, s)
+	i := &NodeExpIdent{
+		Value:    s,
+		SaveType: t,
+	}
+	return i
 }
 
 // Type returns type
-func (e *NodeExpIdentifier) Type(table []int) int {
-	return VarType(table, e.Value)
+func (e *NodeExpIdent) Type(table []int) int {
+	return e.SaveType
 }
 
 // String returns value
-func (e *NodeExpIdentifier) String() string {
+func (e *NodeExpIdent) String() string {
 	return e.Value
 }
 
 // Exp returns value
-func (e *NodeExpIdentifier) Exp(options *BuildOptions) string {
-	return RenameVar(e.Value)
+func (e *NodeExpIdent) Exp(options *BuildOptions) string {
+	return RenameVarType(e.Value, e.SaveType)
 }
 
 // FindUsedVars finds used vars
-func (e *NodeExpIdentifier) FindUsedVars(options *BuildOptions) {
-	options.VarSetUsed(e.Value)
+func (e *NodeExpIdent) FindUsedVars(options *BuildOptions) {
+	options.VarSetUsed(e.Value, e.Type(options.TypeTable))
 }
 
 // NodeExpArray holds value
@@ -172,7 +185,7 @@ func (e *NodeExpArray) String() string {
 
 // Exp returns value
 func (e *NodeExpArray) Exp(options *BuildOptions) string {
-	str := RenameArray(e.Name)
+	str := RenameArray(options.TypeTable, e.Name)
 	for _, i := range e.Indices {
 		str += "[" + forceInt(options, i) + "]"
 	}
@@ -1523,7 +1536,7 @@ func (e *NodeExpFuncCall) String() string {
 
 // Exp returns value
 func (e *NodeExpFuncCall) Exp(options *BuildOptions) string {
-	name := RenameFunc(e.Name)
+	name := RenameFunc(options.TypeTable, e.Name)
 	call := name + "("
 	if len(e.Parameters) > 0 {
 		call += e.Parameters[0].Exp(options)

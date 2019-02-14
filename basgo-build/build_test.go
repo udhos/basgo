@@ -89,6 +89,12 @@ const sourceRestore = `
 60 restore 20:read a:print a;
 `
 
+const sourceDefint = `
+10 a=1.1:print a;
+20 defstr a:a="b":print a;
+30 defint a:a=2.2:print a;
+`
+
 const (
 	OK      = iota
 	WRONG   = iota
@@ -99,6 +105,8 @@ var testTable = []buildTest{
 	{"", "", "", OK},                  // empty program
 	{"ugh", "", "", WRONG},            // invalid program
 	{`10 print "ab"`, "", "ab\n", OK}, // minimum program
+
+	{sourceDefint, "", " 1.1 b 2 ", OK},
 
 	{`10 a$=input$(3):print a$;`, "abcde\n", "abc", OK},
 
