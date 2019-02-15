@@ -697,7 +697,7 @@ func (e *NodeExpRnd) Exp(options *BuildOptions) string {
 
 // FindUsedVars finds used vars
 func (e *NodeExpRnd) FindUsedVars(options *BuildOptions) {
-	// do nothing
+	e.Value.FindUsedVars(options)
 }
 
 // NodeExpNot holds value
