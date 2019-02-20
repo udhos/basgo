@@ -15,8 +15,6 @@ import (
 )
 
 var (
-	//stdin       = bufio.NewReader(os.Stdin)                       // INPUT
-	//stdin       = newInputBuf(os.Stdin)                           // INPUT
 	stdin       = inkey.New(os.Stdin)                                 // INPUT
 	rnd         = rand.New(rand.NewSource(time.Now().UnixNano()))     // RND
 	rndLast     = rnd.Float64()                                       // RND
@@ -337,7 +335,6 @@ func PrintInt(i int) {
 func PrintFloat(f float64) {
 	Print(" ")
 	Print(ftoa(f))
-	//Print(fmt.Sprint(f))
 	Print(" ")
 }
 
