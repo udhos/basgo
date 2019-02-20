@@ -108,6 +108,8 @@ http://www.antonis.de/qbebooks/gwbasman/chapter%206.html - Operators
 
 https://robhagemans.github.io/pcbasic/doc/1.2/#guide - Language Guide
 
+http://www.worldofspectrum.org/ZXBasicManual/ - SINCLAIR ZX SPECTRUM - BASIC Programming
+
 ## BASIC interpreters and compilers
 
 https://github.com/robhagemans/pcbasic - GW-BASIC emulator
