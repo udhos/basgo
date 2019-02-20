@@ -155,6 +155,7 @@ func Reset() {
 %type <typeExpressions> const_list_any
 %type <typeExpressions> const_list_num_noneg
 %type <typeExpressions> dim_list
+%type <typeExpressions> const_list_int
 %type <typeExp> one_var
 %type <typeExp> single_var
 %type <typeExpressions> var_list
@@ -1050,7 +1051,20 @@ stmt: /* empty */
   | TkKeywordResume { $$ = unsupportedEmpty("RESUME") }
   | TkKeywordResume TkNumber { $$ = unsupportedEmpty("RESUME") }
   | TkKeywordResume TkKeywordNext { $$ = unsupportedEmpty("RESUME") }
-  | TkKeywordScreen expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("SCREEN") }
+  | TkKeywordScreen const_list_int
+	{
+		list := $2
+		m := list[0].String()
+		mode, errInt := strconv.Atoi(m)
+		if errInt != nil {
+			yylex.Error("Bad screen mode: " + errInt.Error())
+		}
+		if mode != 0 {
+			yylex.Error("Only screen mode 0 is supported")
+		}
+        	Result.Baslib = true
+		$$ = &node.NodeScreen{Mode: mode}
+	}
   | TkKeywordSound exp TkComma exp { $$ = unsupportedEmpty("SOUND") }
   ;
 
@@ -1177,6 +1191,18 @@ const_list_num_noneg: one_const_num_noneg
 	$$ = constList
      }
   | const_list_num_noneg TkComma one_const_num_noneg
+     {
+        constList = append(constList, $3)
+        $$ = constList
+     }
+  ;
+
+const_list_int: one_const_int
+     {
+        constList = []node.NodeExp{$1} // reset list
+	$$ = constList
+     }
+  | const_list_int TkComma one_const_int
      {
         constList = append(constList, $3)
         $$ = constList

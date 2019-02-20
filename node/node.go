@@ -1778,3 +1778,31 @@ func (n *NodeOpen) FindUsedVars(options *BuildOptions) {
 	n.File.FindUsedVars(options)
 	n.Number.FindUsedVars(options)
 }
+
+// NodeScreen is screen
+type NodeScreen struct {
+	Mode int
+}
+
+// Name returns the name of the node
+func (n *NodeScreen) Name() string {
+	return "SCREEN"
+}
+
+// Show displays the node
+func (n *NodeScreen) Show(printf FuncPrintf) {
+	printf("[" + n.Name() + " " + strconv.Itoa(n.Mode) + "]")
+}
+
+// Build generates code
+func (n *NodeScreen) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+
+	outputf("baslib.Screen(%d)\n", n.Mode)
+}
+
+// FindUsedVars finds used vars
+func (n *NodeScreen) FindUsedVars(options *BuildOptions) {
+}
