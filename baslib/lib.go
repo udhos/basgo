@@ -14,12 +14,18 @@ import (
 	"github.com/udhos/inkey/inkey"
 )
 
+type keyInput interface {
+	Inkey() (byte, bool)
+	Read(buf []byte) (int, error)
+	ReadBytes(delim byte) (line []byte, err error)
+}
+
 var (
-	stdin       = inkey.New(os.Stdin)                                 // INPUT
-	rnd         = rand.New(rand.NewSource(time.Now().UnixNano()))     // RND
-	rndLast     = rnd.Float64()                                       // RND
-	readDataPos int                                                   // READ-DATA cursor
-	screenPos   int                                               = 1 // PRINT COLUMN
+	stdin       keyInput = inkey.New(os.Stdin)                             // INPUT
+	rnd                  = rand.New(rand.NewSource(time.Now().UnixNano())) // RND
+	rndLast              = rnd.Float64()                                   // RND
+	readDataPos int                                                        // READ-DATA cursor
+	screenPos   int      = 1                                               // PRINT COLUMN
 )
 
 func Asc(s string) int {

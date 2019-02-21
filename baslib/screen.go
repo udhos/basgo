@@ -1,21 +1,19 @@
 package baslib
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/gdamore/tcell"
 )
 
 var (
-	screen tcell.Screen
+	scr screen
 )
 
 func End() {
 	log.Printf("baslib.End()")
-	if screen != nil {
-		log.Printf("tcell screen finalized")
-		screen.Fini()
-	}
+	scr.close()
 }
 
 func Screen(mode int) {
@@ -24,43 +22,91 @@ func Screen(mode int) {
 		return
 	}
 
+	if scr.s != nil {
+		log.Printf("Screen: text mode 0 is running already")
+		return
+	}
+
+	scr.start()
+
+	stdin = &scr
+}
+
+type screen struct {
+	s    tcell.Screen
+	keys chan tcell.EventKey
+}
+
+func (s *screen) Inkey() (byte, bool) {
+	log.Printf("screen.Inkey: FIXME WRITEME")
+	return 0, false
+}
+
+func (s *screen) Read(buf []byte) (int, error) {
+	return 0, fmt.Errorf("screen.Read: FIXME WRITEME")
+}
+
+func (s *screen) ReadBytes(delim byte) (line []byte, err error) {
+	return nil, fmt.Errorf("screen.Read: FIXME WRITEME")
+}
+
+func (s *screen) start() {
 	tcell.SetEncodingFallback(tcell.EncodingFallbackASCII)
 
-	var errScreen error
-
-	screen, errScreen = tcell.NewScreen()
+	sNew, errScreen := tcell.NewScreen()
 	if errScreen != nil {
 		log.Printf("tcell create screen: %v", errScreen)
 		return
 	}
-	if errScreen = screen.Init(); errScreen != nil {
-		log.Printf("tcell init screen: %v", errScreen)
+
+	if errInit := sNew.Init(); errInit != nil {
+		log.Printf("tcell init screen: %v", errInit)
+		sNew.Fini()
 		return
 	}
 
-	screen.SetStyle(tcell.StyleDefault.
+	s.s = sNew
+
+	s.s.SetStyle(tcell.StyleDefault.
 		Foreground(tcell.ColorBlack).
 		Background(tcell.ColorWhite))
 
-	screen.Clear()
+	s.s.Clear()
+
+	scr.keys = make(chan tcell.EventKey)
 
 	go screenEvents()
+
+	stdin = s
 
 	log.Printf("tcell screen initialized")
 }
 
+func (s *screen) close() {
+	if s.s != nil {
+		s.s.Fini()
+	}
+	log.Printf("tcell screen finalized")
+}
+
 func screenEvents() {
 	for {
-		ev := screen.PollEvent()
+		ev := scr.s.PollEvent()
 		switch ev := ev.(type) {
+		case nil: // PollEvent() will return nil if the Screen is finalized
+			close(scr.keys)
+			return
 		case *tcell.EventKey:
 			switch ev.Key() {
 			case tcell.KeyCtrlL:
-				screen.Sync()
+				scr.s.Sync()
 			}
+			scr.keys <- *ev
 		case *tcell.EventResize:
-			screen.Sync()
-			log.Printf("tcell screen resize")
+			scr.s.Sync()
+			log.Printf("tcell screen resized")
+		default:
+			log.Printf("tcell unhandled event")
 		}
 	}
 }
