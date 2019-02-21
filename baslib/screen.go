@@ -1,10 +1,13 @@
 package baslib
 
 import (
-	"fmt"
+	//"fmt"
+	"io"
 	"log"
+	"unicode/utf8"
 
 	"github.com/gdamore/tcell"
+	"github.com/udhos/inkey/inkey"
 )
 
 var (
@@ -29,7 +32,7 @@ func Screen(mode int) {
 
 	scr.start()
 
-	stdin = &scr
+	stdin = inkey.New(&scr) // replace inkey(os.Stdin) with inkey(tcell)
 }
 
 type screen struct {
@@ -37,17 +40,24 @@ type screen struct {
 	keys chan tcell.EventKey
 }
 
-func (s *screen) Inkey() (byte, bool) {
-	log.Printf("screen.Inkey: FIXME WRITEME")
-	return 0, false
-}
-
 func (s *screen) Read(buf []byte) (int, error) {
-	return 0, fmt.Errorf("screen.Read: FIXME WRITEME")
-}
-
-func (s *screen) ReadBytes(delim byte) (line []byte, err error) {
-	return nil, fmt.Errorf("screen.Read: FIXME WRITEME")
+	for {
+		key, ok := <-s.keys
+		if !ok {
+			return 0, io.EOF
+		}
+		kType := key.Key()
+		switch kType {
+		case tcell.KeyRune:
+			r := key.Rune()
+			need := utf8.RuneLen(r)
+			if need > (cap(buf) - len(buf)) {
+				return 0, io.ErrShortBuffer
+			}
+			size := utf8.EncodeRune(buf, r)
+			return size, nil
+		}
+	}
 }
 
 func (s *screen) start() {
@@ -76,8 +86,6 @@ func (s *screen) start() {
 	scr.keys = make(chan tcell.EventKey)
 
 	go screenEvents()
-
-	stdin = s
 
 	log.Printf("tcell screen initialized")
 }
