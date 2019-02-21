@@ -11,12 +11,18 @@ import (
 )
 
 var (
-	scr screen
+	scr          screen
+	screenWidth  = 80
+	screenHeight = 25
 )
 
 func End() {
 	log.Printf("baslib.End()")
 	scr.close()
+}
+
+func screenMode0() bool {
+	return scr.s != nil
 }
 
 func Screen(mode int) {
@@ -25,7 +31,7 @@ func Screen(mode int) {
 		return
 	}
 
-	if scr.s != nil {
+	if screenMode0() {
 		log.Printf("Screen: text mode 0 is running already")
 		return
 	}
@@ -93,20 +99,20 @@ func (s *screen) start() {
 
 	go screenEvents()
 
-	log.Printf("tcell screen initialized")
+	//log.Printf("tcell screen initialized")
 }
 
 func (s *screen) close() {
 	if s.s != nil {
 		s.s.Fini()
 	}
-	log.Printf("tcell screen finalized")
+	//log.Printf("tcell screen finalized")
 }
 
 func screenEvents() {
 	for {
 		ev := scr.s.PollEvent()
-		log.Printf("screenEvents: %v", ev)
+		//log.Printf("screenEvents: %v", ev)
 		switch ev := ev.(type) {
 		case nil: // PollEvent() will return nil if the Screen is finalized
 			close(scr.keys)
@@ -119,9 +125,32 @@ func screenEvents() {
 			scr.keys <- *ev
 		case *tcell.EventResize:
 			scr.s.Sync()
-			log.Printf("tcell screen resized")
+			//log.Printf("tcell screen resized")
 		default:
-			log.Printf("tcell unhandled event")
+			//log.Printf("tcell unhandled event")
 		}
 	}
+}
+
+func screenPut(r rune) {
+	scr.s.SetContent(screenPos-1, screenRow-1, r, nil, 0)
+}
+
+func screenScroll() {
+	// shift rows up
+	for row := 0; row < screenHeight; row++ {
+		for col := 0; col < screenWidth; col++ {
+			mainc, combc, style, _ := scr.s.GetContent(col, row)
+			scr.s.SetContent(col, row, mainc, combc, style)
+		}
+	}
+
+	// clear last line
+	for col := 0; col < screenWidth; col++ {
+		scr.s.SetContent(col, screenHeight-1, ' ', nil, 0)
+	}
+}
+
+func screenShow() {
+	scr.s.Show()
 }

@@ -25,7 +25,8 @@ var (
 	rnd                  = rand.New(rand.NewSource(time.Now().UnixNano())) // RND
 	rndLast              = rnd.Float64()                                   // RND
 	readDataPos int                                                        // READ-DATA cursor
-	screenPos   int      = 1                                               // PRINT COLUMN
+	screenPos   = 1                                                        // PRINT COLUMN
+	screenRow   = 1                                                        // PRINT ROW
 )
 
 func Asc(s string) int {
@@ -350,20 +351,61 @@ func Print(s string) {
 		case 13: // CR
 			cr()
 		default:
-			fmt.Print(string(b))
-			screenPos++
+			printItem(b)
 		}
+	}
+	if screenMode0() {
+		screenShow()
+	}
+}
+
+func printItem(b rune) {
+
+	if screenMode0() {
+		// running in terminal
+
+		screenPut(b)
+		screenPos++
+		if screenPos > screenWidth {
+			screenCR()
+		}
+		return
+	}
+
+	// running in console
+
+	fmt.Print(string(b))
+	screenPos++
+}
+
+func screenCR() {
+	screenPos = 1
+	screenRow++
+	if screenRow > screenHeight {
+		screenScroll()
+		screenRow = screenHeight
 	}
 }
 
 func cr() {
-	fmt.Println()
+
+	if screenMode0() {
+		// terminal
+		screenCR()
+		return
+	}
+
+	// console
+	printItem('\n')
 	screenPos = 1
 }
 
 func Println(s string) {
 	Print(s)
 	cr()
+	if screenMode0() {
+		screenShow()
+	}
 }
 
 func Tab(col int) string {
