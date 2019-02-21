@@ -494,11 +494,11 @@ letter_range_list: letter_range
 stmt: /* empty */
      { $$ = &node.NodeEmpty{} }
   | TkKeywordEnd
-     { $$ = &node.NodeEnd{} }
+     { $$ = createEndNode(&Result, "") }
   | TkKeywordStop
-     { $$ = &node.NodeEnd{} }
+     { $$ = createEndNode(&Result, "") }
   | TkKeywordSystem
-     { $$ = &node.NodeEnd{} }
+     { $$ = createEndNode(&Result, "") }
   | TkKeywordData
      {
         line := lastLineNum
@@ -911,11 +911,11 @@ stmt: /* empty */
        Result.LibGosubReturn = true
        $$ = &node.NodeReturn{Line: $2}
      }
-  | TkKeywordRun { $$ = unsupportedEnd(Result.Imports, "RUN") }
-  | TkKeywordRun use_line_number { $$ = unsupportedEnd(Result.Imports, "RUN") }
-  | TkKeywordRun use_line_number TkComma single_var { $$ = unsupportedEnd(Result.Imports, "RUN") }
-  | TkKeywordRun one_const_str { $$ = unsupportedEnd(Result.Imports, "RUN") }
-  | TkKeywordRun one_const_str TkComma single_var { $$ = unsupportedEnd(Result.Imports, "RUN") }
+  | TkKeywordRun { $$ = unsupportedEnd(&Result, "RUN") }
+  | TkKeywordRun use_line_number { $$ = unsupportedEnd(&Result, "RUN") }
+  | TkKeywordRun use_line_number TkComma single_var { $$ = unsupportedEnd(&Result, "RUN") }
+  | TkKeywordRun one_const_str { $$ = unsupportedEnd(&Result, "RUN") }
+  | TkKeywordRun one_const_str TkComma single_var { $$ = unsupportedEnd(&Result, "RUN") }
   | TkKeywordOn exp TkKeywordGosub jump_list
      {
        cond := $2
@@ -1042,7 +1042,7 @@ stmt: /* empty */
   | TkKeywordLocate expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("LOCATE") }
   | TkKeywordLocate TkComma expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("LOCATE") }
   | TkKeywordLocate TkComma TkComma expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("LOCATE") }
-  | TkKeywordNew { $$ = unsupportedEnd(Result.Imports, "NEW") }
+  | TkKeywordNew { $$ = unsupportedEnd(&Result, "NEW") }
   | TkKeywordOn TkKeywordError TkKeywordGoto TkNumber { $$ = unsupportedEmpty("ON-ERROR-GOTO") }
   | TkKeywordPlay exp { $$ = unsupportedEmpty("PLAY") }
   | TkKeywordPoke TkParLeft exp TkComma exp TkParRight { $$ = unsupportedEmpty("POKE") }
@@ -2092,11 +2092,16 @@ func unsupportedEmpty(keyword string) *node.NodeEmpty {
 	return &node.NodeEmpty{}
 }
 
-func unsupportedEnd(imp map[string]struct{}, keyword string) *node.NodeEnd {
+func createEndNode(result *ParserResult, msg string) *node.NodeEnd {
+	result.Baslib = true
+	return &node.NodeEnd{Message:msg}
+}
+
+func unsupportedEnd(result *ParserResult, keyword string) *node.NodeEnd {
 	log.Printf("unsupported keyword %s will halt the program", keyword)
         msg := fmt.Sprintf("stopping on unsupported keyword %s", keyword) 
-	imp["fmt"] = struct{}{} // NodeEnd.Message uses fmt
-	return &node.NodeEnd{Message:msg}
+	result.Imports["log"] = struct{}{} // NodeEnd.Message uses log
+	return createEndNode(result, msg)
 }
 
 func captureRawLine(label string, list []node.Node, rawLine string) {

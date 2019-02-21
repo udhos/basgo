@@ -930,9 +930,9 @@ func (n *NodeEnd) Show(printf FuncPrintf) {
 // Build generates code
 func (n *NodeEnd) Build(options *BuildOptions, outputf FuncPrintf) {
 	if n.Message != "" {
-		outputf("fmt.Print(\"END:\")\n")
-		outputf("fmt.Println(\"%s\")\n", n.Message)
+		outputf("log.Printf(\"END: %s\")\n", n.Message)
 	}
+	outputf("baslib.End()\n")
 	outputf("os.Exit(0) // %s\n", n.Name())
 	options.Headers["os"] = struct{}{} // used package
 }

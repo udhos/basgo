@@ -112,6 +112,10 @@ func main() {
 		options.Headers["github.com/udhos/basgo/baslib"] = struct{}{}
 	}
 
+	// baslib is currently mandatory
+	// because we call baslib.End() before exiting the program
+	options.Headers["github.com/udhos/basgo/baslib"] = struct{}{}
+
 	if result.LibMath {
 		options.Headers["math"] = struct{}{}
 	}
@@ -148,7 +152,6 @@ func main() {
 		outputf("var readData = []interface{}{\n")
 		for _, d := range options.ReadData {
 			outputf("%s,\n", d)
-			//outputf("%s,\n", d.Exp(options))
 		}
 		outputf("}\n")
 	}
@@ -164,6 +167,8 @@ func main() {
 	declareFuncs(&options, result.FuncTable, outputf)
 
 	outputf(buf.String())
+
+	outputf("baslib.End()\n")
 
 	if result.CountReturn > 0 {
 		outputf("return // exit from main() - end of program\n")
