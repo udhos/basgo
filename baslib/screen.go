@@ -48,6 +48,12 @@ func (s *screen) Read(buf []byte) (int, error) {
 		}
 		kType := key.Key()
 		switch kType {
+		case tcell.KeyEnter:
+			if 1 > (cap(buf) - len(buf)) {
+				return 0, io.ErrShortBuffer
+			}
+			buf = append(buf, '\n')
+			return 1, nil
 		case tcell.KeyRune:
 			r := key.Rune()
 			need := utf8.RuneLen(r)
@@ -78,8 +84,8 @@ func (s *screen) start() {
 	s.s = sNew
 
 	s.s.SetStyle(tcell.StyleDefault.
-		Foreground(tcell.ColorBlack).
-		Background(tcell.ColorWhite))
+		Foreground(tcell.ColorWhite).
+		Background(tcell.ColorBlack))
 
 	s.s.Clear()
 
@@ -100,6 +106,7 @@ func (s *screen) close() {
 func screenEvents() {
 	for {
 		ev := scr.s.PollEvent()
+		log.Printf("screenEvents: %v", ev)
 		switch ev := ev.(type) {
 		case nil: // PollEvent() will return nil if the Screen is finalized
 			close(scr.keys)
