@@ -7,6 +7,7 @@
 70 REM mostly as the original relied on CPU speed.
 80 RANDOMIZE TIMER
 90 DEFINT A-Z
+99 screen 0: rem force screen 0
 100 KEY OFF
 110 COLOR 12,15 : REM change this if you don't like a white background
 120 CLS
