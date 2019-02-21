@@ -1,7 +1,7 @@
 package baslib
 
 import (
-	//"fmt"
+	"fmt"
 	"io"
 	"log"
 	"unicode/utf8"
@@ -55,16 +55,21 @@ func (s *screen) Read(buf []byte) (int, error) {
 		kType := key.Key()
 		switch kType {
 		case tcell.KeyEnter:
-			if 1 > (cap(buf) - len(buf)) {
-				return 0, io.ErrShortBuffer
+			//Println(fmt.Sprintf("[enter]"))
+			need := 1
+			avail := len(buf)
+			if need > avail {
+				return 0, fmt.Errorf("screen.Read: enter short buffer: need=%d avail=%d", need, avail)
 			}
-			buf = append(buf, '\n')
+			buf[0] = '\n'
 			return 1, nil
 		case tcell.KeyRune:
 			r := key.Rune()
+			//Println(fmt.Sprintf("[%v]", r))
 			need := utf8.RuneLen(r)
-			if need > (cap(buf) - len(buf)) {
-				return 0, io.ErrShortBuffer
+			avail := len(buf)
+			if need > avail {
+				return 0, fmt.Errorf("screen.Read: rune short buffer: need=%d avail=%d", need, avail)
 			}
 			size := utf8.EncodeRune(buf, r)
 			return size, nil
@@ -98,21 +103,17 @@ func (s *screen) start() {
 	scr.keys = make(chan tcell.EventKey)
 
 	go screenEvents()
-
-	//log.Printf("tcell screen initialized")
 }
 
 func (s *screen) close() {
 	if s.s != nil {
 		s.s.Fini()
 	}
-	//log.Printf("tcell screen finalized")
 }
 
 func screenEvents() {
 	for {
 		ev := scr.s.PollEvent()
-		//log.Printf("screenEvents: %v", ev)
 		switch ev := ev.(type) {
 		case nil: // PollEvent() will return nil if the Screen is finalized
 			close(scr.keys)
@@ -125,9 +126,6 @@ func screenEvents() {
 			scr.keys <- *ev
 		case *tcell.EventResize:
 			scr.s.Sync()
-			//log.Printf("tcell screen resized")
-		default:
-			//log.Printf("tcell unhandled event")
 		}
 	}
 }
@@ -140,7 +138,7 @@ func screenScroll() {
 	// shift rows up
 	for row := 0; row < screenHeight; row++ {
 		for col := 0; col < screenWidth; col++ {
-			mainc, combc, style, _ := scr.s.GetContent(col, row)
+			mainc, combc, style, _ := scr.s.GetContent(col, row+1)
 			scr.s.SetContent(col, row, mainc, combc, style)
 		}
 	}
