@@ -5,8 +5,9 @@
 50 print input$(1)
 60 for i=1 to 30:print i:next
 70 print "scroll test done. hit key to test keyboard input"
-80 while i$<>"q"
-90 print "key:";i$
-100 print "hit any other key, or q to exit"
-110 i$=input$(1)
-120 wend
+80 i$=input$(1)
+90 while i$<>"q"
+100 print "key:";i$;" asc:";asc(i$)
+110 print "hit any other key, or q to exit"
+120 i$=input$(1)
+130 wend
