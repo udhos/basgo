@@ -43,7 +43,8 @@ func fatal(format string, v ...interface{}) {
 	s := "BASLIB FATAL: " + fmt.Sprintf(format, v...)
 	if screenMode0() {
 		Println(s)
-		return
+	} else {
+		log.Print(s)
 	}
 	os.Exit(1)
 }
