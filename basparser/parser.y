@@ -1008,7 +1008,11 @@ stmt: /* empty */
   | TkKeywordKey TkKeywordList { $$ = unsupportedEmpty("KEY")  }
   | TkKeywordKey exp TkComma exp { $$ = unsupportedEmpty("KEY")  }
   | TkKeywordBeep { $$ = unsupportedEmpty("BEEP") }
-  | TkKeywordCls { $$ = unsupportedEmpty("CLS") }
+  | TkKeywordCls
+	{
+		Result.Baslib = true
+		$$ = &node.NodeCls{}
+	}
   | TkKeywordWidth exp { $$ = unsupportedEmpty("WIDTH") }
   | TkKeywordDefdbl letter_range_list
 	{

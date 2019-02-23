@@ -41,6 +41,14 @@ func Screen(mode int) {
 	stdin = inkey.New(&scr) // replace inkey(os.Stdin) with inkey(tcell)
 }
 
+func Cls() {
+	if screenMode0() {
+		scr.s.Clear()
+	}
+	screenPos = 1
+	screenRow = 1
+}
+
 type screen struct {
 	s    tcell.Screen
 	keys chan tcell.EventKey

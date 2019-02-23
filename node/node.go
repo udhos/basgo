@@ -1806,3 +1806,29 @@ func (n *NodeScreen) Build(options *BuildOptions, outputf FuncPrintf) {
 // FindUsedVars finds used vars
 func (n *NodeScreen) FindUsedVars(options *BuildOptions) {
 }
+
+// NodeCls is cls
+type NodeCls struct{}
+
+// Name returns the name of the node
+func (n *NodeCls) Name() string {
+	return "CLS"
+}
+
+// Show displays the node
+func (n *NodeCls) Show(printf FuncPrintf) {
+	printf("[" + n.Name() + "]")
+}
+
+// Build generates code
+func (n *NodeCls) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+
+	outputf("baslib.Cls()\n")
+}
+
+// FindUsedVars finds used vars
+func (n *NodeCls) FindUsedVars(options *BuildOptions) {
+}
