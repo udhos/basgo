@@ -353,6 +353,10 @@ func Pos() int {
 	return screenPos
 }
 
+func Csrlin() int {
+	return screenRow
+}
+
 func PrintInt(i int) {
 	Print(" ")
 	Print(itoa(i))

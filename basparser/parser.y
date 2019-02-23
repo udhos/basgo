@@ -223,6 +223,7 @@ func Reset() {
 %token <tok> TkKeywordCommon
 %token <tok> TkKeywordCont
 %token <tok> TkKeywordCos
+%token <tok> TkKeywordCsrlin
 %token <tok> TkKeywordData
 %token <tok> TkKeywordDate
 %token <tok> TkKeywordDef
@@ -2127,6 +2128,11 @@ exp: one_const_noneg { $$ = $1 }
      {
         Result.Baslib = true
         $$ = &node.NodeExpPos{}
+     }
+  | TkKeywordCsrlin 
+     {
+        Result.Baslib = true
+        $$ = &node.NodeExpCsrlin{}
      }
    ;
 

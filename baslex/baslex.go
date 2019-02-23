@@ -78,6 +78,7 @@ const (
 	TkKeywordCommon    = iota // COMMON
 	TkKeywordCont      = iota // CONT
 	TkKeywordCos       = iota // COS
+	TkKeywordCsrlin    = iota // CSRLIN
 	TkKeywordData      = iota // DATA
 	TkKeywordDate      = iota // DATE$
 	TkKeywordDef       = iota // DEF
@@ -184,6 +185,7 @@ var tabKeywords = []struct {
 	{TkKeywordCommon, "COMMON"},
 	{TkKeywordCont, "CONT"},
 	{TkKeywordCos, "COS"},
+	{TkKeywordCsrlin, "CSRLIN"},
 	{TkKeywordData, "DATA"},
 	{TkKeywordDate, "DATE$"},
 	{TkKeywordDef, "DEF"},
@@ -331,6 +333,7 @@ var tabType = []string{
 	"COMMON",
 	"CONT",
 	"COS",
+	"CSRLIN",
 	"DATA",
 	"DATE",
 	"DEF",

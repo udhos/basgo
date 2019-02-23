@@ -1681,6 +1681,28 @@ func (e *NodeExpInput) FindUsedVars(options *BuildOptions) {
 	e.Count.FindUsedVars(options)
 }
 
+// NodeExpCsrlin holds value
+type NodeExpCsrlin struct{}
+
+// Type returns type
+func (e *NodeExpCsrlin) Type(table []int) int {
+	return TypeInteger
+}
+
+// String returns value
+func (e *NodeExpCsrlin) String() string {
+	return "CSRLIN"
+}
+
+// Exp returns value
+func (e *NodeExpCsrlin) Exp(options *BuildOptions) string {
+	return "baslib.Csrlin()"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpCsrlin) FindUsedVars(options *BuildOptions) {
+}
+
 // NodeExpPos holds value
 type NodeExpPos struct{}
 
