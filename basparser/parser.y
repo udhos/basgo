@@ -57,6 +57,8 @@ var (
 
 	// (1) stmt IF-THEN can nest list of stmt: THEN CLS:IF:CLS
 	// (2) exp can nest list of exp: array(exp,exp,exp)
+
+	nodeExpNull = &node.NodeExpNull{}
 )
 
 func newResult() ParserResult {
@@ -137,7 +139,9 @@ func Reset() {
 %type <typeExpressions> print_expressions
 %type <typeExpressions> array_index_exp_list
 %type <typeExpressions> call_exp_list
+%type <typeExpressions> null_exp_list
 %type <typeExp> exp
+%type <typeExp> null_exp
 %type <typeExp> one_const_any
 %type <typeExp> one_const_noneg
 %type <typeExp> one_const_num_any
@@ -1043,9 +1047,29 @@ stmt: /* empty */
   | TkKeywordClear expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("CLEAR") }
   | TkKeywordColor expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("COLOR") }
   | TkKeywordCommon expressions_push common_var_list expressions_pop { $$ = unsupportedEmpty("COMMON") }
-  | TkKeywordLocate expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("LOCATE") }
-  | TkKeywordLocate TkComma expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("LOCATE") }
-  | TkKeywordLocate TkComma TkComma expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("LOCATE") }
+  | TkKeywordLocate expressions_push null_exp_list expressions_pop
+	{
+		list := $3
+		if len(list) < 1 {
+			yylex.Error("Missing LOCATE arguments")
+		}
+		var row,col,cursor node.NodeExp
+		if r := list[0]; r != nodeExpNull {
+			row = r
+		}
+		if len(list) > 1 {
+			if c := list[1]; c != nodeExpNull {
+				col = c 
+			}
+		}
+		if len(list) > 2 {
+			if cur := list[2]; cur != nodeExpNull {
+				cursor = cur 
+			}
+		}
+		Result.Baslib = true
+		$$ = &node.NodeLocate{Row: row, Col: col, Cursor: cursor}
+	}
   | TkKeywordNew { $$ = unsupportedEnd(&Result, "NEW") }
   | TkKeywordOn TkKeywordError TkKeywordGoto TkNumber { $$ = unsupportedEmpty("ON-ERROR-GOTO") }
   | TkKeywordPlay exp { $$ = unsupportedEmpty("PLAY") }
@@ -1467,6 +1491,27 @@ call_exp_list: exp
 	}
     |
         call_exp_list TkComma exp
+        {
+		last := len(expListStack) - 1
+		expListStack[last] = append(expListStack[last], $3)
+	        $$ = expListStack[last]
+	}
+    ;
+
+null_exp: /* empty */
+		{ $$ = nodeExpNull }
+	| exp
+		{ $$ = $1 }
+	;
+
+null_exp_list: null_exp
+	{
+		last := len(expListStack) - 1
+        	expListStack[last] = []node.NodeExp{$1} // reset null_exp_list
+	        $$ = expListStack[last]
+	}
+    |
+        call_exp_list TkComma null_exp
         {
 		last := len(expListStack) - 1
 		expListStack[last] = append(expListStack[last], $3)

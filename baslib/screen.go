@@ -49,6 +49,20 @@ func Cls() {
 	screenRow = 1
 }
 
+func Locate(row, col int) {
+	if row > 0 && row <= screenHeight {
+		screenRow = row
+	}
+	if col > 0 && col <= screenWidth {
+		screenPos = col
+	}
+}
+
+func LocateCursor(row, col int, cursor bool) {
+	Locate(row, col)
+	alert("LOCATE FIXME: handle cursor enable=%v", cursor)
+}
+
 type screen struct {
 	s    tcell.Screen
 	keys chan tcell.EventKey

@@ -1832,3 +1832,73 @@ func (n *NodeCls) Build(options *BuildOptions, outputf FuncPrintf) {
 // FindUsedVars finds used vars
 func (n *NodeCls) FindUsedVars(options *BuildOptions) {
 }
+
+// node.NodeLocate{Row: row, Col: col, Cursor: cursor}
+
+// NodeLocate is locate
+type NodeLocate struct {
+	Row    NodeExp
+	Col    NodeExp
+	Cursor NodeExp
+}
+
+// Name returns the name of the node
+func (n *NodeLocate) Name() string {
+	return "LOCATE"
+}
+
+// Show displays the node
+func (n *NodeLocate) Show(printf FuncPrintf) {
+	printf("[")
+	printf(n.Name())
+	if n.Row != NodeExp(nil) {
+		printf(" ")
+		printf(n.Row.String())
+	}
+	if n.Col != NodeExp(nil) {
+		printf(" ")
+		printf(n.Col.String())
+	}
+	if n.Cursor != NodeExp(nil) {
+		printf(" ")
+		printf(n.Cursor.String())
+	}
+	printf("]")
+}
+
+// Build generates code
+func (n *NodeLocate) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+
+	row := "-1"
+	col := "-1"
+
+	if n.Row != NodeExp(nil) {
+		row = forceInt(options, n.Row)
+	}
+	if n.Col != NodeExp(nil) {
+		col = forceInt(options, n.Col)
+	}
+	if n.Cursor != NodeExp(nil) {
+		cursor := "(0 != " + forceInt(options, n.Cursor) + ")"
+		outputf("baslib.LocateCursor(%s,%s,%s)\n", row, col, cursor)
+		return
+	}
+
+	outputf("baslib.Locate(%s,%s)\n", row, col)
+}
+
+// FindUsedVars finds used vars
+func (n *NodeLocate) FindUsedVars(options *BuildOptions) {
+	if n.Row != NodeExp(nil) {
+		n.Row.FindUsedVars(options)
+	}
+	if n.Col != NodeExp(nil) {
+		n.Col.FindUsedVars(options)
+	}
+	if n.Cursor != NodeExp(nil) {
+		n.Cursor.FindUsedVars(options)
+	}
+}

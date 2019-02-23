@@ -2,7 +2,7 @@ package node
 
 import (
 	"fmt"
-	//"log"
+	"log"
 	//"bufio"
 	//"strconv"
 	"strings"
@@ -1701,4 +1701,27 @@ func (e *NodeExpPos) Exp(options *BuildOptions) string {
 
 // FindUsedVars finds used vars
 func (e *NodeExpPos) FindUsedVars(options *BuildOptions) {
+}
+
+// NodeExpNull holds value
+type NodeExpNull struct{}
+
+// Type returns type
+func (e *NodeExpNull) Type(table []int) int {
+	return TypeUnknown
+}
+
+// String returns value
+func (e *NodeExpNull) String() string {
+	return "NULL-EXP"
+}
+
+// Exp returns value
+func (e *NodeExpNull) Exp(options *BuildOptions) string {
+	log.Fatal("NodeExpNull.Build should not issue code")
+	return "panic(\"NodeExpNull.Build\") // NodeExpNull should not issue code\n"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpNull) FindUsedVars(options *BuildOptions) {
 }
