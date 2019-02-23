@@ -4,6 +4,7 @@ import (
 	//"bufio"
 	"bytes"
 	"fmt"
+	"io"
 	"log"
 	"math/rand"
 	"os"
@@ -29,9 +30,27 @@ var (
 	screenRow   = 1                                                        // PRINT ROW
 )
 
+func alert(format string, v ...interface{}) {
+	s := "BASLIB ALERT: " + fmt.Sprintf(format, v...)
+	if screenMode0() {
+		Println(s)
+		return
+	}
+	log.Print(s)
+}
+
+func fatal(format string, v ...interface{}) {
+	s := "BASLIB FATAL: " + fmt.Sprintf(format, v...)
+	if screenMode0() {
+		Println(s)
+		return
+	}
+	os.Exit(1)
+}
+
 func Asc(s string) int {
 	if len(s) < 1 {
-		log.Printf("asc empty string")
+		alert("asc empty string")
 		return 0
 	}
 	return int(s[0])
@@ -41,7 +60,7 @@ func Val(s string) float64 {
 	s = strings.TrimSpace(s)
 	v, err := strconv.ParseFloat(s, 64)
 	if err != nil {
-		log.Printf("numeric value from: '%s' error: %v", s, err)
+		alert("numeric value from: '%s' error: %v", s, err)
 	}
 	return v
 }
@@ -92,16 +111,14 @@ func Inkey() string {
 func inputString() string {
 
 	buf, err := stdin.ReadBytes('\n')
-	if err != nil {
-		log.Printf("input error: %v", err)
+	if err != nil && err != io.EOF {
+		alert("input error: %v", err)
 	}
 
 	buf = bytes.TrimRight(buf, "\n")
 	buf = bytes.TrimRight(buf, "\r")
 
 	s := string(buf)
-
-	//log.Printf("inputString: [%s]", s)
 
 	return s
 }
@@ -116,7 +133,7 @@ func InputCount(count int) string {
 
 	_, err := stdin.Read(buf)
 	if err != nil {
-		log.Printf("InputCount: error: %v", err)
+		alert("InputCount: error: %v", err)
 	}
 
 	return string(buf)
@@ -133,7 +150,7 @@ func Input(prompt, question string, count int) []string {
 		buf := inputString()
 		fields := strings.Split(buf, ",")
 		if n := len(fields); n != count {
-			log.Printf("input: found %d of %d required comma-separated fields, please retry.", n, count)
+			alert("input: found %d of %d required comma-separated fields, please retry.", n, count)
 			continue
 		}
 		return fields
@@ -143,7 +160,7 @@ func Input(prompt, question string, count int) []string {
 func InputParseInteger(str string) int {
 	v, err := strconv.Atoi(strings.TrimSpace(str))
 	if err != nil {
-		log.Printf("input: integer '%s' error: %v", str, err)
+		alert("input: integer '%s' error: %v", str, err)
 	}
 	return v
 }
@@ -151,7 +168,7 @@ func InputParseInteger(str string) int {
 func InputParseFloat(str string) float64 {
 	v, err := strconv.ParseFloat(strings.TrimSpace(str), 64)
 	if err != nil {
-		log.Printf("input: float '%s' error: %v", str, err)
+		alert("input: float '%s' error: %v", str, err)
 	}
 	return v
 }
@@ -197,7 +214,7 @@ func Mid(s string, begin int) string {
 
 func String(s string, count int) string {
 	if count < 0 {
-		log.Printf("string repeat negative count")
+		alert("string repeat negative count")
 	}
 	if count < 1 {
 		return ""
@@ -213,7 +230,8 @@ func String(s string, count int) string {
 
 func ReadDataString(data []interface{}, name string) string {
 	if readDataPos >= len(data) {
-		log.Fatalf("ReadDataString overflow error: var=%s pos=%d", name, readDataPos)
+		fatal("ReadDataString overflow error: var=%s pos=%d", name, readDataPos)
+		return ""
 	}
 	d := data[readDataPos]
 	readDataPos++
@@ -221,13 +239,14 @@ func ReadDataString(data []interface{}, name string) string {
 	if t {
 		return v
 	}
-	log.Fatalf("ReadDataString type error: var=%s pos=%d", name, readDataPos)
+	fatal("ReadDataString type error: var=%s pos=%d", name, readDataPos)
 	return v
 }
 
 func ReadDataInteger(data []interface{}, name string) int {
 	if readDataPos >= len(data) {
-		log.Fatalf("ReadDataInteger overflow error: var=%s pos=%d", name, readDataPos)
+		fatal("ReadDataInteger overflow error: var=%s pos=%d", name, readDataPos)
+		return 0
 	}
 	d := data[readDataPos]
 	readDataPos++
@@ -235,13 +254,14 @@ func ReadDataInteger(data []interface{}, name string) int {
 	if t {
 		return v
 	}
-	log.Fatalf("ReadDataInteger type error: var=%s pos=%d", name, readDataPos)
+	fatal("ReadDataInteger type error: var=%s pos=%d", name, readDataPos)
 	return v
 }
 
 func ReadDataFloat(data []interface{}, name string) float64 {
 	if readDataPos >= len(data) {
-		log.Fatalf("ReadDataFloat overflow error: var=%s pos=%d", name, readDataPos)
+		fatal("ReadDataFloat overflow error: var=%s pos=%d", name, readDataPos)
+		return 0
 	}
 	d := data[readDataPos]
 	readDataPos++
@@ -253,18 +273,18 @@ func ReadDataFloat(data []interface{}, name string) float64 {
 	if t1 {
 		return float64(v1)
 	}
-	log.Fatalf("ReadDataFloat type error: var=%s pos=%d\n", name, readDataPos)
+	fatal("ReadDataFloat type error: var=%s pos=%d\n", name, readDataPos)
 	return v
 }
 
 func Restore(data []interface{}, line string, pos int) {
-	if readDataPos < 0 {
+	if pos < 0 {
 		// warn only, actual fault hit in READ
-		log.Printf("Restore underflow error: line=%s pos=%d", line, pos)
+		fatal("Restore underflow error: line=%s pos=%d", line, pos)
 	}
-	if readDataPos >= len(data) {
+	if pos >= len(data) {
 		// warn only, actual fault hit in READ
-		log.Printf("Restore overflow error: line=%s pos=%d", line, pos)
+		fatal("Restore overflow error: line=%s pos=%d", line, pos)
 	}
 	readDataPos = pos
 }

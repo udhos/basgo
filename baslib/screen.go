@@ -3,7 +3,7 @@ package baslib
 import (
 	"fmt"
 	"io"
-	"log"
+	//"log"
 	"unicode/utf8"
 
 	"github.com/gdamore/tcell"
@@ -17,7 +17,7 @@ var (
 )
 
 func End() {
-	log.Printf("baslib.End()")
+	//alert("baslib.End()")
 	scr.close()
 }
 
@@ -27,12 +27,12 @@ func screenMode0() bool {
 
 func Screen(mode int) {
 	if mode != 0 {
-		log.Printf("SCREEN %d: only screen 0 is supported", mode)
+		alert("SCREEN %d: only screen 0 is supported", mode)
 		return
 	}
 
 	if screenMode0() {
-		log.Printf("Screen: text mode 0 is running already")
+		alert("Screen: text mode 0 is running already")
 		return
 	}
 
@@ -82,12 +82,12 @@ func (s *screen) start() {
 
 	sNew, errScreen := tcell.NewScreen()
 	if errScreen != nil {
-		log.Printf("tcell create screen: %v", errScreen)
+		alert("tcell create screen: %v", errScreen)
 		return
 	}
 
 	if errInit := sNew.Init(); errInit != nil {
-		log.Printf("tcell init screen: %v", errInit)
+		alert("tcell init screen: %v", errInit)
 		sNew.Fini()
 		return
 	}

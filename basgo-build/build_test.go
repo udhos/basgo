@@ -625,7 +625,7 @@ var testTable = []buildTest{
 	{`10 dim a(1,1):dim a(1,1):a(1,1)=2:print a(1,1)`, "", " 2 \n", OK},
 	{`10 a(1,1)=2:dim a(1,1):print a(1,1)`, "", " 0 \n", OK},
 
-	{`10 restore`, "", "", OK},
+	{`10 restore`, "", "", RUNTIME},
 	{`10 data 2,3:read a:print a:read a:print a`, "", " 2 \n 3 \n", OK},
 	{`10 data 2,3:read a:print a:restore:read a:print a`, "", " 2 \n 2 \n", OK},
 
