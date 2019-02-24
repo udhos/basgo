@@ -63,6 +63,14 @@ func LocateCursor(row, col int, cursor bool) {
 	alert("LOCATE FIXME: handle cursor enable=%v", cursor)
 }
 
+func Width(w int) {
+	if w < 1 || w > 1000 {
+		alert("WIDTH value out-of-range: %d", w)
+		return
+	}
+	screenWidth = w
+}
+
 type screen struct {
 	s    tcell.Screen
 	keys chan tcell.EventKey

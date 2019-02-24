@@ -1018,7 +1018,15 @@ stmt: /* empty */
 		Result.Baslib = true
 		$$ = &node.NodeCls{}
 	}
-  | TkKeywordWidth exp { $$ = unsupportedEmpty("WIDTH") }
+  | TkKeywordWidth exp
+	{
+		w := $2
+		if !node.TypeNumeric(w.Type(Result.TypeTable)) {
+			yylex.Error("WIDTH value must be numeric")
+		}
+		Result.Baslib = true
+		$$ = &node.NodeWidth{Width: w}
+	}
   | TkKeywordDefdbl letter_range_list
 	{
 		list := $2
@@ -1056,15 +1064,24 @@ stmt: /* empty */
 		}
 		var row,col,cursor node.NodeExp
 		if r := list[0]; r != nodeExpNull {
+			if !node.TypeNumeric(r.Type(Result.TypeTable)) {
+				yylex.Error("LOCATE row must be numeric")
+			}
 			row = r
 		}
 		if len(list) > 1 {
 			if c := list[1]; c != nodeExpNull {
+				if !node.TypeNumeric(c.Type(Result.TypeTable)) {
+					yylex.Error("LOCATE column must be numeric")
+				}
 				col = c 
 			}
 		}
 		if len(list) > 2 {
 			if cur := list[2]; cur != nodeExpNull {
+				if !node.TypeNumeric(cur.Type(Result.TypeTable)) {
+					yylex.Error("LOCATE cursor must be numeric")
+				}
 				cursor = cur 
 			}
 		}

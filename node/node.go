@@ -1833,8 +1833,6 @@ func (n *NodeCls) Build(options *BuildOptions, outputf FuncPrintf) {
 func (n *NodeCls) FindUsedVars(options *BuildOptions) {
 }
 
-// node.NodeLocate{Row: row, Col: col, Cursor: cursor}
-
 // NodeLocate is locate
 type NodeLocate struct {
 	Row    NodeExp
@@ -1901,4 +1899,39 @@ func (n *NodeLocate) FindUsedVars(options *BuildOptions) {
 	if n.Cursor != NodeExp(nil) {
 		n.Cursor.FindUsedVars(options)
 	}
+}
+
+// NodeWidth is width
+type NodeWidth struct {
+	Width NodeExp
+}
+
+// Name returns the name of the node
+func (n *NodeWidth) Name() string {
+	return "WIDTH"
+}
+
+// Show displays the node
+func (n *NodeWidth) Show(printf FuncPrintf) {
+	printf("[")
+	printf(n.Name())
+	printf(" ")
+	printf(n.Width.String())
+	printf("]")
+}
+
+// Build generates code
+func (n *NodeWidth) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+
+	outputf("baslib.Width(")
+	outputf(forceInt(options, n.Width))
+	outputf(")\n")
+}
+
+// FindUsedVars finds used vars
+func (n *NodeWidth) FindUsedVars(options *BuildOptions) {
+	n.Width.FindUsedVars(options)
 }

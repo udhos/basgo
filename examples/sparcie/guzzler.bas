@@ -8,6 +8,7 @@
 50 REM which I have since forgotten.
 60 REM I've remimplemented it for better timing
 70 REM and display.
+77 screen 0
 80 COLOR 5,7
 90 CLS
 100 PRINT "<<Ghost Guzzler>>"
