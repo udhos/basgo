@@ -299,6 +299,7 @@ func Reset() {
 %token <tok> TkKeywordTo
 %token <tok> TkKeywordUsing
 %token <tok> TkKeywordVal
+%token <tok> TkKeywordView
 %token <tok> TkKeywordWend
 %token <tok> TkKeywordWhile
 %token <tok> TkKeywordWidth
@@ -1112,6 +1113,24 @@ stmt: /* empty */
 		$$ = &node.NodeScreen{Mode: mode}
 	}
   | TkKeywordSound exp TkComma exp { $$ = unsupportedEmpty("SOUND") }
+  | TkKeywordView TkKeywordPrint
+	{
+        	Result.Baslib = true
+		$$ = &node.NodeViewPrint{}
+	}
+  | TkKeywordView TkKeywordPrint exp TkKeywordTo exp
+	{
+		top := $3
+		bottom := $5
+		if !node.TypeNumeric(top.Type(Result.TypeTable)) {
+			yylex.Error("VIEW PRINT top line must be numeric")
+		}
+		if !node.TypeNumeric(bottom.Type(Result.TypeTable)) {
+			yylex.Error("VIEW PRINT bottom line must be numeric")
+		}
+        	Result.Baslib = true
+		$$ = &node.NodeViewPrint{Top: top, Bottom: bottom}
+	}
   ;
 
 expressions_push:

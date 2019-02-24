@@ -11,9 +11,10 @@ import (
 )
 
 var (
-	scr          screen
-	screenWidth  = 80
-	screenHeight = 25
+	scr           screen
+	screenWidth   = 80
+	screenHeight  = 25
+	screenViewTop = 1
 )
 
 func End() {
@@ -43,10 +44,26 @@ func Screen(mode int) {
 
 func Cls() {
 	if screenMode0() {
-		scr.s.Clear()
+		if screenViewTop == 1 && screenHeight > 24 {
+			scr.s.Clear() // clear terminal
+		} else {
+			cls() // clear view print window
+		}
 	}
 	screenPos = 1
 	screenRow = 1
+}
+
+func cls() {
+	lastRow := screenLastRow()
+
+	for row := screenViewTop; row <= lastRow; row++ {
+		for col := 0; col < screenWidth; col++ {
+			scr.s.SetContent(col, row-1, ' ', nil, 0)
+		}
+	}
+
+	screenShow()
 }
 
 func Locate(row, col int) {
@@ -69,6 +86,32 @@ func Width(w int) {
 		return
 	}
 	screenWidth = w
+}
+
+func ViewPrint(top, bottom int) {
+	if top < 1 || top > 1000 {
+		alert("VIEW PRINT top line out-of-range: %d", top)
+		return
+	}
+	if bottom < 1 || bottom > 1000 {
+		alert("VIEW PRINT bottom line out-of-range: %d", bottom)
+		return
+	}
+	if top > bottom {
+		alert("VIEW PRINT top line must not be greater than bottom line")
+		return
+	}
+	screenViewTop = top
+	screenHeight = bottom - top + 1
+}
+
+func ViewPrintReset() {
+	screenViewTop = 1
+	screenHeight = 25
+}
+
+func screenLastRow() int {
+	return screenViewTop + screenHeight - 1
 }
 
 type screen struct {
@@ -161,12 +204,14 @@ func screenEvents() {
 }
 
 func screenPut(r rune) {
-	scr.s.SetContent(screenPos-1, screenRow-1, r, nil, 0)
+	scr.s.SetContent(screenPos-1, screenViewTop+screenRow-2, r, nil, 0)
 }
 
 func screenScroll() {
+	lastRow := screenLastRow() - 1
+
 	// shift rows up
-	for row := 0; row < screenHeight; row++ {
+	for row := screenViewTop - 1; row < lastRow; row++ {
 		for col := 0; col < screenWidth; col++ {
 			mainc, combc, style, _ := scr.s.GetContent(col, row+1)
 			scr.s.SetContent(col, row, mainc, combc, style)
@@ -175,7 +220,7 @@ func screenScroll() {
 
 	// clear last line
 	for col := 0; col < screenWidth; col++ {
-		scr.s.SetContent(col, screenHeight-1, ' ', nil, 0)
+		scr.s.SetContent(col, lastRow, ' ', nil, 0)
 	}
 }
 

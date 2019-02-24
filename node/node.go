@@ -1935,3 +1935,56 @@ func (n *NodeWidth) Build(options *BuildOptions, outputf FuncPrintf) {
 func (n *NodeWidth) FindUsedVars(options *BuildOptions) {
 	n.Width.FindUsedVars(options)
 }
+
+// NodeViewPrint is view print
+type NodeViewPrint struct {
+	Top    NodeExp
+	Bottom NodeExp
+}
+
+// Name returns the name of the node
+func (n *NodeViewPrint) Name() string {
+	return "VIEW PRINT"
+}
+
+// Show displays the node
+func (n *NodeViewPrint) Show(printf FuncPrintf) {
+	printf("[")
+	printf(n.Name())
+	if n.Top != NodeExp(nil) {
+		printf(" ")
+		printf(n.Top.String())
+	}
+	if n.Bottom != NodeExp(nil) {
+		printf(" ")
+		printf(n.Bottom.String())
+	}
+	printf("]")
+}
+
+// Build generates code
+func (n *NodeViewPrint) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+
+	if n.Top == NodeExp(nil) || n.Bottom == NodeExp(nil) {
+		outputf("baslib.ViewPrintReset()\n")
+		return
+	}
+
+	top := forceInt(options, n.Top)
+	bottom := forceInt(options, n.Bottom)
+
+	outputf("baslib.ViewPrint(%s,%s)\n", top, bottom)
+}
+
+// FindUsedVars finds used vars
+func (n *NodeViewPrint) FindUsedVars(options *BuildOptions) {
+	if n.Top != NodeExp(nil) {
+		n.Top.FindUsedVars(options)
+	}
+	if n.Bottom != NodeExp(nil) {
+		n.Bottom.FindUsedVars(options)
+	}
+}

@@ -154,6 +154,7 @@ const (
 	TkKeywordTo        = iota // TO
 	TkKeywordUsing     = iota // USING
 	TkKeywordVal       = iota // VAL
+	TkKeywordView      = iota // VIEW
 	TkKeywordWend      = iota // WEND
 	TkKeywordWhile     = iota // WHILE
 	TkKeywordWidth     = iota // WIDTH
@@ -266,6 +267,7 @@ var tabKeywords = []struct {
 	{TkKeywordTo, "TO"},
 	{TkKeywordUsing, "USING"},
 	{TkKeywordVal, "VAL"},
+	{TkKeywordView, "VIEW"},
 	{TkKeywordWend, "WEND"},
 	{TkKeywordWhile, "WHILE"},
 	{TkKeywordWidth, "WIDTH"},
@@ -409,6 +411,7 @@ var tabType = []string{
 	"TO",
 	"USING",
 	"VAL",
+	"VIEW",
 	"WEND",
 	"WHILE",
 	"WIDTH",
