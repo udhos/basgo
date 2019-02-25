@@ -127,6 +127,7 @@ func locateAlert(row, col int, s string) {
 	Locate(row, col)
 	alert(s)
 	Locate(y, x)
+	screenShow()
 }
 
 func (s *screen) Read(buf []byte) (int, error) {
@@ -143,6 +144,7 @@ func (s *screen) Read(buf []byte) (int, error) {
 		if !ok {
 			return 0, io.EOF
 		}
+		f := func() { locateAlert(20, 10, itoa(s.bufSize) + " " + itoa(screenRow) + "," + itoa(screenPos) + "           ") }
 		kType := key.Key()
 		switch kType {
 		case tcell.KeyBackspace, tcell.KeyDEL:
@@ -156,11 +158,21 @@ func (s *screen) Read(buf []byte) (int, error) {
 			//locateAlert(16, 20, "backspace="+itoa(int(r))+"        ")
 			if screenCursorShow {
 				if s.bufSize > 0 {
-					Locate(screenRow, screenPos-1)
+					if screenPos == 1 {
+						if screenRow > 1 {
+							// wrap line up
+							screenRow--
+							screenPos = 80
+						} 
+					} else {
+						screenPos-- // backspace
+					}
+					Locate(screenRow, screenPos)
 					screenPut(' ')
 					s.bufSize--
 				}
 			}
+			f()
 			return size, nil
 		case tcell.KeyEnter:
 			need := 1
@@ -173,6 +185,7 @@ func (s *screen) Read(buf []byte) (int, error) {
 				screenCR()
 				s.bufSize = 0
 			}
+			f()
 			return 1, nil
 		case tcell.KeyRune:
 			r := key.Rune()
@@ -186,6 +199,7 @@ func (s *screen) Read(buf []byte) (int, error) {
 				printItem(r)
 				s.bufSize++
 			}
+			f()
 			return size, nil
 		}
 	}
