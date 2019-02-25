@@ -121,11 +121,11 @@ type screen struct {
 }
 
 func locateAlert(s string) {
-			x := screenPos
-			 y:= screenRow
-			Locate(15,30)
-			alert(itoa(x) + " " + itoa(y))
-			Locate(y,x)
+	x := screenPos
+	y := screenRow
+	Locate(15, 30)
+	alert(itoa(x) + " " + itoa(y))
+	Locate(y, x)
 }
 
 func (s *screen) Read(buf []byte) (int, error) {
