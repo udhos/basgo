@@ -11,10 +11,11 @@ import (
 )
 
 var (
-	scr           screen
-	screenWidth   = 80
-	screenHeight  = 25
-	screenViewTop = 1
+	scr              screen
+	screenWidth      = 80
+	screenHeight     = 25
+	screenViewTop    = 1
+	screenCursorShow bool
 )
 
 func End() {
@@ -119,32 +120,65 @@ type screen struct {
 	keys chan tcell.EventKey
 }
 
+func locateAlert(s string) {
+			x := screenPos
+			 y:= screenRow
+			Locate(15,30)
+			alert(itoa(x) + " " + itoa(y))
+			Locate(y,x)
+}
+
 func (s *screen) Read(buf []byte) (int, error) {
 	for {
+		if screenCursorShow {
+			s.s.ShowCursor(screenPos-1, screenRow-1)
+
+			locateAlert(itoa(screenRow) + " " + itoa(screenPos))
+		} else {
+			s.s.HideCursor()
+		}
 		key, ok := <-s.keys
 		if !ok {
 			return 0, io.EOF
 		}
 		kType := key.Key()
 		switch kType {
-		case tcell.KeyEnter:
-			//Println(fmt.Sprintf("[enter]"))
-			need := 1
-			avail := len(buf)
-			if need > avail {
-				return 0, fmt.Errorf("screen.Read: enter short buffer: need=%d avail=%d", need, avail)
-			}
-			buf[0] = '\n'
-			return 1, nil
-		case tcell.KeyRune:
+		case tcell.KeyBackspace:
 			r := key.Rune()
-			//Println(fmt.Sprintf("[%v]", r))
 			need := utf8.RuneLen(r)
 			avail := len(buf)
 			if need > avail {
 				return 0, fmt.Errorf("screen.Read: rune short buffer: need=%d avail=%d", need, avail)
 			}
 			size := utf8.EncodeRune(buf, r)
+			locateAlert("backspace")
+			if screenCursorShow {
+				Locate(screenRow, screenPos-1)
+				screenPut(' ')
+			}
+			return size, nil
+		case tcell.KeyEnter:
+			need := 1
+			avail := len(buf)
+			if need > avail {
+				return 0, fmt.Errorf("screen.Read: enter short buffer: need=%d avail=%d", need, avail)
+			}
+			buf[0] = '\n'
+			if screenCursorShow {
+				screenCR()
+			}
+			return 1, nil
+		case tcell.KeyRune:
+			r := key.Rune()
+			need := utf8.RuneLen(r)
+			avail := len(buf)
+			if need > avail {
+				return 0, fmt.Errorf("screen.Read: rune short buffer: need=%d avail=%d", need, avail)
+			}
+			size := utf8.EncodeRune(buf, r)
+			if screenCursorShow {
+				printItem(r)
+			}
 			return size, nil
 		}
 	}
@@ -226,4 +260,15 @@ func screenScroll() {
 
 func screenShow() {
 	scr.s.Show()
+}
+
+func screenCursor(enable bool) {
+	screenCursorShow = enable
+	if screenMode0() {
+		if screenCursorShow {
+			scr.s.ShowCursor(screenPos-1, screenRow-1)
+		} else {
+			scr.s.HideCursor()
+		}
+	}
 }

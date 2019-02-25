@@ -111,10 +111,14 @@ func Inkey() string {
 
 func inputString() string {
 
+	screenCursor(true) // enable
+
 	buf, err := stdin.ReadBytes('\n')
 	if err != nil && err != io.EOF {
 		alert("input error: %v", err)
 	}
+
+	screenCursor(false) // disable
 
 	buf = bytes.TrimRight(buf, "\n")
 	buf = bytes.TrimRight(buf, "\r")
