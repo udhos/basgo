@@ -120,11 +120,11 @@ type screen struct {
 	keys chan tcell.EventKey
 }
 
-func locateAlert(s string) {
+func locateAlert(row, col int, s string) {
 	x := screenPos
 	y := screenRow
-	Locate(15, 30)
-	alert(itoa(x) + " " + itoa(y))
+	Locate(row, col)
+	alert(s)
 	Locate(y, x)
 }
 
@@ -133,7 +133,7 @@ func (s *screen) Read(buf []byte) (int, error) {
 		if screenCursorShow {
 			s.s.ShowCursor(screenPos-1, screenRow-1)
 
-			locateAlert(itoa(screenRow) + " " + itoa(screenPos))
+			locateAlert(15,20,itoa(screenRow) + " " + itoa(screenPos))
 		} else {
 			s.s.HideCursor()
 		}
@@ -143,7 +143,7 @@ func (s *screen) Read(buf []byte) (int, error) {
 		}
 		kType := key.Key()
 		switch kType {
-		case tcell.KeyBackspace:
+		case tcell.KeyBackspace,tcell.KeyDEL:
 			r := key.Rune()
 			need := utf8.RuneLen(r)
 			avail := len(buf)
@@ -151,7 +151,7 @@ func (s *screen) Read(buf []byte) (int, error) {
 				return 0, fmt.Errorf("screen.Read: rune short buffer: need=%d avail=%d", need, avail)
 			}
 			size := utf8.EncodeRune(buf, r)
-			locateAlert("backspace")
+			locateAlert(16,20,"backspace="+itoa(int(r))+"        ")
 			if screenCursorShow {
 				Locate(screenRow, screenPos-1)
 				screenPut(' ')
