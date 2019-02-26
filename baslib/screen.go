@@ -162,7 +162,9 @@ func (s *screen) Read(buf []byte) (int, error) {
 		if !ok {
 			return 0, io.EOF
 		}
-		f := func() { locateAlert(20, 10, itoa(s.bufSize)+" "+itoa(screenRow)+","+itoa(screenPos)+"           ") }
+		f := func() {
+			//locateAlert(20, 10, itoa(s.bufSize)+" "+itoa(screenRow)+","+itoa(screenPos)+"           ")	
+		}
 		kType := key.Key()
 		switch kType {
 		case tcell.KeyBackspace, tcell.KeyDEL:
