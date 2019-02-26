@@ -11,11 +11,13 @@ import (
 )
 
 var (
-	scr              screen
-	screenWidth      = 80
-	screenHeight     = 25
-	screenViewTop    = 1
-	screenCursorShow bool
+	scr                   screen
+	screenWidth           = 80
+	screenHeight          = 25
+	screenViewTop         = 1
+	screenCursorShow      bool
+	screenColorForeground = tcell.ColorWhite
+	screenColorBackground = tcell.ColorBlack
 )
 
 func End() {
@@ -25,6 +27,22 @@ func End() {
 
 func screenMode0() bool {
 	return scr.s != nil
+}
+
+func Color(fg, bg int) {
+	if fg >= 0 {
+		screenColorForeground = tcell.Color(fg)
+	}
+
+	if bg >= 0 {
+		screenColorBackground = tcell.Color(bg)
+	}
+
+	if screenMode0() {
+		scr.s.SetStyle(tcell.StyleDefault.
+			Foreground(screenColorForeground).
+			Background(screenColorBackground))
+	}
 }
 
 func Screen(mode int) {
@@ -222,9 +240,7 @@ func (s *screen) start() {
 
 	s.s = sNew
 
-	s.s.SetStyle(tcell.StyleDefault.
-		Foreground(tcell.ColorWhite).
-		Background(tcell.ColorBlack))
+	Color(int(tcell.ColorWhite), int(tcell.ColorBlack))
 
 	s.s.Clear()
 

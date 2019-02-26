@@ -1055,7 +1055,30 @@ stmt: /* empty */
   | TkKeywordChain expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("CHAIN") }
   | TkKeywordClear { $$ = unsupportedEmpty("CLEAR") }
   | TkKeywordClear expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("CLEAR") }
-  | TkKeywordColor expressions_push call_exp_list expressions_pop { $$ = unsupportedEmpty("COLOR") }
+  | TkKeywordColor expressions_push null_exp_list expressions_pop
+	{
+		list := $3
+		if len(list) < 1 {
+			yylex.Error("Missing COLOR arguments")
+		}
+		var fg,bg node.NodeExp
+		if f := list[0]; f != nodeExpNull {
+			if !node.TypeNumeric(f.Type(Result.TypeTable)) {
+				yylex.Error("COLOR foreground be numeric")
+			}
+			fg = f
+		}
+		if len(list) > 1 {
+			if b := list[1]; b != nodeExpNull {
+				if !node.TypeNumeric(b.Type(Result.TypeTable)) {
+					yylex.Error("COLOR background must be numeric")
+				}
+				bg = b 
+			}
+		}
+		Result.Baslib = true
+		$$ = &node.NodeColor{Foreground: fg, Background: bg}
+	}
   | TkKeywordCommon expressions_push common_var_list expressions_pop { $$ = unsupportedEmpty("COMMON") }
   | TkKeywordLocate expressions_push null_exp_list expressions_pop
 	{

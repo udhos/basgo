@@ -1988,3 +1988,58 @@ func (n *NodeViewPrint) FindUsedVars(options *BuildOptions) {
 		n.Bottom.FindUsedVars(options)
 	}
 }
+
+// NodeColor is color
+type NodeColor struct {
+	Foreground NodeExp
+	Background NodeExp
+}
+
+// Name returns the name of the node
+func (n *NodeColor) Name() string {
+	return "COLOR"
+}
+
+// Show displays the node
+func (n *NodeColor) Show(printf FuncPrintf) {
+	printf("[")
+	printf(n.Name())
+	if n.Foreground != NodeExp(nil) {
+		printf(" ")
+		printf(n.Foreground.String())
+	}
+	if n.Background != NodeExp(nil) {
+		printf(" ")
+		printf(n.Background.String())
+	}
+	printf("]")
+}
+
+// Build generates code
+func (n *NodeColor) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+
+	fg := "-1" // do not change color
+	bg := "-1" // do not change color
+
+	if n.Foreground != NodeExp(nil) {
+		fg = forceInt(options, n.Foreground)
+	}
+	if n.Background != NodeExp(nil) {
+		bg = forceInt(options, n.Background)
+	}
+
+	outputf("baslib.Color(%s,%s)\n", fg, bg)
+}
+
+// FindUsedVars finds used vars
+func (n *NodeColor) FindUsedVars(options *BuildOptions) {
+	if n.Foreground != NodeExp(nil) {
+		n.Foreground.FindUsedVars(options)
+	}
+	if n.Background != NodeExp(nil) {
+		n.Background.FindUsedVars(options)
+	}
+}
