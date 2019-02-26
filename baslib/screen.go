@@ -116,8 +116,9 @@ func screenLastRow() int {
 }
 
 type screen struct {
-	s    tcell.Screen
-	keys chan tcell.EventKey
+	s       tcell.Screen
+	keys    chan tcell.EventKey
+	bufSize int
 }
 
 func locateAlert(row, col int, s string) {
@@ -133,17 +134,18 @@ func (s *screen) Read(buf []byte) (int, error) {
 		if screenCursorShow {
 			s.s.ShowCursor(screenPos-1, screenRow-1)
 
-			locateAlert(15,20,itoa(screenRow) + " " + itoa(screenPos))
+			//locateAlert(15, 20, itoa(screenRow)+" "+itoa(screenPos))
 		} else {
 			s.s.HideCursor()
 		}
+		screenShow()
 		key, ok := <-s.keys
 		if !ok {
 			return 0, io.EOF
 		}
 		kType := key.Key()
 		switch kType {
-		case tcell.KeyBackspace,tcell.KeyDEL:
+		case tcell.KeyBackspace, tcell.KeyDEL:
 			r := key.Rune()
 			need := utf8.RuneLen(r)
 			avail := len(buf)
@@ -151,10 +153,13 @@ func (s *screen) Read(buf []byte) (int, error) {
 				return 0, fmt.Errorf("screen.Read: rune short buffer: need=%d avail=%d", need, avail)
 			}
 			size := utf8.EncodeRune(buf, r)
-			locateAlert(16,20,"backspace="+itoa(int(r))+"        ")
+			//locateAlert(16, 20, "backspace="+itoa(int(r))+"        ")
 			if screenCursorShow {
-				Locate(screenRow, screenPos-1)
-				screenPut(' ')
+				if s.bufSize > 0 {
+					Locate(screenRow, screenPos-1)
+					screenPut(' ')
+					s.bufSize--
+				}
 			}
 			return size, nil
 		case tcell.KeyEnter:
@@ -166,6 +171,7 @@ func (s *screen) Read(buf []byte) (int, error) {
 			buf[0] = '\n'
 			if screenCursorShow {
 				screenCR()
+				s.bufSize = 0
 			}
 			return 1, nil
 		case tcell.KeyRune:
@@ -178,6 +184,7 @@ func (s *screen) Read(buf []byte) (int, error) {
 			size := utf8.EncodeRune(buf, r)
 			if screenCursorShow {
 				printItem(r)
+				s.bufSize++
 			}
 			return size, nil
 		}
@@ -270,5 +277,6 @@ func screenCursor(enable bool) {
 		} else {
 			scr.s.HideCursor()
 		}
+		screenShow()
 	}
 }

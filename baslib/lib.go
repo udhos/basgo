@@ -123,7 +123,20 @@ func inputString() string {
 	buf = bytes.TrimRight(buf, "\n")
 	buf = bytes.TrimRight(buf, "\r")
 
-	s := string(buf)
+	// remove backspaces
+	buf2 := make([]byte, 0, len(buf))
+	for _, b := range buf {
+		switch b {
+		case 8, 127:
+			if len(buf2) > 0 {
+				buf2 = buf2[:len(buf2)-1]
+			}
+		default:
+			buf2 = append(buf2, b)
+		}
+	}
+
+	s := string(buf2)
 
 	return s
 }
