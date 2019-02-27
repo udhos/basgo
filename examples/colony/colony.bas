@@ -3,7 +3,7 @@
 1100 planetmax=20
 1110 dim planetx(20), planety(20)
 1120 banditmax=20
-1130 dim banditx(20), bandity(20), banditd(20)
+1130 dim banditx(20), bandity(20), banditd(20), banditt(20)
 1200 planets=5
 1210 bandits=5
 1300 fieldsizex=80
