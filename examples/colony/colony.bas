@@ -16,7 +16,7 @@
 1520 next
 9000 h=1:hd=.1:h1=1
 10000 rem main game loop
-10010 playerx=fieldsizex / 2
+10010 playerx=int(fieldsizex / 2)
 10020 playery=fieldsizey - 2
 10030 while cmd$<>"q"
 10040 cmd$=inkey$
