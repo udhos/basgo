@@ -163,7 +163,7 @@ func (s *screen) Read(buf []byte) (int, error) {
 			return 0, io.EOF
 		}
 		f := func() {
-			//locateAlert(20, 10, itoa(s.bufSize)+" "+itoa(screenRow)+","+itoa(screenPos)+"           ")	
+			//locateAlert(20, 10, itoa(s.bufSize)+" "+itoa(screenRow)+","+itoa(screenPos)+"           ")
 		}
 		kType := key.Key()
 		switch kType {
