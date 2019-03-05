@@ -1,4 +1,4 @@
-100 screen 0
+100 screen 0: cls
 110 locate 1,1: color 1,6: print "x"
 120 print
 130 color 7,0
