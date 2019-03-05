@@ -173,7 +173,7 @@ func FuncGet(tab map[string]FuncSymbol, name string) (FuncSymbol, bool) {
 	return symb, found
 }
 
-// ArraySetDeclared sets array as decçared
+// ArraySetDeclared sets array as declared
 func ArraySetDeclared(tab map[string]ArraySymbol, name string, dimensions []string) error {
 	low := strings.ToLower(name)
 
@@ -752,6 +752,50 @@ func (n *NodeDim) Build(options *BuildOptions, outputf FuncPrintf) {
 // FindUsedVars finds used vars
 func (n *NodeDim) FindUsedVars(options *BuildOptions) {
 	// DIM allows only constant expressions - no vars
+}
+
+// NodeErase is erase
+type NodeErase struct {
+	Arrays []NodeExp
+}
+
+// Name returns the name of the node
+func (n *NodeErase) Name() string {
+	return "ERASE"
+}
+
+// Show displays the node
+func (n *NodeErase) Show(printf FuncPrintf) {
+	printf("[%s ", n.Name())
+	for _, a := range n.Arrays {
+		printf(a.String())
+	}
+	printf("]")
+}
+
+// Build generates code
+func (n *NodeErase) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+
+	for _, e := range n.Arrays {
+		v := e.String()
+		arr, found := options.Arrays[strings.ToLower(v)]
+		if !found {
+			msg := fmt.Sprintf("NodeErase.Build: array not found: '%s'", v)
+			log.Printf(msg)
+			outputf("// %s\n", msg)
+			continue
+		}
+		name := RenameArray(options.TypeTable, v)
+		arrayType := arr.ArrayType(options.TypeTable, v)
+		outputf("%s = %s{} // ERASE reset array [%s]\n", name, arrayType, v)
+	}
+}
+
+// FindUsedVars finds used vars
+func (n *NodeErase) FindUsedVars(options *BuildOptions) {
 }
 
 // NodeOnGosub is ongosub

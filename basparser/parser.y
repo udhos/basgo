@@ -234,6 +234,7 @@ func Reset() {
 %token <tok> TkKeywordDim
 %token <tok> TkKeywordElse
 %token <tok> TkKeywordEnd
+%token <tok> TkKeywordErase
 %token <tok> TkKeywordError
 %token <tok> TkKeywordFor
 %token <tok> TkKeywordGodecl
@@ -1078,6 +1079,20 @@ stmt: /* empty */
 		}
 		Result.Baslib = true
 		$$ = &node.NodeColor{Foreground: fg, Background: bg}
+	}
+  | TkKeywordErase single_var_list
+	{
+		list := $2
+
+		for _, a := range list {
+			name := a.String()
+			_, found := Result.ArrayTable[strings.ToLower(name)]
+			if !found {
+				yylex.Error("ERASE array not declared: '" + name + "'")
+			}
+		}
+
+		$$ = &node.NodeErase{Arrays: list}
 	}
   | TkKeywordCommon expressions_push common_var_list expressions_pop { $$ = unsupportedEmpty("COMMON") }
   | TkKeywordLocate expressions_push null_exp_list expressions_pop

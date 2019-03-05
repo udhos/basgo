@@ -106,6 +106,10 @@ var testTable = []buildTest{
 	{"ugh", "", "", WRONG},            // invalid program
 	{`10 print "ab"`, "", "ab\n", OK}, // minimum program
 
+	{`10 erase a$`, "", "", WRONG},
+	{`10 dim a$(20):a$(1)="a":print a$(1);:print a$(1);`, "", "aa", OK},
+	{`10 dim a$(20):a$(1)="a":print a$(1);:erase a$:print a$(1);`, "", "a", OK},
+
 	{`10 print pos(0);`, "", " 1 ", OK},
 	{`10 print pos(0);pos(0);`, "", " 1  4 ", OK},
 	{`10 print "abcd";pos(0);`, "", "abcd 5 ", OK},

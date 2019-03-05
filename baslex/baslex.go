@@ -89,6 +89,7 @@ const (
 	TkKeywordDim       = iota // DIM
 	TkKeywordElse      = iota // ELSE
 	TkKeywordEnd       = iota // END
+	TkKeywordErase     = iota // ERASE
 	TkKeywordError     = iota // ERROR
 	TkKeywordFor       = iota // FOR
 	TkKeywordGodecl    = iota // _GODECL
@@ -198,6 +199,7 @@ var tabKeywords = []struct {
 	{TkKeywordElse, "ELSE"},
 	{TkKeywordEnd, "END"},
 	{TkKeywordEqv, "EQV"},
+	{TkKeywordErase, "ERASE"},
 	{TkKeywordError, "ERROR"},
 	{TkKeywordFor, "FOR"},
 	{TkKeywordGodecl, "_GODECL"},
@@ -346,6 +348,7 @@ var tabType = []string{
 	"DIM",
 	"ELSE",
 	"END",
+	"ERASE",
 	"ERROR",
 	"FOR",
 	"_GODECL",
