@@ -236,6 +236,7 @@ func Reset() {
 %token <tok> TkKeywordEnd
 %token <tok> TkKeywordErase
 %token <tok> TkKeywordError
+%token <tok> TkKeywordFix
 %token <tok> TkKeywordFor
 %token <tok> TkKeywordGodecl
 %token <tok> TkKeywordGofunc
@@ -1925,12 +1926,22 @@ exp: one_const_noneg { $$ = $1 }
        Result.Baslib = true // BoolToInt
        $$ = &node.NodeExpLE{Left:$1, Right:$3}
      }
+   | TkKeywordFix TkParLeft exp TkParRight
+     {
+       e := $3
+       if !node.TypeNumeric(e.Type(Result.TypeTable)) {
+           yylex.Error("FIX expression must be numeric")
+       }
+       Result.Baslib = true
+       $$ = &node.NodeExpFix{Value:e}
+     }
    | TkKeywordInt TkParLeft exp TkParRight
      {
        e := $3
        if !node.TypeNumeric(e.Type(Result.TypeTable)) {
            yylex.Error("INT expression must be numeric")
        }
+       Result.Baslib = true
        $$ = &node.NodeExpInt{Value:e}
      }
    | TkKeywordLeft TkParLeft exp TkComma exp TkParRight

@@ -106,6 +106,15 @@ var testTable = []buildTest{
 	{"ugh", "", "", WRONG},            // invalid program
 	{`10 print "ab"`, "", "ab\n", OK}, // minimum program
 
+	{`10 print int(1);`, "", " 1 ", OK},
+	{`10 print fix(1);`, "", " 1 ", OK},
+	{`10 a%=1:print int(a%);`, "", " 1 ", OK},
+	{`10 a%=1:print fix(a%);`, "", " 1 ", OK},
+	{`10 print int(-8.4);`, "", " -9 ", OK},
+	{`10 print fix(-8.4);`, "", " -8 ", OK},
+	{`10 print int(8.9);`, "", " 8 ", OK},
+	{`10 print fix(8.9);`, "", " 8 ", OK},
+
 	{`10 erase a$`, "", "", WRONG},
 	{`10 dim a$(20):a$(1)="a":print a$(1);:print a$(1);`, "", "aa", OK},
 	{`10 dim a$(20):a$(1)="a":print a$(1);:erase a$:print a$(1);`, "", "a", OK},

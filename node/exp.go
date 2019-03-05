@@ -520,6 +520,37 @@ func (e *NodeExpInkey) Exp(options *BuildOptions) string {
 func (e *NodeExpInkey) FindUsedVars(options *BuildOptions) {
 }
 
+// NodeExpFix holds value
+type NodeExpFix struct {
+	Value NodeExp
+}
+
+// Type returns type
+func (e *NodeExpFix) Type(table []int) int {
+	return TypeInteger
+}
+
+// String returns value
+func (e *NodeExpFix) String() string {
+	return "FIX(" + e.Value.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpFix) Exp(options *BuildOptions) string {
+	s := e.Value.Exp(options)
+
+	if e.Value.Type(options.TypeTable) == TypeInteger {
+		return s
+	}
+
+	return "baslib.Fix(" + s + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpFix) FindUsedVars(options *BuildOptions) {
+	e.Value.FindUsedVars(options)
+}
+
 // NodeExpInt holds value
 type NodeExpInt struct {
 	Value NodeExp
@@ -537,17 +568,25 @@ func (e *NodeExpInt) String() string {
 
 // Exp returns value
 func (e *NodeExpInt) Exp(options *BuildOptions) string {
-	return "(" + floorInt(options, e.Value) + ")"
+	s := e.Value.Exp(options)
+
+	if e.Value.Type(options.TypeTable) == TypeInteger {
+		return s
+	}
+
+	return "baslib.Int(" + s + ")"
 }
 
+/*
 func floorInt(options *BuildOptions, e NodeExp) string {
 	s := e.Exp(options)
 	if e.Type(options.TypeTable) != TypeInteger {
 		options.Headers["math"] = struct{}{}
-		return toInt("math.Floor(" + s + ") /* <- floorInt(non-int) */")
+		return toInt("math.Floor(" + s + ") ")
 	}
 	return s
 }
+*/
 
 // FindUsedVars finds used vars
 func (e *NodeExpInt) FindUsedVars(options *BuildOptions) {

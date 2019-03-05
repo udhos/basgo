@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math"
 	"math/rand"
 	"os"
 	"strconv"
@@ -64,6 +65,14 @@ func Val(s string) float64 {
 		alert("numeric value from: '%s' error: %v", s, err)
 	}
 	return v
+}
+
+func Int(v float64) int {
+	return int(math.Floor(v))
+}
+
+func Fix(v float64) int {
+	return int(math.Trunc(v))
 }
 
 func BoolToInt(v bool) int {
