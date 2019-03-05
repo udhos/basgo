@@ -18,6 +18,7 @@ var (
 	screenCursorShow      bool
 	screenColorForeground = tcell.ColorWhite
 	screenColorBackground = tcell.ColorBlack
+	screenStyle           tcell.Style
 )
 
 func End() {
@@ -38,11 +39,28 @@ func Color(fg, bg int) {
 		screenColorBackground = tcell.Color(bg)
 	}
 
-	if screenMode0() {
-		scr.s.SetStyle(tcell.StyleDefault.
-			Foreground(screenColorForeground).
-			Background(screenColorBackground))
+	screenStyle = tcell.StyleDefault.Foreground(screenColorForeground).Background(screenColorBackground)
+}
+
+func ScreenFunc(row, col int, colorFlag bool) int {
+	if !screenMode0() {
+		return 0
 	}
+
+	mainc, _, style, _ := scr.s.GetContent(col-1, row-1)
+
+	if colorFlag {
+		fg, bg, _ := style.Decompose() // fg,bg,attr
+
+		f := int(fg)
+		b := int(bg)
+
+		//locateAlert(16, 20, "SCREEN(): fg="+itoa(f)+" bg="+itoa(b))
+
+		return b*16 + f
+	}
+
+	return int(mainc)
 }
 
 func Screen(mode int) {
@@ -277,7 +295,7 @@ func screenEvents() {
 }
 
 func screenPut(r rune) {
-	scr.s.SetContent(screenPos-1, screenViewTop+screenRow-2, r, nil, 0)
+	scr.s.SetContent(screenPos-1, screenViewTop+screenRow-2, r, nil, screenStyle)
 }
 
 func screenScroll() {

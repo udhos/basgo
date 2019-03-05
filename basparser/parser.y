@@ -2203,6 +2203,36 @@ exp: one_const_noneg { $$ = $1 }
         Result.Baslib = true
         $$ = &node.NodeExpPos{}
      }
+  | TkKeywordScreen TkParLeft exp TkComma exp TkParRight
+     {
+	row := $3
+	col := $5
+        if !node.TypeNumeric(row.Type(Result.TypeTable)) {
+           yylex.Error("SCREEN() row must be numeric")
+        }	
+        if !node.TypeNumeric(col.Type(Result.TypeTable)) {
+           yylex.Error("SCREEN() column must be numeric")
+        }	
+        Result.Baslib = true
+        $$ = &node.NodeExpScreen{Row: row, Col: col, ColorFlag: &node.NodeExpNumber{Value:"0"}}
+     }
+  | TkKeywordScreen TkParLeft exp TkComma exp TkComma exp TkParRight
+     {
+	row := $3
+	col := $5
+	colorFlag := $7
+        if !node.TypeNumeric(row.Type(Result.TypeTable)) {
+           yylex.Error("SCREEN() row must be numeric")
+        }	
+        if !node.TypeNumeric(col.Type(Result.TypeTable)) {
+           yylex.Error("SCREEN() column must be numeric")
+        }	
+        if !node.TypeNumeric(colorFlag.Type(Result.TypeTable)) {
+           yylex.Error("SCREEN() colorflag must be numeric")
+        }	
+        Result.Baslib = true
+        $$ = &node.NodeExpScreen{Row: row, Col: col, ColorFlag: colorFlag}
+     }
   | TkKeywordCsrlin 
      {
         Result.Baslib = true

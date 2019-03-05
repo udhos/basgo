@@ -1747,3 +1747,32 @@ func (e *NodeExpNull) Exp(options *BuildOptions) string {
 // FindUsedVars finds used vars
 func (e *NodeExpNull) FindUsedVars(options *BuildOptions) {
 }
+
+// NodeExpScreen holds value
+type NodeExpScreen struct {
+	Row       NodeExp
+	Col       NodeExp
+	ColorFlag NodeExp
+}
+
+// Type returns type
+func (e *NodeExpScreen) Type(table []int) int {
+	return TypeInteger
+}
+
+// String returns value
+func (e *NodeExpScreen) String() string {
+	return "SCREEN(" + e.Row.String() + "," + e.Col.String() + "," + e.ColorFlag.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpScreen) Exp(options *BuildOptions) string {
+	return "baslib.ScreenFunc(" + forceInt(options, e.Row) + "," + forceInt(options, e.Col) + ",0!=" + forceInt(options, e.ColorFlag) + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpScreen) FindUsedVars(options *BuildOptions) {
+	e.Row.FindUsedVars(options)
+	e.Col.FindUsedVars(options)
+	e.ColorFlag.FindUsedVars(options)
+}
