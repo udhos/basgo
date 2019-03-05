@@ -1,0 +1,158 @@
+dodge text version program documentation file...
+
+This is to document the ascii art version of dodge... a rebuild of the original I wrote in gwbasic back when i was in my early teens. It's been extended a bit to make the gameplay more interesting.
+
+There will be a player
+a car: that moves across the bottom of the screen
+chocolate: something to gather for points.(+500 score)
+marbles: something else to gather for score. (+250 score)
+heart to improve heath (+5 score)
+jump monster: a monster that follows you jumping around
+a ground robot that can climb ladders
+a missile that comes out of the car and lasts a fixed period of time...
+Need to add a spawn point saved in the map for the car (and maybe the missile) done for the car
+Barrels like in donkey kong? (or ladder)
+
+map elements
+platforms (stops missles)
+ladders.
+spikes. (no longer included)
+maybe conveyors left and right?
+
+ascii char codes for items (display)
+001 player (002 for when being hurt)
+003 for the heart
+064 for the ground robot
+235 marbles
+021 jump monster
+029 missle
+234 ground robot
+022 chocolate
+145 car
+019 jetpack?
+ o  barrel
+ v  barrel spawn point
+
+display stuff
+015 explosion
+024 up arrow (for jump meter)
+
+map
+219 (solid) platform
+177 (checkered) platform (using!)
+197 ladder
+174 convey left
+175 convey right
+127 spike
+
+Map stored on disk...
+O = soid wall
+# = ladder
+< = convey left
+> = convey right
+^ = car spawn point (used to be spike.)
+v = barrel spawn point
+  = empty
+
+Variables!
+for the map generator ---
+map(75,22) : the game map being generated.
+i,c general purpose variables for loops
+x,y: location of what is being generated
+count: how many to generate
+w: how wide it should be
+
+line
+10000 = draw level
+
+the game itself
+Variables
+map(75,22) base 1 the current playing field
+i,c c$, f$ are generic use variables do not rely on thier contents
+t is a temp variable
+result is the result of function calls see subroutine list
+
+player variables
+pyx,pyy player location
+upf	players current up force (current upward movement
+health  player health (0-10 0 being no health and dead)
+score	players score
+juf	player jetpack fuel?  (otherwise jump force)
+pdir	direction of travel (-1 left 1 right 0 nowhere)
+immune	number of ticks after being hurt that the player is immune
+
+gound bot variables
+gbx,gby location
+
+heart variables.
+hx,hy location
+ht    cycle countdown before another appears! or disappears!
+
+marble variables
+mbx,mby location
+mbt     cycle count down
+
+chocolate
+chx,chy location
+cht	cycle count down
+
+car
+cax,cay	location
+csx,csy car start location.
+
+missile
+msx, msy location
+msf  missiles fuel (5 at start)
+mst  time before firing again.
+
+jetpack power up
+jpx, jpy location
+jpt      cycle count down.
+
+jump monster
+jmx, jmy location
+jmu	 jumping up time... can jump 7 characters
+
+barrels
+bsx, bsy spawn point for barrels. (-1,-1 disables barrels)
+bsc	spawn cycle count down (will vary between 5-20 game cycles)
+bc	the number of barrels.
+bx, by	the barrel location (array of 20 at most)
+bd	the barrel direction (0 is left 1 is right)
+
+timing variables
+nextt	- next timer number which will trigger movement
+et - enemy trigger, triggers the enemies movement every second tick
+
+main game loop starts at 1000
+end of game at 2000
+stuff before that is for selecting a level (builtin or otherwise)
+
+subroutines
+10000 - load map routine f$ is the file to be loaded returns nothing
+10200 - draw a map location on screen uses i,c as x,y inputs
+10300 - draws the entire play field!
+10400 - finds a empty location randomly i,c are the co-ordinates.
+10500 - returns 1 in result if an object located at i,c will fall
+10600 - returns 1 in result if an object (at i,c) can move left
+10700 - returns 1 in result if an object (at i,c) can move right
+10800 - returns 1 in result if an object (at i,c) can climb a ladder
+10900 - returns (in result) the effect of conveyors on an object (at i,c) -1 is left 1 is right 0 is nowhere
+11000 - draws the status of the player on the top row
+11270 - initialises the game variables for play.
+11360 - load a level from a RLE encoded data segment (use restore to set the line the level data is at)
+11560 - check for a colision with the player. hurts the player one point if there is a collision
+
+30000 - level data encoded in RLE format
+
+object update subroutines!
+7000 - Barrels update
+8000 - car update
+8150 - jetpack update.
+8300 - Jump monster update.
+8560 - missile
+9000 - player update
+9200 - ground bot update
+9420 - Heart update 
+9600 - marble update 
+9740 - chocolate update

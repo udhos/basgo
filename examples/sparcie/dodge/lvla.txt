@@ -1,0 +1,23 @@
+                                                 v                         E
+                                OOOOOOOOO#OOOO                        O#OOOE
+        <<<<<<<<<<<<                     #                             #   E
+                                         #                            O#OOOE
+                        OOOOOOOOOOOOO    #                             #   E
+                                         #                             #   E
+                                         #OOOOOOOOOOOO                 #   E
+                                         #                             #   E
+ O#OOOOOOOOOOOOOOOO>>>>>>>>>>>>>>>>      #                             #   E
+  #                                      #                             #   E
+  #                                      #               OOOOOOOOOOO   #   E
+  #                                      #                             #   E
+OOOOOOOO#OOOOOOOOOO                      #        OOOOOOOOOOO#OOOOOOOOOOOOOE
+        #     OOOOOOOOOOOOOOO            #                   #             E
+        #                                #                   #             E
+        #                                #                   #            ^E
+     OOOOOOOOOOOOO  OOOOOOOOOOO          #                   #OOOOOOOOOOOOOE
+                              OO#OOOOOOO #                   #             E
+                                #        # OOOOOOOOOOOOOOOOO #             E
+                                #        #            OOOOOOO#OOOOOOOOOOOOOE
+                                #        #OOOOOOOOOOOOOOOOOOO#OOO          E
+                                #        #                   #             E
+

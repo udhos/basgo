@@ -1,0 +1,23 @@
+   #       #  OOOOOOOOOOOOOOOOOOO         v              #                 E
+   #       #                                             #                 E
+   #       #                                             #                 E
+   #       #                        OOOOOOOOOOO#OOOO     #                 E
+   #       #                                   #         #               OOE
+   #      OOOOOOOOOOOOOOOOOOOOOOO              #         #                 E
+   #                                           #         #                 E
+   #                                           #         #                 E
+   #                                           #         #                 E
+   #  OOOOOOOOOOOOOOOOO                        #         #                 E
+   #                        <<<<<<<<<<<        #         #                 E
+   #        >>>#OOOOOO                         #         #                 E
+   #           #     OOOOOOOOOO#OOOOOO         #         #                 E
+   #           #               #     OOO       #         #          OOOOOOOE
+   #           #               #               #         #       OOOO      E
+   #           #               #               #         #                 E
+   #           #               #               #    OOOOOOOOOOO            E
+   #           #               #               #                           E
+   #           # OOOOOOOOOOOOOOOOOO            #                           E
+   #           #                               #   OOOOOOOOOOOOOOO         E
+   #           #        OOOOOOOOOOO            #                           E
+   #           #                               #                           E
+
