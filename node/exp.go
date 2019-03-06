@@ -1819,3 +1819,28 @@ func (e *NodeExpScreen) FindUsedVars(options *BuildOptions) {
 	e.Col.FindUsedVars(options)
 	e.ColorFlag.FindUsedVars(options)
 }
+
+// NodeExpEof holds value
+type NodeExpEof struct {
+	Number NodeExp
+}
+
+// Type returns type
+func (e *NodeExpEof) Type(table []int) int {
+	return TypeInteger
+}
+
+// String returns value
+func (e *NodeExpEof) String() string {
+	return "EOF(" + e.Number.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpEof) Exp(options *BuildOptions) string {
+	return "baslib.Eof(" + forceInt(options, e.Number) + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpEof) FindUsedVars(options *BuildOptions) {
+	e.Number.FindUsedVars(options)
+}

@@ -15,6 +15,7 @@ const (
 type fileInfo struct {
 	file   *os.File
 	number int
+	eof    bool
 }
 
 var fileTable = map[int]fileInfo{}
@@ -27,6 +28,18 @@ func Files(pattern string) {
 	for _, f := range files {
 		Println(f)
 	}
+}
+
+func Eof(number int) int {
+	i, found := fileTable[number]
+	if !found {
+		alert("EOF %d: file not open", number)
+		return -1 // eof true
+	}
+	if i.eof {
+		return -1 // eof true
+	}
+	return 0 // eof false
 }
 
 func isOpen(number int) bool {

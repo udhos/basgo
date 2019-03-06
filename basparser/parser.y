@@ -235,6 +235,7 @@ func Reset() {
 %token <tok> TkKeywordDim
 %token <tok> TkKeywordElse
 %token <tok> TkKeywordEnd
+%token <tok> TkKeywordEof
 %token <tok> TkKeywordErase
 %token <tok> TkKeywordError
 %token <tok> TkKeywordFiles
@@ -2271,6 +2272,15 @@ exp: one_const_noneg { $$ = $1 }
         Result.Baslib = true
         $$ = &node.NodeExpCsrlin{}
      }
+  | TkKeywordEof TkParLeft exp TkParRight
+	{
+		num := $3
+		if !node.TypeNumeric(num.Type(Result.TypeTable)) {
+			yylex.Error("EOF file number must be numeric")
+		}
+		Result.Baslib = true
+		$$ = &node.NodeExpEof{Number: num}
+	}
    ;
 
 %%

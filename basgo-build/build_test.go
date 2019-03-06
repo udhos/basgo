@@ -106,6 +106,9 @@ var testTable = []buildTest{
 	{"ugh", "", "", WRONG},            // invalid program
 	{`10 print "ab"`, "", "ab\n", OK}, // minimum program
 
+	{`10 print eof(1);`, "", " -1 ", OK},
+	{`10 open "/etc/passwd" for input as 1:print eof(1);`, "", " 0 ", OK},
+
 	{`10 print int(1);`, "", " 1 ", OK},
 	{`10 print fix(1);`, "", " 1 ", OK},
 	{`10 a%=1:print int(a%);`, "", " 1 ", OK},

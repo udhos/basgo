@@ -89,6 +89,7 @@ const (
 	TkKeywordDim       = iota // DIM
 	TkKeywordElse      = iota // ELSE
 	TkKeywordEnd       = iota // END
+	TkKeywordEof       = iota // EOF
 	TkKeywordErase     = iota // ERASE
 	TkKeywordError     = iota // ERROR
 	TkKeywordFiles     = iota // FILES
@@ -200,6 +201,7 @@ var tabKeywords = []struct {
 	{TkKeywordDim, "DIM"},
 	{TkKeywordElse, "ELSE"},
 	{TkKeywordEnd, "END"},
+	{TkKeywordEof, "EOF"},
 	{TkKeywordEqv, "EQV"},
 	{TkKeywordErase, "ERASE"},
 	{TkKeywordError, "ERROR"},
@@ -352,6 +354,7 @@ var tabType = []string{
 	"DIM",
 	"ELSE",
 	"END",
+	"EOF",
 	"ERASE",
 	"ERROR",
 	"FILES",
