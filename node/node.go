@@ -1328,6 +1328,56 @@ func (n *NodeInput) FindUsedVars(options *BuildOptions) {
 	// INPUT does not actually use var
 }
 
+// NodeInputFile handles input
+type NodeInputFile struct {
+	Number    NodeExp
+	Variables []NodeExp
+}
+
+// Name returns the name of the node
+func (n *NodeInputFile) Name() string {
+	return "INPUT#"
+}
+
+// Show displays the node
+func (n *NodeInputFile) Show(printf FuncPrintf) {
+	printf("[%s number=%s vars=%d]", n.Name(), n.Number.String(), len(n.Variables))
+}
+
+// Build generates code
+func (n *NodeInputFile) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+
+	num := forceInt(options, n.Number)
+
+	for i, v := range n.Variables {
+		str := v.Exp(options)
+		var code string
+		t := v.Type(options.TypeTable)
+		switch t {
+		case TypeString:
+			code = fmt.Sprintf("%s = baslib.FileInputString(%s)", str, num)
+		case TypeInteger:
+			code = fmt.Sprintf("%s = baslib.FileInputInteger(%s)", str, num)
+		case TypeFloat:
+			code = fmt.Sprintf("%s = baslib.FileInputFloat(%s)", str, num)
+		}
+		used := VarOrArrayIsUsed(options, v)
+		if used {
+			outputf("  %s // INPUT# var %d\n", code, i)
+		} else {
+			outputf("  // %s // unnused INPUT# var %d %s suppressed\n", code, i, v.String())
+		}
+	}
+}
+
+// FindUsedVars finds used vars
+func (n *NodeInputFile) FindUsedVars(options *BuildOptions) {
+	// INPUT does not actually use var
+}
+
 // NodeList lists lines
 type NodeList struct {
 }

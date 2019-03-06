@@ -1,6 +1,9 @@
 package baslib
 
 import (
+	"bufio"
+	"bytes"
+	"io"
 	"os"
 	"path/filepath"
 )
@@ -14,6 +17,7 @@ const (
 
 type fileInfo struct {
 	file   *os.File
+	reader *bufio.Reader
 	number int
 	eof    bool
 }
@@ -31,15 +35,22 @@ func Files(pattern string) {
 }
 
 func Eof(number int) int {
+	return BoolToInt(hitEof(number))
+}
+
+func hitEof(number int) bool {
 	i, found := fileTable[number]
 	if !found {
 		alert("EOF %d: file not open", number)
-		return -1 // eof true
+		return true
 	}
 	if i.eof {
-		return -1 // eof true
+		return true
 	}
-	return 0 // eof false
+	if i.reader == nil {
+		return true
+	}
+	return false
 }
 
 func isOpen(number int) bool {
@@ -56,6 +67,7 @@ func Open(name string, number, mode int) {
 
 	var f *os.File
 	var errOpen error
+	var r *bufio.Reader
 
 	switch mode {
 	case OpenInput:
@@ -72,9 +84,14 @@ func Open(name string, number, mode int) {
 		return
 	}
 
+	if mode == OpenInput {
+		r = bufio.NewReader(f)
+	}
+
 	fileTable[number] = fileInfo{
 		file:   f,
 		number: number,
+		reader: r,
 	}
 }
 
@@ -99,4 +116,65 @@ func CloseAll() {
 	for _, i := range fileTable {
 		fileClose(i)
 	}
+}
+
+func getReader(number int) *bufio.Reader {
+	if hitEof(number) {
+		return nil
+	}
+	i, _ := fileTable[number]
+	return i.reader
+}
+
+func FileInputString(number int) string {
+	return fileInputString(number)
+}
+
+func FileInputInteger(number int) int {
+	s := fileInputString(number)
+	if s == "" {
+		return 0
+	}
+	return InputParseInteger(s)
+}
+
+func FileInputFloat(number int) float64 {
+	s := fileInputString(number)
+	if s == "" {
+		return 0
+	}
+	return InputParseFloat(s)
+}
+
+func setEof(number int) {
+	i, found := fileTable[number]
+	if !found {
+		alert("EOF on non-open file: %d", number)
+		return
+	}
+	if i.eof {
+		return // noop
+	}
+	i.eof = true
+	fileTable[number] = i
+}
+
+func fileInputString(number int) string {
+	reader := getReader(number)
+	if reader == nil {
+		return ""
+	}
+	buf, err := reader.ReadBytes('\n')
+	switch err {
+	case nil:
+	case io.EOF:
+		setEof(number)
+	default:
+		alert("INPUT# %d error: %v", number, err)
+	}
+
+	buf = bytes.TrimRight(buf, "\n")
+	buf = bytes.TrimRight(buf, "\r")
+
+	return string(buf)
 }

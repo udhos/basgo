@@ -769,14 +769,14 @@ stmt: /* empty */
   | TkKeywordInput TkHash exp TkComma expressions_push var_list expressions_pop
      {
        num := $3
-       //list := $6
+       list := $6
 
        if !node.TypeNumeric(num.Type(Result.TypeTable)) {
           yylex.Error("INPUT# file number must be numeric")
        }
 
-       log.Printf("INPUT# FIXME WRITEME")
-       $$ = unsupportedEmpty("INPUT#")
+       Result.Baslib = true
+       $$ = &node.NodeInputFile{Number:num, Variables:list}
      }
   | TkKeywordInput expressions_push var_list expressions_pop
      {
