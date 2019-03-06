@@ -2087,3 +2087,36 @@ func (n *NodeColor) FindUsedVars(options *BuildOptions) {
 		n.Background.FindUsedVars(options)
 	}
 }
+
+// NodeFiles is files
+type NodeFiles struct {
+	Pattern NodeExp
+}
+
+// Name returns the name of the node
+func (n *NodeFiles) Name() string {
+	return "FILES"
+}
+
+// Show displays the node
+func (n *NodeFiles) Show(printf FuncPrintf) {
+	printf("[")
+	printf(n.Name())
+	printf(" <")
+	printf(n.Pattern.String())
+	printf(">]")
+}
+
+// Build generates code
+func (n *NodeFiles) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+
+	outputf("baslib.Files(%s)\n", n.Pattern.Exp(options))
+}
+
+// FindUsedVars finds used vars
+func (n *NodeFiles) FindUsedVars(options *BuildOptions) {
+	n.Pattern.FindUsedVars(options)
+}

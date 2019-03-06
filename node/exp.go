@@ -99,6 +99,10 @@ func (e *NodeExpFloat) FindUsedVars(options *BuildOptions) {
 	// do nothing
 }
 
+func NewNodeExpStringEmpty() *NodeExpString {
+	return &NodeExpString{}
+}
+
 func NewNodeExpString(s string) *NodeExpString {
 	q := `"`
 	return &NodeExpString{Value: strings.TrimSuffix(strings.TrimPrefix(s, q), q)}

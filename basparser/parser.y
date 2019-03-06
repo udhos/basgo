@@ -236,6 +236,7 @@ func Reset() {
 %token <tok> TkKeywordEnd
 %token <tok> TkKeywordErase
 %token <tok> TkKeywordError
+%token <tok> TkKeywordFiles
 %token <tok> TkKeywordFix
 %token <tok> TkKeywordFor
 %token <tok> TkKeywordGodecl
@@ -514,7 +515,7 @@ stmt: /* empty */
 		Result.RestoreTable[line] = Result.DataOffset
 	}
 	Result.DataOffset++
-        $$ = &node.NodeData{Expressions: []node.NodeExp{node.NewNodeExpString(`""`)}}
+        $$ = &node.NodeData{Expressions: []node.NodeExp{node.NewNodeExpStringEmpty()}}
      }
   | TkKeywordData const_list_any
      {
@@ -1169,6 +1170,20 @@ stmt: /* empty */
 		}
         	Result.Baslib = true
 		$$ = &node.NodeViewPrint{Top: top, Bottom: bottom}
+	}
+  | TkKeywordFiles
+	{
+        	Result.Baslib = true
+		$$ = &node.NodeFiles{Pattern: node.NewNodeExpString("*")}
+	}
+  | TkKeywordFiles exp
+	{
+		pattern := $2
+		if pattern.Type(Result.TypeTable) != node.TypeString {
+			yylex.Error("FILES pattern must be string")
+		}
+        	Result.Baslib = true
+		$$ = &node.NodeFiles{Pattern: pattern}
 	}
   ;
 
