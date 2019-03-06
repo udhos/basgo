@@ -82,11 +82,11 @@ func Screen(mode int) {
 func Cls() {
 	if screenMode0() {
 		if screenViewTop == 1 && screenHeight > 24 {
-			//scr.s.Clear() // clear terminal
 			scr.s.Fill(' ', screenStyle) // clear terminal
 		} else {
 			cls() // clear view print window
 		}
+		screenShow()
 	}
 	screenPos = 1
 	screenRow = 1
@@ -95,13 +95,11 @@ func Cls() {
 func cls() {
 	lastRow := screenLastRow()
 
-	for row := screenViewTop; row <= lastRow; row++ {
+	for row := screenViewTop - 1; row < lastRow; row++ {
 		for col := 0; col < screenWidth; col++ {
-			scr.s.SetContent(col, row-1, ' ', nil, screenStyle)
+			scr.s.SetContent(col, row, ' ', nil, screenStyle)
 		}
 	}
-
-	screenShow()
 }
 
 func Locate(row, col int) {
