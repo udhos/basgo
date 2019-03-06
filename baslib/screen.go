@@ -82,7 +82,8 @@ func Screen(mode int) {
 func Cls() {
 	if screenMode0() {
 		if screenViewTop == 1 && screenHeight > 24 {
-			scr.s.Clear() // clear terminal
+			//scr.s.Clear() // clear terminal
+			scr.s.Fill(' ', screenStyle) // clear terminal
 		} else {
 			cls() // clear view print window
 		}
@@ -96,7 +97,7 @@ func cls() {
 
 	for row := screenViewTop; row <= lastRow; row++ {
 		for col := 0; col < screenWidth; col++ {
-			scr.s.SetContent(col, row-1, ' ', nil, 0)
+			scr.s.SetContent(col, row-1, ' ', nil, screenStyle)
 		}
 	}
 

@@ -1,7 +1,7 @@
-100 screen 0: cls
-110 locate 1,1: color 1,6: print "x"
+100 screen 0
+110 color 1,6: cls: locate 1,1: print "x"
 120 print
-130 color 7,0
+130 'color 7,0
 140 print "code:";screen(1,1)
 150 print "char:";chr$(screen(1,1))
 160 attr=screen(1,1,1)
