@@ -312,7 +312,7 @@ func screenScroll() {
 
 	// clear last line
 	for col := 0; col < screenWidth; col++ {
-		scr.s.SetContent(col, lastRow, ' ', nil, 0)
+		scr.s.SetContent(col, lastRow, ' ', nil, screenStyle)
 	}
 }
 
