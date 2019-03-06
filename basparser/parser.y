@@ -14,6 +14,7 @@ import (
 
 	"github.com/udhos/basgo/baslex"
 	"github.com/udhos/basgo/node"
+	"github.com/udhos/basgo/baslib"
 )
 
 type ParserResult struct {
@@ -740,13 +741,17 @@ stmt: /* empty */
      }
   | TkKeywordClose
      {
-       log.Printf("CLOSE FIXME WRITEME")
-       $$ = unsupportedEmpty("CLOSE")
+       $$ = &node.NodeClose{}
      }
   | TkKeywordClose expressions_push file_num_list expressions_pop
      {
-       log.Printf("CLOSE FIXME WRITEME")
-       $$ = unsupportedEmpty("CLOSE")
+       list := $3
+       for _, num := range list {
+          if !node.TypeNumeric(num.Type(Result.TypeTable)) {
+              yylex.Error("CLOSE file number must be numeric")
+          }
+       }
+       $$ = &node.NodeClose{Numbers: list}
      }
   | TkKeywordPrint TkHash exp TkComma expressions_push var_list expressions_pop
      {
@@ -842,7 +847,8 @@ stmt: /* empty */
            yylex.Error("OPEN file number must be numeric")
 	}
 	
-        $$ = &node.NodeOpen{File:filename, Number:num, Mode:node.OpenInput}
+        Result.Baslib = true
+        $$ = &node.NodeOpen{File:filename, Number:num, Mode:baslib.OpenInput}
      }
   | TkKeywordOpen exp TkKeywordFor TkIdentifier TkIdentifier file_num
      {
@@ -858,7 +864,7 @@ stmt: /* empty */
 	}
 	switch strings.ToLower(mode) {
            case "output":
-              m = node.OpenOutput
+              m = baslib.OpenOutput
            default:
               yylex.Error("OPEN unexpected mode: " + mode)
         }
@@ -869,6 +875,7 @@ stmt: /* empty */
            yylex.Error("OPEN file number must be numeric")
 	}
 	
+        Result.Baslib = true
         $$ = &node.NodeOpen{File:filename, Number:num, Mode:m}
      }
   | TkKeywordPrint

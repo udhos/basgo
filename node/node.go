@@ -1783,13 +1783,6 @@ func (n *NodeRandomize) FindUsedVars(options *BuildOptions) {
 	}
 }
 
-const (
-	OpenRandom = iota
-	OpenInput  = iota
-	OpenOutput = iota
-	OpenAppend = iota
-)
-
 // NodeOpen is open
 type NodeOpen struct {
 	File   NodeExp
@@ -1815,12 +1808,62 @@ func (n *NodeOpen) Build(options *BuildOptions, outputf FuncPrintf) {
 	n.Show(outputf)
 	outputf("\n")
 
+	outputf("baslib.Open(%s,%s,%d)\n", n.File.Exp(options), n.Number.Exp(options), n.Mode)
 }
 
 // FindUsedVars finds used vars
 func (n *NodeOpen) FindUsedVars(options *BuildOptions) {
 	n.File.FindUsedVars(options)
 	n.Number.FindUsedVars(options)
+}
+
+// NodeClose is close
+type NodeClose struct {
+	Numbers []NodeExp
+}
+
+// Name returns the name of the node
+func (n *NodeClose) Name() string {
+	return "CLOSE"
+}
+
+// Show displays the node
+func (n *NodeClose) Show(printf FuncPrintf) {
+	printf("[")
+	printf(n.Name())
+	if n.Numbers != nil {
+		for _, num := range n.Numbers {
+			printf(" ")
+			printf(num.String())
+		}
+	}
+	printf("]")
+}
+
+// Build generates code
+func (n *NodeClose) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+
+	if n.Numbers == nil {
+		outputf("baslib.CloseAll()\n")
+		return
+	}
+
+	for _, num := range n.Numbers {
+		outputf("baslib.Close(%s)\n", num.Exp(options))
+	}
+}
+
+// FindUsedVars finds used vars
+func (n *NodeClose) FindUsedVars(options *BuildOptions) {
+	if n.Numbers == nil {
+		return
+	}
+	for _, num := range n.Numbers {
+		num.FindUsedVars(options)
+	}
 }
 
 // NodeScreen is screen
