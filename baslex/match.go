@@ -328,6 +328,7 @@ func unread(l *Lex) error {
 
 	errInputUnread := l.r.UnreadByte()
 	if errInputUnread == nil {
+		l.countRead--
 		l.lineOffset--
 	}
 	return errInputUnread

@@ -17,7 +17,7 @@ func main() {
 	lex := baslex.New(input)
 	for lex.HasToken() {
 		tok := lex.Next()
-		fmt.Printf("line=%02d offset=%02d id=%02d %-s [%-s]\n", tok.LineCount, tok.LineOffset, tok.ID, tok.Type(), tok.Value)
+		fmt.Printf("line=%02d col=%02d id=%03d offset=%d %-s [%-s]\n", tok.LineCount, tok.LineOffset, tok.ID, lex.Offset(), tok.Type(), tok.Value)
 	}
 	log.Printf("%s: reading input from stdin...done", me)
 
