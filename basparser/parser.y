@@ -122,6 +122,7 @@ func Reset() {
 	typeLineNumber string
 	typeIdentList []string
 	typeRangeList [][]string
+	typeBool bool
 
 	tok int
 }
@@ -138,6 +139,7 @@ func Reset() {
 %type <typeStmt> stmt_goto
 %type <typeStmt> assign
 %type <typeExpressions> print_expressions
+%type <typeExpressions> printfile_expressions
 %type <typeExpressions> array_index_exp_list
 %type <typeExpressions> call_exp_list
 %type <typeExpressions> null_exp_list
@@ -170,6 +172,7 @@ func Reset() {
 %type <typeIdentifier> letter_single
 %type <typeIdentList> letter_range
 %type <typeRangeList> letter_range_list
+%type <typeBool> semicolon_optional
 
 // same for terminals
 
@@ -504,6 +507,9 @@ letter_range_list: letter_range
 	}
 	;
 
+semicolon_optional: { $$ = false }
+	| TkSemicolon { $$ = true } ;
+
 stmt: /* empty */
      { $$ = &node.NodeEmpty{} }
   | TkKeywordEnd
@@ -756,17 +762,18 @@ stmt: /* empty */
        }
        $$ = &node.NodeClose{Numbers: list}
      }
-  | TkKeywordPrint TkHash exp TkComma expressions_push print_expressions expressions_pop
+  | TkKeywordPrint TkHash exp TkComma expressions_push printfile_expressions expressions_pop semicolon_optional
      {
        num := $3
        list := $6
+       semi := $8
 
        if !node.TypeNumeric(num.Type(Result.TypeTable)) {
           yylex.Error("PRINT# file number must be numeric")
        }
 
        Result.Baslib = true
-       $$ = &node.NodePrintFile{Number:num, Expressions:list}
+       $$ = &node.NodePrintFile{Number:num, Expressions:list, Newline:!semi}
      }
   | TkKeywordInput TkHash exp TkComma expressions_push var_list expressions_pop
      {
@@ -1421,6 +1428,21 @@ print_expressions: exp
 	}
     |
         print_expressions TkSemicolon exp
+        {
+		last := len(expListStack) - 1
+		expListStack[last] = append(expListStack[last], $3)
+	        $$ = expListStack[last]
+	}
+    ;
+
+printfile_expressions: exp
+	{
+		last := len(expListStack) - 1
+        	expListStack[last] = []node.NodeExp{$1} // reset print_expressions
+	        $$ = expListStack[last]
+	}
+    |
+        printfile_expressions TkComma exp
         {
 		last := len(expListStack) - 1
 		expListStack[last] = append(expListStack[last], $3)
@@ -2245,6 +2267,19 @@ exp: one_const_noneg { $$ = $1 }
        }	
        Result.Baslib = true
        $$ = &node.NodeExpInput{Count: count}
+     }
+  | TkKeywordInputFunc TkParLeft exp TkComma file_num TkParRight
+     {
+       count := $3
+       num := $5
+       if !node.TypeNumeric(count.Type(Result.TypeTable)) {
+           yylex.Error("INPUT$ count must be numeric")
+       }	
+       if !node.TypeNumeric(num.Type(Result.TypeTable)) {
+           yylex.Error("INPUT$ file number must be numeric")
+       }	
+       Result.Baslib = true
+       $$ = &node.NodeExpInputFile{Count: count, Number: num}
      }
   | TkKeywordPos TkParLeft exp TkParRight
      {

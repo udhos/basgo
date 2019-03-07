@@ -882,6 +882,7 @@ func (n *NodeOnGoto) FindUsedVars(options *BuildOptions) {
 type NodePrintFile struct {
 	Number      NodeExp
 	Expressions []NodeExp
+	Newline     bool
 }
 
 // Name returns the name of the node
@@ -891,7 +892,17 @@ func (n *NodePrintFile) Name() string {
 
 // Show displays the node
 func (n *NodePrintFile) Show(printf FuncPrintf) {
-	printf("[%s number=%s exps=%d]", n.Name(), n.Number.String(), len(n.Expressions))
+	printf("[" + n.Name())
+	printf(n.Number.String())
+	for _, e := range n.Expressions {
+		printf(" <")
+		printf(e.String())
+		printf(">")
+	}
+	if n.Newline {
+		printf(" NEWLINE")
+	}
+	printf("]")
 }
 
 // Build generates code
@@ -914,6 +925,10 @@ func (n *NodePrintFile) Build(options *BuildOptions, outputf FuncPrintf) {
 		default:
 			log.Printf("NodePrintFile.Build: unsupported type: %d", t)
 		}
+	}
+
+	if n.Newline {
+		outputf("baslib.FileNewline(%s) // PRINT# newline not suppressed\n", num)
 	}
 }
 

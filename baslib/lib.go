@@ -158,12 +158,12 @@ func InputCount(count int) string {
 
 	buf := make([]byte, count)
 
-	_, err := stdin.Read(buf)
+	n, err := stdin.Read(buf)
 	if err != nil {
 		alert("InputCount: error: %v", err)
 	}
 
-	return string(buf)
+	return string(buf[:n])
 }
 
 func Input(prompt, question string, count int) []string {

@@ -1724,6 +1724,35 @@ func (e *NodeExpInput) FindUsedVars(options *BuildOptions) {
 	e.Count.FindUsedVars(options)
 }
 
+// NodeExpInputFile holds value
+type NodeExpInputFile struct {
+	Count  NodeExp
+	Number NodeExp
+}
+
+// Type returns type
+func (e *NodeExpInputFile) Type(table []int) int {
+	return TypeString
+}
+
+// String returns value
+func (e *NodeExpInputFile) String() string {
+	return "INPUT$(" + e.Count.String() + "," + e.Number.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpInputFile) Exp(options *BuildOptions) string {
+	count := forceInt(options, e.Count)
+	num := forceInt(options, e.Number)
+	return "baslib.FileInputCount(" + count + "," + num + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpInputFile) FindUsedVars(options *BuildOptions) {
+	e.Count.FindUsedVars(options)
+	e.Number.FindUsedVars(options)
+}
+
 // NodeExpCsrlin holds value
 type NodeExpCsrlin struct{}
 

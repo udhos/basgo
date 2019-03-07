@@ -106,6 +106,8 @@ var testTable = []buildTest{
 	{"ugh", "", "", WRONG},            // invalid program
 	{`10 print "ab"`, "", "ab\n", OK}, // minimum program
 
+	{`10 a$="/tmp/x":open a$ for output as 1:print#1,"xyz":close:open a$ for input as 1:print input$(2,#1);`, "", "xy", OK},
+
 	{`10 a$="/tmp/x":open a$ for output as 1:print#1,"a":print#1,"b":close:open a$ for input as 1:input#1,x$,y$:print x$;"-";y$;`, "", "a-b", OK},
 
 	{`10 print environ$("basgo-ttt");`, "", "", OK},

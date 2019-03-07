@@ -180,13 +180,43 @@ func fileInputString(number int) string {
 	return string(buf)
 }
 
+func FileInputCount(count, number int) string {
+	if count < 1 {
+		alert("INPUT$ #%d bad length: %d", number, count)
+		return ""
+	}
+
+	reader := getReader(number)
+	if reader == nil {
+		return ""
+	}
+
+	buf := make([]byte, count)
+
+	n, err := reader.Read(buf)
+	switch err {
+	case nil:
+	case io.EOF:
+		setEof(number)
+	default:
+		alert("INPUT$ #%d error: %v", number, err)
+	}
+
+	if n != count {
+		alert("INPUT$ #%d found=%d < request=%d", number, n, count)
+	}
+
+	return string(buf[:n])
+
+}
+
 func FilePrint(number int, value string) {
 	i, found := fileTable[number]
 	if !found {
 		alert("PRINT# %d: file not open", number)
 		return
 	}
-	_, err := i.file.WriteString(value + "\n")
+	_, err := i.file.WriteString(value)
 	if err != nil {
 		alert("PRINT# %d error: %v", number, err)
 	}
@@ -198,4 +228,16 @@ func FilePrintInt(number, value int) {
 
 func FilePrintFloat(number int, value float64) {
 	FilePrint(number, ftoa(value))
+}
+
+func FileNewline(number int) {
+	i, found := fileTable[number]
+	if !found {
+		alert("PRINT# %d: file not open", number)
+		return
+	}
+	_, err := i.file.WriteString("\n")
+	if err != nil {
+		alert("PRINT# %d error: %v", number, err)
+	}
 }
