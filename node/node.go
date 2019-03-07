@@ -878,6 +878,52 @@ func (n *NodeOnGoto) FindUsedVars(options *BuildOptions) {
 	n.Cond.FindUsedVars(options)
 }
 
+// NodePrintFile handles print file
+type NodePrintFile struct {
+	Number      NodeExp
+	Expressions []NodeExp
+}
+
+// Name returns the name of the node
+func (n *NodePrintFile) Name() string {
+	return "PRINT#"
+}
+
+// Show displays the node
+func (n *NodePrintFile) Show(printf FuncPrintf) {
+	printf("[%s number=%s exps=%d]", n.Name(), n.Number.String(), len(n.Expressions))
+}
+
+// Build generates code
+func (n *NodePrintFile) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+
+	num := forceInt(options, n.Number)
+
+	for _, e := range n.Expressions {
+		t := e.Type(options.TypeTable)
+		switch t {
+		case TypeString:
+			outputf("baslib.FilePrint(%s,%s)\n", num, e.Exp(options))
+		case TypeInteger:
+			outputf("baslib.FilePrintInt(%s,%s)\n", num, e.Exp(options))
+		case TypeFloat:
+			outputf("baslib.FilePrintFloat(%s,%s)\n", num, e.Exp(options))
+		default:
+			log.Printf("NodePrintFile.Build: unsupported type: %d", t)
+		}
+	}
+}
+
+// FindUsedVars finds used vars
+func (n *NodePrintFile) FindUsedVars(options *BuildOptions) {
+	for _, e := range n.Expressions {
+		e.FindUsedVars(options)
+	}
+}
+
 // NodePrint is print
 type NodePrint struct {
 	Newline     bool
@@ -925,17 +971,6 @@ func (n *NodePrint) Build(options *BuildOptions, outputf FuncPrintf) {
 		default:
 			log.Printf("NodePrint.Build: unsupported type: %d", t)
 		}
-
-		/*
-			numeric := TypeNumeric(e.Type(options.TypeTable))
-			if numeric {
-				outputf("baslib.Print(` `) // PRINT space before number\n")
-			}
-			outputf("baslib.Print(%s)\n", e.Exp(options))
-			if numeric {
-				outputf("baslib.Print(` `) // PRINT space after number\n")
-			}
-		*/
 	}
 
 	if n.Tab {
@@ -945,8 +980,6 @@ func (n *NodePrint) Build(options *BuildOptions, outputf FuncPrintf) {
 	if n.Newline {
 		outputf("baslib.Println(``) // PRINT newline not suppressed\n")
 	}
-
-	//options.Headers["fmt"] = struct{}{} // used package
 }
 
 // FindUsedVars finds used vars

@@ -756,17 +756,17 @@ stmt: /* empty */
        }
        $$ = &node.NodeClose{Numbers: list}
      }
-  | TkKeywordPrint TkHash exp TkComma expressions_push var_list expressions_pop
+  | TkKeywordPrint TkHash exp TkComma expressions_push print_expressions expressions_pop
      {
        num := $3
-       //list := $6
+       list := $6
 
        if !node.TypeNumeric(num.Type(Result.TypeTable)) {
           yylex.Error("PRINT# file number must be numeric")
        }
 
-       log.Printf("PRINT# FIXME WRITEME")
-       $$ = unsupportedEmpty("PRINT#")
+       Result.Baslib = true
+       $$ = &node.NodePrintFile{Number:num, Expressions:list}
      }
   | TkKeywordInput TkHash exp TkComma expressions_push var_list expressions_pop
      {

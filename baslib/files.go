@@ -67,7 +67,6 @@ func Open(name string, number, mode int) {
 
 	var f *os.File
 	var errOpen error
-	var r *bufio.Reader
 
 	switch mode {
 	case OpenInput:
@@ -84,15 +83,17 @@ func Open(name string, number, mode int) {
 		return
 	}
 
-	if mode == OpenInput {
-		r = bufio.NewReader(f)
-	}
-
-	fileTable[number] = fileInfo{
+	i := fileInfo{
 		file:   f,
 		number: number,
-		reader: r,
 	}
+
+	switch mode {
+	case OpenInput:
+		i.reader = bufio.NewReader(f)
+	}
+
+	fileTable[number] = i
 }
 
 func Close(number int) {
@@ -177,4 +178,24 @@ func fileInputString(number int) string {
 	buf = bytes.TrimRight(buf, "\r")
 
 	return string(buf)
+}
+
+func FilePrint(number int, value string) {
+	i, found := fileTable[number]
+	if !found {
+		alert("PRINT# %d: file not open", number)
+		return
+	}
+	_, err := i.file.WriteString(value + "\n")
+	if err != nil {
+		alert("PRINT# %d error: %v", number, err)
+	}
+}
+
+func FilePrintInt(number, value int) {
+	FilePrint(number, itoa(value))
+}
+
+func FilePrintFloat(number int, value float64) {
+	FilePrint(number, ftoa(value))
 }
