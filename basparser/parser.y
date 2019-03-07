@@ -235,6 +235,8 @@ func Reset() {
 %token <tok> TkKeywordDim
 %token <tok> TkKeywordElse
 %token <tok> TkKeywordEnd
+%token <tok> TkKeywordEnviron
+%token <tok> TkKeywordEnvironFunc
 %token <tok> TkKeywordEof
 %token <tok> TkKeywordErase
 %token <tok> TkKeywordError
@@ -1192,6 +1194,15 @@ stmt: /* empty */
 		}
         	Result.Baslib = true
 		$$ = &node.NodeFiles{Pattern: pattern}
+	}
+  | TkKeywordEnviron exp
+	{
+		str := $2
+		if str.Type(Result.TypeTable) != node.TypeString {
+			yylex.Error("ENVIRON value must be string")
+		}
+        	Result.Baslib = true
+		$$ = &node.NodeEnviron{Value: str}
 	}
   ;
 
@@ -2280,6 +2291,12 @@ exp: one_const_noneg { $$ = $1 }
 		}
 		Result.Baslib = true
 		$$ = &node.NodeExpEof{Number: num}
+	}
+  | TkKeywordEnvironFunc TkParLeft exp TkParRight
+	{
+		key := $3
+		Result.Baslib = true
+		$$ = &node.NodeExpEnviron{Key: key}
 	}
    ;
 

@@ -2213,3 +2213,36 @@ func (n *NodeFiles) Build(options *BuildOptions, outputf FuncPrintf) {
 func (n *NodeFiles) FindUsedVars(options *BuildOptions) {
 	n.Pattern.FindUsedVars(options)
 }
+
+// NodeEnviron is environ
+type NodeEnviron struct {
+	Value NodeExp
+}
+
+// Name returns the name of the node
+func (n *NodeEnviron) Name() string {
+	return "ENVIRON"
+}
+
+// Show displays the node
+func (n *NodeEnviron) Show(printf FuncPrintf) {
+	printf("[")
+	printf(n.Name())
+	printf(" <")
+	printf(n.Value.String())
+	printf(">]")
+}
+
+// Build generates code
+func (n *NodeEnviron) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+
+	outputf("baslib.Environ(%s)\n", n.Value.Exp(options))
+}
+
+// FindUsedVars finds used vars
+func (n *NodeEnviron) FindUsedVars(options *BuildOptions) {
+	n.Value.FindUsedVars(options)
+}

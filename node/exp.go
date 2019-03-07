@@ -1844,3 +1844,32 @@ func (e *NodeExpEof) Exp(options *BuildOptions) string {
 func (e *NodeExpEof) FindUsedVars(options *BuildOptions) {
 	e.Number.FindUsedVars(options)
 }
+
+// NodeExpEnviron holds value
+type NodeExpEnviron struct {
+	Key NodeExp
+}
+
+// Type returns type
+func (e *NodeExpEnviron) Type(table []int) int {
+	return TypeString
+}
+
+// String returns value
+func (e *NodeExpEnviron) String() string {
+	return "ENVIRON$(" + e.Key.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpEnviron) Exp(options *BuildOptions) string {
+	if e.Key.Type(options.TypeTable) == TypeString {
+		return "baslib.EnvironKey(" + e.Key.Exp(options) + ")"
+	}
+
+	return "baslib.EnvironIndex(" + forceInt(options, e.Key) + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpEnviron) FindUsedVars(options *BuildOptions) {
+	e.Key.FindUsedVars(options)
+}

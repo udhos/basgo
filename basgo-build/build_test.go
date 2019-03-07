@@ -106,6 +106,11 @@ var testTable = []buildTest{
 	{"ugh", "", "", WRONG},            // invalid program
 	{`10 print "ab"`, "", "ab\n", OK}, // minimum program
 
+	{`10 print environ$("basgo-ttt");`, "", "", OK},
+	{`10 environ "basgo-ttt=zz":print environ$("basgo-ttt");`, "", "zz", OK},
+	{`10 environ "basgo-ttt=zz":environ "basgo-ttt=22":print environ$("basgo-ttt");`, "", "22", OK},
+	{`10 environ "basgo-ttt=zz":environ "basgo-ttt=":print environ$("basgo-ttt");`, "", "", OK},
+
 	{`10 print eof(1);`, "", " -1 ", OK},
 	{`10 open "/etc/passwd" for input as 1:print eof(1);`, "", " 0 ", OK},
 
