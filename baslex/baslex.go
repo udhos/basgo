@@ -476,6 +476,7 @@ type Lex struct {
 	lineCount        int
 	lineOffset       int
 	data             int // support DATA unquoted string
+	countRead        int
 }
 
 const (
@@ -492,6 +493,11 @@ func (l *Lex) Line() int {
 // Column returns current column offset within line.
 func (l *Lex) Column() int {
 	return l.lineOffset
+}
+
+// Offset returns total read bytes.
+func (l *Lex) Offset() int {
+	return l.countRead
 }
 
 // RawLine returns current raw line.
@@ -560,6 +566,8 @@ func (l *Lex) findToken() Token {
 		default:
 			return l.saveLocationEmpty(Token{ID: TkErrInput, Value: fmt.Sprintf("ERROR-INPUT: after [%s]: %v", l.buf.String(), errRead)})
 		}
+
+		l.countRead++
 
 		if errRaw := l.rawLine.WriteByte(b); errRaw != nil {
 			return l.saveLocationEmpty(Token{ID: TkErrInternal, Value: fmt.Sprintf("ERROR-INTERNAL: %v", errRaw)})

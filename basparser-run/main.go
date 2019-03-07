@@ -15,6 +15,7 @@ func main() {
 
 	debug := true
 	input := bufio.NewReader(os.Stdin)
+	log.Printf("%s: input buffer size: %d", me, input.Size())
 	lex := basparser.NewInputLex(input, debug)
 	basparser.Reset()
 	status := basparser.InputParse(lex)

@@ -2448,7 +2448,7 @@ func (l *InputLex) Error(s string) {
 	l.syntaxErrorCount++
 	log.Printf("InputLex.Error: PARSER: %s", s)
 	log.Printf("InputLex.Error: PARSER: last token: %s [%s]", l.lastToken.Type(), l.lastToken.Value)
-	log.Printf("InputLex.Error: PARSER: basicLine=%s inputLine=%d column=%d", lastLineNum, l.lex.Line(), l.lex.Column())
+	log.Printf("InputLex.Error: PARSER: basicLine=%s inputLine=%d column=%d totalOffset=%d", lastLineNum, l.lex.Line(), l.lex.Column(), l.lex.Offset())
 	log.Printf("InputLex.Error: PARSER: errors=%d", l.syntaxErrorCount)
 }
 

@@ -246,6 +246,7 @@ func writeVar(vars map[string]node.VarSymbol, typeTable []int, outputf node.Func
 func parse(input io.Reader, outputf node.FuncPrintf) (basparser.ParserResult, int, int) {
 	debug := false
 	byteInput := bufio.NewReader(input)
+	log.Printf("%s: input buffer size: %d", basgoLabel, byteInput.Size())
 	lex := basparser.NewInputLex(byteInput, debug)
 	basparser.Reset()
 	status := basparser.InputParse(lex)
