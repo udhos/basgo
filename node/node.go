@@ -1902,12 +1902,16 @@ func (n *NodeOpen) FindUsedVars(options *BuildOptions) {
 
 // NodeClose is close
 type NodeClose struct {
+	Label   string
 	Numbers []NodeExp
 }
 
 // Name returns the name of the node
 func (n *NodeClose) Name() string {
-	return "CLOSE"
+	if n.Label == "" {
+		return "CLOSE"
+	}
+	return n.Label
 }
 
 // Show displays the node
@@ -1930,12 +1934,12 @@ func (n *NodeClose) Build(options *BuildOptions, outputf FuncPrintf) {
 	outputf("\n")
 
 	if n.Numbers == nil {
-		outputf("baslib.CloseAll()\n")
+		outputf("baslib.CloseAll() // %s\n", n.Name())
 		return
 	}
 
 	for _, num := range n.Numbers {
-		outputf("baslib.Close(%s)\n", num.Exp(options))
+		outputf("baslib.Close(%s) // %s\n", num.Exp(options), n.Name())
 	}
 }
 

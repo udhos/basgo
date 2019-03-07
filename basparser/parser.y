@@ -1144,7 +1144,10 @@ stmt: /* empty */
   | TkKeywordPlay exp { $$ = unsupportedEmpty("PLAY") }
   | TkKeywordPoke TkParLeft exp TkComma exp TkParRight { $$ = unsupportedEmpty("POKE") }
   | TkKeywordPoke exp TkComma exp { $$ = unsupportedEmpty("POKE") }
-  | TkKeywordReset { $$ = unsupportedEmpty("RESET") }
+  | TkKeywordReset
+	{
+		$$ = &node.NodeClose{Label:"RESET"}
+	}
   | TkKeywordResume { $$ = unsupportedEmpty("RESUME") }
   | TkKeywordResume TkNumber { $$ = unsupportedEmpty("RESUME") }
   | TkKeywordResume TkKeywordNext { $$ = unsupportedEmpty("RESUME") }
