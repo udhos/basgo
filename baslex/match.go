@@ -2,7 +2,7 @@ package baslex
 
 import (
 	"fmt"
-	//"log"
+	"log"
 	"strings"
 )
 
@@ -111,6 +111,10 @@ func quoteString(t Token) Token {
 func (l *Lex) foundEOF() Token {
 
 	l.eofSeen = true
+
+	if l.debug {
+		log.Printf("Lex.foundEOF()")
+	}
 
 	switch l.state {
 	case stBlank:

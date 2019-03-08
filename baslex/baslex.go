@@ -565,7 +565,11 @@ func (l *Lex) nextToken() Token {
 
 // HasToken checks if there are more tokens
 func (l *Lex) HasToken() bool {
-	return !l.eofSent && !l.broken
+	h := !l.eofSent && !l.broken
+	if l.debug {
+		log.Printf("Lex.HasToken: eofSent=%v broken=%v HasToken=%v", l.eofSent, l.broken, h)
+	}
+	return h
 }
 
 func (l *Lex) findToken() Token {
@@ -581,6 +585,9 @@ func (l *Lex) findToken() Token {
 		switch errRead {
 		case nil:
 		case io.EOF:
+			if l.debug {
+				log.Printf("Lex.findToken: io.EOF from ReadByte()")
+			}
 			return l.foundEOF()
 		default:
 			return l.saveLocationEmpty(Token{ID: TkErrInput, Value: fmt.Sprintf("ERROR-INPUT: after [%s]: %v", l.buf.String(), errRead)})
