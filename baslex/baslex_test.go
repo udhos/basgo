@@ -282,7 +282,7 @@ func TestInputFunc(t *testing.T) {
 
 func compareValue(t *testing.T, label, str string, tokens []Token) {
 
-	lex := NewStr(str)
+	lex := NewStr(str, false)
 	var i int
 	for ; lex.HasToken(); i++ {
 		tok := lex.Next()
@@ -303,7 +303,7 @@ func compareValue(t *testing.T, label, str string, tokens []Token) {
 
 func compareID(t *testing.T, label, str string, tokens []int) {
 
-	lex := NewStr(str)
+	lex := NewStr(str, false)
 	var i int
 	for ; lex.HasToken(); i++ {
 		tok := lex.Next()

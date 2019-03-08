@@ -5,7 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	//"log"
+	"log"
 	"strings"
 )
 
@@ -477,6 +477,8 @@ type Lex struct {
 	lineOffset       int
 	data             int // support DATA unquoted string
 	countRead        int
+	debug            bool
+	countToken       int
 }
 
 const (
@@ -506,13 +508,13 @@ func (l *Lex) RawLine() string {
 }
 
 // New creates a Lex object
-func New(input io.ByteScanner) *Lex {
-	return &Lex{r: input, lineCount: 1}
+func New(input io.ByteScanner, debug bool) *Lex {
+	return &Lex{r: input, lineCount: 1, debug: debug}
 }
 
 // NewStr creates a Lex object from string
-func NewStr(s string) *Lex {
-	return New(bufio.NewReader(strings.NewReader(s)))
+func NewStr(s string, debug bool) *Lex {
+	return New(bufio.NewReader(strings.NewReader(s)), debug)
 }
 
 var tokenNull = Token{}
@@ -527,6 +529,23 @@ func (l *Lex) returnTokenEOF() Token {
 // Will return EOF token unless Lex.HasToken() is true.
 // Check for EOF token with Token.IsEOF() method.
 func (l *Lex) Next() Token {
+	t := l.nextToken()
+
+	if l.debug {
+		l.countToken++
+		//log.Printf("Lex.Next: %3d line=%02d col=%02d id=%03d offset=%d %-s [%-s]\n", l.countToken, t.LineCount, t.LineOffset, t.ID, l.Offset(), t.Type(), t.Value)
+		s := TokenString("Lex.Next", t, l.Offset())
+		log.Printf(s+" countToken=%d", l.countToken)
+	}
+
+	return t
+}
+
+func TokenString(label string, t Token, offset int) string {
+	return fmt.Sprintf("%-12s: line=%02d col=%02d offset=%d id=%03d %-s [%-s]", label, t.LineCount, t.LineOffset, offset, t.ID, t.Type(), t.Value)
+}
+
+func (l *Lex) nextToken() Token {
 	if !l.HasToken() {
 		return l.returnTokenEOF()
 	}

@@ -8,7 +8,7 @@ import (
 )
 
 func NewInputLex(input io.ByteScanner, debug bool) *InputLex {
-	return &InputLex{lex: baslex.New(input), debug: debug}
+	return &InputLex{lex: baslex.New(input, debug), debug: debug}
 }
 
 type InputLex struct {
@@ -51,7 +51,9 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 	// ATTENTION: id is in parser token space
 
 	if l.debug {
-		log.Printf("InputLex.Lex: %s [%s] basicLine=%s line=%d col=%d offset=%d\n", t.Type(), t.Value, lastLineNum, l.lex.Line(), l.lex.Column(), l.lex.Offset())
+		//log.Printf("InputLex.Lex: %s [%s] basicLine=%s line=%d col=%d offset=%d\n", t.Type(), t.Value, lastLineNum, l.lex.Line(), l.lex.Column(), l.lex.Offset())
+		s := baslex.TokenString("InputLex.Lex", t, l.lex.Offset())
+		log.Printf(s + " basicLine=" + lastLineNum)
 	}
 
 	// need to store values only for some terminals

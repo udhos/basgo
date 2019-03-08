@@ -19,11 +19,13 @@ func main() {
 	*/
 	input := baslex.NewInput(me, os.Stdin)
 
-	lex := baslex.New(input)
+	lex := baslex.New(input, false)
 	for lex.HasToken() {
-		tok := lex.Next()
-		fmt.Printf("line=%02d col=%02d id=%03d offset=%d %-s [%-s]\n", tok.LineCount, tok.LineOffset, tok.ID, lex.Offset(), tok.Type(), tok.Value)
+		t := lex.Next()
+		s := baslex.TokenString("", t, lex.Offset())
+		fmt.Println(s)
 	}
+
 	log.Printf("%s: reading input from stdin...done", me)
 
 	log.Printf("%s: stopped at line=%d column=%d offset=%d", me, lex.Line(), lex.Column(), lex.Offset())
