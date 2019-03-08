@@ -8,4 +8,4 @@
 170 print row$
 180 count=count+1
 190 wend 
-200 print count;" lines"
+200 print count;"lines"
