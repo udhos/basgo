@@ -51,7 +51,7 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 	// ATTENTION: id is in parser token space
 
 	if l.debug {
-		log.Printf("InputLex.Lex: %s [%s]\n", t.Type(), t.Value)
+		log.Printf("InputLex.Lex: %s [%s] basicLine=%s line=%d col=%d offset=%d\n", t.Type(), t.Value, lastLineNum, l.lex.Line(), l.lex.Column(), l.lex.Offset())
 	}
 
 	// need to store values only for some terminals
