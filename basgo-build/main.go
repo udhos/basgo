@@ -9,6 +9,7 @@ import (
 	"os"
 	"runtime"
 	"sort"
+	"strconv"
 	//"strings"
 
 	"github.com/udhos/basgo/basgo"
@@ -244,7 +245,15 @@ func writeVar(vars map[string]node.VarSymbol, typeTable []int, outputf node.Func
 }
 
 func parse(input io.Reader, outputf node.FuncPrintf) (basparser.ParserResult, int, int) {
-	debug := false
+	d := os.Getenv("DEBUG")
+	debug := d != ""
+	if debug {
+		level, err := strconv.Atoi(d)
+		if err == nil {
+			basparser.InputDebug = level
+		}
+	}
+	log.Printf("%s: DEBUG=[%s] debug=%v level=%d", basgoLabel, d, debug, basparser.InputDebug)
 	byteInput := bufio.NewReader(input)
 	log.Printf("%s: input buffer size: %d", basgoLabel, byteInput.Size())
 	lex := basparser.NewInputLex(byteInput, debug)
