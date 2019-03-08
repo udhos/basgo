@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bufio"
+	//"bufio"
 	"fmt"
 	"log"
 	"os"
@@ -11,9 +11,14 @@ import (
 
 func main() {
 	me := os.Args[0]
+
 	log.Printf("%s: reading input from stdin...", me)
-	input := bufio.NewReader(os.Stdin)
-	log.Printf("%s: input buffer size: %d", me, input.Size())
+	/*
+		input := bufio.NewReader(os.Stdin)
+		log.Printf("%s: input buffer size: %d", me, input.Size())
+	*/
+	input := baslex.NewInput(me, os.Stdin)
+
 	lex := baslex.New(input)
 	for lex.HasToken() {
 		tok := lex.Next()
@@ -21,5 +26,5 @@ func main() {
 	}
 	log.Printf("%s: reading input from stdin...done", me)
 
-	log.Printf("%s: stopped at line=%d column=%d", me, lex.Line(), lex.Column())
+	log.Printf("%s: stopped at line=%d column=%d offset=%d", me, lex.Line(), lex.Column(), lex.Offset())
 }

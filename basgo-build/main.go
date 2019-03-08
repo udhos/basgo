@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bufio"
+	//"bufio"
 	"bytes"
 	"fmt"
 	"io"
@@ -9,7 +9,7 @@ import (
 	"os"
 	"runtime"
 	"sort"
-	"strconv"
+	//"strconv"
 	//"strings"
 
 	"github.com/udhos/basgo/basgo"
@@ -35,7 +35,7 @@ func compile(input io.Reader, outputf node.FuncPrintf) (int, int) {
 
 	log.Printf("%s: parsing", basgoLabel)
 
-	result, status, errors := parse(input, outputf)
+	result, status, errors := basparser.Run(basgoLabel, input)
 	lineNumbersTab := result.LineNumbers
 	nodes := result.Root
 
@@ -244,6 +244,7 @@ func writeVar(vars map[string]node.VarSymbol, typeTable []int, outputf node.Func
 	outputf(")\n")
 }
 
+/*
 func parse(input io.Reader, outputf node.FuncPrintf) (basparser.ParserResult, int, int) {
 	d := os.Getenv("DEBUG")
 	debug := d != ""
@@ -254,6 +255,7 @@ func parse(input io.Reader, outputf node.FuncPrintf) (basparser.ParserResult, in
 		}
 	}
 	log.Printf("%s: DEBUG=[%s] debug=%v level=%d", basgoLabel, d, debug, basparser.InputDebug)
+
 	byteInput := bufio.NewReader(input)
 	log.Printf("%s: input buffer size: %d", basgoLabel, byteInput.Size())
 	lex := basparser.NewInputLex(byteInput, debug)
@@ -262,3 +264,4 @@ func parse(input io.Reader, outputf node.FuncPrintf) (basparser.ParserResult, in
 
 	return basparser.Result, status, lex.Errors()
 }
+*/
