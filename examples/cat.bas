@@ -4,8 +4,8 @@
 130 print "output:"
 140 open c$ for input as 1
 150 while not eof(1)
-160 input #1, line$
-170 print line$
+160 input #1, row$
+170 print row$
 180 count=count+1
 190 wend 
 200 print count;" lines"
