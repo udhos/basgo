@@ -7,6 +7,8 @@ import (
 	"github.com/udhos/basgo/baslex"
 )
 
+// lex.go extracted from footer of parser.y
+
 func NewInputLex(input io.ByteScanner, debug bool) *InputLex {
 	return &InputLex{lex: baslex.New(input, debug), debug: debug}
 }
