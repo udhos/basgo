@@ -14,7 +14,7 @@ import (
 
 	//"github.com/udhos/basgo/baslex"
 	"github.com/udhos/basgo/node"
-	"github.com/udhos/basgo/baslib"
+	"github.com/udhos/basgo/baslib/file"
 )
 
 type ParserResult struct {
@@ -858,7 +858,7 @@ stmt: /* empty */
 	}
 	
         Result.Baslib = true
-        $$ = &node.NodeOpen{File:filename, Number:num, Mode:baslib.OpenInput}
+        $$ = &node.NodeOpen{File:filename, Number:num, Mode:file.OpenInput}
      }
   | TkKeywordOpen exp TkKeywordFor TkIdentifier TkIdentifier file_num
      {
@@ -874,7 +874,7 @@ stmt: /* empty */
 	}
 	switch strings.ToLower(mode) {
            case "output":
-              m = baslib.OpenOutput
+              m = file.OpenOutput
            default:
               yylex.Error("OPEN unexpected mode: " + mode)
         }

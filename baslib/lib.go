@@ -23,13 +23,18 @@ type keyInput interface {
 }
 
 var (
-	stdin       keyInput = inkey.New(os.Stdin)                             // INPUT
-	rnd                  = rand.New(rand.NewSource(time.Now().UnixNano())) // RND
-	rndLast              = rnd.Float64()                                   // RND
-	readDataPos int                                                        // READ-DATA cursor
-	screenPos   = 1                                                        // PRINT COLUMN
-	screenRow   = 1                                                        // PRINT ROW
+	stdin       = newInkey()                                      // INPUT
+	rnd         = rand.New(rand.NewSource(time.Now().UnixNano())) // RND
+	rndLast     = rnd.Float64()                                   // RND
+	readDataPos int                                               // READ-DATA cursor
+	screenPos   = 1                                               // PRINT COLUMN
+	screenRow   = 1                                               // PRINT ROW
 )
+
+func newInkey() keyInput {
+	alert("newInkey(): will consume os.Stdin")
+	return inkey.New(os.Stdin)
+}
 
 func alert(format string, v ...interface{}) {
 	s := "BASLIB ALERT: " + fmt.Sprintf(format, v...)

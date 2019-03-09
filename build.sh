@@ -34,6 +34,7 @@ build ./basparser-run
 build ./basgo
 build ./basgo-run
 build ./baslib
+build ./baslib/file
 
 msg PLEASE STAND BY: tests for basgo-build may take some minutes
 build ./basgo-build

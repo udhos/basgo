@@ -6,13 +6,8 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-)
 
-const (
-	OpenRandom = iota
-	OpenInput  = iota
-	OpenOutput = iota
-	OpenAppend = iota
+	"github.com/udhos/basgo/baslib/file"
 )
 
 type fileInfo struct {
@@ -69,9 +64,9 @@ func Open(name string, number, mode int) {
 	var errOpen error
 
 	switch mode {
-	case OpenInput:
+	case file.OpenInput:
 		f, errOpen = os.Open(name)
-	case OpenOutput:
+	case file.OpenOutput:
 		f, errOpen = os.Create(name)
 	default:
 		alert("OPEN unsupported mode: %d", mode)
@@ -89,7 +84,7 @@ func Open(name string, number, mode int) {
 	}
 
 	switch mode {
-	case OpenInput:
+	case file.OpenInput:
 		i.reader = bufio.NewReader(f)
 	}
 
