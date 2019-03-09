@@ -259,6 +259,7 @@ func Reset() {
 %token <tok> TkKeywordInstr
 %token <tok> TkKeywordInt
 %token <tok> TkKeywordKey
+%token <tok> TkKeywordKill
 %token <tok> TkKeywordLeft
 %token <tok> TkKeywordLen
 %token <tok> TkKeywordLet
@@ -1213,6 +1214,15 @@ stmt: /* empty */
 		}
         	Result.Baslib = true
 		$$ = &node.NodeEnviron{Value: str}
+	}
+  | TkKeywordKill exp
+	{
+		str := $2
+		if str.Type(Result.TypeTable) != node.TypeString {
+			yylex.Error("KILL value must be string")
+		}
+        	Result.Baslib = true
+		$$ = &node.NodeKill{Value: str}
 	}
   ;
 

@@ -110,6 +110,7 @@ const (
 	TkKeywordInstr       = iota // INSTR
 	TkKeywordInt         = iota // INT
 	TkKeywordKey         = iota // KEY
+	TkKeywordKill        = iota // KILL
 	TkKeywordLeft        = iota // LEFT$
 	TkKeywordLen         = iota // LEN
 	TkKeywordLet         = iota // LET
@@ -226,6 +227,7 @@ var tabKeywords = []struct {
 	{TkKeywordInstr, "INSTR"},
 	{TkKeywordInt, "INT"},
 	{TkKeywordKey, "KEY"},
+	{TkKeywordKill, "KILL"},
 	{TkKeywordLeft, "LEFT$"},
 	{TkKeywordLen, "LEN"},
 	{TkKeywordLet, "LET"},
@@ -379,6 +381,7 @@ var tabType = []string{
 	"INSTR",
 	"INT",
 	"KEY",
+	"KILL",
 	"LEFT$",
 	"LEN",
 	"LET",

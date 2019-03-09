@@ -2298,3 +2298,36 @@ func (n *NodeEnviron) Build(options *BuildOptions, outputf FuncPrintf) {
 func (n *NodeEnviron) FindUsedVars(options *BuildOptions) {
 	n.Value.FindUsedVars(options)
 }
+
+// NodeKill is kill
+type NodeKill struct {
+	Value NodeExp
+}
+
+// Name returns the name of the node
+func (n *NodeKill) Name() string {
+	return "KILL"
+}
+
+// Show displays the node
+func (n *NodeKill) Show(printf FuncPrintf) {
+	printf("[")
+	printf(n.Name())
+	printf(" <")
+	printf(n.Value.String())
+	printf(">]")
+}
+
+// Build generates code
+func (n *NodeKill) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+
+	outputf("baslib.Kill(%s)\n", n.Value.Exp(options))
+}
+
+// FindUsedVars finds used vars
+func (n *NodeKill) FindUsedVars(options *BuildOptions) {
+	n.Value.FindUsedVars(options)
+}

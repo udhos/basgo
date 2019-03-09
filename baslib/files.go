@@ -236,3 +236,9 @@ func FileNewline(number int) {
 		alert("PRINT# %d error: %v", number, err)
 	}
 }
+
+func Kill(s string) {
+	if err := os.Remove(s); err != nil {
+		alert("KILL error: %v", err)
+	}
+}
