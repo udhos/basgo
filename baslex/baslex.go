@@ -533,7 +533,6 @@ func (l *Lex) Next() Token {
 
 	if l.debug {
 		l.countToken++
-		//log.Printf("Lex.Next: %3d line=%02d col=%02d id=%03d offset=%d %-s [%-s]\n", l.countToken, t.LineCount, t.LineOffset, t.ID, l.Offset(), t.Type(), t.Value)
 		s := TokenString("Lex.Next", t, l.Offset())
 		log.Printf(s+" countToken=%d", l.countToken)
 	}
@@ -565,11 +564,7 @@ func (l *Lex) nextToken() Token {
 
 // HasToken checks if there are more tokens
 func (l *Lex) HasToken() bool {
-	h := !l.eofSent && !l.broken
-	if l.debug {
-		log.Printf("Lex.HasToken: eofSent=%v broken=%v HasToken=%v", l.eofSent, l.broken, h)
-	}
-	return h
+	return !l.eofSent && !l.broken
 }
 
 func (l *Lex) findToken() Token {
