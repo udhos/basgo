@@ -36,7 +36,7 @@ func EnvironKey(key string) string {
 
 func EnvironIndex(i int) string {
 	if i < 1 {
-		alert("ENVIRON$ index onderflow: %d", i)
+		alert("ENVIRON$ index underflow: %d", i)
 		return ""
 	}
 	list := os.Environ()
