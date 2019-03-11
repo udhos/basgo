@@ -8,6 +8,8 @@ import (
 
 	"github.com/gdamore/tcell"
 	"github.com/udhos/inkey/inkey"
+
+	"github.com/udhos/basgo/baslib/codepage"
 )
 
 var (
@@ -62,7 +64,9 @@ func ScreenFunc(row, col int, colorFlag bool) int {
 		return b*16 + f
 	}
 
-	return int(mainc)
+	b := codepage.UnicodeToByte(int(mainc))
+
+	return b
 }
 
 func Screen(mode int) {
@@ -296,7 +300,8 @@ func screenEvents() {
 }
 
 func screenPut(r rune) {
-	scr.s.SetContent(screenPos-1, screenViewTop+screenRow-2, r, nil, screenStyle)
+	u := codepage.ByteToUnicode(int(r))
+	scr.s.SetContent(screenPos-1, screenViewTop+screenRow-2, rune(u), nil, screenStyle)
 }
 
 func screenScroll() {
