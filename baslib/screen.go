@@ -32,10 +32,12 @@ func screenMode0() bool {
 
 func Color(fg, bg int) {
 	if fg >= 0 {
+		fg = colorTerm(fg)
 		screenColorForeground = tcell.Color(fg)
 	}
 
 	if bg >= 0 {
+		bg = colorTerm(bg)
 		screenColorBackground = tcell.Color(bg)
 	}
 
@@ -52,8 +54,8 @@ func ScreenFunc(row, col int, colorFlag bool) int {
 	if colorFlag {
 		fg, bg, _ := style.Decompose() // fg,bg,attr
 
-		f := int(fg)
-		b := int(bg)
+		f := colorBas(int(fg))
+		b := colorBas(int(bg))
 
 		//locateAlert(16, 20, "SCREEN(): fg="+itoa(f)+" bg="+itoa(b))
 
