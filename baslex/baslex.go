@@ -124,6 +124,7 @@ const (
 	TkKeywordOff         = iota // OFF
 	TkKeywordOn          = iota // ON
 	TkKeywordOpen        = iota // OPEN
+	TkKeywordOption      = iota // OPTION
 	TkKeywordPeek        = iota // PEEK
 	TkKeywordPlay        = iota // PLAY
 	TkKeywordPoke        = iota // POKE
@@ -243,6 +244,7 @@ var tabKeywords = []struct {
 	{TkKeywordOff, "OFF"},
 	{TkKeywordOn, "ON"},
 	{TkKeywordOpen, "OPEN"},
+	{TkKeywordOption, "OPTION"},
 	{TkKeywordOr, "OR"},
 	{TkKeywordPeek, "PEEK"},
 	{TkKeywordPlay, "PLAY"},
@@ -395,6 +397,7 @@ var tabType = []string{
 	"OFF",
 	"ON",
 	"OPEN",
+	"OPTION",
 	"PEEK",
 	"PLAY",
 	"POKE",

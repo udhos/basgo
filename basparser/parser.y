@@ -190,6 +190,7 @@ import (
 %token <tok> TkKeywordOff
 %token <tok> TkKeywordOn
 %token <tok> TkKeywordOpen
+%token <tok> TkKeywordOption
 %token <tok> TkKeywordPeek
 %token <tok> TkKeywordPlay
 %token <tok> TkKeywordPoke
@@ -1141,6 +1142,18 @@ stmt: /* empty */
         	Result.Baslib = true
 		$$ = &node.NodeKill{Value: str}
 	}
+  | TkKeywordOption TkIdentifier exp
+     { 
+        ident := $2
+        var unsup node.Node
+        if isSymbol(ident, "BASE") {
+           unsup = unsupportedEmpty("OPTION BASE")
+        } else {
+	   yylex.Error("OPTION unknown keyword: " + ident)
+           unsup = unsupportedEmpty("OPTION " + ident)
+	}
+        $$ = unsup
+     }
   ;
 
 expressions_push:
