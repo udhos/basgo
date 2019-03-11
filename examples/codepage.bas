@@ -1,9 +1,13 @@
 100 screen 0
-110 print "printing all characters in current codepage"
-120 for i=0 to 255
-130 print chr$(i);
-140 if i MOD 16 = 0 then print
-150 next
-200 print:print
-210 print "hit any key"
-220 print input$(1)
+110 cls
+120 print "printing all characters in current codepage"
+130 for i=0 to 255
+140 rem locate 23,1: print i;"  "
+150 locate i\16+3, 2*(i MOD 16)+1
+160 if i<>12 then print chr$(i);
+170 rem locate 22,1: print "hit any key -- or q to exit":i$=input$(1): locate 22,1: print space$(20);
+180 rem if i$="q" then end
+190 next
+300 print:print
+310 print "hit any key"
+320 print input$(1)
