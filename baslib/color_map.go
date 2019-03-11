@@ -9,7 +9,7 @@ import (
 var colorBasToTerm = [16]int{
 	int(tcell.ColorBlack),       // 0
 	int(tcell.ColorDarkBlue),    // 1
-	int(tcell.ColorDarkGreen),   // 2
+	int(tcell.ColorGreen),       // 2
 	int(tcell.ColorDarkCyan),    // 3
 	int(tcell.ColorRed),         // 4
 	int(tcell.ColorDarkMagenta), // 5
