@@ -1,5 +1,7 @@
 package codepage
 
+// http://www.unicode.org/Public/MAPPINGS/VENDORS/MICSFT/PC/CP437.TXT
+
 const cp437 = `
 #
 #    Name:     cp437_DOSLatinUS to Unicode table
