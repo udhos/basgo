@@ -8,6 +8,7 @@ require (
 	github.com/udhos/inkey v0.0.0-20190226175900-6d68187ff178
 	golang.org/x/net v0.0.0-20190225153610-fe579d43d832 // indirect
 	golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4 // indirect
+	golang.org/x/text v0.3.0
 	golang.org/x/tools v0.0.0-20190225234524-2dc4ef2775b8 // indirect
 	modernc.org/golex v1.0.0 // indirect
 	modernc.org/goyacc v1.0.0 // indirect
