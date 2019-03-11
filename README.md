@@ -28,7 +28,18 @@ If your system lacks Go, this recipe will install a current release of Go:
 
 # Install
 
+## Install only the 'basgo-build' compiler
+
 The recipe below will install 'basgo-build' under "~/go/bin".
+
+    git clone https://github.com/udhos/basgo
+    cd basgo
+    go generate ./basparser
+    go install ./basgo-build
+
+## Full install for development
+
+If you want to hack the compiler, perform a full build (including tests):
 
     git clone https://github.com/udhos/basgo
     cd basgo
