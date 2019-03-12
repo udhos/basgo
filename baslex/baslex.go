@@ -104,6 +104,7 @@ const (
 	TkKeywordGoproc      = iota // _GOPROC
 	TkKeywordGosub       = iota // GOSUB
 	TkKeywordGoto        = iota // GOTO
+	TkKeywordHex         = iota // HEX$
 	TkKeywordIf          = iota // IF
 	TkKeywordInkey       = iota // INKEY$
 	TkKeywordInput       = iota // INPUT
@@ -223,6 +224,7 @@ var tabKeywords = []struct {
 	{TkKeywordGoproc, "_GOPROC"},
 	{TkKeywordGosub, "GOSUB"},
 	{TkKeywordGoto, "GOTO"},
+	{TkKeywordHex, "HEX$"},
 	{TkKeywordIf, "IF"},
 	{TkKeywordImp, "IMP"},
 	{TkKeywordInkey, "INKEY$"},
@@ -381,6 +383,7 @@ var tabType = []string{
 	"_GOPROC",
 	"GOSUB",
 	"GOTO",
+	"HEX$",
 	"IF",
 	"INKEY$",
 	"INPUT",

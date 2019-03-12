@@ -170,6 +170,7 @@ import (
 %token <tok> TkKeywordGoproc
 %token <tok> TkKeywordGosub
 %token <tok> TkKeywordGoto
+%token <tok> TkKeywordHex
 %token <tok> TkKeywordIf
 %token <tok> TkKeywordInkey
 %token <tok> TkKeywordInput
@@ -2295,6 +2296,15 @@ exp: one_const_noneg { $$ = $1 }
 		}
 		Result.Baslib = true
 		$$ = &node.NodeExpLof{Number: num}
+	}
+  | TkKeywordHex TkParLeft exp TkParRight
+	{
+		num := $3
+		if !node.TypeNumeric(num.Type(Result.TypeTable)) {
+			yylex.Error("HEX$ value must be numeric")
+		}
+		Result.Baslib = true
+		$$ = &node.NodeExpHex{Number: num}
 	}
    ;
 

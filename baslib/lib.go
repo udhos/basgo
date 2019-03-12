@@ -476,3 +476,7 @@ func Tab(col int) string {
 	}
 	return String(" ", col-screenPos)
 }
+
+func Hex(v int) string {
+	return fmt.Sprintf("%X", v)
+}

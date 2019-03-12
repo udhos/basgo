@@ -106,6 +106,8 @@ var testTable = []buildTest{
 	{"ugh", "", "", WRONG},            // invalid program
 	{`10 print "ab"`, "", "ab\n", OK}, // minimum program
 
+	{`10 print hex$(9);hex$(15);hex$(&haa);`, "", "9FAA", OK},
+
 	{`10 chdir "/etc":files "passwd"`, "", "passwd\n", OK},
 
 	{`10 a$="/tmp/x":open a$ for output as 1:print#1,"xyz":close:open a$ for input as 1:print lof(1);`, "", " 4 ", OK},
