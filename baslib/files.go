@@ -245,7 +245,7 @@ func FileNewline(number int) {
 func Kill(pattern string) {
 	files, errFiles := filepath.Glob(pattern)
 	if errFiles != nil {
-		alert("FILES %s: %v", pattern, errFiles)
+		alert("KILL %s: %v", pattern, errFiles)
 	}
 	for _, f := range files {
 		if errRem := os.Remove(f); errRem != nil {
