@@ -33,6 +33,19 @@ func Eof(number int) int {
 	return BoolToInt(hitEof(number))
 }
 
+func Lof(number int) int {
+	i, found := fileTable[number]
+	if !found {
+		alert("LOF %d: file not open", number)
+		return 0
+	}
+	info, err := i.file.Stat()
+	if err != nil {
+		alert("LOF %d: %v", number, err)
+	}
+	return int(info.Size())
+}
+
 func hitEof(number int) bool {
 	i, found := fileTable[number]
 	if !found {
@@ -74,7 +87,7 @@ func Open(name string, number, mode int) {
 	}
 
 	if errOpen != nil {
-		alert("OPEN error: %v", errOpen)
+		alert("OPEN %d: %v", number, errOpen)
 		return
 	}
 

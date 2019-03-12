@@ -1874,6 +1874,31 @@ func (e *NodeExpEof) FindUsedVars(options *BuildOptions) {
 	e.Number.FindUsedVars(options)
 }
 
+// NodeExpLof holds value
+type NodeExpLof struct {
+	Number NodeExp
+}
+
+// Type returns type
+func (e *NodeExpLof) Type(table []int) int {
+	return TypeInteger
+}
+
+// String returns value
+func (e *NodeExpLof) String() string {
+	return "LOF(" + e.Number.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpLof) Exp(options *BuildOptions) string {
+	return "baslib.Lof(" + forceInt(options, e.Number) + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpLof) FindUsedVars(options *BuildOptions) {
+	e.Number.FindUsedVars(options)
+}
+
 // NodeExpEnviron holds value
 type NodeExpEnviron struct {
 	Key NodeExp

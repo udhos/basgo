@@ -184,6 +184,7 @@ import (
 %token <tok> TkKeywordList
 %token <tok> TkKeywordLoad
 %token <tok> TkKeywordLocate
+%token <tok> TkKeywordLof
 %token <tok> TkKeywordMid
 %token <tok> TkKeywordNext
 %token <tok> TkKeywordNew
@@ -2275,6 +2276,15 @@ exp: one_const_noneg { $$ = $1 }
 		key := $3
 		Result.Baslib = true
 		$$ = &node.NodeExpEnviron{Key: key}
+	}
+  | TkKeywordLof TkParLeft exp TkParRight
+	{
+		num := $3
+		if !node.TypeNumeric(num.Type(Result.TypeTable)) {
+			yylex.Error("LOF file number must be numeric")
+		}
+		Result.Baslib = true
+		$$ = &node.NodeExpLof{Number: num}
 	}
    ;
 
