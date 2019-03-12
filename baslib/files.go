@@ -279,7 +279,7 @@ func Chdir(dir string) {
 }
 
 func Mkdir(dir string) {
-	if errMkdir := os.Mkdir(dir, 0740); errMkdir != nil {
+	if errMkdir := os.Mkdir(dir, 0750); errMkdir != nil {
 		alert("MKDIR '%s': %v", dir, errMkdir)
 	}
 }
