@@ -13,6 +13,7 @@ import (
 type fileInfo struct {
 	file   *os.File
 	reader *bufio.Reader
+	writer *bufio.Writer
 	number int
 	eof    bool
 }
@@ -56,6 +57,7 @@ func hitEof(number int) bool {
 		return true
 	}
 	if i.reader == nil {
+		alert("EOF %d: file not open for input", number)
 		return true
 	}
 	return false
@@ -99,6 +101,8 @@ func Open(name string, number, mode int) {
 	switch mode {
 	case file.OpenInput:
 		i.reader = bufio.NewReader(f)
+	case file.OpenOutput:
+		i.writer = bufio.NewWriter(f)
 	}
 
 	fileTable[number] = i
@@ -114,8 +118,12 @@ func Close(number int) {
 }
 
 func fileClose(i fileInfo) {
-	errClose := i.file.Close()
-	if errClose != nil {
+	if i.writer != nil {
+		if errFlush := i.writer.Flush(); errFlush != nil {
+			alert("CLOSE %d: flush: %v", i.number, errFlush)
+		}
+	}
+	if errClose := i.file.Close(); errClose != nil {
 		alert("CLOSE %d: %v", i.number, errClose)
 	}
 	delete(fileTable, i.number)
@@ -224,7 +232,11 @@ func FilePrint(number int, value string) {
 		alert("PRINT# %d: file not open", number)
 		return
 	}
-	_, err := i.file.WriteString(value)
+	if i.writer == nil {
+		alert("PRINT# %d: file not open for output", number)
+		return
+	}
+	_, err := i.writer.WriteString(value)
 	if err != nil {
 		alert("PRINT# %d error: %v", number, err)
 	}
