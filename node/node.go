@@ -2299,6 +2299,44 @@ func (n *NodeEnviron) FindUsedVars(options *BuildOptions) {
 	n.Value.FindUsedVars(options)
 }
 
+// NodeName is name
+type NodeName struct {
+	From NodeExp
+	To   NodeExp
+}
+
+// Name returns the name of the node
+func (n *NodeName) Name() string {
+	return "NAME"
+}
+
+// Show displays the node
+func (n *NodeName) Show(printf FuncPrintf) {
+	printf("[")
+	printf(n.Name())
+	printf(" <")
+	printf(n.From.String())
+	printf(">]")
+	printf(" <")
+	printf(n.To.String())
+	printf(">]")
+}
+
+// Build generates code
+func (n *NodeName) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+
+	outputf("baslib.Name(%s,%s)\n", n.From.Exp(options), n.To.Exp(options))
+}
+
+// FindUsedVars finds used vars
+func (n *NodeName) FindUsedVars(options *BuildOptions) {
+	n.From.FindUsedVars(options)
+	n.To.FindUsedVars(options)
+}
+
 // NodeKill is kill
 type NodeKill struct {
 	Value NodeExp
@@ -2362,5 +2400,71 @@ func (n *NodeChdir) Build(options *BuildOptions, outputf FuncPrintf) {
 
 // FindUsedVars finds used vars
 func (n *NodeChdir) FindUsedVars(options *BuildOptions) {
+	n.Value.FindUsedVars(options)
+}
+
+// NodeMkdir is mkdir
+type NodeMkdir struct {
+	Value NodeExp
+}
+
+// Name returns the name of the node
+func (n *NodeMkdir) Name() string {
+	return "MKDIR"
+}
+
+// Show displays the node
+func (n *NodeMkdir) Show(printf FuncPrintf) {
+	printf("[")
+	printf(n.Name())
+	printf(" <")
+	printf(n.Value.String())
+	printf(">]")
+}
+
+// Build generates code
+func (n *NodeMkdir) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+
+	outputf("baslib.Mkdir(%s)\n", n.Value.Exp(options))
+}
+
+// FindUsedVars finds used vars
+func (n *NodeMkdir) FindUsedVars(options *BuildOptions) {
+	n.Value.FindUsedVars(options)
+}
+
+// NodeRmdir is rmdir
+type NodeRmdir struct {
+	Value NodeExp
+}
+
+// Name returns the name of the node
+func (n *NodeRmdir) Name() string {
+	return "RMDIR"
+}
+
+// Show displays the node
+func (n *NodeRmdir) Show(printf FuncPrintf) {
+	printf("[")
+	printf(n.Name())
+	printf(" <")
+	printf(n.Value.String())
+	printf(">]")
+}
+
+// Build generates code
+func (n *NodeRmdir) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+
+	outputf("baslib.Rmdir(%s)\n", n.Value.Exp(options))
+}
+
+// FindUsedVars finds used vars
+func (n *NodeRmdir) FindUsedVars(options *BuildOptions) {
 	n.Value.FindUsedVars(options)
 }

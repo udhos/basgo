@@ -188,6 +188,8 @@ import (
 %token <tok> TkKeywordLocate
 %token <tok> TkKeywordLof
 %token <tok> TkKeywordMid
+%token <tok> TkKeywordMkdir
+%token <tok> TkKeywordName
 %token <tok> TkKeywordNext
 %token <tok> TkKeywordNew
 %token <tok> TkKeywordOff
@@ -207,6 +209,7 @@ import (
 %token <tok> TkKeywordResume
 %token <tok> TkKeywordReturn
 %token <tok> TkKeywordRight
+%token <tok> TkKeywordRmdir
 %token <tok> TkKeywordRnd
 %token <tok> TkKeywordRun
 %token <tok> TkKeywordSave
@@ -762,6 +765,23 @@ stmt: /* empty */
   | TkKeywordLet assign { $$ = $2 }
   | assign { $$ = $1 }
   | TkKeywordList { $$ = &node.NodeList{} }
+  | TkKeywordName exp TkIdentifier exp
+	{
+		// NAME "a" AS "b"
+		e1 := $2
+		labelAs := $3
+		e2 := $4
+		if e1.Type(Result.TypeTable) != node.TypeString {
+			yylex.Error("NAME old filename must be string")
+		}
+		if e2.Type(Result.TypeTable) != node.TypeString {
+			yylex.Error("NAME new filename must be string")
+		}
+		if !isSymbol(labelAs, "AS") {
+			yylex.Error("NAME expecting 'AS', found: " + labelAs)
+		}
+		$$ = &node.NodeName{From:e1, To:e2}
+	}
   | TkKeywordOpen exp TkKeywordFor TkKeywordInput TkIdentifier file_num
      {
         // OPEN "arq" FOR INPUT AS 1
@@ -1165,6 +1185,24 @@ stmt: /* empty */
 		}
         	Result.Baslib = true
 		$$ = &node.NodeChdir{Value: str}
+	}
+  | TkKeywordMkdir exp
+	{
+		str := $2
+		if str.Type(Result.TypeTable) != node.TypeString {
+			yylex.Error("MKDIR directory must be string")
+		}
+        	Result.Baslib = true
+		$$ = &node.NodeMkdir{Value: str}
+	}
+  | TkKeywordRmdir exp
+	{
+		str := $2
+		if str.Type(Result.TypeTable) != node.TypeString {
+			yylex.Error("RMDIR directory must be string")
+		}
+        	Result.Baslib = true
+		$$ = &node.NodeRmdir{Value: str}
 	}
   ;
 

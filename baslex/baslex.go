@@ -122,6 +122,8 @@ const (
 	TkKeywordLocate      = iota // LOCATE
 	TkKeywordLof         = iota // LOF
 	TkKeywordMid         = iota // MID$
+	TkKeywordMkdir       = iota // MKDIR
+	TkKeywordName        = iota // NAME
 	TkKeywordNext        = iota // NEXT
 	TkKeywordNew         = iota // NEW
 	TkKeywordOff         = iota // OFF
@@ -141,6 +143,7 @@ const (
 	TkKeywordResume      = iota // RESUME
 	TkKeywordReturn      = iota // RETURN
 	TkKeywordRight       = iota // RIGHT$
+	TkKeywordRmdir       = iota // RMDIR
 	TkKeywordRnd         = iota // RND
 	TkKeywordRun         = iota // RUN
 	TkKeywordSave        = iota // SAVE
@@ -243,7 +246,9 @@ var tabKeywords = []struct {
 	{TkKeywordLocate, "LOCATE"},
 	{TkKeywordLof, "LOF"},
 	{TkKeywordMid, "MID$"},
+	{TkKeywordMkdir, "MKDIR"},
 	{TkKeywordMod, "MOD"},
+	{TkKeywordName, "NAME"},
 	{TkKeywordNext, "NEXT"},
 	{TkKeywordNew, "NEW"},
 	{TkKeywordNot, "NOT"},
@@ -265,6 +270,7 @@ var tabKeywords = []struct {
 	{TkKeywordResume, "RESUME"},
 	{TkKeywordReturn, "RETURN"},
 	{TkKeywordRight, "RIGHT$"},
+	{TkKeywordRmdir, "RMDIR"},
 	{TkKeywordRnd, "RND"},
 	{TkKeywordRun, "RUN"},
 	{TkKeywordSave, "SAVE"},
@@ -401,6 +407,8 @@ var tabType = []string{
 	"LOCATE",
 	"LOF",
 	"MID$",
+	"MKDIR",
+	"NAME",
 	"NEXT",
 	"NEW",
 	"OFF",
@@ -420,6 +428,7 @@ var tabType = []string{
 	"RESUME",
 	"RETURN",
 	"RIGHT$",
+	"RMDIR",
 	"RND",
 	"RUN",
 	"SAVE",

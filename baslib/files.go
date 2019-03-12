@@ -266,8 +266,26 @@ func Kill(pattern string) {
 	}
 }
 
+func Name(from, to string) {
+	if errRename := os.Rename(from, to); errRename != nil {
+		alert("NAME '%s' AS '%s': %v", from, to, errRename)
+	}
+}
+
 func Chdir(dir string) {
 	if errChdir := os.Chdir(dir); errChdir != nil {
 		alert("CHDIR '%s': %v", dir, errChdir)
+	}
+}
+
+func Mkdir(dir string) {
+	if errMkdir := os.Mkdir(dir, 0740); errMkdir != nil {
+		alert("MKDIR '%s': %v", dir, errMkdir)
+	}
+}
+
+func Rmdir(dir string) {
+	if errRmdir := os.Remove(dir); errRmdir != nil {
+		alert("RMDIR '%s': %v", dir, errRmdir)
 	}
 }
