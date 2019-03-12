@@ -136,6 +136,7 @@ import (
 %token <tok> TkKeywordAsc
 %token <tok> TkKeywordBeep
 %token <tok> TkKeywordChain
+%token <tok> TkKeywordChdir
 %token <tok> TkKeywordChr
 %token <tok> TkKeywordClear
 %token <tok> TkKeywordClose
@@ -1155,6 +1156,15 @@ stmt: /* empty */
 	}
         $$ = unsup
      }
+  | TkKeywordChdir exp
+	{
+		str := $2
+		if str.Type(Result.TypeTable) != node.TypeString {
+			yylex.Error("CHDIR directory must be string")
+		}
+        	Result.Baslib = true
+		$$ = &node.NodeChdir{Value: str}
+	}
   ;
 
 expressions_push:

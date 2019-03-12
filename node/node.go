@@ -2331,3 +2331,36 @@ func (n *NodeKill) Build(options *BuildOptions, outputf FuncPrintf) {
 func (n *NodeKill) FindUsedVars(options *BuildOptions) {
 	n.Value.FindUsedVars(options)
 }
+
+// NodeChdir is chdir
+type NodeChdir struct {
+	Value NodeExp
+}
+
+// Name returns the name of the node
+func (n *NodeChdir) Name() string {
+	return "CHDIR"
+}
+
+// Show displays the node
+func (n *NodeChdir) Show(printf FuncPrintf) {
+	printf("[")
+	printf(n.Name())
+	printf(" <")
+	printf(n.Value.String())
+	printf(">]")
+}
+
+// Build generates code
+func (n *NodeChdir) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+
+	outputf("baslib.Chdir(%s)\n", n.Value.Exp(options))
+}
+
+// FindUsedVars finds used vars
+func (n *NodeChdir) FindUsedVars(options *BuildOptions) {
+	n.Value.FindUsedVars(options)
+}

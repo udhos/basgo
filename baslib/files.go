@@ -265,3 +265,9 @@ func Kill(pattern string) {
 		}
 	}
 }
+
+func Chdir(dir string) {
+	if errChdir := os.Chdir(dir); errChdir != nil {
+		alert("CHDIR '%s': %v", dir, errChdir)
+	}
+}

@@ -70,6 +70,7 @@ const (
 	TkKeywordAsc         = iota // ASC
 	TkKeywordBeep        = iota // BEEP
 	TkKeywordChain       = iota // CHAIN
+	TkKeywordChdir       = iota // CHDIR
 	TkKeywordChr         = iota // CHR$
 	TkKeywordClear       = iota // CLEAR
 	TkKeywordClose       = iota // CLOSE
@@ -187,6 +188,7 @@ var tabKeywords = []struct {
 	{TkKeywordAsc, "ASC"},
 	{TkKeywordBeep, "BEEP"},
 	{TkKeywordChain, "CHAIN"},
+	{TkKeywordChdir, "CHDIR"},
 	{TkKeywordChr, "CHR$"},
 	{TkKeywordClear, "CLEAR"},
 	{TkKeywordClose, "CLOSE"},
@@ -345,6 +347,7 @@ var tabType = []string{
 	"ASC",
 	"BEEP",
 	"CHAIN",
+	"CHDIR",
 	"CHR$",
 	"CLEAR",
 	"CLOSE",
