@@ -239,19 +239,17 @@ func FilePrintFloat(number int, value float64) {
 }
 
 func FileNewline(number int) {
-	i, found := fileTable[number]
-	if !found {
-		alert("PRINT# %d: file not open", number)
-		return
-	}
-	_, err := i.file.WriteString("\n")
-	if err != nil {
-		alert("PRINT# %d error: %v", number, err)
-	}
+	FilePrint(number, "\n")
 }
 
-func Kill(s string) {
-	if err := os.Remove(s); err != nil {
-		alert("KILL error: %v", err)
+func Kill(pattern string) {
+	files, errFiles := filepath.Glob(pattern)
+	if errFiles != nil {
+		alert("FILES %s: %v", pattern, errFiles)
+	}
+	for _, f := range files {
+		if errRem := os.Remove(f); errRem != nil {
+			alert("KILL '%s': %s: %v", pattern, f, errRem)
+		}
 	}
 }
