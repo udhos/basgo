@@ -1542,7 +1542,7 @@ func (e *NodeExpSqr) String() string {
 // Exp returns value
 func (e *NodeExpSqr) Exp(options *BuildOptions) string {
 	//return "math.Sqrt(" + forceFloat(options, e.Value) + ")"
-	return "baslib.Sqrt(" + forceFloat(options, e.Value) + ")"
+	return "baslib.Sqr(" + forceFloat(options, e.Value) + ")"
 }
 
 // FindUsedVars finds used vars

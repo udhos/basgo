@@ -24,6 +24,6 @@ func Atn(x float64) float64 {
 	return math.Atan(x)
 }
 
-func Sqrt(v float64) float64 {
+func Sqr(v float64) float64 {
 	return math.Sqrt(v)
 }
