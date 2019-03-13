@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unsafe"
 
 	"github.com/udhos/inkey/inkey"
 )
@@ -483,4 +484,24 @@ func Hex(v int) string {
 
 func Oct(v int) string {
 	return strconv.FormatInt(int64(v), 8)
+}
+
+func LenStr(v string) int {
+	return len(v)
+}
+
+func LenInt(v int) int {
+	return int(unsafe.Sizeof(v))
+}
+
+func LenFloat(v float64) int {
+	return 8
+}
+
+func Chr(v int) string {
+	return string(v)
+}
+
+func Peek(addr int) int {
+	return 0 // PEEK unsupported
 }

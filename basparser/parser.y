@@ -134,6 +134,7 @@ import (
 
 %token <tok> TkKeywordAbs
 %token <tok> TkKeywordAsc
+%token <tok> TkKeywordAtn
 %token <tok> TkKeywordBeep
 %token <tok> TkKeywordChain
 %token <tok> TkKeywordChdir
@@ -1788,6 +1789,7 @@ exp: one_const_noneg { $$ = $1 }
        if  n.Type(Result.TypeTable) != node.TypeFloat {
            yylex.Error("TkPow produces non-float type")
        }
+       Result.Baslib = true
        $$ = n
      }
    | TkPlus exp %prec UnaryPlus
@@ -2020,7 +2022,11 @@ exp: one_const_noneg { $$ = $1 }
        Result.Baslib = true
        $$ = &node.NodeExpRight{Value:e1, Size:e2}
      }
-   | TkKeywordLen TkParLeft exp TkParRight  { $$ = &node.NodeExpLen{Value:$3} }
+   | TkKeywordLen TkParLeft exp TkParRight
+	{
+		Result.Baslib = true
+		$$ = &node.NodeExpLen{Value:$3}
+	}
    | TkKeywordMid TkParLeft exp TkComma exp TkParRight
      {
        e1 := $3
@@ -2135,6 +2141,7 @@ exp: one_const_noneg { $$ = $1 }
        if !node.TypeNumeric(num.Type(Result.TypeTable)) {
            yylex.Error("CHR$ expression must be numeric")
        }
+       Result.Baslib = true
        $$ = &node.NodeExpChr{Value:num}
      }
    | TkKeywordDate {
@@ -2173,7 +2180,8 @@ exp: one_const_noneg { $$ = $1 }
        if !node.TypeNumeric(num.Type(Result.TypeTable)) {
            yylex.Error("COS expression must be numeric")
        }
-       Result.LibMath = true
+       //Result.LibMath = true
+       Result.Baslib = true
        $$ = &node.NodeExpCos{Value:num}
      }
    | TkKeywordSin TkParLeft exp TkParRight
@@ -2182,7 +2190,8 @@ exp: one_const_noneg { $$ = $1 }
        if !node.TypeNumeric(num.Type(Result.TypeTable)) {
            yylex.Error("SIN expression must be numeric")
        }
-       Result.LibMath = true
+       //Result.LibMath = true
+       Result.Baslib = true
        $$ = &node.NodeExpSin{Value:num}
      }
    | TkKeywordSqr TkParLeft exp TkParRight
@@ -2191,7 +2200,8 @@ exp: one_const_noneg { $$ = $1 }
        if !node.TypeNumeric(num.Type(Result.TypeTable)) {
            yylex.Error("SQR expression must be numeric")
        }
-       Result.LibMath = true
+       //Result.LibMath = true
+       Result.Baslib = true
        $$ = &node.NodeExpSqr{Value:num}
      }
    | TkKeywordTan TkParLeft exp TkParRight
@@ -2200,8 +2210,18 @@ exp: one_const_noneg { $$ = $1 }
        if !node.TypeNumeric(num.Type(Result.TypeTable)) {
            yylex.Error("TAN expression must be numeric")
        }
-       Result.LibMath = true
+       //Result.LibMath = true
+       Result.Baslib = true
        $$ = &node.NodeExpTan{Value:num}
+     }
+   | TkKeywordAtn TkParLeft exp TkParRight
+     {
+       num := $3
+       if !node.TypeNumeric(num.Type(Result.TypeTable)) {
+           yylex.Error("ATN expression must be numeric")
+       }
+       Result.Baslib = true
+       $$ = &node.NodeExpAtn{Value:num}
      }
    | TkKeywordGofunc TkParLeft one_const_str TkParRight
      {
@@ -2248,6 +2268,7 @@ exp: one_const_noneg { $$ = $1 }
      }
   | TkKeywordPeek TkParLeft exp TkParRight
      {
+       Result.Baslib = true
        $$ = &node.NodeExpPeek{}
      }
   | TkKeywordInputFunc TkParLeft exp TkParRight

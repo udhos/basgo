@@ -423,8 +423,9 @@ func (e *NodeExpPow) String() string {
 
 // Exp returns value
 func (e *NodeExpPow) Exp(options *BuildOptions) string {
-	options.Headers["math"] = struct{}{}
-	return "math.Pow(" + forceFloat(options, e.Left) + "," + forceFloat(options, e.Right) + ")"
+	//options.Headers["math"] = struct{}{}
+	//return "math.Pow(" + forceFloat(options, e.Left) + "," + forceFloat(options, e.Right) + ")"
+	return "baslib.Pow(" + forceFloat(options, e.Left) + "," + forceFloat(options, e.Right) + ")"
 }
 
 // FindUsedVars finds used vars
@@ -705,10 +706,23 @@ func (e *NodeExpLen) String() string {
 
 // Exp returns value
 func (e *NodeExpLen) Exp(options *BuildOptions) string {
-	if e.Value.Type(options.TypeTable) == TypeString {
-		return "len(" + e.Value.Exp(options) + ")"
+	//if e.Value.Type(options.TypeTable) == TypeString {
+	//	return "len(" + e.Value.Exp(options) + ")"
+	//}
+	//return "8 /* <- LEN(non-string) */"
+
+	t := e.Value.Type(options.TypeTable)
+	s := e.Value.Exp(options)
+	switch t {
+	case TypeString:
+		return "baslib.LenStr(" + s + ")"
+	case TypeInteger:
+		return "baslib.LenInt(" + s + ")"
+	case TypeFloat:
+		return "baslib.LenFloat(" + s + ")"
 	}
-	return "8 /* <- LEN(non-string) */"
+
+	return "NodeExpLen.Exp(): unknown type"
 }
 
 // FindUsedVars finds used vars
@@ -1148,10 +1162,8 @@ func (e *NodeExpStr) Exp(options *BuildOptions) string {
 	v := e.Value.Exp(options)
 
 	if e.Value.Type(options.TypeTable) == TypeInteger {
-		//return "strconv.Itoa(" + v + ")"
 		return "baslib.StrInt(" + v + ")"
 	} else {
-		//return "strconv.FormatFloat(" + v + ", 'f', -1, 64)"
 		return "baslib.StrFloat(" + v + ")"
 	}
 }
@@ -1334,7 +1346,8 @@ func (e *NodeExpChr) String() string {
 
 // Exp returns value
 func (e *NodeExpChr) Exp(options *BuildOptions) string {
-	return "string(" + forceInt(options, e.Value) + ")"
+	//return "string(" + forceInt(options, e.Value) + ")"
+	return "baslib.Chr(" + forceInt(options, e.Value) + ")"
 }
 
 // FindUsedVars finds used vars
@@ -1473,12 +1486,13 @@ func (e *NodeExpCos) Type(table []int) int {
 
 // String returns value
 func (e *NodeExpCos) String() string {
-	return "COS"
+	return "COS(" + e.Value.String() + ")"
 }
 
 // Exp returns value
 func (e *NodeExpCos) Exp(options *BuildOptions) string {
-	return "math.Cos(" + forceFloat(options, e.Value) + ")"
+	//return "math.Cos(" + forceFloat(options, e.Value) + ")"
+	return "baslib.Cos(" + forceFloat(options, e.Value) + ")"
 }
 
 // FindUsedVars finds used vars
@@ -1498,12 +1512,13 @@ func (e *NodeExpSin) Type(table []int) int {
 
 // String returns value
 func (e *NodeExpSin) String() string {
-	return "SIN"
+	return "SIN(" + e.Value.String() + ")"
 }
 
 // Exp returns value
 func (e *NodeExpSin) Exp(options *BuildOptions) string {
-	return "math.Sin(" + forceFloat(options, e.Value) + ")"
+	//return "math.Sin(" + forceFloat(options, e.Value) + ")"
+	return "baslib.Sin(" + forceFloat(options, e.Value) + ")"
 }
 
 // FindUsedVars finds used vars
@@ -1523,12 +1538,13 @@ func (e *NodeExpSqr) Type(table []int) int {
 
 // String returns value
 func (e *NodeExpSqr) String() string {
-	return "SQR"
+	return "SQR(" + e.Value.String() + ")"
 }
 
 // Exp returns value
 func (e *NodeExpSqr) Exp(options *BuildOptions) string {
-	return "math.Sqrt(" + forceFloat(options, e.Value) + ")"
+	//return "math.Sqrt(" + forceFloat(options, e.Value) + ")"
+	return "baslib.Sqrt(" + forceFloat(options, e.Value) + ")"
 }
 
 // FindUsedVars finds used vars
@@ -1548,16 +1564,42 @@ func (e *NodeExpTan) Type(table []int) int {
 
 // String returns value
 func (e *NodeExpTan) String() string {
-	return "TAN"
+	return "TAN(" + e.Value.String() + ")"
 }
 
 // Exp returns value
 func (e *NodeExpTan) Exp(options *BuildOptions) string {
-	return "math.Tan(" + forceFloat(options, e.Value) + ")"
+	//return "math.Tan(" + forceFloat(options, e.Value) + ")"
+	return "baslib.Tan(" + forceFloat(options, e.Value) + ")"
 }
 
 // FindUsedVars finds used vars
 func (e *NodeExpTan) FindUsedVars(options *BuildOptions) {
+	e.Value.FindUsedVars(options)
+}
+
+// NodeExpAtn holds value
+type NodeExpAtn struct {
+	Value NodeExp
+}
+
+// Type returns type
+func (e *NodeExpAtn) Type(table []int) int {
+	return TypeFloat
+}
+
+// String returns value
+func (e *NodeExpAtn) String() string {
+	return "ATN(" + e.Value.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpAtn) Exp(options *BuildOptions) string {
+	return "baslib.Atn(" + forceFloat(options, e.Value) + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpAtn) FindUsedVars(options *BuildOptions) {
 	e.Value.FindUsedVars(options)
 }
 
@@ -1692,7 +1734,8 @@ func (e *NodeExpPeek) String() string {
 
 // Exp returns value
 func (e *NodeExpPeek) Exp(options *BuildOptions) string {
-	return "(0 /* <- PEEK unsupported */)"
+	//return "(0 /* <- PEEK unsupported */)"
+	return "baslib.Peek(0)"
 }
 
 // FindUsedVars finds used vars

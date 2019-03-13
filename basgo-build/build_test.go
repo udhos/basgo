@@ -106,6 +106,10 @@ var testTable = []buildTest{
 	{"ugh", "", "", WRONG},            // invalid program
 	{`10 print "ab"`, "", "ab\n", OK}, // minimum program
 
+	{`10 print atn(0);`, "", " 0 ", OK},
+	{`10 print atn(1);`, "", " 0.7853981633974483 ", OK},
+	{`10 print tan(atn(1));`, "", " 1 ", OK},
+
 	{`10 a$="/tmp/x":b$="/tmp/y":open a$ for output as 1:print#1,"xyz":close:kill b$:name a$ as b$:open b$ for input as 1:print input$(3,#1);`, "", "xyz", OK},
 
 	{`10 print oct$(7);oct$(8);`, "", "710", OK},

@@ -68,6 +68,7 @@ const (
 
 	TkKeywordAbs         = iota // ABS
 	TkKeywordAsc         = iota // ASC
+	TkKeywordAtn         = iota // ATN
 	TkKeywordBeep        = iota // BEEP
 	TkKeywordChain       = iota // CHAIN
 	TkKeywordChdir       = iota // CHDIR
@@ -191,6 +192,7 @@ var tabKeywords = []struct {
 	{TkKeywordAbs, "ABS"},
 	{TkKeywordAnd, "AND"},
 	{TkKeywordAsc, "ASC"},
+	{TkKeywordAtn, "ATN"},
 	{TkKeywordBeep, "BEEP"},
 	{TkKeywordChain, "CHAIN"},
 	{TkKeywordChdir, "CHDIR"},
@@ -355,6 +357,7 @@ var tabType = []string{
 
 	"ABS",
 	"ASC",
+	"ATN",
 	"BEEP",
 	"CHAIN",
 	"CHDIR",
