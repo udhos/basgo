@@ -108,6 +108,7 @@ var testTable = []buildTest{
 
 	{`10 a$="/tmp/x":b$="/tmp/y":open a$ for output as 1:print#1,"xyz":close:kill b$:name a$ as b$:open b$ for input as 1:print input$(3,#1);`, "", "xyz", OK},
 
+	{`10 print oct$(7);oct$(8);`, "", "710", OK},
 	{`10 print hex$(9);hex$(15);hex$(&haa);`, "", "9FAA", OK},
 
 	{`10 chdir "/etc":files "passwd"`, "", "passwd\n", OK},

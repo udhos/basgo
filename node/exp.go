@@ -1911,7 +1911,7 @@ func (e *NodeExpHex) Type(table []int) int {
 
 // String returns value
 func (e *NodeExpHex) String() string {
-	return "Hex(" + e.Number.String() + ")"
+	return "HEX$(" + e.Number.String() + ")"
 }
 
 // Exp returns value
@@ -1921,6 +1921,31 @@ func (e *NodeExpHex) Exp(options *BuildOptions) string {
 
 // FindUsedVars finds used vars
 func (e *NodeExpHex) FindUsedVars(options *BuildOptions) {
+	e.Number.FindUsedVars(options)
+}
+
+// NodeExpOct holds value
+type NodeExpOct struct {
+	Number NodeExp
+}
+
+// Type returns type
+func (e *NodeExpOct) Type(table []int) int {
+	return TypeString
+}
+
+// String returns value
+func (e *NodeExpOct) String() string {
+	return "OCT$(" + e.Number.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpOct) Exp(options *BuildOptions) string {
+	return "baslib.Oct(" + forceInt(options, e.Number) + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpOct) FindUsedVars(options *BuildOptions) {
 	e.Number.FindUsedVars(options)
 }
 

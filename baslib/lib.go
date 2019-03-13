@@ -480,3 +480,7 @@ func Tab(col int) string {
 func Hex(v int) string {
 	return fmt.Sprintf("%X", v)
 }
+
+func Oct(v int) string {
+	return strconv.FormatInt(int64(v), 8)
+}

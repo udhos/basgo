@@ -192,6 +192,7 @@ import (
 %token <tok> TkKeywordName
 %token <tok> TkKeywordNext
 %token <tok> TkKeywordNew
+%token <tok> TkKeywordOct
 %token <tok> TkKeywordOff
 %token <tok> TkKeywordOn
 %token <tok> TkKeywordOpen
@@ -2343,6 +2344,15 @@ exp: one_const_noneg { $$ = $1 }
 		}
 		Result.Baslib = true
 		$$ = &node.NodeExpHex{Number: num}
+	}
+  | TkKeywordOct TkParLeft exp TkParRight
+	{
+		num := $3
+		if !node.TypeNumeric(num.Type(Result.TypeTable)) {
+			yylex.Error("OCT$ value must be numeric")
+		}
+		Result.Baslib = true
+		$$ = &node.NodeExpOct{Number: num}
 	}
    ;
 

@@ -126,6 +126,7 @@ const (
 	TkKeywordName        = iota // NAME
 	TkKeywordNext        = iota // NEXT
 	TkKeywordNew         = iota // NEW
+	TkKeywordOct         = iota // OCT$
 	TkKeywordOff         = iota // OFF
 	TkKeywordOn          = iota // ON
 	TkKeywordOpen        = iota // OPEN
@@ -252,6 +253,7 @@ var tabKeywords = []struct {
 	{TkKeywordNext, "NEXT"},
 	{TkKeywordNew, "NEW"},
 	{TkKeywordNot, "NOT"},
+	{TkKeywordOct, "OCT$"},
 	{TkKeywordOff, "OFF"},
 	{TkKeywordOn, "ON"},
 	{TkKeywordOpen, "OPEN"},
@@ -411,6 +413,7 @@ var tabType = []string{
 	"NAME",
 	"NEXT",
 	"NEW",
+	"OCT$",
 	"OFF",
 	"ON",
 	"OPEN",
