@@ -727,9 +727,7 @@ func (e *NodeExpLen) Exp(options *BuildOptions) string {
 
 // FindUsedVars finds used vars
 func (e *NodeExpLen) FindUsedVars(options *BuildOptions) {
-	if e.Value.Type(options.TypeTable) == TypeString {
-		e.Value.FindUsedVars(options)
-	}
+	e.Value.FindUsedVars(options)
 }
 
 // NodeExpRnd holds value
