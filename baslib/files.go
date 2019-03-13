@@ -86,7 +86,7 @@ func Open(name string, number, mode int) {
 	case file.OpenAppend:
 		f, errOpen = os.OpenFile(name, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0640)
 	default:
-		alert("OPEN unsupported mode: %d", mode)
+		alert("OPEN %d: unsupported mode: %d", number, mode)
 		return
 	}
 
