@@ -1,5 +1,4 @@
-
-100 screen 0
+100 screen 0:key off
 110 locate 1,1: print "---screen first line";
 120 locate 25,1: print "---screen last line";
 130 vp1=1+5:vp2=25-5
