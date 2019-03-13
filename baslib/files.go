@@ -83,6 +83,8 @@ func Open(name string, number, mode int) {
 		f, errOpen = os.Open(name)
 	case file.OpenOutput:
 		f, errOpen = os.Create(name)
+	case file.OpenAppend:
+		f, errOpen = os.OpenFile(name, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0640)
 	default:
 		alert("OPEN unsupported mode: %d", mode)
 		return
@@ -101,7 +103,7 @@ func Open(name string, number, mode int) {
 	switch mode {
 	case file.OpenInput:
 		i.reader = bufio.NewReader(f)
-	case file.OpenOutput:
+	case file.OpenOutput, file.OpenAppend:
 		i.writer = bufio.NewWriter(f)
 	}
 

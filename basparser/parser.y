@@ -819,6 +819,8 @@ stmt: /* empty */
 	switch strings.ToLower(mode) {
            case "output":
               m = file.OpenOutput
+           case "append":
+              m = file.OpenAppend
            default:
               yylex.Error("OPEN unexpected mode: " + mode)
         }
