@@ -1,7 +1,9 @@
 [![license](http://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/udhos/basgo/blob/master/LICENSE)
 [![Go Report Card](https://goreportcard.com/badge/github.com/udhos/basgo)](https://goreportcard.com/report/github.com/udhos/basgo)
 
-# basgo compiles BASIC-lang to Golang. Then 'go build' can translate the code to native executable binary.
+# basgo compiles BASIC-lang to Golang.
+
+**basgo** compiles BASIC-lang to Golang. Then `go build` can translate the code to native executable binary.
 
 * [Requirements](#requirements)
 * [Install](#install)
