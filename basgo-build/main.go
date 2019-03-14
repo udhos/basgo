@@ -33,11 +33,13 @@ func main() {
 
 func compile(input io.Reader, outputf node.FuncPrintf) (int, int) {
 
-	log.Printf("%s: parsing", basgoLabel)
+	log.Printf("%s: reading BASIC code from stdin...", basgoLabel)
 
 	result, status, errors := basparser.Run(basgoLabel, input)
 	lineNumbersTab := result.LineNumbers
 	nodes := result.Root
+
+	log.Printf("%s: reading BASIC code from stdin...done", basgoLabel)
 
 	if status != 0 || errors != 0 {
 		return status, errors

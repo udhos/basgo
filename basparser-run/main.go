@@ -11,13 +11,13 @@ import (
 
 func main() {
 	me := os.Args[0]
-	log.Printf("%s: reading from stdin...", me)
+	log.Printf("%s: reading BASIC code from stdin...", me)
 
 	result, status, errors := basparser.Run(me, os.Stdin)
 
 	nodes := result.Root
 
-	log.Printf("%s: reading from stdin...done", me)
+	log.Printf("%s: reading BASIC code from stdin...done", me)
 
 	log.Printf("%s: status=%d errors=%d", me, status, errors)
 
