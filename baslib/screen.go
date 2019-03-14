@@ -25,6 +25,7 @@ var (
 
 func End() {
 	//alert("baslib.End()")
+	CloseAll()
 	scr.close()
 }
 
