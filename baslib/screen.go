@@ -71,19 +71,28 @@ func ScreenFunc(row, col int, colorFlag bool) int {
 }
 
 func Screen(mode int) {
-	if mode != 0 {
-		alert("SCREEN %d: only screen 0 is supported", mode)
+
+	if mode == 0 {
+
+		if screenMode0() {
+			alert("Screen: text mode 0 is running already")
+			return
+		}
+
+		graphicsStop()
+
+		// start SCREEN 0
+		scr.start()
+		stdin = inkey.New(&scr) // replace inkey(os.Stdin) with inkey(tcell)
+
 		return
 	}
 
 	if screenMode0() {
-		alert("Screen: text mode 0 is running already")
-		return
+		scr.close() // stop SCREEN 0
 	}
 
-	scr.start()
-
-	stdin = inkey.New(&scr) // replace inkey(os.Stdin) with inkey(tcell)
+	graphicsStart(mode)
 }
 
 func Cls() {

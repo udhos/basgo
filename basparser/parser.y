@@ -1112,9 +1112,6 @@ stmt: /* empty */
 		if errInt != nil {
 			yylex.Error("Bad screen mode: " + errInt.Error())
 		}
-		if mode != 0 {
-			yylex.Error("Only screen mode 0 is supported")
-		}
         	Result.Baslib = true
 		$$ = &node.NodeScreen{Mode: mode}
 	}
