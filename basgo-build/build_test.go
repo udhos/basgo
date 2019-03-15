@@ -89,6 +89,13 @@ const sourceRestore = `
 60 restore 20:read a:print a;
 `
 
+const sourceRestore2 = `
+10 data 3
+20 rem 
+30 data 4
+40 restore 20:read a: print a;
+`
+
 const sourceDefint = `
 10 a=1.1:print a;
 20 defstr a:a="b":print a;
@@ -105,6 +112,8 @@ var testTable = []buildTest{
 	{"", "", "", OK},                  // empty program
 	{"ugh", "", "", WRONG},            // invalid program
 	{`10 print "ab"`, "", "ab\n", OK}, // minimum program
+
+	{sourceRestore2, "", " 4 ", OK},
 
 	{`10 a$="/tmp/x":open a$ for output as 1:print#1,"xyz";:close:open a$ for append as 1:print#1,"abc";:close:open a$ for input as 1:print input$(6,#1);`, "", "xyzabc", OK},
 

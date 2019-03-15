@@ -1535,6 +1535,36 @@ func (n *NodeRestore) Show(printf FuncPrintf) {
 	printf("[" + n.Name() + " " + n.Line + "]")
 }
 
+func atoi(s string) int {
+	num, _ := strconv.Atoi(s)
+	return num
+}
+
+const maxInt = int(^uint(0) >> 1)
+
+func findData(options *BuildOptions, line string) int {
+	offset, found := options.RestoreTable[line]
+	if found {
+		return offset // found exact line
+	}
+
+	// exact line not found, search next DATA line
+
+	lineNum := atoi(line)
+	nextLine := maxInt
+	offset = -1
+
+	for k, v := range options.RestoreTable {
+		kk := atoi(k)
+		if kk > lineNum && kk < nextLine {
+			nextLine = kk
+			offset = v
+		}
+	}
+
+	return offset
+}
+
 // Build generates code
 func (n *NodeRestore) Build(options *BuildOptions, outputf FuncPrintf) {
 	if n.Line == "" {
@@ -1542,13 +1572,16 @@ func (n *NodeRestore) Build(options *BuildOptions, outputf FuncPrintf) {
 		return
 	}
 
-	offset, found := options.RestoreTable[n.Line]
-	if !found {
+	//offset, found := options.RestoreTable[n.Line]
+	//if !found {
+	offset := findData(options, n.Line)
+	if offset < 0 {
 		log.Printf("NodeRestore.Build: line not found: %s", n.Line)
 		outputf("baslib.Restore(readData,\"%s\",%d) // RESTORE line NOT FOUND\n", n.Line, offset)
 		outputf("panic(`RESTORE line not found: %s`)\n", n.Line)
 		return
 	}
+
 	outputf("baslib.Restore(readData,\"%s\",%d)\n", n.Line, offset)
 }
 
