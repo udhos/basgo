@@ -4,6 +4,7 @@ import (
 	"log"
 	"runtime"
 
+	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
 )
 
@@ -36,6 +37,21 @@ func graphicsStart(mode int) {
 		log.Printf("graphicsStart(%d): failed", mode)
 		return
 	}
+
+	if err := gl.Init(); err != nil {
+		log.Printf("OpenGL init: %v", err)
+		return
+	}
+	version := gl.GoStr(gl.GetString(gl.VERSION))
+	log.Println("OpenGL version", version)
+
+	prog, errProg := initProg()
+	if errProg != nil {
+		log.Printf("OpenGL program: %v", errProg)
+		return
+	}
+
+	log.Printf("OpenGL program: %d", prog)
 }
 
 func initWin(width, height int) *glfw.Window {
