@@ -58,6 +58,13 @@ func graphicsStart(mode int) {
 
 	graphics.program = prog
 
+	//gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+	gl.UseProgram(graphics.program)
+
+	//drawTriangle()
+}
+
+func drawTriangle() {
 	triangle := []float32{
 		0, 0.5, 0, // top
 		-0.5, -0.5, 0, // left
@@ -66,11 +73,7 @@ func graphicsStart(mode int) {
 
 	vao := makeVao(triangle)
 	vaoIndices := int32(len(triangle) / 3)
-
 	log.Printf("triangle vao: %d", vao)
-
-	//gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-	gl.UseProgram(graphics.program)
 
 	draw(gl.TRIANGLES, vao, graphics.window, vaoIndices)
 }
@@ -88,10 +91,11 @@ func pix2Clip(x, w int) float32 {
 		return 0 // ugh
 	}
 
-	x--                            // 1..w -> 0..w-1
-	x *= 2                         // 0..2(w-1)
-	x -= (w - 1)                   // -(w-1)..w-1
-	c := float32(x) / float32(w-1) // -1..1
+	w--
+	x--                          // 1..w -> 0..w-1
+	x *= 2                       // 0..2(w-1)
+	x -= w                       // -(w-1)..w-1
+	c := float32(x) / float32(w) // -1..1
 
 	return c
 }
