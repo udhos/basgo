@@ -2501,3 +2501,57 @@ func (n *NodeRmdir) Build(options *BuildOptions, outputf FuncPrintf) {
 func (n *NodeRmdir) FindUsedVars(options *BuildOptions) {
 	n.Value.FindUsedVars(options)
 }
+
+// NodeLine is line
+type NodeLine struct {
+	X1 NodeExp
+	Y1 NodeExp
+	X2 NodeExp
+	Y2 NodeExp
+}
+
+// Name returns the name of the node
+func (n *NodeLine) Name() string {
+	return "LINE"
+}
+
+// Show displays the node
+func (n *NodeLine) Show(printf FuncPrintf) {
+	printf("[")
+	printf(n.Name())
+	printf(" <")
+	printf(n.X1.String())
+	printf(">")
+	printf(" <")
+	printf(n.Y1.String())
+	printf(">")
+	printf(" <")
+	printf(n.X2.String())
+	printf(">")
+	printf(" <")
+	printf(n.Y2.String())
+	printf(">")
+	printf("]")
+}
+
+// Build generates code
+func (n *NodeLine) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+
+	x1 := forceInt(options, n.X1)
+	y1 := forceInt(options, n.Y1)
+	x2 := forceInt(options, n.X2)
+	y2 := forceInt(options, n.Y2)
+
+	outputf("baslib.Line(%s,%s,%s,%s)\n", x1, y1, x2, y2)
+}
+
+// FindUsedVars finds used vars
+func (n *NodeLine) FindUsedVars(options *BuildOptions) {
+	n.X1.FindUsedVars(options)
+	n.Y1.FindUsedVars(options)
+	n.X2.FindUsedVars(options)
+	n.Y2.FindUsedVars(options)
+}
