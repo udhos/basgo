@@ -9,8 +9,11 @@ import (
 )
 
 type graph struct {
-	mode   int
-	window *glfw.Window
+	mode       int
+	window     *glfw.Window
+	program    uint32
+	vao        uint32
+	vaoIndices int32
 }
 
 var graphics graph
@@ -53,27 +56,28 @@ func graphicsStart(mode int) {
 
 	log.Printf("OpenGL program: %d", prog)
 
+	graphics.program = prog
+
 	triangle := []float32{
 		0, 0.5, 0, // top
 		-0.5, -0.5, 0, // left
 		0.5, -0.5, 0, // right
 	}
 
-	vao := makeVao(triangle)
-	count := int32(len(triangle) / 3)
+	graphics.vao = makeVao(triangle)
+	graphics.vaoIndices = int32(len(triangle) / 3)
 
-	log.Printf("triangle vao: %d", vao)
+	log.Printf("triangle vao: %d", graphics.vao)
 
-	draw(vao, graphics.window, prog, count)
+	//gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+	gl.UseProgram(graphics.program)
+
+	draw(graphics.vao, graphics.window, graphics.vaoIndices)
 }
 
-func draw(vao uint32, window *glfw.Window, program uint32, count int32) {
-	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-	gl.UseProgram(program)
-
+func draw(vao uint32, window *glfw.Window, count int32) {
 	gl.BindVertexArray(vao)
 	gl.DrawArrays(gl.TRIANGLES, 0, count)
 
-	//glfw.PollEvents()
 	window.SwapBuffers()
 }
