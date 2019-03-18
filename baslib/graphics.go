@@ -52,31 +52,28 @@ func graphicsStart(mode int) {
 	}
 
 	log.Printf("OpenGL program: %d", prog)
+
+	triangle := []float32{
+		0, 0.5, 0, // top
+		-0.5, -0.5, 0, // left
+		0.5, -0.5, 0, // right
+	}
+
+	vao := makeVao(triangle)
+	count := int32(len(triangle) / 3)
+
+	log.Printf("triangle vao: %d", vao)
+
+	draw(vao, graphics.window, prog, count)
 }
 
-func initWin(width, height int) *glfw.Window {
-	if err := glfw.Init(); err != nil {
-		log.Printf("%v", err)
-		return nil
-	}
+func draw(vao uint32, window *glfw.Window, program uint32, count int32) {
+	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+	gl.UseProgram(program)
 
-	major := 3
-	minor := 3
+	gl.BindVertexArray(vao)
+	gl.DrawArrays(gl.TRIANGLES, 0, count)
 
-	log.Printf("requesting window for OpenGL %d.%d", major, minor)
-
-	glfw.WindowHint(glfw.Resizable, glfw.False)
-	glfw.WindowHint(glfw.ContextVersionMajor, major)
-	glfw.WindowHint(glfw.ContextVersionMinor, minor)
-	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
-	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
-
-	window, err := glfw.CreateWindow(width, height, "basgo", nil, nil)
-	if err != nil {
-		log.Printf("%v", err)
-		return nil
-	}
-	window.MakeContextCurrent()
-
-	return window
+	//glfw.PollEvents()
+	window.SwapBuffers()
 }

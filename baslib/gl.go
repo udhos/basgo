@@ -2,9 +2,11 @@ package baslib
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/go-gl/gl/v4.1-core/gl"
+	"github.com/go-gl/glfw/v3.2/glfw"
 )
 
 const (
@@ -24,6 +26,33 @@ const (
     }
 ` + "\x00"
 )
+
+func initWin(width, height int) *glfw.Window {
+	if err := glfw.Init(); err != nil {
+		log.Printf("%v", err)
+		return nil
+	}
+
+	major := 3
+	minor := 3
+
+	log.Printf("requesting window for OpenGL %d.%d", major, minor)
+
+	glfw.WindowHint(glfw.Resizable, glfw.False)
+	glfw.WindowHint(glfw.ContextVersionMajor, major)
+	glfw.WindowHint(glfw.ContextVersionMinor, minor)
+	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
+	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
+
+	window, err := glfw.CreateWindow(width, height, "basgo", nil, nil)
+	if err != nil {
+		log.Printf("%v", err)
+		return nil
+	}
+	window.MakeContextCurrent()
+
+	return window
+}
 
 func initProg() (uint32, error) {
 
@@ -66,4 +95,21 @@ func compileShader(source string, shaderType uint32) (uint32, error) {
 	}
 
 	return shader, nil
+}
+
+// makeVao initializes and returns a vertex array from the points provided.
+func makeVao(points []float32) uint32 {
+	var vbo uint32
+	gl.GenBuffers(1, &vbo)
+	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+	gl.BufferData(gl.ARRAY_BUFFER, 4*len(points), gl.Ptr(points), gl.STATIC_DRAW)
+
+	var vao uint32
+	gl.GenVertexArrays(1, &vao)
+	gl.BindVertexArray(vao)
+	gl.EnableVertexAttribArray(0)
+	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 0, nil)
+
+	return vao
 }
