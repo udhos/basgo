@@ -266,7 +266,7 @@ func (s *screen) start() {
 
 	s.s = sNew
 
-	Color(int(tcell.ColorWhite), int(tcell.ColorBlack))
+	Color(7, 0)
 
 	s.s.Clear()
 
