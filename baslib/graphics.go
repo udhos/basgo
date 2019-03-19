@@ -92,7 +92,7 @@ func graphicsStart(mode int) {
 	gl.Disable(gl.DEPTH_TEST) // disable depth testing
 	gl.Disable(gl.CULL_FACE)  // disable face culling
 
-	Color(7, 0) // upload color uniform
+	graphicsColorUpload()
 }
 
 func getUniformLocation(name string) int32 {
@@ -103,7 +103,12 @@ func getUniformLocation(name string) int32 {
 	return u
 }
 
-func graphicsColor(r, g, b int) {
+func graphicsColorUpload() {
+	r, g, b := screenColorForeground.RGB()
+	graphicsColor(r, g, b)
+}
+
+func graphicsColor(r, g, b int32) {
 	rr := float32(r) / 255
 	gg := float32(g) / 255
 	bb := float32(b) / 255
