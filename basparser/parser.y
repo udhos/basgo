@@ -798,34 +798,41 @@ stmt: /* empty */
 		var box, fill bool
 		list := $15
 		if len(list) > 0 {
-			color = list[0]
-			if !node.TypeNumeric(color.Type(Result.TypeTable)) {
-				yylex.Error("LINE color must be numeric")
+			if c := list[0]; c != nodeExpNull {
+				if !node.TypeNumeric(c.Type(Result.TypeTable)) {
+					yylex.Error("LINE color must be numeric")
+				} else {
+					color = c
+				}
 			}
 		}
 		if len(list) > 1 {
-			bf := list[1]
-			id := bf.String()
-			switch strings.ToLower(id) {
-				case "b":
-					box = true
-				case "f":
-					box = true
-					fill = true
-				case "bf":
-					box = true
-					fill = true
-				case "fb":
-					box = true
-					fill = true
-				default:
-					yylex.Error("LINE unsupported box option: " + id)
+			if bf := list[1]; bf != nodeExpNull {
+				id := bf.String()
+				switch strings.ToLower(id) {
+					case "b":
+						box = true
+					case "f":
+						box = true
+						fill = true
+					case "bf":
+						box = true
+						fill = true
+					case "fb":
+						box = true
+						fill = true
+					default:
+						yylex.Error("LINE unsupported box option: " + id)
+				}
 			}
 		}
 		if len(list) > 2 {
-			style = list[2]
-			if !node.TypeNumeric(style.Type(Result.TypeTable)) {
-				yylex.Error("LINE style must be numeric")
+			if s := list[2]; s != nodeExpNull {
+				if !node.TypeNumeric(s.Type(Result.TypeTable)) {
+					yylex.Error("LINE style must be numeric")
+				} else {
+					style = s
+				}
 			}
 		}
 
