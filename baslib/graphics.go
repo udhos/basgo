@@ -113,7 +113,7 @@ func graphicsColorFg(fg tcell.Color) {
 func graphicsColorUpload() {
 	graphicsColorFg(screenColorForeground)
 
-	// upload background background
+	// upload background color
 	r, g, b := screenColorBackground.RGB()
 	rr, gg, bb := rgbFloat(r, g, b)
 	gl.ClearColor(rr, gg, bb, 1)
