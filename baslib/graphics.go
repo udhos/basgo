@@ -14,11 +14,21 @@ type graph struct {
 	program uint32
 	width   int
 	height  int
+	geom    []float32
 }
 
 var graphics graph
 
+func screenModeGraphics() bool {
+	return graphics.mode != 0
+}
+
+func graphicsCls() {
+	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+}
+
 func graphicsStop() {
+	graphics.mode = 0
 	log.Printf("baslib graphicsStop()")
 	runtime.UnlockOSThread()
 }
@@ -58,22 +68,25 @@ func graphicsStart(mode int) {
 
 	graphics.program = prog
 
-	//gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+	graphics.geom = make([]float32, 9, 9)
+
 	gl.UseProgram(graphics.program)
 
 	//drawTriangle()
+
+	graphics.mode = mode
 }
 
 func drawTriangle() {
-	triangle := []float32{
-		0, 0.5, 0, // top
-		-0.5, -0.5, 0, // left
-		0.5, -0.5, 0, // right
-	}
+	graphics.geom[0] = 0
+	graphics.geom[1] = .5
+	graphics.geom[3] = -.5
+	graphics.geom[4] = -.5
+	graphics.geom[6] = .5
+	graphics.geom[7] = -.5
 
-	vao := makeVao(triangle)
-	vaoIndices := int32(len(triangle) / 3)
-	log.Printf("triangle vao: %d", vao)
+	vao := makeVao(graphics.geom)
+	vaoIndices := int32(3)
 
 	draw(gl.TRIANGLES, vao, graphics.window, vaoIndices)
 }
@@ -109,16 +122,13 @@ func Line(x1, y1, x2, y2, color, style int) {
 	a1, b1 := pixelToClip(x1, y1)
 	a2, b2 := pixelToClip(x2, y2)
 
-	b1 = -b1 // invert y1
-	b2 = -b2 // invert y2
+	graphics.geom[0] = a1
+	graphics.geom[1] = -b1 // invert y1
+	graphics.geom[3] = a2
+	graphics.geom[4] = -b2 // invert y2
 
-	data := []float32{
-		a1, b1, 0,
-		a2, b2, 0,
-	}
-
-	vao := makeVao(data)
-	vaoIndices := int32(len(data) / 3)
+	vao := makeVao(graphics.geom)
+	vaoIndices := int32(2)
 
 	draw(gl.LINES, vao, graphics.window, vaoIndices)
 }

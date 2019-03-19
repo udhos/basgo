@@ -96,13 +96,16 @@ func Screen(mode int) {
 }
 
 func Cls() {
-	if screenMode0() {
+	switch {
+	case screenMode0():
 		if screenViewTop == 1 && screenHeight > 24 {
 			scr.s.Fill(' ', screenStyle) // clear terminal
 		} else {
 			cls() // clear view print window
 		}
 		screenShow()
+	case screenModeGraphics():
+		graphicsCls()
 	}
 	screenPos = 1
 	screenRow = 1
