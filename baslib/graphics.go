@@ -15,6 +15,7 @@ type graph struct {
 	width   int
 	height  int
 	geom    []float32
+	u_color int32
 }
 
 var graphics graph
@@ -76,6 +77,8 @@ func graphicsStart(mode int) {
 
 	graphics.program = prog
 
+	graphics.u_color = getUniformLocation("u_color")
+
 	geomBuf(18)
 
 	gl.UseProgram(graphics.program)
@@ -88,6 +91,23 @@ func graphicsStart(mode int) {
 	gl.ClearDepthf(1)         // default
 	gl.Disable(gl.DEPTH_TEST) // disable depth testing
 	gl.Disable(gl.CULL_FACE)  // disable face culling
+
+	Color(7, 0) // upload color uniform
+}
+
+func getUniformLocation(name string) int32 {
+	u := gl.GetUniformLocation(graphics.program, gl.Str(name+"\x00"))
+	if u < 0 {
+		log.Printf("getUniformLocation: uniform location not found for: %s", name)
+	}
+	return u
+}
+
+func graphicsColor(r, g, b int) {
+	rr := float32(r) / 255
+	gg := float32(g) / 255
+	bb := float32(b) / 255
+	gl.Uniform4f(graphics.u_color, rr, gg, bb, 1)
 }
 
 func drawTriangle() {

@@ -37,6 +37,12 @@ func Color(fg, bg int) {
 	if fg >= 0 {
 		fg = colorTerm(fg)
 		screenColorForeground = tcell.Color(fg)
+
+		if screenModeGraphics() {
+			r, g, b := screenColorForeground.RGB()
+			graphicsColor(int(r), int(g), int(b))
+			return
+		}
 	}
 
 	if bg >= 0 {
