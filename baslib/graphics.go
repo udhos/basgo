@@ -104,7 +104,7 @@ func pixelToClip(x, y int) (float32, float32) {
 	return pix2Clip(x, graphics.width), pix2Clip(y, graphics.height)
 }
 
-func Line(x1, y1, x2, y2 int) {
+func Line(x1, y1, x2, y2, color, style int) {
 
 	a1, b1 := pixelToClip(x1, y1)
 	a2, b2 := pixelToClip(x2, y2)
@@ -121,4 +121,7 @@ func Line(x1, y1, x2, y2 int) {
 	vaoIndices := int32(len(data) / 3)
 
 	draw(gl.LINES, vao, graphics.window, vaoIndices)
+}
+
+func LineBox(x1, y1, x2, y2, color, style int, fill bool) {
 }

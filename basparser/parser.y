@@ -776,6 +776,61 @@ stmt: /* empty */
 		}
 		$$ = &node.NodeLine{X1:x1,Y1:y1,X2:x2,Y2:y2}
 	}
+  | TkKeywordLine TkParLeft exp TkComma exp TkParRight TkMinus TkParLeft exp TkComma exp TkParRight TkComma expressions_push null_exp_list expressions_pop
+	{
+		x1 := $3
+		y1 := $5
+		x2 := $9
+		y2 := $11
+		if !node.TypeNumeric(x1.Type(Result.TypeTable)) {
+			yylex.Error("LINE X1 must be numeric")
+		}
+		if !node.TypeNumeric(y1.Type(Result.TypeTable)) {
+			yylex.Error("LINE Y1 must be numeric")
+		}
+		if !node.TypeNumeric(x2.Type(Result.TypeTable)) {
+			yylex.Error("LINE X2 must be numeric")
+		}
+		if !node.TypeNumeric(y2.Type(Result.TypeTable)) {
+			yylex.Error("LINE Y2 must be numeric")
+		}
+		var color, style node.NodeExp
+		var box, fill bool
+		list := $15
+		if len(list) > 0 {
+			color = list[0]
+			if !node.TypeNumeric(color.Type(Result.TypeTable)) {
+				yylex.Error("LINE color must be numeric")
+			}
+		}
+		if len(list) > 1 {
+			bf := list[1]
+			id := bf.String()
+			switch strings.ToLower(id) {
+				case "b":
+					box = true
+				case "f":
+					box = true
+					fill = true
+				case "bf":
+					box = true
+					fill = true
+				case "fb":
+					box = true
+					fill = true
+				default:
+					yylex.Error("LINE unsupported box option: " + id)
+			}
+		}
+		if len(list) > 2 {
+			style = list[2]
+			if !node.TypeNumeric(style.Type(Result.TypeTable)) {
+				yylex.Error("LINE style must be numeric")
+			}
+		}
+
+		$$ = &node.NodeLine{X1:x1,Y1:y1,X2:x2,Y2:y2,Color:color,Style:style,Box:box,Fill:fill}
+	}
   | TkKeywordGosub use_line_number
      {
         Result.LibGosubReturn = true

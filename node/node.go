@@ -2504,10 +2504,14 @@ func (n *NodeRmdir) FindUsedVars(options *BuildOptions) {
 
 // NodeLine is line
 type NodeLine struct {
-	X1 NodeExp
-	Y1 NodeExp
-	X2 NodeExp
-	Y2 NodeExp
+	X1    NodeExp
+	Y1    NodeExp
+	X2    NodeExp
+	Y2    NodeExp
+	Color NodeExp
+	Style NodeExp
+	Box   bool
+	Fill  bool
 }
 
 // Name returns the name of the node
@@ -2531,6 +2535,22 @@ func (n *NodeLine) Show(printf FuncPrintf) {
 	printf(" <")
 	printf(n.Y2.String())
 	printf(">")
+	printf(" <")
+	if n.Color != NodeExp(nil) {
+		printf(n.Color.String())
+	}
+	printf(">")
+	printf(" <")
+	if n.Style != NodeExp(nil) {
+		printf(n.Style.String())
+	}
+	printf(">")
+	if n.Box {
+		printf(" box")
+	}
+	if n.Fill {
+		printf(" fill")
+	}
 	printf("]")
 }
 
@@ -2540,12 +2560,26 @@ func (n *NodeLine) Build(options *BuildOptions, outputf FuncPrintf) {
 	n.Show(outputf)
 	outputf("\n")
 
+	color := "-1"
+	style := "-1"
+
 	x1 := forceInt(options, n.X1)
 	y1 := forceInt(options, n.Y1)
 	x2 := forceInt(options, n.X2)
 	y2 := forceInt(options, n.Y2)
+	if n.Color != NodeExp(nil) {
+		color = forceInt(options, n.Color)
+	}
+	if n.Style != NodeExp(nil) {
+		style = forceInt(options, n.Style)
+	}
 
-	outputf("baslib.Line(%s,%s,%s,%s)\n", x1, y1, x2, y2)
+	if n.Box {
+		outputf("baslib.LineBox(%s,%s,%s,%s,%s,%s,%v)\n", x1, y1, x2, y2, color, style, n.Fill)
+		return
+	}
+
+	outputf("baslib.Line(%s,%s,%s,%s,%s,%s)\n", x1, y1, x2, y2, color, style)
 }
 
 // FindUsedVars finds used vars
@@ -2554,4 +2588,10 @@ func (n *NodeLine) FindUsedVars(options *BuildOptions) {
 	n.Y1.FindUsedVars(options)
 	n.X2.FindUsedVars(options)
 	n.Y2.FindUsedVars(options)
+	if n.Color != NodeExp(nil) {
+		n.Color.FindUsedVars(options)
+	}
+	if n.Style != NodeExp(nil) {
+		n.Style.FindUsedVars(options)
+	}
 }
