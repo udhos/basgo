@@ -4,6 +4,7 @@ import (
 	"log"
 	"runtime"
 
+	"github.com/gdamore/tcell"
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
 )
@@ -102,15 +103,19 @@ func getUniformLocation(name string) int32 {
 	return u
 }
 
-func graphicsColorUpload() {
-	// foreground
-	r, g, b := screenColorForeground.RGB()
+// upload foreground color
+func graphicsColorFg(fg tcell.Color) {
+	r, g, b := fg.RGB()
 	rr, gg, bb := rgbFloat(r, g, b)
 	gl.Uniform4f(graphics.u_color, rr, gg, bb, 1)
+}
 
-	// background
-	r, g, b = screenColorBackground.RGB()
-	rr, gg, bb = rgbFloat(r, g, b)
+func graphicsColorUpload() {
+	graphicsColorFg(screenColorForeground)
+
+	// upload background background
+	r, g, b := screenColorBackground.RGB()
+	rr, gg, bb := rgbFloat(r, g, b)
 	gl.ClearColor(rr, gg, bb, 1)
 }
 
@@ -172,7 +177,17 @@ func Line(x1, y1, x2, y2, color, style int) {
 	vao := makeVao(graphics.geom, 6)
 	vaoIndices := int32(2)
 
+	if color >= 0 {
+		// draw with specified color
+		graphicsColorFg(tcell.Color(colorTerm(color)))
+	}
+
 	draw(gl.LINES, vao, graphics.window, vaoIndices)
+
+	if color >= 0 {
+		// restore color
+		graphicsColorFg(screenColorForeground)
+	}
 }
 
 func LineBox(x1, y1, x2, y2, color, style int, fill bool) {
@@ -223,7 +238,17 @@ func LineBox(x1, y1, x2, y2, color, style int, fill bool) {
 		vaoIndices = 4
 	}
 
+	if color >= 0 {
+		// draw with specified color
+		graphicsColorFg(tcell.Color(colorTerm(color)))
+	}
+
 	draw(mode, vao, graphics.window, vaoIndices)
+
+	if color >= 0 {
+		// restore color
+		graphicsColorFg(screenColorForeground)
+	}
 }
 
 func min(x, y int) int {
