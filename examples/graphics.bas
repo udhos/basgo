@@ -1,5 +1,5 @@
 100 screen 1000
-200 color 7:line (1,1)-(640,480)
+200 color 7,5:line (1,1)-(640,480)
 210 _goproc("sleep1")
 220 cls
 230 color 2:for i=240 to 480: line (400,240)-(640,i): next

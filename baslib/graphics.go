@@ -87,7 +87,6 @@ func graphicsStart(mode int) {
 
 	graphics.mode = mode
 
-	gl.ClearColor(0, 0, 0, 0) // clear color
 	gl.ClearDepthf(1)         // default
 	gl.Disable(gl.DEPTH_TEST) // disable depth testing
 	gl.Disable(gl.CULL_FACE)  // disable face culling
@@ -104,15 +103,19 @@ func getUniformLocation(name string) int32 {
 }
 
 func graphicsColorUpload() {
+	// foreground
 	r, g, b := screenColorForeground.RGB()
-	graphicsColor(r, g, b)
+	rr, gg, bb := rgbFloat(r, g, b)
+	gl.Uniform4f(graphics.u_color, rr, gg, bb, 1)
+
+	// background
+	r, g, b = screenColorBackground.RGB()
+	rr, gg, bb = rgbFloat(r, g, b)
+	gl.ClearColor(rr, gg, bb, 1)
 }
 
-func graphicsColor(r, g, b int32) {
-	rr := float32(r) / 255
-	gg := float32(g) / 255
-	bb := float32(b) / 255
-	gl.Uniform4f(graphics.u_color, rr, gg, bb, 1)
+func rgbFloat(r, g, b int32) (float32, float32, float32) {
+	return float32(r) / 255, float32(g) / 255, float32(b) / 255
 }
 
 func drawTriangle() {
