@@ -145,15 +145,14 @@ func draw(mode, vao uint32, window *glfw.Window, count int32) {
 	window.SwapBuffers()
 }
 
-// 1..640 to -1..1
+// 0..639 to -1..1
 func pix2Clip(x, w int) float32 {
 	if w == 1 {
 		return 0 // ugh
 	}
 
 	w--
-	x--                          // 1..w -> 0..w-1
-	x *= 2                       // 0..2(w-1)
+	x *= 2                       // 0..w-1 -> 0..2(w-1)
 	x -= w                       // -(w-1)..w-1
 	c := float32(x) / float32(w) // -1..1
 
