@@ -1640,7 +1640,7 @@ null_exp_list: null_exp
 	        $$ = expListStack[last]
 	}
     |
-        call_exp_list TkComma null_exp
+        null_exp_list TkComma null_exp
         {
 		last := len(expListStack) - 1
 		expListStack[last] = append(expListStack[last], $3)
