@@ -19,6 +19,14 @@ type graph struct {
 
 var graphics graph
 
+func geomBuf(size int) {
+	grow := size - len(graphics.geom)
+	if grow < 1 {
+		return
+	}
+	graphics.geom = append(graphics.geom, make([]float32, grow)...)
+}
+
 func screenModeGraphics() bool {
 	return graphics.mode != 0
 }
@@ -68,16 +76,22 @@ func graphicsStart(mode int) {
 
 	graphics.program = prog
 
-	graphics.geom = make([]float32, 9, 9)
+	geomBuf(18)
 
 	gl.UseProgram(graphics.program)
 
 	//drawTriangle()
 
 	graphics.mode = mode
+
+	gl.ClearColor(0, 0, 0, 0) // clear color
+	gl.ClearDepthf(1)         // default
+	gl.Disable(gl.DEPTH_TEST) // disable depth testing
+	gl.Disable(gl.CULL_FACE)  // disable face culling
 }
 
 func drawTriangle() {
+
 	graphics.geom[0] = 0
 	graphics.geom[1] = .5
 	graphics.geom[3] = -.5
@@ -85,7 +99,7 @@ func drawTriangle() {
 	graphics.geom[6] = .5
 	graphics.geom[7] = -.5
 
-	vao := makeVao(graphics.geom)
+	vao := makeVao(graphics.geom, 9)
 	vaoIndices := int32(3)
 
 	draw(gl.TRIANGLES, vao, graphics.window, vaoIndices)
@@ -127,11 +141,73 @@ func Line(x1, y1, x2, y2, color, style int) {
 	graphics.geom[3] = a2
 	graphics.geom[4] = -b2 // invert y2
 
-	vao := makeVao(graphics.geom)
+	vao := makeVao(graphics.geom, 6)
 	vaoIndices := int32(2)
 
 	draw(gl.LINES, vao, graphics.window, vaoIndices)
 }
 
 func LineBox(x1, y1, x2, y2, color, style int, fill bool) {
+	minx := min(x1, x2)
+	miny := min(y1, y2)
+	maxx := max(x1, x2)
+	maxy := max(y1, y2)
+
+	a1, b1 := pixelToClip(minx, miny)
+	a2, b2 := pixelToClip(maxx, maxy)
+
+	b1 = -b1 // invert y
+	b2 = -b2 // invert y
+
+	var mode uint32
+	var vao uint32
+	var vaoIndices int32
+
+	if fill {
+		graphics.geom[0] = a1
+		graphics.geom[1] = b1
+		graphics.geom[3] = a1
+		graphics.geom[4] = b2
+		graphics.geom[6] = a2
+		graphics.geom[7] = b2
+
+		graphics.geom[9] = a2
+		graphics.geom[10] = b2
+		graphics.geom[12] = a2
+		graphics.geom[13] = b1
+		graphics.geom[15] = a1
+		graphics.geom[16] = b1
+
+		mode = gl.TRIANGLES
+		vao = makeVao(graphics.geom, 18)
+		vaoIndices = 6
+	} else {
+		graphics.geom[0] = a1
+		graphics.geom[1] = b1
+		graphics.geom[3] = a1
+		graphics.geom[4] = b2
+		graphics.geom[6] = a2
+		graphics.geom[7] = b2
+		graphics.geom[9] = a2
+		graphics.geom[10] = b1
+		mode = gl.LINE_LOOP
+		vao = makeVao(graphics.geom, 12)
+		vaoIndices = 4
+	}
+
+	draw(mode, vao, graphics.window, vaoIndices)
+}
+
+func min(x, y int) int {
+	if x < y {
+		return x
+	}
+	return y
+}
+
+func max(x, y int) int {
+	if x > y {
+		return x
+	}
+	return y
 }

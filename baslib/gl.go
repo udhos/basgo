@@ -98,11 +98,11 @@ func compileShader(source string, shaderType uint32) (uint32, error) {
 }
 
 // makeVao initializes and returns a vertex array from the points provided.
-func makeVao(points []float32) uint32 {
+func makeVao(points []float32, size int) uint32 {
 	var vbo uint32
 	gl.GenBuffers(1, &vbo)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.BufferData(gl.ARRAY_BUFFER, 4*len(points), gl.Ptr(points), gl.STATIC_DRAW)
+	gl.BufferData(gl.ARRAY_BUFFER, 4*size, gl.Ptr(points), gl.STATIC_DRAW)
 
 	var vao uint32
 	gl.GenVertexArrays(1, &vao)
