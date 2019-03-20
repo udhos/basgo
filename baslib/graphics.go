@@ -160,7 +160,7 @@ func pix2Clip(x, w int) float32 {
 }
 
 func pixelToClip(x, y int) (float32, float32) {
-	return pix2Clip(x, graphics.width), pix2Clip(y, graphics.height)
+	return pix2Clip(x, graphics.width), -pix2Clip(y, graphics.height)
 }
 
 func Line(x1, y1, x2, y2, color, style int) {
@@ -169,9 +169,9 @@ func Line(x1, y1, x2, y2, color, style int) {
 	a2, b2 := pixelToClip(x2, y2)
 
 	graphics.geom[0] = a1
-	graphics.geom[1] = -b1 // invert y1
+	graphics.geom[1] = b1
 	graphics.geom[3] = a2
-	graphics.geom[4] = -b2 // invert y2
+	graphics.geom[4] = b2
 
 	vao := makeVao(graphics.geom, 6)
 	vaoIndices := int32(2)
@@ -190,16 +190,9 @@ func Line(x1, y1, x2, y2, color, style int) {
 }
 
 func LineBox(x1, y1, x2, y2, color, style int, fill bool) {
-	minx := min(x1, x2)
-	miny := min(y1, y2)
-	maxx := max(x1, x2)
-	maxy := max(y1, y2)
 
-	a1, b1 := pixelToClip(minx, miny)
-	a2, b2 := pixelToClip(maxx, maxy)
-
-	b1 = -b1 // invert y
-	b2 = -b2 // invert y
+	a1, b1 := pixelToClip(x1, y1)
+	a2, b2 := pixelToClip(x2, y2)
 
 	var mode uint32
 	var vao uint32
@@ -232,6 +225,7 @@ func LineBox(x1, y1, x2, y2, color, style int, fill bool) {
 		graphics.geom[7] = b2
 		graphics.geom[9] = a2
 		graphics.geom[10] = b1
+
 		mode = gl.LINE_LOOP
 		vao = makeVao(graphics.geom, 12)
 		vaoIndices = 4
@@ -248,18 +242,4 @@ func LineBox(x1, y1, x2, y2, color, style int, fill bool) {
 		// restore color
 		graphicsColorFg(screenColorForeground)
 	}
-}
-
-func min(x, y int) int {
-	if x < y {
-		return x
-	}
-	return y
-}
-
-func max(x, y int) int {
-	if x > y {
-		return x
-	}
-	return y
 }
