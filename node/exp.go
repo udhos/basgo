@@ -2031,7 +2031,7 @@ func (e *NodeExpLog) Type(table []int) int {
 
 // String returns value
 func (e *NodeExpLog) String() string {
-	return "ATN(" + e.Value.String() + ")"
+	return "LOG(" + e.Value.String() + ")"
 }
 
 // Exp returns value
