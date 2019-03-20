@@ -188,6 +188,7 @@ import (
 %token <tok> TkKeywordLoad
 %token <tok> TkKeywordLocate
 %token <tok> TkKeywordLof
+%token <tok> TkKeywordLog
 %token <tok> TkKeywordMid
 %token <tok> TkKeywordMkdir
 %token <tok> TkKeywordName
@@ -2376,6 +2377,15 @@ exp: one_const_noneg { $$ = $1 }
 		}
 		Result.Baslib = true
 		$$ = &node.NodeExpOct{Number: num}
+	}
+   | TkKeywordLog TkParLeft exp TkParRight
+	{
+		num := $3
+		if !node.TypeNumeric(num.Type(Result.TypeTable)) {
+			yylex.Error("LOG expression must be numeric")
+		}
+		Result.Baslib = true
+		$$ = &node.NodeExpLog{Value:num}
 	}
    ;
 

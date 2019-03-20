@@ -113,6 +113,10 @@ var testTable = []buildTest{
 	{"ugh", "", "", WRONG},            // invalid program
 	{`10 print "ab"`, "", "ab\n", OK}, // minimum program
 
+	{`10 print log(1);`, "", " 0 ", OK},
+	{`10 print log(2.718281828459045);`, "", " 1 ", OK},
+	{`10 print log(2.718281828459045^7);`, "", " 7 ", OK},
+
 	{sourceRestore2, "", " 4 ", OK},
 
 	{`10 a$="/tmp/x":open a$ for output as 1:print#1,"xyz";:close:open a$ for append as 1:print#1,"abc";:close:open a$ for input as 1:print input$(6,#1);`, "", "xyzabc", OK},

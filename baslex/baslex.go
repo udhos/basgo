@@ -122,6 +122,7 @@ const (
 	TkKeywordLoad        = iota // LOAD
 	TkKeywordLocate      = iota // LOCATE
 	TkKeywordLof         = iota // LOF
+	TkKeywordLog         = iota // LOG
 	TkKeywordMid         = iota // MID$
 	TkKeywordMkdir       = iota // MKDIR
 	TkKeywordName        = iota // NAME
@@ -248,6 +249,7 @@ var tabKeywords = []struct {
 	{TkKeywordLoad, "LOAD"},
 	{TkKeywordLocate, "LOCATE"},
 	{TkKeywordLof, "LOF"},
+	{TkKeywordLog, "LOG"},
 	{TkKeywordMid, "MID$"},
 	{TkKeywordMkdir, "MKDIR"},
 	{TkKeywordMod, "MOD"},
@@ -411,6 +413,7 @@ var tabType = []string{
 	"LOAD",
 	"LOCATE",
 	"LOF",
+	"LOG",
 	"MID$",
 	"MKDIR",
 	"NAME",

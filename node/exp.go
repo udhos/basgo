@@ -2018,3 +2018,28 @@ func (e *NodeExpEnviron) Exp(options *BuildOptions) string {
 func (e *NodeExpEnviron) FindUsedVars(options *BuildOptions) {
 	e.Key.FindUsedVars(options)
 }
+
+// NodeExpLog holds value
+type NodeExpLog struct {
+	Value NodeExp
+}
+
+// Type returns type
+func (e *NodeExpLog) Type(table []int) int {
+	return TypeFloat
+}
+
+// String returns value
+func (e *NodeExpLog) String() string {
+	return "ATN(" + e.Value.String() + ")"
+}
+
+// Exp returns value
+func (e *NodeExpLog) Exp(options *BuildOptions) string {
+	return "baslib.Log(" + forceFloat(options, e.Value) + ")"
+}
+
+// FindUsedVars finds used vars
+func (e *NodeExpLog) FindUsedVars(options *BuildOptions) {
+	e.Value.FindUsedVars(options)
+}
