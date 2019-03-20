@@ -1,5 +1,5 @@
 100 screen 1000
-200 color 7,5
+200 color 7,5 : rem next CLS will clear bg color to 5
 205 line (0,0)-(639,479)
 206 line (50,0)-(0,50)
 210 _goproc("sleep1")
