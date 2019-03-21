@@ -1,12 +1,16 @@
 package baslib
 
 import (
+	"fmt"
+	"io"
 	"log"
 	"runtime"
+	"unicode/utf8"
 
 	"github.com/gdamore/tcell"
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
+	"github.com/udhos/inkey/inkey"
 )
 
 type graph struct {
@@ -17,6 +21,7 @@ type graph struct {
 	height  int
 	geom    []float32
 	u_color int32
+	keys    chan rune
 }
 
 var graphics graph
@@ -84,15 +89,66 @@ func graphicsStart(mode int) {
 
 	gl.UseProgram(graphics.program)
 
-	//drawTriangle()
-
 	graphics.mode = mode
 
 	gl.ClearDepthf(1)         // default
 	gl.Disable(gl.DEPTH_TEST) // disable depth testing
 	gl.Disable(gl.CULL_FACE)  // disable face culling
 
+	graphics.keys = make(chan rune, 10)
+
+	graphics.window.SetCharCallback(charCallback)
+
 	graphicsColorUpload()
+
+	stdin = inkey.New(&graphics) // replace inkey(os.Stdin) with inkey(graph)
+
+	//drawTriangle()
+
+	log.Printf("baslib graphicsStart(%d) done", mode)
+}
+
+func charCallback(w *glfw.Window, r rune) {
+	log.Printf("charCallback: key: %d", r)
+	graphics.keys <- r
+}
+
+func (g *graph) Read(buf []byte) (int, error) {
+LOOP:
+	for {
+		select {
+		case r, ok := <-g.keys:
+			if !ok {
+				log.Printf("graph.Read: EOF")
+				return 0, io.EOF
+			}
+			log.Printf("graph.Read: key: %d", r)
+
+			switch r {
+			case 13: // discard CR
+				continue LOOP
+			case 10: // LF
+				need := 1
+				avail := len(buf)
+				if need > avail {
+					return 0, fmt.Errorf("graph.Read: enter short buffer: need=%d avail=%d", need, avail)
+				}
+				buf[0] = '\n'
+				return 1, nil
+			default:
+				need := utf8.RuneLen(r)
+				avail := len(buf)
+				if need > avail {
+					return 0, fmt.Errorf("graph.Read: rune short buffer: need=%d avail=%d", need, avail)
+				}
+				size := utf8.EncodeRune(buf, r)
+				return size, nil
+			}
+		default:
+			glfw.PollEvents()
+		}
+
+	}
 }
 
 func getUniformLocation(name string) int32 {
