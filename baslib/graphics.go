@@ -21,7 +21,7 @@ type graph struct {
 	height  int
 	geom    []float32
 	u_color int32
-	keys    chan rune
+	keys    chan int
 }
 
 var graphics graph
@@ -95,9 +95,9 @@ func graphicsStart(mode int) {
 	gl.Disable(gl.DEPTH_TEST) // disable depth testing
 	gl.Disable(gl.CULL_FACE)  // disable face culling
 
-	graphics.keys = make(chan rune, 10)
+	graphics.keys = make(chan int, 10)
 
-	graphics.window.SetCharCallback(charCallback)
+	graphics.window.SetKeyCallback(keyCallback)
 
 	graphicsColorUpload()
 
@@ -108,34 +108,72 @@ func graphicsStart(mode int) {
 	log.Printf("baslib graphicsStart(%d) done", mode)
 }
 
-func charCallback(w *glfw.Window, r rune) {
-	log.Printf("charCallback: key: %d", r)
-	graphics.keys <- r
+func keyCallback(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey) {
+	if action == glfw.Release {
+		return // ignore key release
+	}
+
+	shift := mods&glfw.ModShift != 0
+	capslock := mods&0x0010 != 0 // GLFW 3.3
+	upper := shift || capslock
+
+	k := int(key)
+
+	if !upper && key >= glfw.KeyA && key <= glfw.KeyZ {
+		k += 32 // lower case
+	}
+
+	log.Printf("keyCallback: key: '%c' '%c' %d shift=%v capslock=%v", byte(key), byte(k), k, shift, capslock)
+
+	graphics.keys <- k
+}
+
+func remapKey(k int) int {
+	switch k {
+	case 257:
+		log.Printf("remapKey: ENTER")
+		return '\n' // enter
+	case 258:
+		log.Printf("remapKey: TAB")
+		return 9 // tab
+	case 259:
+		log.Printf("remapKey: BACKSPACE")
+		return 8 // backspace
+	}
+	return k
 }
 
 func (g *graph) Read(buf []byte) (int, error) {
-LOOP:
 	for {
 		select {
-		case r, ok := <-g.keys:
+		case k, ok := <-g.keys:
 			if !ok {
 				log.Printf("graph.Read: EOF")
 				return 0, io.EOF
 			}
-			log.Printf("graph.Read: key: %d", r)
+			log.Printf("graph.Read: key: %d", k)
 
-			switch r {
-			case 13: // discard CR
-				continue LOOP
-			case 10: // LF
+			kk := remapKey(k)
+
+			switch {
+			case kk != k:
 				need := 1
 				avail := len(buf)
 				if need > avail {
-					return 0, fmt.Errorf("graph.Read: enter short buffer: need=%d avail=%d", need, avail)
+					return 0, fmt.Errorf("graph.Read: remap short buffer: need=%d avail=%d", need, avail)
 				}
-				buf[0] = '\n'
+				buf[0] = byte(kk)
+				return 1, nil
+			case k < 256:
+				need := 1
+				avail := len(buf)
+				if need > avail {
+					return 0, fmt.Errorf("graph.Read: short buffer: need=%d avail=%d", need, avail)
+				}
+				buf[0] = byte(k)
 				return 1, nil
 			default:
+				r := rune(k)
 				need := utf8.RuneLen(r)
 				avail := len(buf)
 				if need > avail {
