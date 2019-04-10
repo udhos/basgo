@@ -28,7 +28,13 @@ If your system lacks Go, this recipe will install a current release of Go:
     cd update-golang
     sudo ./update-golang.sh
 
+For Windows systems, get the Go installer here: https://golang.org/dl/
+
 # Install
+
+If you don't want to hack the compiler, you can download a precompiled binary release here:
+
+https://github.com/udhos/basgo/releases
 
 ## Install only the 'basgo-build' compiler
 
