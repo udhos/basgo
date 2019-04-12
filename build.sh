@@ -9,7 +9,7 @@ build() {
 
 	gofmt -s -w "$pkg"
 	go fix "$pkg"
-	go vet -vettool="$(which shadow)" "$pkg"
+	#go vet -vettool="$(which shadow)" "$pkg"
 
 	#hash gosimple >/dev/null && gosimple "$pkg"
 	#hash golint >/dev/null && golint "$pkg"

@@ -4,14 +4,17 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"runtime"
+	//"runtime"
 	"unicode/utf8"
 
 	"github.com/gdamore/tcell"
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
 	"github.com/udhos/inkey/inkey"
+	"github.com/faiface/mainthread"
 )
+
+var G *glfw.Window
 
 type graph struct {
 	mode    int
@@ -39,19 +42,21 @@ func screenModeGraphics() bool {
 }
 
 func graphicsCls() {
+	mainthread.Call(func(){
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+	})
 }
 
 func graphicsStop() {
 	graphics.mode = 0
 	log.Printf("baslib graphicsStop()")
-	runtime.UnlockOSThread()
+	//runtime.UnlockOSThread()
 }
 
 func graphicsStart(mode int) {
 	log.Printf("baslib graphicsStart(%d)", mode)
 
-	runtime.LockOSThread()
+	//runtime.LockOSThread()
 
 	graphics.mode = mode
 
@@ -60,44 +65,55 @@ func graphicsStart(mode int) {
 
 	log.Printf("graphicsStart(%d): %d x %d", mode, graphics.width, graphics.height)
 
-	graphics.window = initWin(graphics.width, graphics.height)
+	//graphics.window = initWin(graphics.width, graphics.height)
+	graphics.window = G
 	if graphics.window == nil {
 		log.Printf("graphicsStart(%d): failed", mode)
 		return
 	}
 
+	mainthread.Call(func(){
 	if err := gl.Init(); err != nil {
 		log.Printf("OpenGL init: %v", err)
 		return
 	}
 	version := gl.GoStr(gl.GetString(gl.VERSION))
 	log.Println("OpenGL version", version)
+	})
 
+	mainthread.Call(func(){
 	prog, errProg := initProg()
 	if errProg != nil {
 		log.Printf("OpenGL program: %v", errProg)
 		return
 	}
-
 	log.Printf("OpenGL program: %d", prog)
-
 	graphics.program = prog
+	})
 
+	mainthread.Call(func(){
 	graphics.u_color = getUniformLocation("u_color")
+	})
 
 	geomBuf(18)
 
+	mainthread.Call(func(){
 	gl.UseProgram(graphics.program)
+	})
 
 	graphics.mode = mode
 
+	mainthread.Call(func(){
 	gl.ClearDepthf(1)         // default
 	gl.Disable(gl.DEPTH_TEST) // disable depth testing
 	gl.Disable(gl.CULL_FACE)  // disable face culling
+	})
 
 	graphics.keys = make(chan int, 10)
 
+	mainthread.Call(func(){
 	graphics.window.SetKeyCallback(keyCallback)
+	})
 
 	graphicsColorUpload()
 
@@ -183,7 +199,9 @@ func (g *graph) Read(buf []byte) (int, error) {
 				return size, nil
 			}
 		default:
+			mainthread.Call(func(){
 			glfw.PollEvents()
+			})
 		}
 
 	}
@@ -201,7 +219,9 @@ func getUniformLocation(name string) int32 {
 func graphicsColorFg(fg tcell.Color) {
 	r, g, b := fg.RGB()
 	rr, gg, bb := rgbFloat(r, g, b)
+	mainthread.Call(func(){
 	gl.Uniform4f(graphics.u_color, rr, gg, bb, 1)
+	})
 }
 
 func graphicsColorUpload() {
@@ -210,7 +230,9 @@ func graphicsColorUpload() {
 	// upload background color
 	r, g, b := screenColorBackground.RGB()
 	rr, gg, bb := rgbFloat(r, g, b)
+	mainthread.Call(func(){
 	gl.ClearColor(rr, gg, bb, 1)
+	})
 }
 
 func rgbFloat(r, g, b int32) (float32, float32, float32) {
@@ -233,10 +255,12 @@ func drawTriangle() {
 }
 
 func draw(mode, vao uint32, window *glfw.Window, count int32) {
+	mainthread.Call(func(){
 	gl.BindVertexArray(vao)
 	gl.DrawArrays(mode, 0, count)
 
 	window.SwapBuffers()
+})
 }
 
 // 0..639 to -1..1
