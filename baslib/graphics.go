@@ -119,8 +119,6 @@ func graphicsStart(mode int) {
 
 	stdin = inkey.New(&graphics) // replace inkey(os.Stdin) with inkey(graph)
 
-	//drawTriangle()
-
 	log.Printf("baslib graphicsStart(%d) done", mode)
 }
 
@@ -239,21 +237,6 @@ func rgbFloat(r, g, b int32) (float32, float32, float32) {
 	return float32(r) / 255, float32(g) / 255, float32(b) / 255
 }
 
-func drawTriangle() {
-
-	graphics.geom[0] = 0
-	graphics.geom[1] = .5
-	graphics.geom[3] = -.5
-	graphics.geom[4] = -.5
-	graphics.geom[6] = .5
-	graphics.geom[7] = -.5
-
-	vao := makeVao(graphics.geom, 9)
-	vaoIndices := int32(3)
-
-	draw(gl.TRIANGLES, vao, graphics.window, vaoIndices)
-}
-
 func draw(mode, vao uint32, window *glfw.Window, count int32) {
 	mainthread.Call(func() {
 		gl.BindVertexArray(vao)
@@ -290,8 +273,10 @@ func Line(x1, y1, x2, y2, color, style int) {
 
 	graphics.geom[0] = a1
 	graphics.geom[1] = b1
+	graphics.geom[2] = 0 // clear
 	graphics.geom[3] = a2
 	graphics.geom[4] = b2
+	graphics.geom[5] = 0 // clear
 
 	vao := makeVao(graphics.geom, 6)
 	vaoIndices := int32(2)
@@ -321,17 +306,23 @@ func LineBox(x1, y1, x2, y2, color, style int, fill bool) {
 	if fill {
 		graphics.geom[0] = a1
 		graphics.geom[1] = b1
+		graphics.geom[2] = 0 // clear
 		graphics.geom[3] = a1
 		graphics.geom[4] = b2
+		graphics.geom[5] = 0 // clear
 		graphics.geom[6] = a2
 		graphics.geom[7] = b2
+		graphics.geom[8] = 0 // clear
 
 		graphics.geom[9] = a2
 		graphics.geom[10] = b2
+		graphics.geom[11] = 0 // clear
 		graphics.geom[12] = a2
 		graphics.geom[13] = b1
+		graphics.geom[14] = 0 // clear
 		graphics.geom[15] = a1
 		graphics.geom[16] = b1
+		graphics.geom[17] = 0 // clear
 
 		mode = gl.TRIANGLES
 		vao = makeVao(graphics.geom, 18)
@@ -339,12 +330,16 @@ func LineBox(x1, y1, x2, y2, color, style int, fill bool) {
 	} else {
 		graphics.geom[0] = a1
 		graphics.geom[1] = b1
+		graphics.geom[2] = 0 // clear
 		graphics.geom[3] = a1
 		graphics.geom[4] = b2
+		graphics.geom[5] = 0 // clear
 		graphics.geom[6] = a2
 		graphics.geom[7] = b2
+		graphics.geom[8] = 0 // clear
 		graphics.geom[9] = a2
 		graphics.geom[10] = b1
+		graphics.geom[11] = 0 // clear
 
 		mode = gl.LINE_LOOP
 		vao = makeVao(graphics.geom, 12)
