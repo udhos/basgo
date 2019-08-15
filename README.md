@@ -7,6 +7,8 @@
 
 * [Requirements](#requirements)
 * [Install](#install)
+  * [Install only the 'basgo\-build' compiler](#install-only-the-basgo-build-compiler)
+  * [Full install for development](#full-install-for-development)
 * [Run the Compiler](#run-the-compiler)
   * [Status and Limitations](#status-and-limitations)
   * [Example](#example)
@@ -17,6 +19,9 @@
   * [BASIC programs and games](#basic-programs-and-games)
   * [BASIC documentation](#basic-documentation)
   * [BASIC interpreters and compilers](#basic-interpreters-and-compilers)
+* [2D Graphics Packages](#2d-graphics-packages)
+
+Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc.go)
 
 # Requirements
 
@@ -28,7 +33,13 @@ If your system lacks Go, this recipe will install a current release of Go:
     cd update-golang
     sudo ./update-golang.sh
 
+For Windows systems, get the Go installer here: https://golang.org/dl/
+
 # Install
+
+If you don't want to hack the compiler, you can download a precompiled binary release here:
+
+https://github.com/udhos/basgo/releases
 
 ## Install only the 'basgo-build' compiler
 
@@ -128,4 +139,12 @@ http://www.worldofspectrum.org/ZXBasicManual/ - SINCLAIR ZX SPECTRUM - BASIC Pro
 https://github.com/robhagemans/pcbasic - GW-BASIC emulator
 
 https://github.com/skx/gobasic/ - BASIC interpreter in Golang
+
+# 2D Graphics Packages
+
+https://github.com/fyne-io/fyne - UI toolkit
+
+https://github.com/faiface/pixel - 2D game library
+
+https://github.com/fogleman/gg - 2D rendering only, does not send to screen
 
