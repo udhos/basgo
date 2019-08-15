@@ -5,9 +5,9 @@ import (
 	"log"
 	"strings"
 
+	"github.com/faiface/mainthread"
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
-	"github.com/faiface/mainthread"
 )
 
 const (
@@ -103,17 +103,17 @@ func compileShader(source string, shaderType uint32) (uint32, error) {
 func makeVao(points []float32, size int) uint32 {
 	var vao uint32
 
-	mainthread.Call(func(){
-	var vbo uint32
-	gl.GenBuffers(1, &vbo)
-	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.BufferData(gl.ARRAY_BUFFER, 4*size, gl.Ptr(points), gl.STATIC_DRAW)
+	mainthread.Call(func() {
+		var vbo uint32
+		gl.GenBuffers(1, &vbo)
+		gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+		gl.BufferData(gl.ARRAY_BUFFER, 4*size, gl.Ptr(points), gl.STATIC_DRAW)
 
-	gl.GenVertexArrays(1, &vao)
-	gl.BindVertexArray(vao)
-	gl.EnableVertexAttribArray(0)
-	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 0, nil)
+		gl.GenVertexArrays(1, &vao)
+		gl.BindVertexArray(vao)
+		gl.EnableVertexAttribArray(0)
+		gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+		gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 0, nil)
 	})
 
 	return vao

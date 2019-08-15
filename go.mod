@@ -4,20 +4,10 @@ go 1.12
 
 require (
 	github.com/faiface/mainthread v0.0.0-20171120011319-8b78f0a41ae3
-	github.com/gdamore/tcell v1.1.1
-	github.com/go-gl/gl v0.0.0-20181026044259-55b76b7df9d2
-	github.com/go-gl/glfw v0.0.0-20190217072633-93b30450e032
-	github.com/remyoudompheng/bigfft v0.0.0-20170806203942-52369c62f446 // indirect
-	github.com/udhos/inkey v0.0.0-20190226175900-6d68187ff178
-	golang.org/x/net v0.0.0-20190225153610-fe579d43d832 // indirect
-	golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4 // indirect
-	golang.org/x/text v0.3.0
-	golang.org/x/tools v0.0.0-20190225234524-2dc4ef2775b8 // indirect
-	modernc.org/golex v1.0.0 // indirect
-	modernc.org/goyacc v1.0.0 // indirect
-	modernc.org/mathutil v1.0.0 // indirect
-	modernc.org/parser v1.0.0 // indirect
-	modernc.org/sortutil v1.0.0 // indirect
-	modernc.org/strutil v1.0.0 // indirect
-	modernc.org/y v1.0.0 // indirect
+	github.com/gdamore/tcell v1.2.0
+	github.com/go-gl/gl v0.0.0-20190320180904-bf2b1f2f34d7
+	github.com/go-gl/glfw v0.0.0-20190409004039-e6da0acd62b1
+	github.com/udhos/inkey v0.0.0-20190226220941-63d5361f87da
+	golang.org/x/sys v0.0.0-20190813064441-fde4db37ae7a // indirect
+	golang.org/x/text v0.3.2 // indirect
 )

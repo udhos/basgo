@@ -775,6 +775,7 @@ stmt: /* empty */
 		if !node.TypeNumeric(y2.Type(Result.TypeTable)) {
 			yylex.Error("LINE Y2 must be numeric")
 		}
+		Result.Graphics = true
 		$$ = &node.NodeLine{X1:x1,Y1:y1,X2:x2,Y2:y2}
 	}
   | TkKeywordLine TkParLeft exp TkComma exp TkParRight TkMinus TkParLeft exp TkComma exp TkParRight TkComma expressions_push null_exp_list expressions_pop
@@ -836,6 +837,8 @@ stmt: /* empty */
 				}
 			}
 		}
+
+		Result.Graphics = true
 
 		$$ = &node.NodeLine{X1:x1,Y1:y1,X2:x2,Y2:y2,Color:color,Style:style,Box:box,Fill:fill}
 	}

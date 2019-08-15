@@ -158,7 +158,7 @@ func inputString() string {
 
 func InputCount(count int) string {
 
-	log.Printf("InputCount(%d)", count)
+	//log.Printf("InputCount(%d)", count)
 
 	if count < 1 {
 		return ""
@@ -171,7 +171,7 @@ func InputCount(count int) string {
 		alert("InputCount: error: %v", err)
 	}
 
-	log.Printf("InputCount(%d): %d", count, n)
+	//log.Printf("InputCount(%d): %d", count, n)
 
 	return string(buf[:n])
 }

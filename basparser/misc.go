@@ -33,6 +33,7 @@ type ParserResult struct {
 	RestoreTable   map[string]int
 	DataOffset     int
 	TypeTable      []int
+	Graphics       bool
 }
 
 // parser auxiliary variables

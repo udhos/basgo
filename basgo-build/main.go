@@ -115,6 +115,10 @@ func main() {
 		options.Headers["github.com/udhos/basgo/baslib"] = struct{}{}
 	}
 
+	if result.Graphics {
+		options.Headers["github.com/faiface/mainthread"] = struct{}{}
+	}
+
 	// baslib is currently mandatory
 	// because we call baslib.End() before exiting the program
 	options.Headers["github.com/udhos/basgo/baslib"] = struct{}{}
@@ -160,6 +164,38 @@ func main() {
 	}
 
 	outputf(mainOpen)
+
+	if result.Graphics {
+
+		/*
+		   import (
+		           "github.com/udhos/basgo/baslib"
+		           "github.com/faiface/mainthread"
+		           //"github.com/go-gl/glfw/v3.2/glfw"
+		           "math"
+		           "os"
+		   )
+
+		   func main() {
+		           mainthread.Run(run)
+		   }
+
+		   func run() {
+		           mainthread.Call(func(){
+		           baslib.G = baslib.InitWin(640, 480)
+		           })
+		*/
+
+		outputf(`
+        mainthread.Run(run)
+}
+
+func run() {
+        mainthread.Call(func(){
+        baslib.G = baslib.InitWin(640, 480)
+        })
+`)
+	}
 
 	if result.LibGosubReturn {
 		outputf("gosubStack := []int{} // used by GOSUB/RETURN lib\n")
