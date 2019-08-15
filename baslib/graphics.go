@@ -278,7 +278,9 @@ func pix2Clip(x, w int) float32 {
 }
 
 func pixelToClip(x, y int) (float32, float32) {
-	return pix2Clip(x, graphics.width), -pix2Clip(y, graphics.height)
+	a, b := pix2Clip(x, graphics.width), -pix2Clip(y, graphics.height)
+	log.Printf("pixelToClip: %d x %d => %f x %f", x, y, a, b)
+	return a, b
 }
 
 func Line(x1, y1, x2, y2, color, style int) {
