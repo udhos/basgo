@@ -242,7 +242,7 @@ func draw(mode, vao uint32, window *glfw.Window, count int32) {
 		gl.BindVertexArray(vao)
 		gl.DrawArrays(mode, 0, count)
 
-		window.SwapBuffers()
+		//window.SwapBuffers()
 	})
 }
 
