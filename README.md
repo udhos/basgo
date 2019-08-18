@@ -42,6 +42,7 @@ The recipe below will install 'basgo-build' under "~/go/bin".
 
     git clone https://github.com/udhos/basgo
     cd basgo
+    go get modernc.org/goyacc
     go generate ./basparser
     go install ./basgo-build
 
