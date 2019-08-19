@@ -239,10 +239,11 @@ func rgbFloat(r, g, b int32) (float32, float32, float32) {
 
 func draw(mode, vao uint32, window *glfw.Window, count int32) {
 	mainthread.Call(func() {
+		window.SwapBuffers()
+
 		gl.BindVertexArray(vao)
 		gl.DrawArrays(mode, 0, count)
 
-		window.SwapBuffers()
 		window.SwapBuffers()
 	})
 }
