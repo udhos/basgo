@@ -43,7 +43,11 @@ func screenModeGraphics() bool {
 
 func graphicsCls() {
 	mainthread.Call(func() {
+		graphics.window.SwapBuffers()
+
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+
+		graphics.window.SwapBuffers()
 	})
 }
 
@@ -264,7 +268,7 @@ func pix2Clip(x, w int) float32 {
 
 func pixelToClip(x, y int) (float32, float32) {
 	a, b := pix2Clip(x, graphics.width), -pix2Clip(y, graphics.height)
-	log.Printf("pixelToClip: %d x %d => %f x %f", x, y, a, b)
+	//log.Printf("pixelToClip: %d x %d => %f x %f", x, y, a, b)
 	return a, b
 }
 
