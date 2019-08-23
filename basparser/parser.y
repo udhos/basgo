@@ -203,7 +203,9 @@ import (
 %token <tok> TkKeywordPlay
 %token <tok> TkKeywordPoke
 %token <tok> TkKeywordPos
+%token <tok> TkKeywordPReset
 %token <tok> TkKeywordPrint
+%token <tok> TkKeywordPSet
 %token <tok> TkKeywordRandomize
 %token <tok> TkKeywordRead
 %token <typeRem> TkKeywordRem
@@ -757,6 +759,32 @@ stmt: /* empty */
         Result.Baslib = true
         $$ = &node.NodeInput{PromptString:$3, Variables: []node.NodeExp{v}}
      }
+  | TkKeywordPSet TkParLeft exp TkComma exp TkParRight 
+	{
+		x := $3
+		y := $5
+		if !node.TypeNumeric(x.Type(Result.TypeTable)) {
+			yylex.Error("PSET X must be numeric")
+		}
+		if !node.TypeNumeric(y.Type(Result.TypeTable)) {
+			yylex.Error("PSET Y must be numeric")
+		}
+		Result.Graphics = true
+		$$ = &node.NodePSet{X:x,Y:y}
+	}
+  | TkKeywordPReset TkParLeft exp TkComma exp TkParRight 
+	{
+		x := $3
+		y := $5
+		if !node.TypeNumeric(x.Type(Result.TypeTable)) {
+			yylex.Error("PRESET X must be numeric")
+		}
+		if !node.TypeNumeric(y.Type(Result.TypeTable)) {
+			yylex.Error("PRESET Y must be numeric")
+		}
+		Result.Graphics = true
+		$$ = &node.NodePReset{X:x,Y:y}
+	}
   | TkKeywordLine TkParLeft exp TkComma exp TkParRight TkMinus TkParLeft exp TkComma exp TkParRight
 	{
 		x1 := $3

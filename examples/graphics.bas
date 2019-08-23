@@ -15,6 +15,8 @@
 300 line (15,165)-(35,145),,bf
 310 line (50,170)-(80,140),1,b
 320 line (55,165)-(75,145),,bf
+390 print input$(1)
+400 color 3:for i=0 to 639:for j=0 to 479:pset(i,j):next:next
 900 rem _goimport("time")
 910 rem _godecl("func sleep1() { time.Sleep(1*time.Second) }")
 920 rem _godecl("func sleep3() { time.Sleep(3*time.Second) }")

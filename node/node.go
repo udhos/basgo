@@ -2595,3 +2595,115 @@ func (n *NodeLine) FindUsedVars(options *BuildOptions) {
 		n.Style.FindUsedVars(options)
 	}
 }
+
+// NodePset is pset
+type NodePSet struct {
+	X     NodeExp
+	Y     NodeExp
+	Color NodeExp
+}
+
+// Name returns the name of the node
+func (n *NodePSet) Name() string {
+	return "PSET"
+}
+
+// Show displays the node
+func (n *NodePSet) Show(printf FuncPrintf) {
+	printf("[")
+	printf(n.Name())
+	printf(" <")
+	printf(n.X.String())
+	printf(">")
+	printf(" <")
+	printf(n.Y.String())
+	printf(">")
+	printf(" <")
+	if n.Color != NodeExp(nil) {
+		printf(n.Color.String())
+	}
+	printf(">")
+	printf("]")
+}
+
+// Build generates code
+func (n *NodePSet) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+
+	color := "-1"
+
+	x := forceInt(options, n.X)
+	y := forceInt(options, n.Y)
+	if n.Color != NodeExp(nil) {
+		color = forceInt(options, n.Color)
+	}
+
+	outputf("baslib.PSet(%s,%s,%s)\n", x, y, color)
+}
+
+// FindUsedVars finds used vars
+func (n *NodePSet) FindUsedVars(options *BuildOptions) {
+	n.X.FindUsedVars(options)
+	n.Y.FindUsedVars(options)
+	if n.Color != NodeExp(nil) {
+		n.Color.FindUsedVars(options)
+	}
+}
+
+// NodePReset is preset
+type NodePReset struct {
+	X     NodeExp
+	Y     NodeExp
+	Color NodeExp
+}
+
+// Name returns the name of the node
+func (n *NodePReset) Name() string {
+	return "PRESET"
+}
+
+// Show displays the node
+func (n *NodePReset) Show(printf FuncPrintf) {
+	printf("[")
+	printf(n.Name())
+	printf(" <")
+	printf(n.X.String())
+	printf(">")
+	printf(" <")
+	printf(n.Y.String())
+	printf(">")
+	printf(" <")
+	if n.Color != NodeExp(nil) {
+		printf(n.Color.String())
+	}
+	printf(">")
+	printf("]")
+}
+
+// Build generates code
+func (n *NodePReset) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+
+	color := "-1"
+
+	x := forceInt(options, n.X)
+	y := forceInt(options, n.Y)
+	if n.Color != NodeExp(nil) {
+		color = forceInt(options, n.Color)
+	}
+
+	outputf("baslib.PReset(%s,%s,%s)\n", x, y, color)
+}
+
+// FindUsedVars finds used vars
+func (n *NodePReset) FindUsedVars(options *BuildOptions) {
+	n.X.FindUsedVars(options)
+	n.Y.FindUsedVars(options)
+	if n.Color != NodeExp(nil) {
+		n.Color.FindUsedVars(options)
+	}
+}

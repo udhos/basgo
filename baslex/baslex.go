@@ -137,7 +137,9 @@ const (
 	TkKeywordPlay        = iota // PLAY
 	TkKeywordPoke        = iota // POKE
 	TkKeywordPos         = iota // POS
+	TkKeywordPReset      = iota // PRESET
 	TkKeywordPrint       = iota // PRINT
+	TkKeywordPSet        = iota // PSET
 	TkKeywordRandomize   = iota // RANDOMIZE
 	TkKeywordRead        = iota // READ
 	TkKeywordRem         = iota // REM
@@ -267,7 +269,9 @@ var tabKeywords = []struct {
 	{TkKeywordPlay, "PLAY"},
 	{TkKeywordPoke, "POKE"},
 	{TkKeywordPos, "POS"},
+	{TkKeywordPReset, "PRESET"},
 	{TkKeywordPrint, "PRINT"},
+	{TkKeywordPSet, "PSET"},
 	{TkKeywordRandomize, "RANDOMIZE"},
 	{TkKeywordRead, "READ"},
 	{TkKeywordRem, "REM"},
@@ -428,7 +432,9 @@ var tabType = []string{
 	"PLAY",
 	"POKE",
 	"POS",
+	"PRESET",
 	"PRINT",
+	"PSET",
 	"RANDOMIZE",
 	"READ",
 	"REM",

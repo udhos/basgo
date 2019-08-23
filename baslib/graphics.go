@@ -272,6 +272,53 @@ func pixelToClip(x, y int) (float32, float32) {
 	return a, b
 }
 
+func PSet(x, y, color int) {
+	a, b := pixelToClip(x, y)
+
+	graphics.geom[0] = a
+	graphics.geom[1] = b
+	graphics.geom[2] = 0 // clear
+
+	vao := makeVao(graphics.geom, 3)
+	vaoIndices := int32(1)
+
+	if color >= 0 {
+		// draw with specified color
+		graphicsColorFg(tcell.Color(colorTerm(color)))
+	}
+
+	draw(gl.POINTS, vao, graphics.window, vaoIndices)
+
+	if color >= 0 {
+		// restore color
+		graphicsColorFg(screenColorForeground)
+	}
+}
+
+func PReset(x, y, color int) {
+	a, b := pixelToClip(x, y)
+
+	graphics.geom[0] = a
+	graphics.geom[1] = b
+	graphics.geom[2] = 0 // clear
+
+	vao := makeVao(graphics.geom, 3)
+	vaoIndices := int32(1)
+
+	if color >= 0 {
+		// draw with specified color
+		graphicsColorFg(tcell.Color(colorTerm(color)))
+	} else {
+		// draw with background color
+		graphicsColorFg(screenColorBackground)
+	}
+
+	draw(gl.POINTS, vao, graphics.window, vaoIndices)
+
+	// restore color
+	graphicsColorFg(screenColorForeground)
+}
+
 func Line(x1, y1, x2, y2, color, style int) {
 
 	a1, b1 := pixelToClip(x1, y1)
