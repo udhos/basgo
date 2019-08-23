@@ -45,6 +45,11 @@ func InitWin(width, height int) *glfw.Window {
 	glfw.WindowHint(glfw.ContextVersionMinor, minor)
 	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
 	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
+	if swap {
+		glfw.WindowHint(glfw.DoubleBuffer, glfw.True)
+	} else {
+		glfw.WindowHint(glfw.DoubleBuffer, glfw.False) // no SwapBuffers
+	}
 
 	window, err := glfw.CreateWindow(width, height, "basgo", nil, nil)
 	if err != nil {

@@ -41,13 +41,29 @@ func screenModeGraphics() bool {
 	return graphics.mode != 0
 }
 
+const swap = false
+
+func swapOne() {
+	if swap {
+		graphics.window.SwapBuffers()
+	}
+}
+
+func swapTwo() {
+	if swap {
+		graphics.window.SwapBuffers()
+	} else {
+		gl.Flush()
+	}
+}
+
 func graphicsCls() {
 	mainthread.Call(func() {
-		graphics.window.SwapBuffers()
+		swapOne()
 
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-		graphics.window.SwapBuffers()
+		swapTwo()
 	})
 }
 
@@ -243,12 +259,12 @@ func rgbFloat(r, g, b int32) (float32, float32, float32) {
 
 func draw(mode, vao uint32, window *glfw.Window, count int32) {
 	mainthread.Call(func() {
-		window.SwapBuffers()
+		swapOne()
 
 		gl.BindVertexArray(vao)
 		gl.DrawArrays(mode, 0, count)
 
-		window.SwapBuffers()
+		swapTwo()
 	})
 }
 
