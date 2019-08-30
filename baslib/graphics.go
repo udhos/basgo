@@ -17,14 +17,15 @@ import (
 var G *glfw.Window
 
 type graph struct {
-	mode    int
-	window  *glfw.Window
-	program uint32
-	width   int
-	height  int
-	geom    []float32
-	u_color int32
-	keys    chan int
+	mode        int
+	window      *glfw.Window
+	program     uint32
+	width       int
+	height      int
+	geom        []float32
+	u_color     int32
+	keys        chan int
+	bufferPoint uint32
 }
 
 var graphics graph
@@ -127,6 +128,8 @@ func graphicsStart(mode int) {
 		gl.ClearDepthf(1)         // default
 		gl.Disable(gl.DEPTH_TEST) // disable depth testing
 		gl.Disable(gl.CULL_FACE)  // disable face culling
+
+		gl.CreateBuffers(1, &graphics.bufferPoint) // buffer for point
 	})
 
 	graphics.keys = make(chan int, 10)
@@ -268,6 +271,18 @@ func draw(mode, vao uint32, window *glfw.Window, count int32) {
 	})
 }
 
+func drawPoint() {
+	mainthread.Call(func() {
+		swapOne()
+
+		gl.BindBuffer(gl.ARRAY_BUFFER, graphics.bufferPoint)
+		gl.BufferData(gl.ARRAY_BUFFER, 4*3*1, gl.Ptr(graphics.geom), gl.STATIC_DRAW)
+		gl.DrawArrays(gl.POINTS, 0, 1)
+
+		swapTwo()
+	})
+}
+
 // 0..639 to -1..1
 func pix2Clip(x, w int) float32 {
 	if w == 1 {
@@ -288,6 +303,8 @@ func pixelToClip(x, y int) (float32, float32) {
 	return a, b
 }
 
+const pointVao = false
+
 func PSet(x, y, color int) {
 	a, b := pixelToClip(x, y)
 
@@ -303,7 +320,11 @@ func PSet(x, y, color int) {
 		graphicsColorFg(tcell.Color(colorTerm(color)))
 	}
 
-	draw(gl.POINTS, vao, graphics.window, vaoIndices)
+	if pointVao {
+		draw(gl.POINTS, vao, graphics.window, vaoIndices)
+	} else {
+		drawPoint()
+	}
 
 	if color >= 0 {
 		// restore color
