@@ -276,7 +276,7 @@ func drawPoint() {
 		swapOne()
 
 		gl.BindBuffer(gl.ARRAY_BUFFER, graphics.bufferPoint)
-		gl.BufferData(gl.ARRAY_BUFFER, 4*3*1, gl.Ptr(graphics.geom), gl.STATIC_DRAW)
+		gl.BufferData(gl.ARRAY_BUFFER, 4*3*1, gl.Ptr(graphics.geom), gl.DYNAMIC_DRAW)
 		gl.DrawArrays(gl.POINTS, 0, 1)
 
 		swapTwo()
@@ -350,7 +350,11 @@ func PReset(x, y, color int) {
 		graphicsColorFg(screenColorBackground)
 	}
 
-	draw(gl.POINTS, vao, graphics.window, vaoIndices)
+	if pointVao {
+		draw(gl.POINTS, vao, graphics.window, vaoIndices)
+	} else {
+		drawPoint()
+	}
 
 	// restore color
 	graphicsColorFg(screenColorForeground)
