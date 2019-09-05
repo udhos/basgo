@@ -312,15 +312,14 @@ func PSet(x, y, color int) {
 	graphics.geom[1] = b
 	graphics.geom[2] = 0 // clear
 
-	vao := makeVao(graphics.geom, 3)
-	vaoIndices := int32(1)
-
 	if color >= 0 {
 		// draw with specified color
 		graphicsColorFg(tcell.Color(colorTerm(color)))
 	}
 
 	if pointVao {
+                vao := makeVao(graphics.geom, 3)
+	        vaoIndices := int32(1)
 		draw(gl.POINTS, vao, graphics.window, vaoIndices)
 	} else {
 		drawPoint()
@@ -339,9 +338,6 @@ func PReset(x, y, color int) {
 	graphics.geom[1] = b
 	graphics.geom[2] = 0 // clear
 
-	vao := makeVao(graphics.geom, 3)
-	vaoIndices := int32(1)
-
 	if color >= 0 {
 		// draw with specified color
 		graphicsColorFg(tcell.Color(colorTerm(color)))
@@ -351,6 +347,8 @@ func PReset(x, y, color int) {
 	}
 
 	if pointVao {
+                vao := makeVao(graphics.geom, 3)
+	        vaoIndices := int32(1)
 		draw(gl.POINTS, vao, graphics.window, vaoIndices)
 	} else {
 		drawPoint()
