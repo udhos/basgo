@@ -275,6 +275,9 @@ func drawPoint() {
 	mainthread.Call(func() {
 		swapOne()
 
+		gl.EnableVertexAttribArray(0)
+		gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 0, nil)
+
 		gl.BindBuffer(gl.ARRAY_BUFFER, graphics.bufferPoint)
 		gl.BufferData(gl.ARRAY_BUFFER, 4*3*1, gl.Ptr(graphics.geom), gl.DYNAMIC_DRAW)
 		gl.DrawArrays(gl.POINTS, 0, 1)
@@ -318,8 +321,8 @@ func PSet(x, y, color int) {
 	}
 
 	if pointVao {
-                vao := makeVao(graphics.geom, 3)
-	        vaoIndices := int32(1)
+		vao := makeVao(graphics.geom, 3)
+		vaoIndices := int32(1)
 		draw(gl.POINTS, vao, graphics.window, vaoIndices)
 	} else {
 		drawPoint()
@@ -347,8 +350,8 @@ func PReset(x, y, color int) {
 	}
 
 	if pointVao {
-                vao := makeVao(graphics.geom, 3)
-	        vaoIndices := int32(1)
+		vao := makeVao(graphics.geom, 3)
+		vaoIndices := int32(1)
 		draw(gl.POINTS, vao, graphics.window, vaoIndices)
 	} else {
 		drawPoint()
