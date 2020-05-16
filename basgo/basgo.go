@@ -14,7 +14,7 @@ import (
 )
 
 // Version reports basgo version
-const Version = "0.4"
+const Version = "0.4-graphics"
 
 // Basgo holds a full environment
 type Basgo struct {
