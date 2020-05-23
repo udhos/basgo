@@ -35,6 +35,35 @@ If your system lacks Go, this recipe will install a current release of Go:
 
 For Windows systems, get the Go installer here: https://golang.org/dl/
 
+## Version 0.5 requires GCC
+
+Versions up to 0.4 of 'basgo-build' compiler did not require GCC.
+
+In version 0.5 the experimental support for graphics introduced GCC as requirement.
+
+## Install mingw64 to provide GCC for Windows
+
+This is a quick recipe on how to install mingw64 on Windows.
+
+- Download x86_64-8.1.0-release-posix-sjlj-rt_v6-rev0.7z from:
+
+https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win64/Personal%20Builds/mingw-builds/8.1.0/threads-posix/sjlj/x86_64-8.1.0-release-posix-sjlj-rt_v6-rev0.7z
+
+- Extract the folder 'mingw64' as c:\mingw64
+
+- Add c:\mingw64\bin to %PATH%
+
+- Open CMD.exe and test GCC:
+
+    C:\Users\evert>gcc --version
+    gcc (x86_64-posix-sjlj-rev0, Built by MinGW-W64 project) 8.1.0
+    Copyright (C) 2018 Free Software Foundation, Inc.
+    This is free software; see the source for copying conditions.  There is NO
+    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    
+    
+    C:\Users\evert>
+
 # Install
 
 If you don't want to hack the compiler, you can download a precompiled binary release here:
