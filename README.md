@@ -55,7 +55,9 @@ https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win64
 
 - Add c:\mingw64\bin to %PATH%
 
-- Open CMD.exe and test GCC:
+- Test GCC:
+
+Open CMD.exe and run 'gcc --version':
 
     C:\Users\evert>gcc --version
     gcc (x86_64-posix-sjlj-rev0, Built by MinGW-W64 project) 8.1.0
