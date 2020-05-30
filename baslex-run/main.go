@@ -6,11 +6,14 @@ import (
 	"log"
 	"os"
 
+	"github.com/udhos/basgo/basgo"
 	"github.com/udhos/basgo/baslex"
 )
 
 func main() {
 	me := os.Args[0]
+
+	basgo.ShowVersion(me)
 
 	input := baslex.NewInput(me, os.Stdin)
 

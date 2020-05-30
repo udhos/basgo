@@ -7,6 +7,8 @@ import (
 	"os/exec"
 	"strings"
 	"testing"
+
+	"github.com/udhos/basgo/basgo"
 )
 
 type buildTest struct {
@@ -841,7 +843,7 @@ func TestBuild(t *testing.T) {
 
 		r := strings.NewReader(data.source)
 
-		status, errors := compile(r, printf, "")
+		status, errors := compile(r, printf, basgo.DefaultBaslibImport)
 
 		w.Close()
 

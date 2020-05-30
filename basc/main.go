@@ -9,17 +9,20 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/udhos/basgo/basgo"
 )
 
 const me = "basc"
 
 func main() {
+	basgo.ShowVersion(me)
 
 	var baslibModule string
 	var baslibImport string
 
-	flag.StringVar(&baslibModule, "baslibModule", "github.com/udhos/basgo@master", "baslib module")
-	flag.StringVar(&baslibImport, "baslibImport", "github.com/udhos/basgo/baslib", "baslib package")
+	flag.StringVar(&baslibModule, "baslibModule", basgo.DefaultBaslibModule, "baslib module")
+	flag.StringVar(&baslibImport, "baslibImport", basgo.DefaultBaslibImport, "baslib package")
 
 	flag.Parse()
 
@@ -60,11 +63,11 @@ func main() {
 
 	goOutput := filepath.Join(baseName, baseName+".go")
 
-	if errBasgo := basgo(catName, goOutput, baslibImport); errBasgo != nil {
+	if errBasgo := basgoBuild(catName, goOutput, baslibImport); errBasgo != nil {
 		log.Fatalf("%s: basgo: %v", me, errBasgo)
 	}
 
-	if errBuild := build(baseName, baslibModule); errBuild != nil {
+	if errBuild := buildGo(baseName, baslibModule); errBuild != nil {
 		log.Fatalf("%s: build: %v", me, errBuild)
 	}
 }
@@ -102,7 +105,7 @@ func cat(input, output string, create bool) error {
 	return errCopy
 }
 
-func basgo(input, output, baslibImport string) error {
+func basgoBuild(input, output, baslibImport string) error {
 	log.Printf("%s: basgo: input=%s output=%s baslibImport=%s", me, input, output, baslibImport)
 	fileInput, errInput := os.Open(input)
 	if errInput != nil {
@@ -121,7 +124,7 @@ func basgo(input, output, baslibImport string) error {
 	return cmd.Run()
 }
 
-func build(dir, baslibModule string) error {
+func buildGo(dir, baslibModule string) error {
 	log.Printf("%s: build: dir=%s baslibModule=%s", me, dir, baslibModule)
 	oldDir, errDir := os.Getwd()
 	if errDir != nil {

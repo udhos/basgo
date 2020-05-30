@@ -5,7 +5,7 @@ import (
 	//"io"
 	"log"
 	//"os"
-	"runtime"
+	//"runtime"
 
 	"github.com/udhos/basgo/basgo"
 )
@@ -15,7 +15,7 @@ const (
 )
 
 func main() {
-	log.Printf("%s version %s runtime %s GOMAXPROC=%d", basgoLabel, basgo.Version, runtime.Version(), runtime.GOMAXPROCS(0))
+	basgo.ShowVersion(basgoLabel)
 
 	b := basgo.New()
 

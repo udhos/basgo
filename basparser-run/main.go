@@ -6,11 +6,14 @@ import (
 	"log"
 	"os"
 
+	"github.com/udhos/basgo/basgo"
 	"github.com/udhos/basgo/basparser"
 )
 
 func main() {
 	me := os.Args[0]
+	basgo.ShowVersion(me)
+
 	log.Printf("%s: reading BASIC code from stdin...", me)
 
 	result, status, errors := basparser.Run(me, os.Stdin)

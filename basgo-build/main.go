@@ -8,7 +8,7 @@ import (
 	"io"
 	"log"
 	"os"
-	"runtime"
+	//"runtime"
 	"sort"
 	//"strconv"
 	//"strings"
@@ -19,15 +19,15 @@ import (
 )
 
 const (
-	basgoLabel    = "basgo-build"
-	defaultBaslib = "github.com/udhos/basgo/baslib"
+	basgoLabel          = "basgo-build"
+	defaultBaslibImport = "github.com/udhos/basgo/baslib"
 )
 
 func main() {
-	log.Printf("%s version %s runtime %s GOMAXPROC=%d", basgoLabel, basgo.Version, runtime.Version(), runtime.GOMAXPROCS(0))
+	basgo.ShowVersion(basgoLabel)
 
 	var baslibImport string
-	flag.StringVar(&baslibImport, "baslibImport", defaultBaslib, "baslib package")
+	flag.StringVar(&baslibImport, "baslibImport", basgo.DefaultBaslibImport, "baslib package")
 	flag.Parse()
 
 	log.Printf("%s baslibImport=%s", basgoLabel, baslibImport)
@@ -42,10 +42,6 @@ func main() {
 func compile(input io.Reader, outputf node.FuncPrintf, baslibImport string) (int, int) {
 
 	log.Printf("%s: compile: baslibImport: %s", basgoLabel, baslibImport)
-	if baslibImport == "" {
-		baslibImport = defaultBaslib
-		log.Printf("%s: compile: forcing baslibImport: %s", basgoLabel, baslibImport)
-	}
 
 	log.Printf("%s: reading BASIC code from stdin...", basgoLabel)
 

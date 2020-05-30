@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"runtime"
 	"strconv"
 	"strings"
 
@@ -14,7 +15,16 @@ import (
 )
 
 // Version reports basgo version
-const Version = "0.6"
+const Version = "0.6.0"
+
+const (
+	DefaultBaslibModule = "github.com/udhos/basgo@master"
+	DefaultBaslibImport = "github.com/udhos/basgo/baslib"
+)
+
+func ShowVersion(label string) {
+	log.Printf("%s version %s runtime %s GOMAXPROC=%d", label, Version, runtime.Version(), runtime.GOMAXPROCS(0))
+}
 
 // Basgo holds a full environment
 type Basgo struct {
