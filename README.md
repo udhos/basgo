@@ -5,7 +5,6 @@
 
 **basgo** compiles BASIC-lang to Golang. Then `go build` can translate the code to native executable binary.
 
-* [basgo compiles BASIC\-lang to Golang\.](#basgo-compiles-basic-lang-to-golang)
 * [Requirements](#requirements)
   * [Version 0\.5 requires GCC](#version-05-requires-gcc)
   * [Install mingw64 to provide GCC for Windows](#install-mingw64-to-provide-gcc-for-windows)
