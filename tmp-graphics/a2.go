@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/udhos/basgo/baslib"
+	"github.com/udhos/baslib/baslib"
 	"github.com/faiface/mainthread"
 	//"github.com/go-gl/glfw/v3.2/glfw"
 	"math"

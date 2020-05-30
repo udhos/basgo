@@ -20,9 +20,11 @@ func main() {
 
 	var baslibModule string
 	var baslibImport string
+	var getFlags string
 
 	flag.StringVar(&baslibModule, "baslibModule", basgo.DefaultBaslibModule, "baslib module")
 	flag.StringVar(&baslibImport, "baslibImport", basgo.DefaultBaslibImport, "baslib package")
+	flag.StringVar(&getFlags, "getFlags", "-u", "go get flags")
 
 	flag.Parse()
 
@@ -67,7 +69,7 @@ func main() {
 		log.Fatalf("%s: basgo: %v", me, errBasgo)
 	}
 
-	if errBuild := buildGo(baseName, baslibModule); errBuild != nil {
+	if errBuild := buildGo(baseName, baslibModule, strings.Fields(getFlags)); errBuild != nil {
 		log.Fatalf("%s: build: %v", me, errBuild)
 	}
 }
@@ -124,7 +126,7 @@ func basgoBuild(input, output, baslibImport string) error {
 	return cmd.Run()
 }
 
-func buildGo(dir, baslibModule string) error {
+func buildGo(dir, baslibModule string, getFlags []string) error {
 	log.Printf("%s: build: dir=%s baslibModule=%s", me, dir, baslibModule)
 	oldDir, errDir := os.Getwd()
 	if errDir != nil {
@@ -148,7 +150,11 @@ func buildGo(dir, baslibModule string) error {
 		log.Printf("%s: build: go.mod exists", me)
 	}
 
-	cmdGet := exec.Command("go", "get", baslibModule)
+	args := []string{"get"}
+	args = append(args, getFlags...)
+	args = append(args, baslibModule)
+
+	cmdGet := exec.Command("go", args...)
 	cmdGet.Stdin = os.Stdin
 	cmdGet.Stdout = os.Stdout
 	cmdGet.Stderr = os.Stderr

@@ -18,10 +18,7 @@ import (
 	"github.com/udhos/basgo/node"
 )
 
-const (
-	basgoLabel          = "basgo-build"
-	defaultBaslibImport = "github.com/udhos/basgo/baslib"
-)
+const basgoLabel = "basgo-build"
 
 func main() {
 	basgo.ShowVersion(basgoLabel)

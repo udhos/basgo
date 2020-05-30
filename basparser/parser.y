@@ -10,7 +10,7 @@ import (
         "strings"
 	"strconv"
 
-        "github.com/udhos/basgo/baslib/file"
+        "github.com/udhos/baslib/baslib/file"
         "github.com/udhos/basgo/node"
 )
 
