@@ -44,7 +44,7 @@ func Begin() {
 	}
 	if showAlert {
 		log.Printf("baslib: version %s runtime %s GOMAXPROC=%d", baslibVersion, runtime.Version(), runtime.GOMAXPROCS(0))
-		log.Printf("baslib: %s=%s", envAlert, envAlertValue)
+		log.Printf("baslib: %s=%s showAlert=%v", envAlert, envAlertValue, showAlert)
 		log.Printf("baslib: env var %s is empty, set it to non-empty to disable alerts", envAlert)
 	}
 }
