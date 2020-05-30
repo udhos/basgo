@@ -100,9 +100,15 @@ If you want to hack the compiler, perform a full build (including tests):
 
 The utility 'basc' performs the full compilation steps automatically:
 
+    # On Linux
     echo '10 print "hello world"' > hello.bas
     basc hello.bas                            ;# compile hello.bas to ./hello/hello
     ./hello/hello                             ;# execute the resulting binary
+
+    rem On Windows
+    echo 10 print "hello world" > hello.bas
+    basc hello.bas                            ;# compile hello.bas to .\hello\hello.exe
+    .\hello\hello                             ;# execute the resulting binary
 
 ## Run the compiler manually
 
