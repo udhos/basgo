@@ -24,7 +24,7 @@ func main() {
 
 	flag.StringVar(&baslibModule, "baslibModule", basgo.DefaultBaslibModule, "baslib module")
 	flag.StringVar(&baslibImport, "baslibImport", basgo.DefaultBaslibImport, "baslib package")
-	flag.StringVar(&getFlags, "getFlags", "-u", "go get flags")
+	flag.StringVar(&getFlags, "getFlags", "", "go get flags")
 
 	flag.Parse()
 
