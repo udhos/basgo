@@ -24,6 +24,7 @@ go get modernc.org/goyacc          ;# supports %precedence
 #goyacc -o ./basparser/parser.go -p Input ./basparser/parser.y
 go generate ./basparser ;# see ./basparser/generate.go
 
+build ./basc
 build ./baslex
 build ./baslex-run
 build ./node

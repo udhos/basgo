@@ -841,7 +841,7 @@ func TestBuild(t *testing.T) {
 
 		r := strings.NewReader(data.source)
 
-		status, errors := compile(r, printf)
+		status, errors := compile(r, printf, "")
 
 		w.Close()
 

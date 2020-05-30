@@ -3,6 +3,7 @@ package main
 import (
 	//"bufio"
 	"bytes"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -18,20 +19,33 @@ import (
 )
 
 const (
-	basgoLabel = "basgo-build"
+	basgoLabel    = "basgo-build"
+	defaultBaslib = "github.com/udhos/basgo/baslib"
 )
 
 func main() {
 	log.Printf("%s version %s runtime %s GOMAXPROC=%d", basgoLabel, basgo.Version, runtime.Version(), runtime.GOMAXPROCS(0))
 
-	status, errors := compile(os.Stdin, fmt.Printf)
+	var baslibImport string
+	flag.StringVar(&baslibImport, "baslibImport", defaultBaslib, "baslib package")
+	flag.Parse()
+
+	log.Printf("%s baslibImport=%s", basgoLabel, baslibImport)
+
+	status, errors := compile(os.Stdin, fmt.Printf, baslibImport)
 	if status != 0 || errors != 0 {
 		log.Printf("%s: status=%d errors=%d\n", basgoLabel, status, errors)
 		os.Exit(1)
 	}
 }
 
-func compile(input io.Reader, outputf node.FuncPrintf) (int, int) {
+func compile(input io.Reader, outputf node.FuncPrintf, baslibImport string) (int, int) {
+
+	log.Printf("%s: compile: baslibImport: %s", basgoLabel, baslibImport)
+	if baslibImport == "" {
+		baslibImport = defaultBaslib
+		log.Printf("%s: compile: forcing baslibImport: %s", basgoLabel, baslibImport)
+	}
 
 	log.Printf("%s: reading BASIC code from stdin...", basgoLabel)
 
@@ -111,17 +125,17 @@ func main() {
 		result.Baslib = true
 	}
 
+	// baslib is currently mandatory
+	// because we call baslib.End() before exiting the program
+	result.Baslib = true
+
 	if result.Baslib {
-		options.Headers["github.com/udhos/basgo/baslib"] = struct{}{}
+		options.Headers[baslibImport] = struct{}{}
 	}
 
 	if result.Graphics {
 		options.Headers["github.com/faiface/mainthread"] = struct{}{}
 	}
-
-	// baslib is currently mandatory
-	// because we call baslib.End() before exiting the program
-	options.Headers["github.com/udhos/basgo/baslib"] = struct{}{}
 
 	if result.LibMath {
 		options.Headers["math"] = struct{}{}

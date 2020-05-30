@@ -94,6 +94,16 @@ If you want to hack the compiler, perform a full build (including tests):
 
 # Run the Compiler
 
+## Run the script 'basc'
+
+The utility 'basc' performs the full compilation steps automatically:
+
+    echo '10 print "hello world"' > hello.bas
+    basc hello.bas                            ;# compile hello.bas to ./hello/hello
+    ./hello/hello                             ;# execute the resulting binary
+
+## Run the compiler manually
+
     basgo-build < program.bas > program.go
     go run program.go                      ;# builds and runs program.go
 
