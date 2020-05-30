@@ -69,6 +69,10 @@ func main() {
 		log.Fatalf("%s: basgo: %v", me, errBasgo)
 	}
 
+	if errFmt := gofmt(goOutput); errFmt != nil {
+		log.Fatalf("%s: gofmt: %v", me, errFmt)
+	}
+
 	if errBuild := buildGo(baseName, baslibModule, strings.Fields(getFlags)); errBuild != nil {
 		log.Fatalf("%s: build: %v", me, errBuild)
 	}
@@ -122,6 +126,15 @@ func basgoBuild(input, output, baslibImport string) error {
 	cmd := exec.Command("basgo-build", "-baslibImport", baslibImport)
 	cmd.Stdin = fileInput
 	cmd.Stdout = fileOutput
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
+}
+
+func gofmt(output string) error {
+	log.Printf("%s: gofmt: %s", me, output)
+	cmd := exec.Command("gofmt", "-s", "-w", output)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
 }
