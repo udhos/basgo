@@ -19,8 +19,9 @@ const Version = "0.7.0"
 
 const (
 	//DefaultBaslibModule = "github.com/udhos/baslib/baslib@master"
-	DefaultBaslibModule = "github.com/udhos/baslib/baslib" // go get -u
-	DefaultBaslibImport = "github.com/udhos/baslib/baslib" // import
+	//DefaultBaslibModule = "github.com/udhos/baslib/baslib"
+	DefaultBaslibModule = "github.com/udhos/baslib@v0.7.0"
+	DefaultBaslibImport = "github.com/udhos/baslib/baslib"
 )
 
 func ShowVersion(label string) {
