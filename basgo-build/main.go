@@ -175,26 +175,9 @@ func main() {
 
 	outputf(mainOpen)
 
+	outputf("baslib.Begin()\n")
+
 	if result.Graphics {
-
-		/*
-		   import (
-		           "github.com/udhos/basgo/baslib"
-		           "github.com/faiface/mainthread"
-		           //"github.com/go-gl/glfw/v3.2/glfw"
-		           "math"
-		           "os"
-		   )
-
-		   func main() {
-		           mainthread.Run(run)
-		   }
-
-		   func run() {
-		           mainthread.Call(func(){
-		           baslib.G = baslib.InitWin(640, 480)
-		           })
-		*/
 
 		outputf(`
         mainthread.Run(run)
@@ -202,7 +185,7 @@ func main() {
 
 func run() {
         mainthread.Call(func(){
-        baslib.G = baslib.InitWin(640, 480)
+       	        baslib.G = baslib.InitWin(640, 480)
         })
 `)
 	}
@@ -291,25 +274,3 @@ func writeVar(vars map[string]node.VarSymbol, typeTable []int, outputf node.Func
 	}
 	outputf(")\n")
 }
-
-/*
-func parse(input io.Reader, outputf node.FuncPrintf) (basparser.ParserResult, int, int) {
-	d := os.Getenv("DEBUG")
-	debug := d != ""
-	if debug {
-		level, err := strconv.Atoi(d)
-		if err == nil {
-			basparser.InputDebug = level
-		}
-	}
-	log.Printf("%s: DEBUG=[%s] debug=%v level=%d", basgoLabel, d, debug, basparser.InputDebug)
-
-	byteInput := bufio.NewReader(input)
-	log.Printf("%s: input buffer size: %d", basgoLabel, byteInput.Size())
-	lex := basparser.NewInputLex(byteInput, debug)
-	basparser.Reset()
-	status := basparser.InputParse(lex)
-
-	return basparser.Result, status, lex.Errors()
-}
-*/

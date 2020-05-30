@@ -9,6 +9,7 @@ import (
 	"math"
 	"math/rand"
 	"os"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -16,6 +17,8 @@ import (
 
 	"github.com/udhos/inkey/inkey"
 )
+
+const baslibVersion = "0.6.0"
 
 type keyInput interface {
 	Inkey() (byte, bool)
@@ -30,7 +33,21 @@ var (
 	readDataPos int                                               // READ-DATA cursor
 	screenPos   = 1                                               // PRINT COLUMN
 	screenRow   = 1                                               // PRINT ROW
+	showAlert   = true
 )
+
+func Begin() {
+	envAlert := "BASLIB_ALERT_OFF"
+	envAlertValue := os.Getenv(envAlert)
+	if envAlertValue != "" {
+		showAlert = false
+	}
+	if showAlert {
+		log.Printf("baslib: version %s runtime %s GOMAXPROC=%d", baslibVersion, runtime.Version(), runtime.GOMAXPROCS(0))
+		log.Printf("baslib: BASLIB_ALERT_OFF=%s", envAlertValue)
+		log.Printf("baslib: env var BASLIB_ALERT_OFF is empty, set it to non-empty to disable alerts")
+	}
+}
 
 func newInkey() keyInput {
 	alert("newInkey(): will consume os.Stdin")
@@ -38,6 +55,9 @@ func newInkey() keyInput {
 }
 
 func alert(format string, v ...interface{}) {
+	if !showAlert {
+		return
+	}
 	s := "BASLIB ALERT: " + fmt.Sprintf(format, v...)
 	if screenMode0() {
 		Println(s)
