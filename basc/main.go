@@ -21,10 +21,12 @@ func main() {
 	var baslibModule string
 	var baslibImport string
 	var getFlags string
+	var basgoBuildCommand string
 
 	flag.StringVar(&baslibModule, "baslibModule", basgo.DefaultBaslibModule, "baslib module")
 	flag.StringVar(&baslibImport, "baslibImport", basgo.DefaultBaslibImport, "baslib package")
 	flag.StringVar(&getFlags, "getFlags", "", "go get flags")
+	flag.StringVar(&basgoBuildCommand, "basgoBuild", "basgo-build", "basgo-build command")
 
 	flag.Parse()
 
@@ -65,7 +67,7 @@ func main() {
 
 	goOutput := filepath.Join(baseName, baseName+".go")
 
-	if errBasgo := basgoBuild(catName, goOutput, baslibImport); errBasgo != nil {
+	if errBasgo := basgoBuild(basgoBuildCommand, catName, goOutput, baslibImport); errBasgo != nil {
 		log.Fatalf("%s: basgo: %v", me, errBasgo)
 	}
 
@@ -111,8 +113,8 @@ func cat(input, output string, create bool) error {
 	return errCopy
 }
 
-func basgoBuild(input, output, baslibImport string) error {
-	log.Printf("%s: basgo: input=%s output=%s baslibImport=%s", me, input, output, baslibImport)
+func basgoBuild(basgoBuildCommand, input, output, baslibImport string) error {
+	log.Printf("%s: basgo-build: command=%s input=%s output=%s baslibImport=%s", me, basgoBuildCommand, input, output, baslibImport)
 	fileInput, errInput := os.Open(input)
 	if errInput != nil {
 		return errInput
@@ -123,7 +125,7 @@ func basgoBuild(input, output, baslibImport string) error {
 		return errOutput
 	}
 	defer fileOutput.Close()
-	cmd := exec.Command("basgo-build", "-baslibImport", baslibImport)
+	cmd := exec.Command(basgoBuildCommand, "-baslibImport", baslibImport)
 	cmd.Stdin = fileInput
 	cmd.Stdout = fileOutput
 	cmd.Stderr = os.Stderr
