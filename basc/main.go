@@ -46,16 +46,17 @@ func main() {
 	var catName string
 
 	arg0 := args[0]
+	arg0base := filepath.Base(arg0)
 
-	baseName = strings.TrimSuffix(arg0, ".bas")
-	if baseName == arg0 {
+	baseName = strings.TrimSuffix(arg0base, ".bas")
+	if baseName == arg0base {
 		log.Fatalf("%s: please input a filename with suffix .bas: %s", me, arg0)
 	}
 	log.Printf("%s: basename: %s", me, baseName)
 	if errMkDir := mkDir(baseName); errMkDir != nil {
 		log.Fatalf("%s: %v", me, errMkDir)
 	}
-	catName = filepath.Join(baseName, arg0)
+	catName = filepath.Join(baseName, arg0base)
 
 	errCat := cat(arg0, catName, true)
 	if errCat != nil {
