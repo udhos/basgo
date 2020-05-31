@@ -817,9 +817,25 @@ const sourceGosub = `
 410 return
 `
 
-func TestBuild(t *testing.T) {
+func TestBuild200(t *testing.T) {
+	testRange(t, 0, 200)
+}
 
-	for _, data := range testTable {
+func TestBuild400(t *testing.T) {
+	testRange(t, 200, 400)
+}
+
+func TestBuild600(t *testing.T) {
+	testRange(t, 400, len(testTable))
+}
+
+func testRange(t *testing.T, low, high int) {
+
+	table := testTable[low:high]
+
+	for i, data := range table {
+
+		t.Logf("testRange [%d:%d]: %d of %d", low, high, i+low, len(testTable))
 
 		t.Logf("source: %q\n", data.source)
 

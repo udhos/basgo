@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/udhos/baslib/baslib"
 	"github.com/faiface/mainthread"
+	"github.com/udhos/baslib/baslib"
 	//"github.com/go-gl/glfw/v3.2/glfw"
 	"math"
 	"os"
@@ -13,8 +13,8 @@ func main() {
 }
 
 func run() {
-	mainthread.Call(func(){
-	baslib.G = baslib.InitWin(640, 480)
+	mainthread.Call(func() {
+		baslib.G = baslib.InitWin(640, 480)
 	})
 	var (
 		sng_i float64 // var [i]
