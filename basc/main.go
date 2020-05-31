@@ -28,6 +28,11 @@ func main() {
 	flag.StringVar(&getFlags, "getFlags", "", "go get flags")
 	flag.StringVar(&basgoBuildCommand, "basgoBuild", "basgo-build", "basgo-build command")
 
+	flag.Usage = func() {
+		fmt.Fprintf(flag.CommandLine.Output(), "usage: %s FILE [flags]\n", me)
+		flag.PrintDefaults()
+	}
+
 	flag.Parse()
 
 	args := flag.Args()
