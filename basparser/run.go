@@ -22,12 +22,6 @@ func Run(label string, input io.Reader) (ParserResult, int, int) {
 	}
 	log.Printf("%s: DEBUG=[%s] debug=%v level=%d", label, d, debug, InputDebug)
 
-	/*
-		byteInput := bufio.NewReader(input)
-		log.Printf("%s: input buffer size: %d", label, byteInput.Size())
-		lex := NewInputLex(byteInput, debug)
-	*/
-
 	inputBuf := baslex.NewInput(label, input)
 	lex := NewInputLex(inputBuf, debug)
 	Reset()

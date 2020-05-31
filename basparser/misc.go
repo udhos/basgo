@@ -38,7 +38,8 @@ type ParserResult struct {
 
 // parser auxiliary variables
 var (
-	Result = newResult()
+	//Result = newResult()
+	Result ParserResult
 
 	nodeListStack [][]node.Node    // support nested node lists (1)
 	expListStack  [][]node.NodeExp // support nested exp lists (2)
@@ -86,7 +87,6 @@ func defineTypeRange(r *ParserResult, list [][]string, t int) {
 
 func Reset() {
 	Result = newResult()
-
 	nodeListStack = [][]node.Node{}
 	expListStack = [][]node.NodeExp{}
 }
