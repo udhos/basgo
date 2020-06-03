@@ -22,11 +22,13 @@ func main() {
 	var baslibImport string
 	var getFlags string
 	var basgoBuildCommand string
+	var output string
 
 	flag.StringVar(&baslibModule, "baslibModule", basgo.DefaultBaslibModule, "baslib module")
 	flag.StringVar(&baslibImport, "baslibImport", basgo.DefaultBaslibImport, "baslib package")
 	flag.StringVar(&getFlags, "getFlags", "", "go get flags")
 	flag.StringVar(&basgoBuildCommand, "basgoBuild", "basgo-build", "basgo-build command")
+	flag.StringVar(&output, "output", "", "output file name")
 
 	flag.Usage = func() {
 		fmt.Fprintf(flag.CommandLine.Output(), "usage: %s FILE [flags]\n", me)
@@ -71,7 +73,7 @@ func main() {
 		}
 	}
 
-	goOutput := filepath.Join(baseName, baseName+".go")
+	goOutput := filepath.Join(baseName, baseName) + ".go"
 
 	if errBasgo := basgoBuild(basgoBuildCommand, catName, goOutput, baslibImport); errBasgo != nil {
 		log.Fatalf("%s: basgo: %v", me, errBasgo)
@@ -81,9 +83,20 @@ func main() {
 		log.Fatalf("%s: gofmt: %v", me, errFmt)
 	}
 
-	if errBuild := buildGo(baseName, baslibModule, strings.Fields(getFlags)); errBuild != nil {
+	if errBuild := buildGo(baseName, baslibModule, strings.Fields(getFlags), output); errBuild != nil {
 		log.Fatalf("%s: build: %v", me, errBuild)
 	}
+
+	//
+	// guess output
+	//
+	if output == "" {
+		output = baseName
+	}
+	if !filepath.IsAbs(output) {
+		output = filepath.Join(baseName, output)
+	}
+	log.Printf("%s: output: %s", me, output)
 }
 
 func mkDir(output string) error {
@@ -99,6 +112,18 @@ func mkDir(output string) error {
 
 func cat(input, output string, create bool) error {
 	log.Printf("%s: cat input=%s output=%s", me, input, output)
+
+	if input == output {
+		return fmt.Errorf("rejecting same file name: input=%s and output=%s", input, output)
+	}
+	infoOutput, errStatOutput := os.Stat(output)
+	if os.IsExist(errStatOutput) {
+		infoInput, _ := os.Stat(input)
+		if os.SameFile(infoInput, infoOutput) {
+			return fmt.Errorf("rejecting same file: input=%s and output=%s", input, output)
+		}
+	}
+
 	fileInput, errInput := os.Open(input)
 	if errInput != nil {
 		return errInput
@@ -147,8 +172,9 @@ func gofmt(output string) error {
 	return cmd.Run()
 }
 
-func buildGo(dir, baslibModule string, getFlags []string) error {
-	log.Printf("%s: build: dir=%s baslibModule=%s", me, dir, baslibModule)
+func buildGo(dir, baslibModule string, getFlags []string, output string) error {
+	log.Printf("%s: build: dir=%s baslibModule=%s output=%s", me, dir, baslibModule, output)
+	log.Printf("%s: build: entering dir=%s", me, dir)
 	oldDir, errDir := os.Getwd()
 	if errDir != nil {
 		return errDir
@@ -183,7 +209,14 @@ func buildGo(dir, baslibModule string, getFlags []string) error {
 		return errGet
 	}
 
-	cmdBuild := exec.Command("go", "build")
+	args = []string{"build"}
+
+	if output != "" {
+		args = append(args, "-o")
+		args = append(args, output)
+	}
+
+	cmdBuild := exec.Command("go", args...)
 	cmdBuild.Stdin = os.Stdin
 	cmdBuild.Stdout = os.Stdout
 	cmdBuild.Stderr = os.Stderr
