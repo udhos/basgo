@@ -843,11 +843,11 @@ func TestBuild600(t *testing.T) {
 
 func testRange(t *testing.T, low, high int) {
 
-	table := testTable[low:high]
+	for i := low; i < high; i++ {
 
-	for i, data := range table {
+		data := testTable[i]
 
-		t.Logf("testRange [%d:%d]: %d of %d", low, high, i+low, len(testTable))
+		t.Logf("testRange [%d:%d]: %d of %d", low, high, i, len(testTable))
 
 		t.Logf("source: %q\n", data.source)
 
