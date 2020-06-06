@@ -7,7 +7,9 @@
 
 * [Requirements](#requirements)
   * [Version 0\.5 requires GCC](#version-05-requires-gcc)
-  * [Install mingw64 to provide GCC for Windows](#install-mingw64-to-provide-gcc-for-windows)
+  * [Windows](#windows)
+    * [Install git for Windows](#install-git-for-windows)
+    * [Install mingw64 to provide GCC for Windows](#install-mingw64-to-provide-gcc-for-windows)
 * [Install](#install)
   * [Install only the 'basgo\-build' compiler](#install-only-the-basgo-build-compiler)
   * [Full install for development](#full-install-for-development)
@@ -45,7 +47,13 @@ Versions up to 0.4 of 'basgo-build' compiler did not require GCC.
 
 In version 0.5 the experimental support for graphics introduced GCC as requirement.
 
-## Install mingw64 to provide GCC for Windows
+## Windows
+
+### Install git for Windows
+
+https://gitforwindows.org/
+
+### Install mingw64 to provide GCC for Windows
 
 This is a quick recipe on how to install mingw64 on Windows.
 
