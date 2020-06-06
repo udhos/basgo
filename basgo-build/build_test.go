@@ -817,16 +817,28 @@ const sourceGosub = `
 410 return
 `
 
+func TestBuild100(t *testing.T) {
+	testRange(t, 0, 100)
+}
+
 func TestBuild200(t *testing.T) {
-	testRange(t, 0, 200)
+	testRange(t, 100, 200)
+}
+
+func TestBuild300(t *testing.T) {
+	testRange(t, 200, 300)
 }
 
 func TestBuild400(t *testing.T) {
-	testRange(t, 200, 400)
+	testRange(t, 300, 400)
+}
+
+func TestBuild500(t *testing.T) {
+	testRange(t, 400, 500)
 }
 
 func TestBuild600(t *testing.T) {
-	testRange(t, 400, len(testTable))
+	testRange(t, 500, len(testTable))
 }
 
 func testRange(t *testing.T, low, high int) {
