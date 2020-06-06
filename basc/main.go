@@ -172,6 +172,21 @@ func gofmt(output string) error {
 	return cmd.Run()
 }
 
+func gomodinit(dir string) error {
+	_, err := os.Stat("go.mod")
+	if err == nil {
+		log.Printf("%s: build: go.mod exists in dir: %s", me, dir)
+		return nil
+	}
+
+	cmdModInit := exec.Command("go", "mod", "init", dir)
+	cmdModInit.Stdin = os.Stdin
+	cmdModInit.Stdout = os.Stdout
+	cmdModInit.Stderr = os.Stderr
+
+	return cmdModInit.Run()
+}
+
 func buildGo(dir, baslibModule string, getFlags []string, output string) error {
 	log.Printf("%s: build: dir=%s baslibModule=%s output=%s", me, dir, baslibModule, output)
 	log.Printf("%s: build: entering dir=%s", me, dir)
@@ -184,18 +199,18 @@ func buildGo(dir, baslibModule string, getFlags []string, output string) error {
 		return errChdir
 	}
 
-	_, err := os.Stat("go.mod")
-	if os.IsNotExist(err) {
-		cmdModInit := exec.Command("go", "mod", "init", dir)
-		cmdModInit.Stdin = os.Stdin
-		cmdModInit.Stdout = os.Stdout
-		cmdModInit.Stderr = os.Stderr
-		if errModInit := cmdModInit.Run(); errModInit != nil {
-			return errModInit
-		}
-	} else {
-		log.Printf("%s: build: go.mod exists", me)
+	//
+	// go mod init dir
+	//
+
+	errModInit := gomodinit(dir)
+	if errModInit != nil {
+		return errModInit
 	}
+
+	//
+	// go get baslibModule
+	//
 
 	args := []string{"get"}
 	args = append(args, getFlags...)
@@ -208,6 +223,10 @@ func buildGo(dir, baslibModule string, getFlags []string, output string) error {
 	if errGet := cmdGet.Run(); errGet != nil {
 		return errGet
 	}
+
+	//
+	// go build
+	//
 
 	args = []string{"build"}
 
