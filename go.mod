@@ -10,7 +10,7 @@ require (
 	github.com/lucasb-eyer/go-colorful v1.0.3 // indirect
 	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20190728182440-6a916e37a237 // indirect
-	github.com/udhos/baslib/baslib v0.0.0-20200530194440-ad318913150a
+	github.com/udhos/baslib v0.9.0
 	github.com/udhos/inkey v0.0.0-20190226220941-63d5361f87da
 	golang.org/x/sys v0.0.0-20200523222454-059865788121 // indirect
 	golang.org/x/text v0.3.2 // indirect
@@ -22,3 +22,5 @@ require (
 	modernc.org/strutil v1.0.0 // indirect
 	modernc.org/y v1.0.0 // indirect
 )
+
+//replace github.com/udhos/baslib => /home/everton/baslib

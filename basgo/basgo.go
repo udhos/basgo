@@ -20,7 +20,7 @@ const Version = "0.9.0"
 const (
 	//DefaultBaslibModule = "github.com/udhos/baslib/baslib@master"
 	//DefaultBaslibModule = "github.com/udhos/baslib/baslib"
-	DefaultBaslibModule = "github.com/udhos/baslib@v0.8.1"
+	DefaultBaslibModule = "github.com/udhos/baslib@v0.9.0"
 	DefaultBaslibImport = "github.com/udhos/baslib/baslib"
 )
 

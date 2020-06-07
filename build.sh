@@ -15,7 +15,7 @@ build() {
 	#hash golint >/dev/null && golint "$pkg"
 	#hash staticcheck >/dev/null && staticcheck "$pkg"
 
-	go test "$pkg"
+	go test -failfast "$pkg"
 	go install -v "$pkg"
 }
 
@@ -37,7 +37,7 @@ build ./baslib/file
 build ./baslib
 
 msg "PLEASE STAND BY: tests for basgo-build may take some minutes"
-msg "                 for full testing output, stop testing and run the command below:"
-msg "                 go test -test.v ./basgo-build"
+msg "                 for full testing output, run the command below:"
+msg "                 go test -test.v -failfast ./basgo-build"
 build ./basgo-build
 

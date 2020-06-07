@@ -1154,10 +1154,10 @@ func (n *NodeNext) FindUsedVars(options *BuildOptions) {
 		case *NodeExpArray:
 			err := ArraySetUsed(options.Arrays, v.Name, len(v.Indices))
 			if err != nil {
-				log.Printf("NodeFor.FindUsedVars: ArraySetUsed: %s: %v", v.String(), err)
+				log.Printf("NodeNext.FindUsedVars: ArraySetUsed: %s: %v", v.String(), err)
 			}
 		default:
-			log.Printf("NodeFor.FindUsedVars: unexpected %s node: %v", v.String(), i)
+			log.Printf("NodeNext.FindUsedVars: unexpected %s node: %v", v.String(), i)
 		}
 	}
 }
@@ -2706,4 +2706,80 @@ func (n *NodePReset) FindUsedVars(options *BuildOptions) {
 	if n.Color != NodeExp(nil) {
 		n.Color.FindUsedVars(options)
 	}
+}
+
+// NodeMid holds value
+type NodeMid struct {
+	Variable NodeExp
+	Begin    NodeExp
+	Size     NodeExp
+	Value    NodeExp
+}
+
+// Name returns the name of the node
+func (n *NodeMid) Name() string {
+	return "MID$"
+}
+
+// Show displays the node
+func (n *NodeMid) Show(printf FuncPrintf) {
+	printf("[")
+	printf(n.Name())
+	printf(" <")
+	printf(n.Variable.String())
+	printf(">")
+	printf(" <")
+	printf(n.Begin.String())
+	printf(">")
+	printf(" <")
+	if n.Size != NodeExp(nil) {
+		printf(n.Size.String())
+	}
+	printf(">")
+	printf(" <")
+	printf(n.Value.String())
+	printf(">")
+	printf("]")
+}
+
+// Build generates code
+func (n *NodeMid) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+
+	variable := n.Variable.Exp(options)
+
+	begin := forceInt(options, n.Begin)
+
+	size := fmt.Sprintf("(len(%s)-%s+1)", variable, begin)
+	if n.Size != NodeExp(nil) {
+		size = forceInt(options, n.Size)
+	}
+
+	value := n.Value.Exp(options)
+
+	outputf("%s = baslib.MidNew(%s,%s,%s,%s)\n", variable, variable, begin, size, value)
+}
+
+// FindUsedVars finds used vars
+func (n *NodeMid) FindUsedVars(options *BuildOptions) {
+
+	switch v := n.Variable.(type) {
+	case *NodeExpIdent:
+		options.VarSetUsed(v.Value, v.Type(options.TypeTable))
+	case *NodeExpArray:
+		err := ArraySetUsed(options.Arrays, v.Name, len(v.Indices))
+		if err != nil {
+			log.Printf("NodeMid.FindUsedVars: ArraySetUsed: %s: %v", v.String(), err)
+		}
+	default:
+		log.Printf("NodeMid.FindUsedVars: unexpected %s node: %v", v.String(), n.Variable)
+	}
+
+	n.Begin.FindUsedVars(options)
+	if n.Size != NodeExp(nil) {
+		n.Size.FindUsedVars(options)
+	}
+	n.Value.FindUsedVars(options)
 }

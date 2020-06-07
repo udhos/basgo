@@ -25,8 +25,16 @@ github.com/mattn/go-runewidth v0.0.9/go.mod h1:H031xJmbD/WCDINGzjvQ9THkh0rPKHF+m
 github.com/remyoudompheng/bigfft v0.0.0-20190728182440-6a916e37a237 h1:HQagqIiBmr8YXawX/le3+O26N+vPPC1PtjaF3mwnook=
 github.com/remyoudompheng/bigfft v0.0.0-20190728182440-6a916e37a237/go.mod h1:qqbHyh8v60DhA7CoWK5oRCqLrMHRGoxYCSS9EjAz6Eo=
 github.com/udhos/baslib v0.6.0 h1:WwD0LJgEWVpgQb7K8ErHLtxWERtTPCMKFrF2Bi7nqpo=
+github.com/udhos/baslib v0.8.1 h1:gcPBBXB9nc+mRcVQ4sa/con7JT0Rb9aeKxPfJx2qvVo=
+github.com/udhos/baslib v0.8.1/go.mod h1:i2dBz+v4Rtmmyz/0gilfqEiT9SuEfch17ogNnvqI3Fk=
+github.com/udhos/baslib v0.8.2-0.20200607045835-a54f7da9d611 h1:jYPVJq9vrMeA5F1bGrn8W+AH9osEQGM3fqSA4aMYgGw=
+github.com/udhos/baslib v0.8.2-0.20200607045835-a54f7da9d611/go.mod h1:i2dBz+v4Rtmmyz/0gilfqEiT9SuEfch17ogNnvqI3Fk=
+github.com/udhos/baslib v0.9.0 h1:i6rwxATQS9Z9M1jsjAqvt0TDYX7CK+CwmBpwSgzVXNI=
+github.com/udhos/baslib v0.9.0/go.mod h1:i2dBz+v4Rtmmyz/0gilfqEiT9SuEfch17ogNnvqI3Fk=
 github.com/udhos/baslib/baslib v0.0.0-20200530194440-ad318913150a h1:TXfQskgtwVK+op8YtY5PUSXtNNJNBxL5DSsXqZSqQ2k=
 github.com/udhos/baslib/baslib v0.0.0-20200530194440-ad318913150a/go.mod h1:gsE6owqdjSKHaRnmhDnYjZtmMZZMYUwdnak+JuJJfBc=
+github.com/udhos/baslib/baslib v0.7.0 h1:9rfQf8rT2Urp5QszOGnwy7RATWUoR7wiiwMkVMo9pJ4=
+github.com/udhos/baslib/baslib v0.7.0/go.mod h1:gsE6owqdjSKHaRnmhDnYjZtmMZZMYUwdnak+JuJJfBc=
 github.com/udhos/inkey v0.0.0-20190226220941-63d5361f87da h1:53rLrwjce2d2AQ8lEmno7n/qzJUgjrmWcw1he7+Ol9Q=
 github.com/udhos/inkey v0.0.0-20190226220941-63d5361f87da/go.mod h1:Pt290EPuuqWzOTqcenshzuWN0qGij9pU3Fc7OgKakzU=
 golang.org/x/sys v0.0.0-20190626150813-e07cf5db2756 h1:9nuHUbU8dRnRRfj9KjWUVrJeoexdbeMjttk6Oh1rD10=

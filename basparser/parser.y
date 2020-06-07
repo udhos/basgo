@@ -1322,6 +1322,44 @@ stmt: /* empty */
         	Result.Baslib = true
 		$$ = &node.NodeRmdir{Value: str}
 	}
+   | TkKeywordMid TkParLeft one_var TkComma exp TkParRight TkEqual exp
+     {
+       ident := $3
+       e1 := $5
+       e2 := $8
+       if ident.Type(Result.TypeTable) != node.TypeString {
+           yylex.Error("MID$ value must be string variable")
+       }
+       if !node.TypeNumeric(e1.Type(Result.TypeTable)) {
+           yylex.Error("MID$ begin must be numeric")
+       }
+       if e2.Type(Result.TypeTable) != node.TypeString {
+           yylex.Error("MID$ value must be string")
+       }
+       Result.Baslib = true
+       $$ = &node.NodeMid{Variable: ident, Begin: e1, Value: e2}
+     }
+   | TkKeywordMid TkParLeft one_var TkComma exp TkComma exp TkParRight TkEqual exp
+     {
+       ident := $3
+       e1 := $5
+       e2 := $7
+       e3 := $10
+       if ident.Type(Result.TypeTable) != node.TypeString {
+           yylex.Error("MID$ value must be string variable")
+       }
+       if !node.TypeNumeric(e1.Type(Result.TypeTable)) {
+           yylex.Error("MID$ begin must be numeric")
+       }
+       if !node.TypeNumeric(e2.Type(Result.TypeTable)) {
+           yylex.Error("MID$ size must be numeric")
+       }
+       if e3.Type(Result.TypeTable) != node.TypeString {
+           yylex.Error("MID$ value must be string")
+       }
+       Result.Baslib = true
+       $$ = &node.NodeMid{Variable: ident, Begin: e1, Size: e2, Value: e3}
+     }
   ;
 
 expressions_push:

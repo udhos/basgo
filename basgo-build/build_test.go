@@ -119,6 +119,24 @@ var testTable = []buildTest{
 	{`10 ? 1`, "", " 1 \n", OK},     // print
 	{`10 ? 2.2`, "", " 2.2 \n", OK}, // print
 
+	{`10 a$="":mid$("",0,0)="":print a$;`, "", "", WRONG},
+	{`10 a$="":mid$(a$+a$,0,0)="":print a$;`, "", "", WRONG},
+	{`10 a$="":mid$(a,0,0)="":print a;`, "", "", WRONG},
+	{`10 a$="":mid$(a$,0)="":print a$;`, "", "", OK},
+	{`10 a$="":mid$(a$,0,0)="":print a$;`, "", "", OK},
+	{`10 a$="12345":mid$(a$,3)="ab":print a$;`, "", "12ab5", OK},
+	{`10 a$="12345":mid$(a$,3,1)="abc":print a$;`, "", "12a45", OK},
+	{`10 a$="12345":mid$(a$,3)="abc":print a$;`, "", "12abc", OK},
+	{`10 a$="12345":mid$(a$,3)="abcdef":print a$;`, "", "12abc", OK},
+	{`10 a$="12345":mid$(a$,1)="abc":print a$;`, "", "abc45", OK},
+	{`10 a$="12345":mid$(a$,2)="abcdefghi":print a$;`, "", "1abcd", OK},
+	{`10 a$="":mid$(a$,2)="abcdefghi":print a$;`, "", "", OK},
+	{`10 a$="12345":mid$(a$,2)="":print a$;`, "", "12345", OK},
+	{`10 a$="12345":mid$(a$,5,1000)="abcdefghi":print a$;`, "", "1234a", OK},
+	{`10 a$="12345":mid$(a$,1000,1000)="abcdefghi":print a$;`, "", "12345", OK},
+	{`10 a$="12345":mid$(a$,1000)="abcdefghi":print a$;`, "", "12345", OK},
+	{`10 a$(1)="12345":mid$(a$(1),4,1)="abc":print a$(1);`, "", "123a5", OK},
+
 	{`10 print log(1);`, "", " 0 ", OK},
 	{`10 print log(2.718281828459045);`, "", " 1 ", OK},
 	{`10 print log(2.718281828459045^7);`, "", " 7 ", OK},
