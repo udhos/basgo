@@ -28,6 +28,7 @@ const (
 	TkErrInvalid  = iota // Invalid, unexpected token found
 	TkErrLarge    = iota // Large token -- last error
 
+	TkQuestion     = iota // Question ?
 	TkHash         = iota // Colon #
 	TkColon        = iota // Colon :
 	TkComma        = iota // Comma ,
@@ -323,6 +324,7 @@ var tabType = []string{
 	"ERROR-INVALID",
 	"ERROR-LARGE",
 
+	"QUESTION",
 	"HASH",
 	"COLON",
 	"COMMA",

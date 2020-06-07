@@ -102,6 +102,7 @@ import (
 %token <tok> TkErrInvalid
 %token <tok> TkErrLarge
 
+%token <tok> TkQuestion
 %token <tok> TkHash
 %token <tok> TkColon
 %token <tok> TkComma
@@ -342,6 +343,8 @@ stmt_goto: use_line_number
 then_or_goto: TkKeywordThen
            | TkKeywordGoto
            ;
+
+print: TkKeywordPrint | TkQuestion ;
 
 one_dim: TkIdentifier bracket_left const_list_num_noneg bracket_right
 	{
@@ -692,7 +695,7 @@ stmt: /* empty */
        }
        $$ = &node.NodeClose{Numbers: list}
      }
-  | TkKeywordPrint TkHash exp TkComma expressions_push printfile_expressions expressions_pop semicolon_optional
+  | print TkHash exp TkComma expressions_push printfile_expressions expressions_pop semicolon_optional
      {
        num := $3
        list := $6
@@ -948,22 +951,22 @@ stmt: /* empty */
         Result.Baslib = true
         $$ = &node.NodeOpen{File:filename, Number:num, Mode:m}
      }
-  | TkKeywordPrint
+  | print
      {
         Result.Baslib = true
         $$ = &node.NodePrint{Newline: true}
      }
-  | TkKeywordPrint expressions_push print_expressions expressions_pop
+  | print expressions_push print_expressions expressions_pop
      {
         Result.Baslib = true
         $$ = &node.NodePrint{Expressions: $3, Newline: true}
      }
-  | TkKeywordPrint expressions_push print_expressions TkSemicolon expressions_pop
+  | print expressions_push print_expressions TkSemicolon expressions_pop
      {
         Result.Baslib = true
         $$ = &node.NodePrint{Expressions: $3}
      }
-  | TkKeywordPrint expressions_push print_expressions TkComma expressions_pop
+  | print expressions_push print_expressions TkComma expressions_pop
      {
         Result.Baslib = true
         $$ = &node.NodePrint{Expressions: $3, Tab: true}
@@ -1230,12 +1233,12 @@ stmt: /* empty */
 		$$ = &node.NodeScreen{Mode: mode}
 	}
   | TkKeywordSound exp TkComma exp { $$ = unsupportedEmpty("SOUND") }
-  | TkKeywordView TkKeywordPrint
+  | TkKeywordView print
 	{
         	Result.Baslib = true
 		$$ = &node.NodeViewPrint{}
 	}
-  | TkKeywordView TkKeywordPrint exp TkKeywordTo exp
+  | TkKeywordView print exp TkKeywordTo exp
 	{
 		top := $3
 		bottom := $5

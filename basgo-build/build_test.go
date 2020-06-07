@@ -115,6 +115,10 @@ var testTable = []buildTest{
 	{"ugh", "", "", WRONG},            // invalid program
 	{`10 print "ab"`, "", "ab\n", OK}, // minimum program
 
+	{`10 ? "?"`, "", "?\n", OK},     // print
+	{`10 ? 1`, "", " 1 \n", OK},     // print
+	{`10 ? 2.2`, "", " 2.2 \n", OK}, // print
+
 	{`10 print log(1);`, "", " 0 ", OK},
 	{`10 print log(2.718281828459045);`, "", " 1 ", OK},
 	{`10 print log(2.718281828459045^7);`, "", " 7 ", OK},

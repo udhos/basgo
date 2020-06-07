@@ -263,6 +263,8 @@ func matchBlank(l *Lex, b byte) Token {
 		return l.saveLocationValue(Token{ID: TkPow, Value: "^"})
 	case b == '\\':
 		return l.saveLocationValue(Token{ID: TkBackSlash, Value: "\\"})
+	case b == '?':
+		return l.saveLocationValue(Token{ID: TkQuestion, Value: "?"})
 	case b == '#':
 		return l.saveLocationValue(Token{ID: TkHash, Value: "#"})
 	case b == ':':
