@@ -136,6 +136,8 @@ var testTable = []buildTest{
 	{`10 a$="12345":mid$(a$,1000,1000)="abcdefghi":print a$;`, "", "12345", OK},
 	{`10 a$="12345":mid$(a$,1000)="abcdefghi":print a$;`, "", "12345", OK},
 	{`10 a$(1)="12345":mid$(a$(1),4,1)="abc":print a$(1);`, "", "123a5", OK},
+	{`10 a$="12345":mid$(a$,-10)="abc":print a$;`, "", "abc45", OK},
+	{`10 a$="12345":mid$(a$,-2)="abc":print a$;`, "", "abc45", OK},
 
 	{`10 print log(1);`, "", " 0 ", OK},
 	{`10 print log(2.718281828459045);`, "", " 1 ", OK},

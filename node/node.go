@@ -2752,7 +2752,7 @@ func (n *NodeMid) Build(options *BuildOptions, outputf FuncPrintf) {
 
 	begin := forceInt(options, n.Begin)
 
-	size := fmt.Sprintf("(len(%s)-%s+1)", variable, begin)
+	size := fmt.Sprintf("(len(%s)-(%s)+1)", variable, begin)
 	if n.Size != NodeExp(nil) {
 		size = forceInt(options, n.Size)
 	}
