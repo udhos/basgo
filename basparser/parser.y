@@ -1328,7 +1328,7 @@ stmt: /* empty */
        e1 := $5
        e2 := $8
        if ident.Type(Result.TypeTable) != node.TypeString {
-           yylex.Error("MID$ value must be string variable")
+           yylex.Error("MID$ requires string variable")
        }
        if !node.TypeNumeric(e1.Type(Result.TypeTable)) {
            yylex.Error("MID$ begin must be numeric")
@@ -1346,7 +1346,7 @@ stmt: /* empty */
        e2 := $7
        e3 := $10
        if ident.Type(Result.TypeTable) != node.TypeString {
-           yylex.Error("MID$ value must be string variable")
+           yylex.Error("MID$ requires string variable")
        }
        if !node.TypeNumeric(e1.Type(Result.TypeTable)) {
            yylex.Error("MID$ begin must be numeric")
