@@ -119,6 +119,14 @@ var testTable = []buildTest{
 	{`10 ? 1`, "", " 1 \n", OK},     // print
 	{`10 ? 2.2`, "", " 2.2 \n", OK}, // print
 
+	// open "i",1,"file"
+	{`10 a$="/tmp/x":open "o",1,a$:print#1,"xyz";:close:open "a",1,a$:print#1,"abc";:close:open "i",1,a$:print input$(6,#1);`, "", "xyzabc", OK},
+	{`10 a$="/tmp/x":b$="/tmp/y":open "o",1,a$:print#1,"xyz":close:kill b$:name a$ as b$:open "i",1,b$:print input$(3,#1);`, "", "xyz", OK},
+	{`10 a$="/tmp/x":open "o",1,a$:print#1,"xyz":close:open "i",1,a$:print lof(1);`, "", " 4 ", OK},
+	{`10 a$="/tmp/x":open "o",1,a$:print#1,"xyz":close:kill a$:open "i",1,a$:print input$(2,#1);`, "", "", OK},
+	{`10 a$="/tmp/x":open "o",1,a$:print#1,"xyz":close:open "i",1,a$:print input$(2,#1);`, "", "xy", OK},
+	{`10 a$="/tmp/x":open "o",1,a$:print#1,"a":print#1,"b":close:open "i",1,a$:input#1,x$,y$:print x$;"-";y$;`, "", "a-b", OK},
+
 	{`10 a$="":mid$("",0,0)="":print a$;`, "", "", WRONG},
 	{`10 a$="":mid$(a$+a$,0,0)="":print a$;`, "", "", WRONG},
 	{`10 a$="":mid$(a,0,0)="":print a;`, "", "", WRONG},

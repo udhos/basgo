@@ -31,6 +31,8 @@ github.com/udhos/baslib v0.8.2-0.20200607045835-a54f7da9d611 h1:jYPVJq9vrMeA5F1b
 github.com/udhos/baslib v0.8.2-0.20200607045835-a54f7da9d611/go.mod h1:i2dBz+v4Rtmmyz/0gilfqEiT9SuEfch17ogNnvqI3Fk=
 github.com/udhos/baslib v0.9.0 h1:i6rwxATQS9Z9M1jsjAqvt0TDYX7CK+CwmBpwSgzVXNI=
 github.com/udhos/baslib v0.9.0/go.mod h1:i2dBz+v4Rtmmyz/0gilfqEiT9SuEfch17ogNnvqI3Fk=
+github.com/udhos/baslib v0.10.0 h1:YXKgEsfCtnD+D3vOaFI1Q7VpKIvyp/6/fXUKl7ohWwE=
+github.com/udhos/baslib v0.10.0/go.mod h1:i2dBz+v4Rtmmyz/0gilfqEiT9SuEfch17ogNnvqI3Fk=
 github.com/udhos/baslib/baslib v0.0.0-20200530194440-ad318913150a h1:TXfQskgtwVK+op8YtY5PUSXtNNJNBxL5DSsXqZSqQ2k=
 github.com/udhos/baslib/baslib v0.0.0-20200530194440-ad318913150a/go.mod h1:gsE6owqdjSKHaRnmhDnYjZtmMZZMYUwdnak+JuJJfBc=
 github.com/udhos/baslib/baslib v0.7.0 h1:9rfQf8rT2Urp5QszOGnwy7RATWUoR7wiiwMkVMo9pJ4=

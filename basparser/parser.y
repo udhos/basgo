@@ -901,7 +901,27 @@ stmt: /* empty */
 		}
 		$$ = &node.NodeName{From:e1, To:e2}
 	}
-  | TkKeywordOpen exp TkKeywordFor TkKeywordInput TkIdentifier file_num
+  | TkKeywordOpen exp TkComma file_num TkComma exp
+     {
+	// OPEN "i",1,"think.ini"
+        mode :=  $2
+	num := $4
+	filename := $6
+
+	if mode.Type(Result.TypeTable) != node.TypeString {
+           yylex.Error("OPEN mode must be string")
+	}
+	if !node.TypeNumeric(num.Type(Result.TypeTable)) {
+           yylex.Error("OPEN file number must be numeric")
+	}
+	if filename.Type(Result.TypeTable) != node.TypeString {
+           yylex.Error("OPEN filename must be string")
+	}
+
+        Result.Baslib = true
+        $$ = &node.NodeOpenShort{File:filename, Number:num, Mode:mode}
+     }
+| TkKeywordOpen exp TkKeywordFor TkKeywordInput TkIdentifier file_num
      {
         // OPEN "arq" FOR INPUT AS 1
 	filename := $2

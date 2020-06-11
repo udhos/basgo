@@ -1948,6 +1948,41 @@ func (n *NodeOpen) FindUsedVars(options *BuildOptions) {
 	n.Number.FindUsedVars(options)
 }
 
+// NodeOpenShort is open
+type NodeOpenShort struct {
+	File   NodeExp
+	Number NodeExp
+	Mode   NodeExp
+}
+
+// Name returns the name of the node
+func (n *NodeOpenShort) Name() string {
+	return "OPEN"
+}
+
+// Show displays the node
+func (n *NodeOpenShort) Show(printf FuncPrintf) {
+	printf("[" + n.Name() + " ")
+	printf(n.File.String())
+	printf("]")
+}
+
+// Build generates code
+func (n *NodeOpenShort) Build(options *BuildOptions, outputf FuncPrintf) {
+	outputf("// ")
+	n.Show(outputf)
+	outputf("\n")
+
+	outputf("baslib.OpenShort(%s,%s,%s)\n", n.File.Exp(options), n.Number.Exp(options), n.Mode.Exp(options))
+}
+
+// FindUsedVars finds used vars
+func (n *NodeOpenShort) FindUsedVars(options *BuildOptions) {
+	n.File.FindUsedVars(options)
+	n.Number.FindUsedVars(options)
+	n.Mode.FindUsedVars(options)
+}
+
 // NodeClose is close
 type NodeClose struct {
 	Label   string
