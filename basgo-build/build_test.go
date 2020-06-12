@@ -870,7 +870,11 @@ func TestBuild500(t *testing.T) {
 }
 
 func TestBuild600(t *testing.T) {
-	testRange(t, 500, len(testTable))
+	testRange(t, 500, 600)
+}
+
+func TestBuild700(t *testing.T) {
+	testRange(t, 600, len(testTable))
 }
 
 func testRange(t *testing.T, low, high int) {
