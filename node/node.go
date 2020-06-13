@@ -2787,14 +2787,14 @@ func (n *NodeMid) Build(options *BuildOptions, outputf FuncPrintf) {
 
 	begin := forceInt(options, n.Begin)
 
-	size := fmt.Sprintf("(len(%s)-(%s)+1)", variable, begin)
-	if n.Size != NodeExp(nil) {
-		size = forceInt(options, n.Size)
-	}
-
 	value := n.Value.Exp(options)
 
-	outputf("%s = baslib.MidNew(%s,%s,%s,%s)\n", variable, variable, begin, size, value)
+	if n.Size != NodeExp(nil) {
+		outputf("%s = baslib.MidNewSize(%s,%s,%s,%s)\n", variable, variable, begin, n.Size.Exp(options), value)
+		return
+	}
+
+	outputf("%s = baslib.MidNew(%s,%s,%s)\n", variable, variable, begin, value)
 }
 
 // FindUsedVars finds used vars
