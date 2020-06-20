@@ -50,10 +50,8 @@ func main() {
 	arg0 := args[0]
 	arg0base := filepath.Base(arg0)
 
-	baseName = strings.TrimSuffix(arg0base, ".bas")
-	if baseName == arg0base {
-		log.Fatalf("%s: please input a filename with suffix .bas: %s", me, arg0)
-	}
+	baseName = removeSuffixBas(arg0base)
+
 	log.Printf("%s: basename: %s", me, baseName)
 	if errMkDir := mkDir(baseName); errMkDir != nil {
 		log.Fatalf("%s: %v", me, errMkDir)
@@ -97,6 +95,19 @@ func main() {
 		output = filepath.Join(baseName, output)
 	}
 	log.Printf("%s: output: %s", me, output)
+}
+
+func removeSuffixBas(s string) string {
+	size := len(s)
+	if size < 5 {
+		log.Fatalf("%s: please input a filename with suffix .bas: %s", me, s)
+	}
+	suffixBegin := size - 4
+	suffix := s[suffixBegin:]
+	if strings.ToLower(suffix) != ".bas" {
+		log.Fatalf("%s: please input a filename with suffix .bas: %s", me, s)
+	}
+	return s[:suffixBegin]
 }
 
 func mkDir(output string) error {
