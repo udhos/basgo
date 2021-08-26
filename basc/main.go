@@ -236,10 +236,10 @@ func buildGo(dir, baslibModule string, getFlags []string, output string) error {
 	}
 
 	//
-	// go get
+	// go mod tidy
 	//
 
-	args = []string{"get"}
+	args = []string{"mod", "tidy"}
 	cmdGet = exec.Command("go", args...)
 	cmdGet.Stdin = os.Stdin
 	cmdGet.Stdout = os.Stdout
