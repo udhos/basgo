@@ -20,7 +20,7 @@ func main() {
 
 	var baslibModule string
 	var baslibImport string
-	var getFlags string
+	getFlags := "-d"
 	var basgoBuildCommand string
 	var output string
 
@@ -220,7 +220,7 @@ func buildGo(dir, baslibModule string, getFlags []string, output string) error {
 	}
 
 	//
-	// go get baslibModule
+	// go get -d baslibModule
 	//
 
 	args := []string{"get"}
@@ -228,6 +228,19 @@ func buildGo(dir, baslibModule string, getFlags []string, output string) error {
 	args = append(args, baslibModule)
 
 	cmdGet := exec.Command("go", args...)
+	cmdGet.Stdin = os.Stdin
+	cmdGet.Stdout = os.Stdout
+	cmdGet.Stderr = os.Stderr
+	if errGet := cmdGet.Run(); errGet != nil {
+		return errGet
+	}
+
+	//
+	// go get
+	//
+
+	args = []string{"get"}
+	cmdGet = exec.Command("go", args...)
 	cmdGet.Stdin = os.Stdin
 	cmdGet.Stdout = os.Stdout
 	cmdGet.Stderr = os.Stderr
