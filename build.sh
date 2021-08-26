@@ -20,9 +20,9 @@ build() {
 }
 
 #go get golang.org/x/tools/cmd/goyacc
-go get modernc.org/goyacc          ;# supports %precedence
+go get -d modernc.org/goyacc  ;# supports %precedence
 #goyacc -o ./basparser/parser.go -p Input ./basparser/parser.y
-go generate ./basparser ;# see ./basparser/generate.go
+go generate ./basparser       ;# see ./basparser/generate.go
 
 build ./basc
 build ./baslex

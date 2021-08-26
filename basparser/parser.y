@@ -2563,4 +2563,3 @@ exp: one_const_noneg { $$ = $1 }
 %%
 
 // footer of parser.y -- see lex.go and misc.go
-
