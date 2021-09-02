@@ -4,6 +4,10 @@
 
 ## Install 7-zip
 
+You will need 7-zip to extract mingw64 files in the next step.
+
+If you have another archiving software that can extract .7z files, you can skip this step.
+
 Install 7-zip from https://www.7-zip.org/
 
 ## Install mingw64
