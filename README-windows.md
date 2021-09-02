@@ -38,6 +38,15 @@ If you have git in the system, skip this one.
 
 Install Git Bash from https://gitforwindows.org/
 
+Test it with `git version`:
+
+```
+C:\Users\evert>git version
+git version 2.33.0.windows.2
+
+C:\Users\evert>
+```
+
 ## Install Golang
 
 Install Golang from https://golang.org/dl/
