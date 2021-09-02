@@ -20,7 +20,7 @@ https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win64
 
 - Add c:\mingw64\bin to the environment variable PATH
 
-- If the installation is find, you should be able to test it with `gcc --version`
+- If the installation is fine, you should be able to test it with `gcc --version`
 
 ```
 C:\Users\evert>gcc --version
