@@ -34,6 +34,8 @@ C:\Users\evert>
 
 ## Install Git Bash
 
+If you have git in the system, skip this one.
+
 Install Git Bash from https://gitforwindows.org/
 
 ## Install Golang
