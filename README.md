@@ -49,6 +49,8 @@ In version 0.5 the experimental support for graphics introduced GCC as requireme
 
 ## Windows
 
+If you want to run the basgo compiler on Windows, see the file [README-windows.md](https://github.com/udhos/basgo/blob/master/README-windows.md).
+
 ### Install git for Windows
 
 https://gitforwindows.org/
