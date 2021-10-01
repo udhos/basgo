@@ -88,9 +88,12 @@ https://github.com/udhos/basgo/releases
 
 The recipe below will install 'basgo-build' under "~/go/bin".
 
+    # if you don't have goyacc yet
+    go get -d modernc.org/goyacc  ;# if Go < 1.17
+    go install modernc.org/goyacc ;# if Go >= 1.17
+
     git clone https://github.com/udhos/basgo
     cd basgo
-    go get -d modernc.org/goyacc
     go generate ./basparser
     go install ./basgo-build
 
