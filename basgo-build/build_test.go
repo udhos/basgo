@@ -817,7 +817,7 @@ var testTable = []buildTest{
 	{`10 print "a"+string$(2,32)+"b";`, "", "a  b", OK},
 
 	{`10 print chr$(32);`, "", " ", OK},
-	{`10 print chr$(0);`, "", string(0), OK},
+	{`10 print chr$(0);`, "", string(byte(0)), OK},
 
 	{`10 print asc(" ");`, "", " 32 ", OK},
 	{`10 print asc(" a");`, "", " 32 ", OK},
