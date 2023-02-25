@@ -15,7 +15,7 @@ import (
 )
 
 // Version reports basgo version
-const Version = "0.11.0"
+const Version = "0.12.0"
 
 const (
 	//DefaultBaslibModule = "github.com/udhos/baslib/baslib@master"
