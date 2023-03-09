@@ -205,6 +205,8 @@ https://github.com/robhagemans/pcbasic - GW-BASIC emulator
 
 https://github.com/skx/gobasic/ - BASIC interpreter in Golang
 
+https://github.com/navionguy/basicwasm - Web UI for GWBasic programs compiled to wasm
+
 # 2D Graphics Packages
 
 https://github.com/fyne-io/fyne - UI toolkit
