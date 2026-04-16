@@ -36,6 +36,8 @@ go install modernc.org/goyacc@latest ;# supports %precedence
 #goyacc -o ./basparser/parser.go -p Input ./basparser/parser.y
 go generate ./basparser       ;# see ./basparser/generate.go
 
+patch -p0 < patch/01.patch
+
 go test -failfast ./...
 
 #go env -w CGO_ENABLED=0
