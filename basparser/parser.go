@@ -2,19 +2,17 @@
 
 package basparser
 
-import __yyfmt__ "fmt"
-
-// header of parser.y -- see lex.go and misc.go
-
 import (
 	"fmt"
-	//"log"
+	__yyfmt__ "fmt"
 	"strconv"
 	"strings"
 
 	"github.com/udhos/basgo/node"
 	"github.com/udhos/baslib/baslib/file"
-)
+) // header of parser.y -- see lex.go and misc.go
+
+//"log"
 
 type InputSymType struct {
 	yys          int
