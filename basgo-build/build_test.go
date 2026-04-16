@@ -894,12 +894,12 @@ func testRange(t *testing.T, low, high int) {
 			return
 		}
 
-		printf := func(format string, v ...interface{}) (int, error) {
+		printf := func(format string, v ...any) (int, error) {
 			s := fmt.Sprintf(format, v...)
 			_, err := w.Write([]byte(s))
 			if err != nil {
 				msg := fmt.Errorf("TestBuild printf: %v", err)
-				t.Errorf(msg.Error())
+				t.Error(msg.Error())
 				return 0, msg
 			}
 			return 0, nil

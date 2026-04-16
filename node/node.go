@@ -3,6 +3,8 @@ package node
 import (
 	"fmt"
 	"log"
+	"maps"
+
 	//"bufio"
 	"strconv"
 	"strings"
@@ -42,7 +44,7 @@ func (a ByLineNumber) Less(i, j int) bool {
 }
 
 // FuncPrintf is func type for printf
-type FuncPrintf func(format string, v ...interface{}) (int, error)
+type FuncPrintf func(format string, v ...any) (int, error)
 
 type ArraySymbol struct {
 	UsedDimensions     int      // used
@@ -53,20 +55,20 @@ func (a ArraySymbol) ArrayType(table []int, name string) string {
 	t := VarType(table, name)
 	tt := TypeName(name, t)
 
-	var indices string
+	var indices strings.Builder
 
 	declared := len(a.DeclaredDimensions)
 	if declared > 0 {
 		for _, d := range a.DeclaredDimensions {
-			indices += "[" + d + "+1]"
+			indices.WriteString("[" + d + "+1]")
 		}
 	} else {
 		for i := 0; i < a.UsedDimensions; i++ {
-			indices += "[11]"
+			indices.WriteString("[11]")
 		}
 	}
 
-	arrayType := indices + tt
+	arrayType := indices.String() + tt
 
 	return arrayType
 }
@@ -692,14 +694,10 @@ func (n *NodeDefFn) FindUsedVars(options *BuildOptions) {
 
 	// return used vars
 
-	for k, v := range tmp.Vars {
-		options.Vars[k] = v
-		//log.Printf("NodeDefFn.FindUsedVar: used var: %s/%s/%s", v.Name, k, TypeLabel(v.Type))
-	}
+	//log.Printf("NodeDefFn.FindUsedVar: used var: %s/%s/%s", v.Name, k, TypeLabel(v.Type))
+	maps.Copy(options.Vars, tmp.Vars)
 
-	for k, v := range tmp.Arrays {
-		options.Arrays[k] = v
-	}
+	maps.Copy(options.Arrays, tmp.Arrays)
 }
 
 // NodeDim is dim
@@ -731,7 +729,7 @@ func (n *NodeDim) Build(options *BuildOptions, outputf FuncPrintf) {
 		arrayExp, isArray := e.(*NodeExpArray)
 		if !isArray {
 			msg := fmt.Sprintf("NodeDim.Build: unexpected non-array: %v %s", e, e.String())
-			log.Printf(msg)
+			log.Print(msg)
 			outputf("// %s\n", msg)
 			continue
 		}
@@ -739,7 +737,7 @@ func (n *NodeDim) Build(options *BuildOptions, outputf FuncPrintf) {
 		arr, found := options.Arrays[strings.ToLower(v)]
 		if !found {
 			msg := fmt.Sprintf("NodeDim.Build: array not found: %s", v)
-			log.Printf(msg)
+			log.Print(msg)
 			outputf("// %s\n", msg)
 			continue
 		}
@@ -784,7 +782,7 @@ func (n *NodeErase) Build(options *BuildOptions, outputf FuncPrintf) {
 		arr, found := options.Arrays[strings.ToLower(v)]
 		if !found {
 			msg := fmt.Sprintf("NodeErase.Build: array not found: '%s'", v)
-			log.Printf(msg)
+			log.Print(msg)
 			outputf("// %s\n", msg)
 			continue
 		}
@@ -1501,7 +1499,7 @@ func (n *NodeRead) Build(options *BuildOptions, outputf FuncPrintf) {
 			code = fmt.Sprintf(`%s = baslib.ReadDataFloat(readData, "%s")`, vv, vv)
 		default:
 			msg := fmt.Sprintf("NodeRead.Build: unsupported var %s type: %d", v, t)
-			log.Printf(msg)
+			log.Print(msg)
 			code = fmt.Sprintf("println(%s)\n", msg)
 		}
 

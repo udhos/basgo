@@ -179,21 +179,23 @@ func (e *NodeExpArray) Type(table []int) int {
 
 // String returns value
 func (e *NodeExpArray) String() string {
-	str := e.Name + "(" + e.Indices[0].String()
+	var str strings.Builder
+	str.WriteString(e.Name + "(" + e.Indices[0].String())
 	for i := 1; i < len(e.Indices); i++ {
-		str += "," + e.Indices[i].String()
+		str.WriteString("," + e.Indices[i].String())
 	}
-	str += ")"
-	return str
+	str.WriteString(")")
+	return str.String()
 }
 
 // Exp returns value
 func (e *NodeExpArray) Exp(options *BuildOptions) string {
-	str := RenameArray(options.TypeTable, e.Name)
+	var str strings.Builder
+	str.WriteString(RenameArray(options.TypeTable, e.Name))
 	for _, i := range e.Indices {
-		str += "[" + forceInt(options, i) + "]"
+		str.WriteString("[" + forceInt(options, i) + "]")
 	}
-	return str
+	return str.String()
 }
 
 // FindUsedVars finds used vars
@@ -1620,15 +1622,16 @@ func (e *NodeExpFuncCall) String() string {
 // Exp returns value
 func (e *NodeExpFuncCall) Exp(options *BuildOptions) string {
 	name := RenameFunc(options.TypeTable, e.Name)
-	call := name + "("
+	var call strings.Builder
+	call.WriteString(name + "(")
 	if len(e.Parameters) > 0 {
-		call += e.Parameters[0].Exp(options)
+		call.WriteString(e.Parameters[0].Exp(options))
 		for i := 1; i < len(e.Parameters); i++ {
-			call += "," + e.Parameters[i].Exp(options)
+			call.WriteString("," + e.Parameters[i].Exp(options))
 		}
 	}
-	call += ") /* <-- call DEF FN func */ "
-	return call
+	call.WriteString(") /* <-- call DEF FN func */ ")
+	return call.String()
 }
 
 // FindUsedVars finds used vars
@@ -1669,16 +1672,17 @@ func RemoveSigil(s string) string {
 // Exp returns value
 func (e *NodeExpGofunc) Exp(options *BuildOptions) string {
 
-	call := RemoveSigil(e.Name.Value) + "("
+	var call strings.Builder
+	call.WriteString(RemoveSigil(e.Name.Value) + "(")
 	if len(e.Arguments) > 0 {
-		call += e.Arguments[0].Exp(options)
+		call.WriteString(e.Arguments[0].Exp(options))
 		for i := 1; i < len(e.Arguments); i++ {
-			call += "," + e.Arguments[i].Exp(options)
+			call.WriteString("," + e.Arguments[i].Exp(options))
 		}
 	}
-	call += ") /* <-- _GOFUNC */ "
+	call.WriteString(") /* <-- _GOFUNC */ ")
 
-	return call
+	return call.String()
 }
 
 // FindUsedVars finds used vars

@@ -20,7 +20,7 @@ const Version = "0.12.0"
 const (
 	//DefaultBaslibModule = "github.com/udhos/baslib/baslib@master"
 	//DefaultBaslibModule = "github.com/udhos/baslib/baslib"
-	DefaultBaslibModule = "github.com/udhos/baslib@v0.11.0"
+	DefaultBaslibModule = "github.com/udhos/baslib@v0.13.0"
 	DefaultBaslibImport = "github.com/udhos/baslib/baslib"
 )
 
@@ -52,7 +52,7 @@ func (b *Basgo) REPL() (errCount int) {
 	r := bufio.NewReader(b.In)
 	w := bufio.NewWriter(b.Out)
 
-	printf := func(format string, v ...interface{}) (int, error) {
+	printf := func(format string, v ...any) (int, error) {
 		s := fmt.Sprintf(format, v...)
 		_, err := w.Write([]byte(s))
 		if err != nil {
@@ -213,7 +213,7 @@ func (b *Basgo) execStatement(printf funcPrintf, stmt node.Node) (stop bool) {
 	return
 }
 
-func (b *Basgo) printf(format string, v ...interface{}) (int, error) {
+func (b *Basgo) printf(format string, v ...any) (int, error) {
 	b.write(fmt.Sprintf(format, v...))
 	return 0, nil
 }

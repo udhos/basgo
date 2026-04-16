@@ -55,7 +55,7 @@ func (l *InputLex) Lex(lval *InputSymType) int {
 	if l.debug {
 		//log.Printf("InputLex.Lex: %s [%s] basicLine=%s line=%d col=%d offset=%d\n", t.Type(), t.Value, lastLineNum, l.lex.Line(), l.lex.Column(), l.lex.Offset())
 		s := baslex.TokenString("InputLex.Lex", t, l.lex.Offset())
-		log.Printf(s + " basicLine=" + lastLineNum)
+		log.Print(s + " basicLine=" + lastLineNum)
 	}
 
 	// need to store values only for some terminals

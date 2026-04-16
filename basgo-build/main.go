@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"maps"
 	"os"
 	//"runtime"
 	"sort"
@@ -144,7 +145,7 @@ func main() {
 
 	buf := bytes.Buffer{}
 
-	funcGen := func(format string, v ...interface{}) (int, error) {
+	funcGen := func(format string, v ...any) (int, error) {
 		s := fmt.Sprintf(format, v...)
 		return buf.WriteString(s)
 	}
@@ -156,9 +157,7 @@ func main() {
 	outputf(header)
 
 	// Copy headers from options into result imports
-	for h, v := range options.Headers {
-		result.Imports[h] = v
-	}
+	maps.Copy(result.Imports, options.Headers)
 
 	writeImport(result.Imports, outputf)
 
