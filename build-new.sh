@@ -40,6 +40,6 @@ go test -failfast ./...
 
 #go env -w CGO_ENABLED=0
 
-go install ./...
+go install ./cmd/*
 
 go env -u CGO_ENABLED
